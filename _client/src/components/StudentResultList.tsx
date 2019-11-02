@@ -129,15 +129,16 @@ export class StudentResultList extends React.Component<any, StudentResultListSta
     private columns(): Column[] {
         return [
             {
-                Header: () => "attempt",
+                Header: () => "#",
                 accessor: nameof<ICcData>(i => i.attempt),
-                maxWidth: 50,
+                maxWidth: 70,
                 Filter: (params: { column: Column, filter: any, onChange: ReactTableFunction, key?: string }) =>
                     <select onChange={event => params.onChange(event.target.value)} style={{ width: "100%" }}
                         value={params.filter ? params.filter.value : "all"}>
-                        <option value="all">Show All</option>
-                        <option value="1">1</option>
-                        <option value="5">5</option>
+                        <option value="all">∞</option>
+                        <option value="1">(1) The best solution from each student</option>
+                        <option value="3">(3) Top 3 solutions from each student</option>
+                        <option value="5">(5) Top 5 solutions from each student</option>
                     </select>
             },
             {

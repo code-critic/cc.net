@@ -8,4 +8,5 @@
   background: #f5d0d0 !important; }
 
 .ReactTable .rt-tbody .rt-td.selected {
-  background: repeating-linear-gradient(-180deg, rgba(0, 100, 100, 0.2) 0, rgba(0, 100, 100, 0.2) 2px, rgba(0, 255, 255, 0.2) 4px, rgba(0, 255, 255, 0.2) 6px); }
+  background: repeating-linear-gradient(-55deg, rgba(0, 100, 100, 0.1) 0, rgba(0, 100, 100, 0.1) 2px, rgba(0, 255, 255, 0.1) 4px, rgba(0, 255, 255, 0.1) 6px);
+  box-shadow: inset 0px 0px 5px 0px #17a2b8; }

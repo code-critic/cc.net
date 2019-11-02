@@ -54,25 +54,84 @@ namespace CC.Net.Controllers
             options.Limit = request.pageSize;
             options.Skip = request.page * request.pageSize;
 
-            var match = new BsonDocument("$match", QueryUtils.Parse(request.filtered));
+            var matchBody = QueryUtils.Parse(
+                request.filtered,
+                new ParseUtilType
+                {
+                    Id = nameof(CcData.attempt),
+                    Parser = f => null,
+                }
+            );
+            var match = new BsonDocument("$match", matchBody);
+
             var sort = new BsonDocument("$sort", QueryUtils.Parse(
                 request.sorted.Length == 0
                 ? new TableRequestSort[] { new TableRequestSort() { id = "id.timestamp", desc = true } }
                 : request.sorted
             ));
-            
-            var data = _dbService.Data.Aggregate<CcData>(new BsonDocument[] {
-                    match,
-                    sort,
-                    new BsonDocument("$skip", request.page * request.pageSize),
-                    new BsonDocument("$limit", request.pageSize),
-                }).ToEnumerable();
 
-            return new TableResponse
+            var pipeline = new List<BsonDocument>() { match, sort };
+
+            var attempt = request.filtered.FirstOrDefault(i => i.id == nameof(CcData.attempt) && i.value != "all");
+            if (attempt != null)
             {
-                count = _dbService.Data.Find(QueryUtils.Parse(request.filtered)).CountDocuments(),
-                data = data,
-            };
+                pipeline.Add(new BsonDocument("$sort",
+                    BsonDocument.Parse(@"
+                        {
+                            ""result.score"": -1,
+                        }")
+                    )
+                );
+                pipeline.Add(new BsonDocument("$group",
+                    BsonDocument.Parse(@"
+                        {
+                            ""_id"": ""$user"",
+                            ""results"": {""$push"": ""$$ROOT""}
+                        }")
+                    )
+                );
+                pipeline.Add(new BsonDocument("$unwind", BsonDocument.Parse(@"
+                        {
+                            ""path"": ""$results"",
+                            ""includeArrayIndex"": ""grp""
+                        }")
+                    )
+                );
+                pipeline.Add(new BsonDocument("$match",
+                    new BsonDocument("grp",
+                        new BsonDocument("$lt", int.Parse(attempt.value)))
+                    )
+                );
+                pipeline.Add(new BsonDocument("$replaceRoot",
+                    BsonDocument.Parse(@"
+                        {
+                            ""newRoot"": ""$results""    
+                        }")
+                    )
+                );
+            }
+
+            pipeline.Add(new BsonDocument("$skip", request.page * request.pageSize));
+            pipeline.Add(new BsonDocument("$limit", request.pageSize));
+
+            if (attempt != null)
+            {
+                var data = _dbService.Data.Aggregate<CcData>(pipeline.ToArray()).ToEnumerable();
+                return new TableResponse
+                {
+                    count = _dbService.Data.Find(matchBody).CountDocuments(),
+                    data = data,
+                };
+            }
+            else
+            {
+                var data = _dbService.Data.Aggregate<CcData>(pipeline.ToArray()).ToEnumerable();
+                return new TableResponse
+                {
+                    count = _dbService.Data.Find(matchBody).CountDocuments(),
+                    data = data,
+                };
+            }
         }
     }
 }

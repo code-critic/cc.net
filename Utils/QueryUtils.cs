@@ -5,15 +5,23 @@ using MongoDB.Bson;
 
 namespace CC.Net.Utils
 {
+    public class ParseUtilType
+    {
+        public string Id { get; set; }
+        public Func<TableRequestFilter, string> Parser { get; set; }
+    }
+
     public static class QueryUtils
     {
-        public static BsonDocument Parse(TableRequestFilter[] filters) {
-            if(filters.Length == 0) {
+        public static BsonDocument Parse(TableRequestFilter[] filters, params ParseUtilType[] extras)
+        {
+            if (filters.Length == 0)
+            {
                 return new BsonDocument();
             }
 
             var result = filters.ToList()
-                .Select(f => Parse(f))
+                .Select(f => Parse(f, extras))
                 .Where(s => !string.IsNullOrEmpty(s));
 
             var doc = string.Join(",\n", result);
@@ -21,8 +29,56 @@ namespace CC.Net.Utils
             return BsonDocument.Parse($"{{{doc}}}");
         }
 
-        public static BsonDocument Parse(TableRequestSort[] sorts) {
-            if(sorts.Length == 0) {
+        public static string Parse(TableRequestFilter filter, params ParseUtilType[] extras)
+        {
+            if (filter.value == "all" || filter.value == "")
+            {
+                return null;
+            }
+
+            var extra = extras.FirstOrDefault(i => i.Id == filter.id);
+            if (extra != null)
+            {
+                return extra.Parser(filter);
+            }
+
+            if (filter.id == "id.timestamp")
+            {
+                var minId = new ObjectId(int.Parse(filter.value), 0, 0, 0);
+                return $"_id: {{\"$gt\": ObjectId(\"{minId}\")}}";
+            }
+
+            if (filter.id == nameof(CcData.lang))
+            {
+                return $"{nameof(CcData.lang)}: \"{filter.value}\"";
+            }
+
+            if (filter.id == nameof(CcData.review_request))
+            {
+                if (filter.value == "yes")
+                {
+                    return $"{nameof(CcData.review_request)}: {{ $ne: null }}";
+                }
+                else
+                {
+                    return $"{nameof(CcData.review_request)}: {{ $eq: null }}";
+                }
+            }
+
+            var result_status = $"{nameof(CcData.result)}.{nameof(CcData.result.status)}";
+            if (filter.id == result_status && filter.value != "all")
+            {
+                return $"\"{result_status}\": \"{filter.value}\"";
+            }
+
+            //default fallback
+            return $"\"{filter.id}\": /{filter.value}/";
+        }
+
+        public static BsonDocument Parse(TableRequestSort[] sorts)
+        {
+            if (sorts.Length == 0)
+            {
                 return new BsonDocument();
             }
 
@@ -35,58 +91,14 @@ namespace CC.Net.Utils
             return BsonDocument.Parse($"{{{doc}}}");
         }
 
-        public static string Parse(TableRequestSort sort) {
-            if(sort.id == "id.timestamp") {
-                return sort.desc ? $"_id: -1": $"_id: 1";
-            }
-            return sort.desc ? $"\"{sort.id}\": -1" :  $"\"{sort.id}\": 1";
-        }
 
-        public static string Parse(TableRequestFilter filter)
+        public static string Parse(TableRequestSort sort)
         {
+            if (sort.id == "id.timestamp")
             {
-                if (filter.value == "all" || filter.value == "")
-                {
-                    return null;
-                }
-
-                if (filter.id == nameof(CcData.attempt))
-                {
-                    return $"{nameof(CcData.attempt)}: {filter.value}";
-                }
-
-                if (filter.id == "id.timestamp")
-                {
-                    var minId = new ObjectId(int.Parse(filter.value), 0, 0, 0);
-                    return $"_id: {{\"$gt\": ObjectId(\"{minId}\")}}";
-                }
-
-                if (filter.id == nameof(CcData.lang))
-                {
-                    return $"{nameof(CcData.lang)}: \"{filter.value}\"";
-                }
-
-                if (filter.id == nameof(CcData.review_request))
-                {
-                    if (filter.value == "yes")
-                    {
-                        return $"{nameof(CcData.review_request)}: {{ $ne: null }}";
-                    }
-                    else
-                    {
-                        return $"{nameof(CcData.review_request)}: {{ $eq: null }}";
-                    }
-                }
-
-                var result_status = $"{nameof(CcData.result)}.{nameof(CcData.result.status)}";
-                if (filter.id == result_status && filter.value != "all")
-                {
-                    return $"\"{result_status}\": \"{filter.value}\"";
-                }
-
-                //default fallback
-                return $"\"{filter.id}\": /{filter.value}/";
+                return sort.desc ? $"_id: -1" : $"_id: 1";
             }
+            return sort.desc ? $"\"{sort.id}\": -1" : $"\"{sort.id}\": 1";
         }
     }
 }
