@@ -1,0 +1,28 @@
+.ReactTable {
+  .rt-tr {
+    &.status-answer-correct {
+      background: #dff5d0 !important;
+    }
+    &.status-unknown {
+      background: #e2b3b3 !important;
+    }
+    &.status-answer-wrong,
+    &.status-answer-wrong-timeout,
+    &.status-global-timeout,
+    &.status-error-while-running,
+    &.status-compilation-failed {
+      background: #f5d0d0 !important;
+    }
+  }
+  .rt-tbody .rt-td {
+    &.selected {
+      background: repeating-linear-gradient(
+        -180deg,
+        rgba(0, 100, 100, 0.2) 0,
+        rgba(0, 100, 100, 0.2) 2px,
+        rgba(0, 255, 255, 0.2) 4px,
+        rgba(0, 255, 255, 0.2) 6px,
+      );
+    }
+  }
+}
