@@ -76,11 +76,7 @@ namespace CC.Net.Controllers
             if (attempt != null)
             {
                 pipeline.Add(new BsonDocument("$sort",
-                    BsonDocument.Parse(@"
-                        {
-                            ""result.score"": -1,
-                        }")
-                    )
+                    BsonDocument.Parse(@" {""result.score"": -1,}"))
                 );
                 pipeline.Add(new BsonDocument("$group",
                     BsonDocument.Parse(@"
@@ -103,10 +99,7 @@ namespace CC.Net.Controllers
                     )
                 );
                 pipeline.Add(new BsonDocument("$replaceRoot",
-                    BsonDocument.Parse(@"
-                        {
-                            ""newRoot"": ""$results""    
-                        }")
+                    BsonDocument.Parse(@"{""newRoot"": ""$results""}")
                     )
                 );
             }
