@@ -1,7 +1,7 @@
-import React from "react";
+import React, { Children } from "react";
 import { observer } from "mobx-react"
 import { observable, action } from "mobx"
-import { CellInfo, RowInfo, Filter, Column, ReactTableFunction } from "react-table";
+import { CellInfo, RowInfo, Filter, Column, ReactTableFunction, ReactTableDefaults } from "react-table";
 import { nameof } from "ts-simple-nameof"
 import "react-table/react-table.css";
 import { nestGet } from "../utils/NestGetter";
@@ -9,6 +9,7 @@ import { ReactTableWithSelect } from "../utils/ReactTableWithSelect";
 import { httpClient } from "../init";
 import Moment from 'react-moment';
 import moment from 'moment';
+import { CondenseButton } from "../utils/CondenseButton";
 
 
 interface DateRange {
@@ -36,16 +37,7 @@ class StudentResultListModel {
     @action.bound
     public load(pageSize: number, page: number, sorted: ITableRequestSort[], filtered: ITableRequestFilter[]) {
         this.dataIsLoading = true;
-        fetch("/StudentResultList", {
-            method: "post",
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                pageSize, page, sorted, filtered
-            })
-        })
-            .then(res => res.json())
+        httpClient.fetch("student-result-list", { pageSize, page, sorted, filtered })
             .catch(e => console.error(e))
             .then((res: ITableResponse) => {
                 this.data = res.data as ICcData[];
@@ -110,10 +102,26 @@ function statusRenderer(cellInfo: CellInfo, column: any) {
     </span>);
 }
 
+function AComponent(props: any) {
+    const className = `rt-tr ${props.className}`;
+    const objectId = props.objectId ? props.objectId : null;
+
+    if (objectId) {
+        const href = `/view-results/${objectId}`;
+        return <a href={href} children={props.children} className={className} role="row" />
+    } else {
+        return <div children={props.children} className={className} role="row" />
+    }
+
+}
+
 @observer
 export class StudentResultList extends React.Component<any, StudentResultListState, any> {
     public model: StudentResultListModel = new StudentResultListModel();
     public columnsToCopy: any = {};
+
+    @observable
+    private density: string = "";
 
     private onFetchData(state: any, instance: any) {
         this.model.load(state.pageSize, state.page, state.sorted, state.filtered);
@@ -223,6 +231,10 @@ export class StudentResultList extends React.Component<any, StudentResultListSta
         ];
     }
 
+    private changeDensity(value: string) {
+        this.density = value;
+    }
+
     render() {
         const { model } = this;
         const data: ICcData[] = model.data;
@@ -233,11 +245,20 @@ export class StudentResultList extends React.Component<any, StudentResultListSta
         }
 
         return (<div>
+            <CondenseButton onChange={(value: string) => this.changeDensity(value)} />
             <ReactTableWithSelect
                 extractData={(key: string) => this.extractData(key)}
                 data={data}
                 loading={isLoading}
                 columns={this.columns()}
+                className={`-highlight ${this.density}`}
+                filterable manual
+                onFetchData={(state: any, instance: any) => this.onFetchData(state, instance)}
+                defaultPageSize={10}
+                pages={model.pages}
+                showPagination={true}
+                // TrComponent={ReactTableDefaults.TrComponent}
+                TrComponent={AComponent}
                 defaultSorted={[
                     {
                         id: "attempt",
@@ -249,14 +270,15 @@ export class StudentResultList extends React.Component<any, StudentResultListSta
                         return {};
                     }
                     var data: ICcData = rowInfo.row;
-                    return { className: getStatus(data.result) };
+                    return {
+                        className: getStatus(data.result),
+                        objectId: rowInfo.original ? (rowInfo.original as ICcData).objectId : null,
+                        // onClick: (e) =>
+                        //     this.props.history.push(
+                        //         `/view-results/${(rowInfo.original as ICcData).objectId}`
+                        //     )
+                    };
                 }}
-                filterable manual
-                onFetchData={(state: any, instance: any) => this.onFetchData(state, instance)}
-                defaultPageSize={10}
-                pages={model.pages}
-                showPagination={true}
-                className="-highlight"
             />
         </div>);
     }

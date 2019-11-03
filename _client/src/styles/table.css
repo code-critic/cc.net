@@ -1,0 +1,67 @@
+.ReactTable .rt-tbody .rt-td {
+  font-size: .8rem;
+  font-weight: 400; }
+
+.ReactTable a.rt-tr {
+  color: black; }
+  .ReactTable a.rt-tr:hover {
+    text-decoration: none; }
+
+.ReactTable.condensed .rt-tbody .rt-td {
+  font-size: .7rem;
+  font-weight: 300; }
+
+.ReactTable.tight .rt-tbody .rt-td {
+  font-size: .6rem;
+  font-weight: 400; }
+
+.ReactTable .rt-tr.status-answer-correct {
+  background: #b5ffb5; }
+  .ReactTable .rt-tr.status-answer-correct:hover {
+    background: #82ff82 !important; }
+
+.ReactTable .rt-tr.status-ok {
+  background: #efd3ff; }
+  .ReactTable .rt-tr.status-ok:hover {
+    background: #dca0ff !important; }
+
+.ReactTable .rt-tr.status-running {
+  background: #faf6c6; }
+  .ReactTable .rt-tr.status-running:hover {
+    background: #f6ef97 !important; }
+
+.ReactTable .rt-tr.status-unknown {
+  background: #e2b3b3; }
+  .ReactTable .rt-tr.status-unknown:hover {
+    background: #d48e8e !important; }
+
+.ReactTable .rt-tr.status-answer-wrong {
+  background: #f5d0d0; }
+  .ReactTable .rt-tr.status-answer-wrong:hover {
+    background: #eca6a6 !important; }
+
+.ReactTable .rt-tr.status-answer-wrong-timeout {
+  background: #f5d0d0; }
+  .ReactTable .rt-tr.status-answer-wrong-timeout:hover {
+    background: #eca6a6 !important; }
+
+.ReactTable .rt-tr.status-global-timeout {
+  background: #f5d0d0; }
+  .ReactTable .rt-tr.status-global-timeout:hover {
+    background: #eca6a6 !important; }
+
+.ReactTable .rt-tr.status-error-while-running {
+  background: #f5d0d0; }
+  .ReactTable .rt-tr.status-error-while-running:hover {
+    background: #eca6a6 !important; }
+
+.ReactTable .rt-tr.status-compilation-failed {
+  background: #f5d0d0; }
+  .ReactTable .rt-tr.status-compilation-failed:hover {
+    background: #eca6a6 !important; }
+
+.ReactTable .rt-tbody .rt-td {
+  text-align: center; }
+  .ReactTable .rt-tbody .rt-td.selected {
+    background: repeating-linear-gradient(-55deg, rgba(0, 100, 100, 0.1) 0, rgba(0, 100, 100, 0.1) 2px, rgba(0, 255, 255, 0.1) 4px, rgba(0, 255, 255, 0.1) 6px);
+    box-shadow: inset 0px 0px 5px 0px #17a2b8; }

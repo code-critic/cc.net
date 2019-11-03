@@ -13,6 +13,14 @@ namespace CC.Net.Collections
         [BsonElement("_id")]
         public ObjectId id { get; set; }
 
+        public string objectId
+        {
+            get
+            {
+                return id.ToString();
+            }
+        }
+
         public string user { get; set; }
         public string course { get; set; }
         public string problem { get; set; }

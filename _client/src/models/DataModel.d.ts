@@ -67,6 +67,7 @@
 		docker: boolean;
 		id: IObjectId;
 		lang: string;
+		objectId: string;
 		output_dir: string;
 		problem: string;
 		result: ICcDataResult;

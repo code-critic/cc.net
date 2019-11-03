@@ -2,9 +2,9 @@ import React, { Component } from 'react';
 import { Route } from 'react-router';
 import { Layout } from './components/Layout';
 import { Home } from './components/Home';
-import { Counter } from './components/Counter';
 
-import { StudentResultList } from './components/StudentResultList';
+import { StudentResultList } from './routes/StudentResultList';
+import { StudentResultDetail } from './routes/StudentResultDetail';
 
 export default class App extends Component {
   static displayName = App.name;
@@ -13,8 +13,8 @@ export default class App extends Component {
     return (
       <Layout>
         <Route exact path='/' component={Home} />
-        <Route path='/counter' component={Counter} />
-        <Route path='/view-results' component={StudentResultList} />
+        <Route path='/view-results' exact={true} component={StudentResultList} />
+        <Route path='/view-results/:id' component={StudentResultDetail} />
       </Layout>
     );
   }

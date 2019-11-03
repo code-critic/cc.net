@@ -15,7 +15,7 @@ using Newtonsoft.Json;
 namespace CC.Net.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("api")]
     public class StudentResultListController : ControllerBase
     {
 
@@ -29,25 +29,17 @@ namespace CC.Net.Controllers
         }
 
         [HttpGet]
-        public IEnumerable<CcData> Get(int limit = 10, int skip = 0, int d = 0)
+        [Route("student-result-list/{id}")]
+        public CcData ResultDetail(string id)
         {
-            var opts = new FindOptions();
-            var data = _dbService.Data.Find(i => i.action == "solve", opts)
-                .Project<CcData>(Builders<CcData>.Projection.Exclude(i => i.solution))
-                .Skip(skip)
-                .Limit(limit).ToEnumerable();
-
-            if (d > 0)
-            {
-                Thread.Sleep(d);
-            }
-            foreach (var item in data)
-            {
-                yield return item;
-            }
+            var objectId = new ObjectId(id);
+            return _dbService.Data
+                .Find(i => i.id == objectId)
+                .First();
         }
 
         [HttpPost]
+        [Route("student-result-list")]
         public TableResponse Post([FromBody] TableRequest request)
         {
             var options = new FindOptions<CcData>();
@@ -69,8 +61,15 @@ namespace CC.Net.Controllers
                 ? new TableRequestSort[] { new TableRequestSort() { id = "id.timestamp", desc = true } }
                 : request.sorted
             ));
+            
+            var project = new BsonDocument("$project", BsonDocument.Parse(@"
+                {
+                    solution: 0,
+                    results: 0,
+                }
+            "));
 
-            var pipeline = new List<BsonDocument>() { match, sort };
+            var pipeline = new List<BsonDocument>() { project, match };
 
             var attempt = request.filtered.FirstOrDefault(i => i.id == nameof(CcData.attempt) && i.value != "all");
             if (attempt != null)
@@ -104,6 +103,7 @@ namespace CC.Net.Controllers
                 );
             }
 
+            pipeline.Add(sort);
             pipeline.Add(new BsonDocument("$skip", request.page * request.pageSize));
             pipeline.Add(new BsonDocument("$limit", request.pageSize));
 
