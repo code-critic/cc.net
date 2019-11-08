@@ -1,15 +1,32 @@
 import React, { Component } from 'react';
 import { Container } from 'reactstrap';
 import { NavMenu } from './NavMenu';
+import { layoutUtils } from '../init';
 
-export class Layout extends Component {
+interface LayoutState {
+  extraStyle: string;
+}
+
+export class Layout extends Component<any, LayoutState, any> {
   static displayName = Layout.name;
 
-  render () {
+  constructor(props:any) {
+    super(props);
+    
+    this.state = {
+      extraStyle: ""
+    };
+
+    layoutUtils.onChange = (style: string) => {
+      this.setState({extraStyle: style});
+    }
+  }
+
+  render() {
     return (
       <div>
         <NavMenu />
-        <Container>
+        <Container className={this.state.extraStyle}>
           {this.props.children}
         </Container>
       </div>
