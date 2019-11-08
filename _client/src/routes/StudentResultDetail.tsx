@@ -34,8 +34,8 @@ class StudentResultDetailModel {
     }
 }
 
-const mapLanguage = (id: string): string => {
-    switch (id.toLowerCase()) {
+const mapLanguage = (id?: string): string => {
+    switch ((id = id || "").toLowerCase()) {
         case "py-367":
             return "python";
         case "py-276": ;

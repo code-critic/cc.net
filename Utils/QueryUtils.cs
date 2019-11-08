@@ -96,8 +96,14 @@ namespace CC.Net.Utils
         {
             if (sort.id == "id.timestamp")
             {
-                return sort.desc ? $"_id: -1" : $"_id: 1";
+                return sort.desc ? "_id: -1" : "_id: 1";
             }
+            
+            if (sort.id == "result")
+            {
+                return sort.desc ? @"""result.score"": -1" : @"""result.score"": 1";
+            }
+
             return sort.desc ? $"\"{sort.id}\": -1" : $"\"{sort.id}\": 1";
         }
     }

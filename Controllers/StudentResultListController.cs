@@ -46,8 +46,15 @@ namespace CC.Net.Controllers
             options.Limit = request.pageSize;
             options.Skip = request.page * request.pageSize;
 
+            var filtered = new List<TableRequestFilter>(request.filtered);
+            filtered.Add(new TableRequestFilter()
+            {
+                id = "action",
+                value = "solve",
+            });
+
             var matchBody = QueryUtils.Parse(
-                request.filtered,
+                filtered.ToArray(),
                 new ParseUtilType
                 {
                     Id = nameof(CcData.attempt),
@@ -61,7 +68,7 @@ namespace CC.Net.Controllers
                 ? new TableRequestSort[] { new TableRequestSort() { id = "id.timestamp", desc = true } }
                 : request.sorted
             ));
-            
+
             var project = new BsonDocument("$project", BsonDocument.Parse(@"
                 {
                     solution: 0,
@@ -71,7 +78,7 @@ namespace CC.Net.Controllers
 
             var pipeline = new List<BsonDocument>() { project, match };
 
-            var attempt = request.filtered.FirstOrDefault(i => i.id == nameof(CcData.attempt) && i.value != "all");
+            var attempt = filtered.FirstOrDefault(i => i.id == nameof(CcData.attempt) && i.value != "all");
             if (attempt != null)
             {
                 pipeline.Add(new BsonDocument("$sort",

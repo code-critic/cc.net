@@ -8,11 +8,12 @@ import { CondenseButton } from "../utils/CondenseButton";
 import { StudentResultDetail } from "./StudentResultDetail";
 import { getColumns, getStatus } from "./StudentResultList.Columns";
 import { StudentResultListModel } from "./StudentResultList.Model";
+import { layoutUtils } from "../init";
+import { throttle } from 'throttle-debounce';
 
 import "react-table/react-table.css";
 import "../styles/detail.css";
 import "../styles/list.css";
-import { layoutUtils } from "../init";
 
 
 interface StudentResultListState {
@@ -41,12 +42,17 @@ function AComponentWrapper(callback: (objectId: string) => void) {
 export class StudentResultList extends React.Component<any, StudentResultListState, any> {
     public model: StudentResultListModel = new StudentResultListModel();
     public columnsToCopy: any = {};
+    private lastFocus: any;
 
     @observable
     private density: string = "";
 
-    private onFetchData(state: any) {
+    private debounceFetch: (state: any) => void = throttle(300, false, (state: any) => {
         this.model.load(state.pageSize, state.page, state.sorted, state.filtered);
+    })
+
+    private onFetchData(state: any) {
+        this.debounceFetch(state);
     }
 
     private extractData(key: string): string[] {
@@ -98,8 +104,8 @@ export class StudentResultList extends React.Component<any, StudentResultListSta
                         defaultPageSize={10}
                         pages={model.pages}
                         showPagination={true}
-                        // TrComponent={ReactTableDefaults.TrComponent}
-                        TrComponent={AComponentWrapper((e) => this.onDetailIdChanged(e))}
+                        // // TrComponent={ReactTableDefaults.TrComponent}
+                        // TrComponent={AComponentWrapper((e) => this.onDetailIdChanged(e))}
                         defaultSorted={[
                             {
                                 id: "attempt",
@@ -113,11 +119,9 @@ export class StudentResultList extends React.Component<any, StudentResultListSta
                             var data: ICcData = rowInfo.row;
                             return {
                                 className: getStatus(data.result),
-                                objectId: rowInfo.original ? (rowInfo.original as ICcData).objectId : null,
-                                // onClick: (e) =>
-                                //     this.props.history.push(
-                                //         `/view-results/${(rowInfo.original as ICcData).objectId}`
-                                //     )
+                                onClick: (e) => {
+                                    this.onDetailIdChanged((data as any)._original.objectId);
+                                }
                             };
                         }}
                     />
