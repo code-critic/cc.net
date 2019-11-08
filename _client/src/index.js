@@ -1,5 +1,6 @@
 import 'bootstrap/dist/css/bootstrap.css';
 import 'font-awesome/css/font-awesome.min.css';
+import './styles/index.css';
 import './styles/table.css';
 
 import React from 'react';
