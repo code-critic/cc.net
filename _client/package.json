@@ -52,6 +52,7 @@
     "react-table": "^6.10.3",
     "reactstrap": "^6.3.0",
     "rimraf": "^2.6.2",
+    "throttle-debounce": "^2.1.0",
     "ts-simple-nameof": "^1.2.0"
   },
   "devDependencies": {
