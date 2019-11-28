@@ -1,7 +1,7 @@
 import React from "react";
 import { observer } from "mobx-react"
 import { observable, action } from "mobx"
-import ReactTable, { Column, CellInfo } from "react-table";
+import { Column, CellInfo } from "react-table";
 import { ReactTableWithSelect } from "../utils/ReactTableWithSelect";
 import { httpClient } from "../init";
 
@@ -168,7 +168,7 @@ export class ProblemStudentMatrixList extends React.Component<any, ProblemStuden
             return this.model.data.map(d => {
                 const score = Number(nestGet(d, `${key}.score`));
                 const scores = nestGet(d, `${key}.scores`);
-                return score == -1 ? "---" : String(Number(scores[0]) * 10);
+                return score === -1 ? "---" : String(Number(scores[0]) * 10);
             }
             );
         }
@@ -217,7 +217,7 @@ export class ProblemStudentMatrixList extends React.Component<any, ProblemStuden
                 showPagination={false}
                 getTdProps={(state, rowInfo, column) => {
                     const col = rowInfo.original[column.id];
-                    const className = col.id == null ? `forbidden ${getStatus(col)}` : getStatus(col);
+                    const className = col.id === null ? `forbidden ${getStatus(col)}` : getStatus(col);
                     return {
                         className: column.id == "user" ? "" : className,
                         onClick: () => this.onDetailIdChanged(col.id)
