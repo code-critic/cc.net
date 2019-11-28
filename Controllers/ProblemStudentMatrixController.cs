@@ -65,18 +65,7 @@ namespace CC.Net.Controllers
 
         [HttpGet]
         [Route("problem-student-matrix/{id}/{year}")]
-        public List<CourseProblem> Get(string id, string year)
-        {
-            var course = _courseService[id];
-            var problems = course[year].Problems;
-            var users = course.CourseConfig.students;
-
-            return problems;
-        }
-
-        [HttpGet]
-        [Route("problem-student-matrix/{id}/{year}/a")]
-        public IEnumerable<CcDataAgg> Geta(string id, string year)
+        public IEnumerable<CcDataAgg> Get(string id, string year)
         {
             var course = _courseService[id];
             var problems = course[year].Problems.Select(i => i.id);
@@ -92,7 +81,9 @@ namespace CC.Net.Controllers
 
             var data = _dbService.Data.Aggregate<CcDataAgg>(pipeline.ToArray())
                 .ToEnumerable()
-                .Where(i => users.Contains(i.id.user) && problems.Contains(i.id.problem));
+                .Where(i => !users.Any() || 
+                    (users.Contains(i.id.user) && problems.Contains(i.id.problem))
+                );
                 
 
             return data;

@@ -51,18 +51,30 @@ $statuses: (
       }
     }
   }
+  
+  .rt-td {
+    @each $status, $color in $statuses {
+      &.status-#{$status} {
+        background: $color;
+
+        &:hover {
+          background: darken($color, 10) !important;
+        }
+      }
+    }
+  }
 
   .rt-tbody .rt-td {
     text-align: center;
 
     &.selected {
-      background: repeating-linear-gradient(
-          -55deg,
-          rgba(0, 100, 100, 0.1) 0,
-          rgba(0, 100, 100, 0.1) 2px,
-          rgba(0, 255, 255, 0.1) 4px,
-          rgba(0, 255, 255, 0.1) 6px
-        );
+      // background: repeating-linear-gradient(
+      //     -55deg,
+      //     rgba(0, 100, 100, 0.1) 0,
+      //     rgba(0, 100, 100, 0.1) 2px,
+      //     rgba(0, 255, 255, 0.1) 4px,
+      //     rgba(0, 255, 255, 0.1) 6px
+      //   );
       box-shadow: inset 0px 0px 5px 0px #17a2b8;
     }
   }

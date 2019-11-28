@@ -9,6 +9,9 @@ import "react-table/react-table.css";
 import "../styles/detail.css";
 import "../styles/list.css";
 import { nestGet } from "../utils/NestGetter";
+import { Modal } from "react-bootstrap";
+import { StudentResultDetail } from "./StudentResultDetail";
+import { getStatus } from "./StudentResultList.Columns";
 
 interface ProblemStudentMatrixListState {
 
@@ -25,7 +28,9 @@ export class ProblemStudentMatrixListModel {
     @observable public courseId: string = "";
     @observable public courseYear: string = "";
     @observable public courses: ICourse[] = [];
-    @observable public data: ICcDataResult[] = [];
+    @observable public detailObjectId: string = "";
+
+    public data: ICcDataResult[] = [];
 
     public columns: Column[] = [];
 
@@ -36,11 +41,13 @@ export class ProblemStudentMatrixListModel {
 
     private emptyResult(): any {
         return {
-            id: null,
             result: {
-                score: -1,
-                scores: [0, 0, 0]
-            } as Partial<ICcDataResult>
+                id: null,
+                result: {
+                    score: -1,
+                    scores: [0, 0, 0]
+                } as Partial<ICcDataResult>
+            }
         }
     }
 
@@ -69,7 +76,7 @@ export class ProblemStudentMatrixListModel {
     @action.bound
     loadCourse() {
         this.dataIsLoading = true;
-        httpClient.fetch(`problem-student-matrix/${this.courseId}/${this.courseYear}/a`)
+        httpClient.fetch(`problem-student-matrix/${this.courseId}/${this.courseYear}`)
             .catch(e => console.error(e))
             .then((res: ICcDataAgg[]) => {
                 let users = distinct([
@@ -81,11 +88,18 @@ export class ProblemStudentMatrixListModel {
                 let data: any[] = [];
                 users.forEach(user => {
                     let row: any = {};
+                    
                     problems.forEach(problem => {
-                        var match = res.filter(i => i.id.problem === problem && i.id.user === user);
-                        var single: ICcDataResult = match.length ? match[0].result.result : this.emptyResult().result;
-                        var rowData = (single || this.emptyResult().result);
-                        row[problem] = rowData;
+                        let single: any = {};
+                        try {
+                            single = res
+                                .filter(i => i.id.problem === problem && i.id.user === user)[0];
+                        } catch (error) {
+                        }
+                        single = single || this.emptyResult();
+                        const id = single.result.objectId;
+                        row[problem] = single.result.result;
+                        row[problem].id = id || null;
                     });
                     row.user = user;
                     data.push(row);
@@ -96,7 +110,10 @@ export class ProblemStudentMatrixListModel {
                         Header: "User",
                         accessor: "user",
                         sortable: true,
-                        Cell: (cellInfo: CellInfo) => cellInfo.value
+                        Cell: (cellInfo: CellInfo) => (cellInfo.value as string)
+                            .split('.')
+                            .map(i => i.charAt(0).toUpperCase() + i.slice(1))
+                            .join(' ')
                     }
                 ];
                 problems.forEach(problem => {
@@ -105,7 +122,10 @@ export class ProblemStudentMatrixListModel {
                         accessor: problem,
                         Cell: (cellInfo: CellInfo) => {
                             const value: ICcDataResult = cellInfo.value;
-                            return value.scores ? value.scores.join("-") : "---";
+                            if (value.score === -1 || !value.scores || !value.scores.length) {
+                                return <span>---</span>
+                            }
+                            return <span>{value.scores.join("-")}</span>
                         }
                     }
                     this.columns.push(col);
@@ -124,51 +144,88 @@ export class ProblemStudentMatrixList extends React.Component<any, ProblemStuden
     );
 
     renderCourses() {
-        if(this.model.apiIsLoading) {
+        if (this.model.apiIsLoading) {
             return "loading";
         }
 
-        return this.model.courses.map(i => 
+        return <ul>{this.model.courses.map(i =>
             i.courseYears.map(j =>
-                <a key={i.name + j.year}
-                    onClick={() => this.model.setId(i.name, j.year)}
-                    href={`/problem-student-matrix/${i.name}/${j.year}`}>
-                    {i.name} - {j.year}
-                </a>
+                <li>
+                    <a key={i.name + j.year}
+                        onClick={() => this.model.setId(i.name, j.year)}
+                        href={`/problem-student-matrix/${i.name}/${j.year}`}>
+                        {i.name} - {j.year}
+                    </a>
+                </li>
             )
-        );
+        )}</ul>;
     }
-    
+
     private extractData(key: string): string[] {
         if (key === "user") {
             return this.model.data.map(d => nestGet(d, key));
         } else {
             return this.model.data.map(d => {
-                const score = Number(nestGet(d,`${key}.score`));
-                const scores = nestGet(d,`${key}.scores`);
+                const score = Number(nestGet(d, `${key}.score`));
+                const scores = nestGet(d, `${key}.scores`);
                 return score == -1 ? "---" : String(Number(scores[0]) * 10);
             }
             );
         }
     }
 
+    private onDetailIdChanged(objectId: string = "") {
+        if (this.model.detailObjectId === objectId || !objectId) {
+            this.model.detailObjectId = "";
+        } else {
+            this.model.detailObjectId = objectId;
+        }
+    }
+
     render() {
-        if (!this.model.courseId) {
+        const { model } = this;
+        if (!model.courseId) {
             return this.renderCourses();
         }
 
-        if(this.model.dataIsLoading) {
+        if (model.dataIsLoading) {
             return "loading";
         }
 
-        return <ReactTableWithSelect
-            extractData={(key: string) => this.extractData(key)}
-            columns={this.model.columns}
-            sorted={[{id: "user", desc: false}]}
-            data={this.model.data}
-            multiSort={false}
-            pageSize={-1}
-            sortable
-         />
+        return <div>
+            <Modal show={Boolean(model.detailObjectId)}
+                size="lg" animation={false}
+                onHide={() => this.onDetailIdChanged()}>
+                <Modal.Header>
+                    {model.detailObjectId}
+                </Modal.Header>
+                <Modal.Body>
+                    {model.detailObjectId &&
+                        <div className="student-result-detail">
+                            <StudentResultDetail objectId={model.detailObjectId} />
+                        </div>
+                    }
+                </Modal.Body>
+            </Modal>
+            <ReactTableWithSelect
+                extractData={(key: string) => this.extractData(key)}
+                columns={this.model.columns}
+                sorted={[{ id: "user", desc: false }]}
+                data={this.model.data}
+                multiSort={false}
+                pageSize={-1}
+                showPagination={false}
+                getTdProps={(state, rowInfo, column) => {
+                    const col = rowInfo.original[column.id];
+                    const className = col.id == null ? `forbidden ${getStatus(col)}` : getStatus(col);
+                    return {
+                        className: column.id == "user" ? "" : className,
+                        onClick: () => this.onDetailIdChanged(col.id)
+                    }
+                }}
+                className="-stripped -highlight"
+                sortable
+            />
+        </div>
     }
 }

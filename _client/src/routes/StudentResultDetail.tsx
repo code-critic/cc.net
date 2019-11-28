@@ -79,6 +79,7 @@ export class StudentResultDetail extends React.Component<StudentResultDetailProp
         }
 
         return (<div>
+            {model.data.lang}
             <Highlight className={mapLanguage(model.data.lang)}>
                 {model.data.solution}
             </Highlight>
