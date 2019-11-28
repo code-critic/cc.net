@@ -41,6 +41,9 @@ export class NavMenu extends React.Component<NavMenuState, any, any> {
                   <NavLink className="text-dark px-2" to="/">Home</NavLink>
                 </NavItem>
                 <NavItem>
+                  <NavLink className="text-dark px-2" to="/problem-student-matrix">Problem-Student Matrix</NavLink>
+                </NavItem>
+                <NavItem>
                   <NavLink className="text-dark px-2" to="/view-results">View Results</NavLink>
                 </NavItem>
               </ul>

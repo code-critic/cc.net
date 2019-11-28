@@ -16,10 +16,6 @@ export interface SwitchButtonProps {
 export class SwitchButton extends React.Component<SwitchButtonProps> {
     private index: number = 0;
 
-    constructor(props: SwitchButtonProps) {
-        super(props);
-    }
-
     public get status() {
         return this.props.statuses[this.index];
     }

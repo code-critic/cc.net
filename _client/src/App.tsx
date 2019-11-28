@@ -4,7 +4,7 @@ import { Layout } from './components/Layout';
 import { Home } from './components/Home';
 
 import { StudentResultList } from './routes/StudentResultList';
-import { StudentResultDetail } from './routes/StudentResultDetail';
+import { ProblemStudentMatrixList } from './routes/ProblemStudentMatrixList';
 
 export default class App extends Component {
   static displayName = App.name;
@@ -14,7 +14,7 @@ export default class App extends Component {
       <Layout>
         <Route exact path='/' component={Home} />
         <Route path='/view-results' exact={true} component={StudentResultList} />
-        <Route path='/view-results/:id' component={StudentResultDetail} />
+        <Route path='/problem-student-matrix/:id?/:year?' exact={true} component={ProblemStudentMatrixList} />
       </Layout>
     );
   }

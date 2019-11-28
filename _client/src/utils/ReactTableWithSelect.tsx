@@ -6,6 +6,7 @@ import { transpose } from "./MatrixUtils";
 export interface NewProps<D> extends React.Component<Partial<TableProps<D>>> {
     extractData: (key: string) => string[];
     dataChanged: () => void;
+    copyHeader?: boolean;
 }
 
 function getHeaderId(cellInfo: CellInfo): string {
@@ -42,10 +43,16 @@ export class ReactTableWithSelect<D> extends React.Component<Partial<TableProps<
             var toCopy: string[][] = [];
             Object.entries(this.headerProps).forEach(([key, val]) => {
                 if (val) {
-                    toCopy.push([
-                        key,
-                        ...extractData(key)
-                    ]);
+                    if(this.props.copyHeader) {
+                        toCopy.push([
+                            key,
+                            ...extractData(key)
+                        ]);
+                    } else {
+                        toCopy.push([
+                            ...extractData(key)
+                        ]);
+                    }
                 }
             });
             var copyText = transpose(toCopy)

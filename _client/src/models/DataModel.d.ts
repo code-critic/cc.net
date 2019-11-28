@@ -16,10 +16,10 @@
 		version: string;
 	}
 	interface ICourse {
-		CourseConfig: ICourseConfig;
-		CourseYears: ICourseYearConfig[];
-		Item: ICourseYearConfig;
-		Name: string;
+		courseConfig: ICourseConfig;
+		courseYears: ICourseYearConfig[];
+		item: ICourseYearConfig;
+		name: string;
 	}
 	interface ICourseConfig {
 		access: string;
@@ -34,7 +34,7 @@
 		avail: string;
 		cat: string;
 		id: string;
-		Item: ICourseProblemCase;
+		item: ICourseProblemCase;
 		name: string;
 		reference: ICourseReference;
 		since: string;
@@ -56,9 +56,9 @@
 		values: string[];
 	}
 	interface ICourseYearConfig {
-		Item: ICourseProblem;
-		Problems: ICourseProblem[];
-		Year: string;
+		item: ICourseProblem;
+		problems: ICourseProblem[];
+		year: string;
 	}
 	interface ICcData {
 		action: string;
@@ -77,6 +77,14 @@
 		user: string;
 		uuid: string;
 	}
+	interface ICcDataAgg {
+		id: ICcDataAggId;
+		result: ICcData;
+	}
+	interface ICcDataAggId {
+		problem: string;
+		user: string;
+	}
 	interface ICcDataResult {
 		cmd: string;
 		console: string[];
@@ -91,12 +99,12 @@
 		uuid: string;
 	}
 	interface IObjectId {
-		CreationTime: Date;
-		Empty: IObjectId;
-		Increment: number;
-		Machine: number;
-		Pid: number;
-		Timestamp: number;
+		creationTime: Date;
+		empty: IObjectId;
+		increment: number;
+		machine: number;
+		pid: number;
+		timestamp: number;
 	}
 	interface ITableRequest {
 		filtered: ITableRequestFilter[];

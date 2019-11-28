@@ -8,12 +8,12 @@ import { CondenseButton } from "../utils/CondenseButton";
 import { StudentResultDetail } from "./StudentResultDetail";
 import { getColumns, getStatus } from "./StudentResultList.Columns";
 import { StudentResultListModel } from "./StudentResultList.Model";
-import { layoutUtils } from "../init";
 import { throttle } from 'throttle-debounce';
 
 import "react-table/react-table.css";
 import "../styles/detail.css";
 import "../styles/list.css";
+import { Modal } from "react-bootstrap";
 
 
 interface StudentResultListState {
@@ -21,28 +21,28 @@ interface StudentResultListState {
     columnsToCopy: any;
 }
 
-function AComponentWrapper(callback: (objectId: string) => void) {
+// function AComponentWrapper(callback: (objectId: string) => void) {
 
-    function AComponent(props: any) {
-        const className = `rt-tr ${props.className}`;
-        const objectId = props.objectId ? props.objectId : null;
+//     function AComponent(props: any) {
+//         const className = `rt-tr ${props.className}`;
+//         const objectId = props.objectId ? props.objectId : null;
 
-        if (objectId) {
-            // const href = `/view-results/${objectId}`;
-            return <a onClick={() => callback(objectId)} children={props.children} className={className} role="row" />
-        } else {
-            return <div children={props.children} className={className} role="row" />
-        }
-    }
-    return AComponent;
-}
+//         if (objectId) {
+//             // const href = `/view-results/${objectId}`;
+//             return <a onClick={() => callback(objectId)} children={props.children} className={className} role="row" />
+//         } else {
+//             return <div children={props.children} className={className} role="row" />
+//         }
+//     }
+//     return AComponent;
+// }
 
 
 @observer
 export class StudentResultList extends React.Component<any, StudentResultListState, any> {
     public model: StudentResultListModel = new StudentResultListModel();
     public columnsToCopy: any = {};
-    private lastFocus: any;
+    public isModelVisible: boolean = false;
 
     @observable
     private density: string = "";
@@ -70,13 +70,13 @@ export class StudentResultList extends React.Component<any, StudentResultListSta
         this.density = value;
     }
 
-    private onDetailIdChanged(objectId: string) {
-        if (this.model.detailObjectId === objectId) {
+    private onDetailIdChanged(objectId: string = "") {
+        if (this.model.detailObjectId === objectId || !objectId) {
             this.model.detailObjectId = "";
-            layoutUtils.setContainerStyle("");
+            // layoutUtils.setContainerStyle("");
         } else {
             this.model.detailObjectId = objectId;
-            layoutUtils.setContainerStyle("wide");
+            // layoutUtils.setContainerStyle("wide");
         }
     }
 
@@ -90,6 +90,20 @@ export class StudentResultList extends React.Component<any, StudentResultListSta
         }
 
         return <div>
+            <Modal show={Boolean(model.detailObjectId)}
+                size="lg" animation={false}
+                onHide={() => this.onDetailIdChanged()}>
+                <Modal.Header>
+                    {model.detailObjectId}
+                </Modal.Header>
+                <Modal.Body>
+                    {model.detailObjectId &&
+                        <div className="student-result-detail">
+                            <StudentResultDetail objectId={model.detailObjectId} />
+                        </div>
+                    }
+                </Modal.Body>
+            </Modal>
             <CondenseButton onChange={(value: string) => this.changeDensity(value)} />
             <div className="student-result-list-wrapper">
                 <div className="student-result-list">
@@ -126,10 +140,6 @@ export class StudentResultList extends React.Component<any, StudentResultListSta
                         }}
                     />
                 </div>
-                {model.detailObjectId && <div className="student-result-detail">
-                    <StudentResultDetail objectId={model.detailObjectId} />
-                </div>
-                }
             </div>
         </div>
     }

@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using CC.Net.Collections;
 using CC.Net.Entities;
@@ -25,9 +26,13 @@ namespace CC.Net
                         .For<Language>()
                         .For<Course>()
                         .For<CcData>()
+                        .For<CcDataAgg>()
                         .For<TableRequest>()
                         .For<TableResponse>()
                         .WithModuleNameFormatter((moduleName) => "")
+                        .WithMemberFormatter((identifier) => 
+                            Char.ToLower(identifier.Name[0]) + identifier.Name.Substring(1)
+                        )
                         .WithTypeFormatter((type, f) => "I" + ((TypeLite.TsModels.TsClass)type).Name)
                         .Generate());
                 System.Environment.Exit(0);
