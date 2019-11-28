@@ -219,7 +219,7 @@ export class ProblemStudentMatrixList extends React.Component<any, ProblemStuden
                     const col = rowInfo.original[column.id];
                     const className = col.id === null ? `forbidden ${getStatus(col)}` : getStatus(col);
                     return {
-                        className: column.id == "user" ? "" : className,
+                        className: column.id === "user" ? "" : className,
                         onClick: () => this.onDetailIdChanged(col.id)
                     }
                 }}
