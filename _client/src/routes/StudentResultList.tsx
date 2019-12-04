@@ -42,6 +42,8 @@ interface StudentResultListState {
 export class StudentResultList extends React.Component<any, StudentResultListState, any> {
     public model: StudentResultListModel = new StudentResultListModel();
     public columnsToCopy: any = {};
+    
+    @observable
     public isModelVisible: boolean = false;
 
     @observable
@@ -73,10 +75,10 @@ export class StudentResultList extends React.Component<any, StudentResultListSta
     private onDetailIdChanged(objectId: string = "") {
         if (this.model.detailObjectId === objectId || !objectId) {
             this.model.detailObjectId = "";
-            // layoutUtils.setContainerStyle("");
+            this.isModelVisible = false;
         } else {
             this.model.detailObjectId = objectId;
-            // layoutUtils.setContainerStyle("wide");
+            this.isModelVisible = true;
         }
     }
 
@@ -90,20 +92,11 @@ export class StudentResultList extends React.Component<any, StudentResultListSta
         }
 
         return <div>
-            <Modal show={Boolean(model.detailObjectId)}
-                size="lg" animation={false}
-                onHide={() => this.onDetailIdChanged()}>
-                <Modal.Header>
-                    {model.detailObjectId}
-                </Modal.Header>
-                <Modal.Body>
-                    {model.detailObjectId &&
-                        <div className="student-result-detail">
-                            <StudentResultDetail objectId={model.detailObjectId} />
-                        </div>
-                    }
-                </Modal.Body>
-            </Modal>
+            <StudentResultDetail
+                show={this.isModelVisible}
+                objectId={model.detailObjectId}
+                onCloseModal={() => this.isModelVisible = false}
+                />
             <CondenseButton onChange={(value: string) => this.changeDensity(value)} />
             <div className="student-result-list-wrapper">
                 <div className="student-result-list">

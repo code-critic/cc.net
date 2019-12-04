@@ -110,9 +110,16 @@ export class ProblemStudentMatrixListModel {
                         Header: "User",
                         accessor: "user",
                         sortable: true,
+                        width: 150,
+                        getProps: () => {
+                            return {
+                                className: "text-align-left"
+                            }
+                        },
                         Cell: (cellInfo: CellInfo) => (cellInfo.value as string)
                             .split('.')
                             .map(i => i.charAt(0).toUpperCase() + i.slice(1))
+                            .map((value, index) => index == 0 ? value : value.toUpperCase())
                             .join(' ')
                     }
                 ];
@@ -138,6 +145,9 @@ export class ProblemStudentMatrixListModel {
 
 @observer
 export class ProblemStudentMatrixList extends React.Component<any, ProblemStudentMatrixListState, any> {
+    @observable
+    public isModelVisible: boolean = false;
+
     public model: ProblemStudentMatrixListModel = new ProblemStudentMatrixListModel(
         this.props.match.params.id || null,
         this.props.match.params.year || null,
@@ -166,6 +176,10 @@ export class ProblemStudentMatrixList extends React.Component<any, ProblemStuden
             return this.model.data.map(d => nestGet(d, key));
         } else {
             return this.model.data.map(d => {
+                const points = nestGet(d, `${key}.points`);
+                if (points !== "") {
+                    return String(points);
+                }
                 const score = Number(nestGet(d, `${key}.score`));
                 const scores = nestGet(d, `${key}.scores`);
                 return score === -1 ? "---" : String(Number(scores[0]) * 10);
@@ -177,8 +191,10 @@ export class ProblemStudentMatrixList extends React.Component<any, ProblemStuden
     private onDetailIdChanged(objectId: string = "") {
         if (this.model.detailObjectId === objectId || !objectId) {
             this.model.detailObjectId = "";
+            this.isModelVisible = false;
         } else {
             this.model.detailObjectId = objectId;
+            this.isModelVisible = true;
         }
     }
 
@@ -193,20 +209,11 @@ export class ProblemStudentMatrixList extends React.Component<any, ProblemStuden
         }
 
         return <div>
-            <Modal show={Boolean(model.detailObjectId)}
-                size="lg" animation={false}
-                onHide={() => this.onDetailIdChanged()}>
-                <Modal.Header>
-                    {model.detailObjectId}
-                </Modal.Header>
-                <Modal.Body>
-                    {model.detailObjectId &&
-                        <div className="student-result-detail">
-                            <StudentResultDetail objectId={model.detailObjectId} />
-                        </div>
-                    }
-                </Modal.Body>
-            </Modal>
+            <StudentResultDetail
+                show={this.isModelVisible}
+                objectId={model.detailObjectId}
+                onCloseModal={() => this.isModelVisible = false}
+            />
             <ReactTableWithSelect
                 extractData={(key: string) => this.extractData(key)}
                 columns={this.model.columns}

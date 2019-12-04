@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using CC.Net.Collections;
+using CC.Net.Dto;
 using CC.Net.Entities;
 using CC.Net.Services.Courses;
 using CC.Net.Services.Languages;
@@ -27,6 +28,7 @@ namespace CC.Net
                         .For<Course>()
                         .For<CcData>()
                         .For<CcDataAgg>()
+                        .For<MarkSolutionItem>()
                         .For<TableRequest>()
                         .For<TableResponse>()
                         .WithModuleNameFormatter((moduleName) => "")

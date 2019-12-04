@@ -69,6 +69,7 @@
 		lang: string;
 		objectId: string;
 		output_dir: string;
+		points: number;
 		problem: string;
 		result: ICcDataResult;
 		results: ICcDataResult[];
@@ -105,6 +106,10 @@
 		machine: number;
 		pid: number;
 		timestamp: number;
+	}
+	interface IMarkSolutionItem {
+		objectId: string;
+		points: number;
 	}
 	interface ITableRequest {
 		filtered: ITableRequestFilter[];

@@ -26,7 +26,7 @@ export class Layout extends Component<any, LayoutState, any> {
     return (
       <div>
         <NavMenu />
-        <Container className={this.state.extraStyle}>
+        <Container className={`${this.state.extraStyle} wide`}>
           {this.props.children}
         </Container>
       </div>

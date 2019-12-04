@@ -1,7 +1,12 @@
 using System.Collections.Generic;
+using CC.Net.Collections;
+using CC.Net.Db;
+using CC.Net.Dto;
 using CC.Net.Services.Courses;
 using CC.Net.Services.Languages;
 using Microsoft.AspNetCore.Mvc;
+using MongoDB.Bson;
+using MongoDB.Driver;
 
 namespace CC.Net.Controllers
 {
@@ -11,11 +16,13 @@ namespace CC.Net.Controllers
     {
         private readonly CourseService _courseService;
         private readonly LanguageService _languageService;
+        private readonly DbService _dbService;
 
-        public ApiConfigController(CourseService courseService, LanguageService languageService)
+        public ApiConfigController(CourseService courseService, LanguageService languageService, DbService dbService)
         {
             _courseService = courseService;
             _languageService = languageService;
+             _dbService = dbService;
         }
 
         [Route("courses")]
@@ -52,6 +59,16 @@ namespace CC.Net.Controllers
         public CourseProblemCase CourseProblemCase(string courseId, string year, string problemId, string caseId)
         {
             return _courseService[courseId][year][problemId][caseId];
+        }
+
+
+        [Route("mark-solution")]
+        public UpdateResult MarkSolution([FromBody] MarkSolutionItem item)
+        {
+            var filter = Builders<CcData>.Filter.Eq("id", new ObjectId(item.objectId));
+            var update = Builders<CcData>.Update.Set("points", item.points);
+            return _dbService.Data
+                .UpdateOne(filter, update);
         }
     }
 }

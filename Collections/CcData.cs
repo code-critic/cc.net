@@ -34,6 +34,7 @@ namespace CC.Net.Collections
         public string solution { get; set; }
         public string output_dir { get; set; }
         public int? attempt { get; set; }
+        public float? points { get; set; }
 
 
         public DateTime? review_request { get; set; }

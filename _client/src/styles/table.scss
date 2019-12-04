@@ -79,3 +79,12 @@ $statuses: (
     }
   }
 }
+
+.text-align-left {
+  text-align: left !important;
+}
+
+
+.container.wide {
+  max-width: calc( 100% - 30px );
+} 
