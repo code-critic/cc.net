@@ -1,9 +1,15 @@
+using System;
 using System.Collections.Generic;
+using System.IO;
 using CC.Net.Collections;
+using CC.Net.Config;
 using CC.Net.Db;
 using CC.Net.Dto;
 using CC.Net.Services.Courses;
 using CC.Net.Services.Languages;
+using DiffPlex;
+using DiffPlex.DiffBuilder;
+using DiffPlex.DiffBuilder.Model;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Bson;
 using MongoDB.Driver;
@@ -17,12 +23,15 @@ namespace CC.Net.Controllers
         private readonly CourseService _courseService;
         private readonly LanguageService _languageService;
         private readonly DbService _dbService;
+        private readonly AppOptions _appOptions;
 
-        public ApiConfigController(CourseService courseService, LanguageService languageService, DbService dbService)
+        public ApiConfigController(CourseService courseService, 
+            LanguageService languageService, DbService dbService, AppOptions appOptions)
         {
             _courseService = courseService;
             _languageService = languageService;
              _dbService = dbService;
+             _appOptions = appOptions;
         }
 
         [Route("courses")]
@@ -69,6 +78,55 @@ namespace CC.Net.Controllers
             var update = Builders<CcData>.Update.Set("points", item.points);
             return _dbService.Data
                 .UpdateOne(filter, update);
+        }
+
+        [Route("diff/{objectId}")]
+        public IEnumerable<DiffResult> ViewDiff(string objectId)
+        {
+            var data = _dbService.Data
+                .Find(i => i.id == new ObjectId(objectId))
+                .First();
+
+            var problem = _courseService[data.courseName][data.courseYear][data.problem];
+            var solutionDir = Path.Combine(_appOptions.RootDir, data.output_dir, "output");
+            var studentDirInfo = new DirectoryInfo(solutionDir);
+            var courseDirInfo = new DirectoryInfo(
+                Path.Combine(
+                    _appOptions.CourseDir, data.courseName, data.courseYear, "problems", data.problem, "output"
+                )
+            );
+            foreach(var refO in courseDirInfo.GetFiles()) {
+                var studentO = new FileInfo(Path.Combine(solutionDir, refO.Name));
+                var diffBuilder = new InlineDiffBuilder(new Differ());
+                var diff = diffBuilder.BuildDiffModel(
+                    File.ReadAllText(refO.ToString()), File.ReadAllText(studentO.ToString())
+                );
+
+                yield return new DiffResult() {
+                    filename = refO.Name,
+                    lines = diff.Lines
+                };
+                foreach (var line in diff.Lines)
+                {
+                    switch (line.Type)
+                    {
+                        case ChangeType.Inserted:
+                            Console.ForegroundColor = ConsoleColor.Red;
+                            Console.Write("+ ");
+                            break;
+                        case ChangeType.Deleted:
+                            Console.ForegroundColor = ConsoleColor.Green;
+                            Console.Write("- ");
+                            break;
+                        default:
+                            Console.ForegroundColor = ConsoleColor.White;
+                            Console.Write("  ");
+                            break;
+                    }
+
+                    Console.WriteLine(line.Text);
+                }
+            }
         }
     }
 }

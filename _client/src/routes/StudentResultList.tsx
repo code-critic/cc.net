@@ -14,6 +14,7 @@ import "react-table/react-table.css";
 import "../styles/detail.css";
 import "../styles/list.css";
 import { Modal } from "react-bootstrap";
+import { ICcData } from "../models/DataModel";
 
 
 interface StudentResultListState {
@@ -95,7 +96,7 @@ export class StudentResultList extends React.Component<any, StudentResultListSta
             <StudentResultDetail
                 show={this.isModelVisible}
                 objectId={model.detailObjectId}
-                onCloseModal={() => this.isModelVisible = false}
+                onCloseModal={(reload) => this.isModelVisible = false}
                 />
             <CondenseButton onChange={(value: string) => this.changeDensity(value)} />
             <div className="student-result-list-wrapper">

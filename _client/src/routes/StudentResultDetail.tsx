@@ -10,6 +10,9 @@ import { SimpleLoader } from "../components/SimpleLoader";
 import "../styles/detail.css";
 import "code-prettify/src/prettify.css";
 import "../third_party/prettify.js";
+import { getPoints } from "../utils/DataUtils";
+import { ModalDiff } from "../components/ModalDiff";
+import { IMarkSolutionItem, ICcData } from "../models/DataModel";
 // import 'highlight.js/styles/github.css';
 
 
@@ -63,7 +66,7 @@ export interface StudentResultDetailProps {
     objectId: string;
     match?: any;
     show: boolean;
-    onCloseModal: () => void;
+    onCloseModal: (reload: boolean) => void;
 }
 
 declare global {
@@ -81,17 +84,22 @@ declare global {
 export class StudentResultDetail extends React.Component<StudentResultDetailProps, StudentResultDetailState, any> {
     public model: StudentResultDetailModel;
 
+    public nameInput: HTMLInputElement | null = null;
+
+    @observable
+    public isDiffVisible: boolean = false;
+
     constructor(props: any) {
         super(props);
         this.model = new StudentResultDetailModel();
         this.model.setObjectId(this.props.objectId);
     }
 
-    private closeModal = () => {
-        this.props.onCloseModal();
+    public closeModal = (reload: boolean = false) => {
+        this.props.onCloseModal(reload);
     }
 
-    private renderBody() {
+    public renderBody() {
         const { model } = this;
         if (model.isLoading || !model.data) {
             return <SimpleLoader />
@@ -107,15 +115,25 @@ export class StudentResultDetail extends React.Component<StudentResultDetailProp
         </>;
     }
 
-    private onCodeRowClicked(node: Element, line: number) {
+    public onCodeRowClicked(node: Element, line: number) {
         console.log(node);
     }
 
-    public componentDidUpdate() {
-        console.log("updated");
+    componentDidMount() {
+        if (this.nameInput) {
+            this.nameInput.focus();
+            this.nameInput.select();
+        }
+    }
+
+    componentDidUpdate() {
         const { model } = this;
         if (model.isLoading || !model.data) {
             return;
+        }
+        if (this.nameInput) {
+            this.nameInput.focus();
+            this.nameInput.select();
         }
         // const lineList = window.document.querySelectorAll("ol.linenums > li");
         // const lines = lineList.length;
@@ -130,17 +148,17 @@ export class StudentResultDetail extends React.Component<StudentResultDetailProp
         // }
     }
 
-    public savePoints (e: any) {
+    public savePoints() {
         const { model } = this;
         if (!model.isLoading && model.data) {
             httpClient.fetch(`mark-solution`, {
-                objectId:  model.data.objectId,
+                objectId: model.data.objectId,
                 points: model.data.points,
             } as IMarkSolutionItem)
-            .then((data: any) => {
-                console.log(data);
-                this.closeModal();
-            });
+                .then((data: any) => {
+                    console.log(data);
+                    this.closeModal(true);
+                });
         }
     }
 
@@ -152,6 +170,25 @@ export class StudentResultDetail extends React.Component<StudentResultDetailProp
         }
     }
 
+    public handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
+        if (e.key === "Enter") {
+            this.savePoints();
+        }
+    }
+
+
+    public showDiff() {
+        if(!this.model || !this.model.data || !this.model.data.objectId) {
+            return;
+        }
+        this.isDiffVisible = true;
+    }
+
+    public closeDiff() {
+        this.isDiffVisible = false;
+    }
+
+
     render() {
         const { model } = this;
         model.setObjectId(this.props.objectId);
@@ -159,43 +196,51 @@ export class StudentResultDetail extends React.Component<StudentResultDetailProp
         if (model.isLoading || !model.data) {
             return <></>
         }
+        const { data } = model;
 
-        let notSaved = false;
-        if (model.data.points === null) {
-            if (model.data.result && model.data.result.scores) {
-                if (model.data.result.scores.length == 3) {
-                    model.data.points = 10 * model.data.result.scores[0];
-                    notSaved = true;
-                } else {
-                    model.data.points = 0;
-                    notSaved = true;
-                }
-            } else {
-                model.data.points = 0;
-                notSaved = true;
-            }
-        }
+        const points = getPoints(data, -1);
+        const notSaved = data.points !== points;
+        data.points = points === -1 ? 0 : points;
 
         return (<>
             <Modal show={this.props.show} onHide={() => this.closeModal()} size="xl" scrollable>
                 <Modal.Header closeButton>
                     <Modal.Title>
-                        #{model.data.attempt} - {model.data.user}
+                        #{data.attempt} - {data.user} - <small>{data.objectId}</small>
                     </Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     <label htmlFor="solution-points">Score:&nbsp;</label>
-                    <input id="solution-points" onChange={e => this.setPoints(Number(e.target.value))}
-                            defaultValue={model.data.points} type="number"></input>
-                    {notSaved  && <span>*</span>}
+                    <input id="solution-points"
+                        onChange={e => this.setPoints(Number(e.target.value))}
+                        onKeyDown={e => this.handleKeyDown(e)}
+                        defaultValue={data.points}
+                        ref={(input) => this.nameInput = input}
+                        type="number">
+                    </input>
+                    {notSaved && <span>*</span>}
+                    <Button size="sm" variant="outline-dark" onClick={() => this.showDiff()} >
+                        Show diff
+                    </Button>
                     <br />
                     {this.renderBody()}
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button onClick={() => this.closeModal()}>Close</Button>
-                    <Button variant="danger" onClick={(e) => this.savePoints(e)}>Save</Button>
+                    <Button variant="outline-dark" onClick={() => this.showDiff()} >
+                        Show diff
+                    </Button>
+                    <Button onClick={() => this.closeModal()}>
+                        Close
+                    </Button>
+                    <Button variant="danger" onClick={(e) => this.savePoints()}>
+                        Save
+                    </Button>
                 </Modal.Footer>
             </Modal>
+            <ModalDiff objectId={data.objectId}
+                show={this.isDiffVisible}
+                onCloseModal={() => this.closeDiff()}
+            />
         </>);
     }
 }

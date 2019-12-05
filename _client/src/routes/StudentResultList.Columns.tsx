@@ -5,6 +5,7 @@ import "react-table/react-table.css";
 import Moment from 'react-moment';
 import moment from 'moment';
 import { StudentResultListModel } from "./StudentResultList.Model";
+import { ICcDataResult, ICcData } from "../models/DataModel";
 
 
 export function getStatusOrDefault(result: ICcDataResult) {
@@ -134,6 +135,12 @@ export function getColumns(model: StudentResultListModel) {
             filterable: false,
             maxWidth: 100,
             sortMethod: (a: ICcDataResult, b: ICcDataResult) => a.score - b.score,
+        },
+        {
+            Header: "Points",
+            accessor: nameof<ICcData>(i => i.points),
+            filterable: false,
+            maxWidth: 100,
         },
         {
             Header: "Status",

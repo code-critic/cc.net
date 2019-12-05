@@ -12,6 +12,9 @@ import { nestGet } from "../utils/NestGetter";
 import { Modal } from "react-bootstrap";
 import { StudentResultDetail } from "./StudentResultDetail";
 import { getStatus } from "./StudentResultList.Columns";
+import { getPoints } from "../utils/DataUtils";
+import { sum } from "d3";
+import { ICourse, ICcDataResult, ICcDataAgg } from "../models/DataModel";
 
 interface ProblemStudentMatrixListState {
 
@@ -100,6 +103,7 @@ export class ProblemStudentMatrixListModel {
                         const id = single.result.objectId;
                         row[problem] = single.result.result;
                         row[problem].id = id || null;
+                        row[problem].points = single.result.points;
                     });
                     row.user = user;
                     data.push(row);
@@ -128,11 +132,19 @@ export class ProblemStudentMatrixListModel {
                         Header: problem,
                         accessor: problem,
                         Cell: (cellInfo: CellInfo) => {
-                            const value: ICcDataResult = cellInfo.value;
-                            if (value.score === -1 || !value.scores || !value.scores.length) {
-                                return <span>---</span>
+                            const value: ICcDataResult | any = cellInfo.value;
+                            const data = {result: value, points: value.points};
+                            const points = getPoints(data as any, 0);
+                            const sumScore = sum(value.scores);
+                            if (points === 0 && sumScore === 0) {
+                                return <div>---</div>
                             }
-                            return <span>{value.scores.join("-")}</span>
+                            return <div className="cell cell-points">
+                                    <div>{points}</div>
+                                    {(value.scores && value.scores.length > 0) && (
+                                        <small>({value.scores.join("-")})</small>
+                                    )}
+                                </div>
                         }
                     }
                     this.columns.push(col);
@@ -176,15 +188,9 @@ export class ProblemStudentMatrixList extends React.Component<any, ProblemStuden
             return this.model.data.map(d => nestGet(d, key));
         } else {
             return this.model.data.map(d => {
-                const points = nestGet(d, `${key}.points`);
-                if (points !== "") {
-                    return String(points);
-                }
-                const score = Number(nestGet(d, `${key}.score`));
-                const scores = nestGet(d, `${key}.scores`);
-                return score === -1 ? "---" : String(Number(scores[0]) * 10);
-            }
-            );
+                const data = {result: d[key], points: d[key].points};
+                return getPoints(data as any).toString();
+            });
         }
     }
 
@@ -198,6 +204,14 @@ export class ProblemStudentMatrixList extends React.Component<any, ProblemStuden
         }
     }
 
+    private closeModal(reload: boolean) {
+        this.isModelVisible = false;
+        this.model.detailObjectId = "";
+        if (reload) {
+            this.model.loadCourse();
+        }
+    }
+    
     render() {
         const { model } = this;
         if (!model.courseId) {
@@ -212,7 +226,7 @@ export class ProblemStudentMatrixList extends React.Component<any, ProblemStuden
             <StudentResultDetail
                 show={this.isModelVisible}
                 objectId={model.detailObjectId}
-                onCloseModal={() => this.isModelVisible = false}
+                onCloseModal={(reload) => this.closeModal(reload)}
             />
             <ReactTableWithSelect
                 extractData={(key: string) => this.extractData(key)}
@@ -230,7 +244,7 @@ export class ProblemStudentMatrixList extends React.Component<any, ProblemStuden
                         onClick: () => this.onDetailIdChanged(col.id)
                     }
                 }}
-                className="-stripped -highlight"
+                className="-stripped -highlight summary"
                 sortable
             />
         </div>

@@ -1,6 +1,7 @@
 import { observable, action } from "mobx"
 import "react-table/react-table.css";
 import { httpClient } from "../init";
+import { ICcData, ILanguage, ITableRequestSort, ITableRequestFilter, ITableResponse } from "../models/DataModel";
 
 
 export class StudentResultListModel {

@@ -6,6 +6,7 @@ using CC.Net.Entities;
 using CC.Net.Services.Courses;
 using CC.Net.Services.Languages;
 using CC.Net.Utils;
+using DiffPlex.DiffBuilder.Model;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -31,6 +32,9 @@ namespace CC.Net
                         .For<MarkSolutionItem>()
                         .For<TableRequest>()
                         .For<TableResponse>()
+
+                        .For<DiffResult>()
+
                         .WithModuleNameFormatter((moduleName) => "")
                         .WithMemberFormatter((identifier) => 
                             Char.ToLower(identifier.Name[0]) + identifier.Name.Substring(1)

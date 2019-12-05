@@ -64,6 +64,8 @@
 		action: string;
 		attempt: number;
 		course: string;
+		courseName: string;
+		courseYear: string;
 		docker: boolean;
 		id: IObjectId;
 		lang: string;
@@ -107,6 +109,10 @@
 		pid: number;
 		timestamp: number;
 	}
+	interface IDiffResult {
+		filename: string;
+		lines: IDiffPiece[];
+	}
 	interface IMarkSolutionItem {
 		objectId: string;
 		points: number;
@@ -128,4 +134,17 @@
 	interface ITableResponse {
 		count: number;
 		data: any[];
+	}
+	export const enum ChangeType {
+		Unchanged = 0,
+		Deleted = 1,
+		Inserted = 2,
+		Imaginary = 3,
+		Modified = 4
+	}
+	interface IDiffPiece {
+		position: number;
+		subPieces: IDiffPiece[];
+		text: string;
+		type: ChangeType;
 	}

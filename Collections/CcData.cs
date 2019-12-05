@@ -27,6 +27,9 @@ namespace CC.Net.Collections
         public string action { get; set; }
         public bool docker { get; set; }
 
+        public string courseName => course.Split('-')[0];
+        public string courseYear => course.Split('-')[1];
+
         public CcDataResult result { get; set; }
         public List<CcDataResult> results { get; set; }
         public string uuid { get; set; }

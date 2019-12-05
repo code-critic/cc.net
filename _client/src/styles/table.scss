@@ -40,6 +40,11 @@ $statuses: (
 }
 
 .ReactTable {
+  &.summary {
+    .rt-td {
+      padding: 3px;
+    }
+  }
   .rt-tr {
     @each $status, $color in $statuses {
       &.status-#{$status} {
@@ -87,4 +92,26 @@ $statuses: (
 
 .container.wide {
   max-width: calc( 100% - 30px );
-} 
+}
+
+.cell.cell-points {
+  > div {
+    font-weight: 500;
+    line-height: 0.3rem;
+    font-size: 0.8rem;
+    display: inline;
+    padding-right: 5px;
+  }
+  > small {
+    font-size: 0.6rem;
+    padding: 0;
+    line-height: 0.6rem;
+  }
+}
+
+.modal-backdrop.on-top {
+  z-index: 1050;
+}
+.modal.on-top {
+  z-index: 1051;
+}
