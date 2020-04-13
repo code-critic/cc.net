@@ -5,7 +5,7 @@ import "react-table/react-table.css";
 import Moment from 'react-moment';
 import moment from 'moment';
 import { StudentResultListModel } from "./StudentResultList.Model";
-import { ICcDataResult, ICcData } from "../models/DataModel";
+import { ICcDataResult, ICcData, ICourse } from "../models/DataModel";
 
 
 export function getStatusOrDefault(result: ICcDataResult) {
@@ -59,7 +59,7 @@ function statusRenderer(cellInfo: CellInfo) {
     </span>);
 }
 
-export function getColumns(model: StudentResultListModel) {
+export function getColumns(model: StudentResultListModel, courses: ICourse[]) {
     return [
         {
             Header: () => "#",
@@ -109,12 +109,32 @@ export function getColumns(model: StudentResultListModel) {
                 <select onChange={event => params.onChange(event.target.value)} style={{ width: "100%" }}
                     value={params.filter ? params.filter.value : "all"}>
                     <option value="all">Show All</option>
-                    {model.languages.map(l => <option key={l.id} value={l.id}>{l.name}</option>)}
+                    {model.languages.data.map(l => <option key={l.id} value={l.id}>{l.name}</option>)}
                 </select>
         },
         {
             Header: "Problem",
             accessor: nameof<ICcData>(i => i.problem),
+            filterMethod: (filter: Filter, row: ICcData) => {
+                if (filter.value === "all") {
+                    return true;
+                }
+                return getStatusOrDefault(row.result) === filter.value;
+            },
+            Filter: (params: { column: Column, filter: any, onChange: ReactTableFunction, key?: string }) =>
+                <select onChange={event => params.onChange(event.target.value)} style={{ width: "100%" }}
+                    value={params.filter ? params.filter.value : "all"}>
+                    <option value="all">Show All</option>
+                    {courses
+                        .flatMap(i => i.courseYears
+                            .flatMap(j => j.problems
+                                .map(k => {
+                                    return { course: i.name, year: j.year, problem: k.id}
+                                })))
+                            .filter((i, j, k) => k.find(l => l.problem === i.problem) !== null)
+                            .map(i => <option value={i.problem}>{i.course}-{i.problem}</option>)
+                    }
+                </select>
         },
         {
             Header: "Review Request",

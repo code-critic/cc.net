@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 
 namespace CC.Net.Utils
@@ -10,8 +11,17 @@ namespace CC.Net.Utils
             var deserializer = new YamlDotNet.Serialization.DeserializerBuilder()
                 .IgnoreUnmatchedProperties()
                 .Build();
-                
-            return deserializer.Deserialize<T>(content);
+
+            try
+            {
+                return deserializer.Deserialize<T>(content);
+            }
+            catch(Exception ex)
+            {
+                Console.Error.WriteLine($"Error reading file {path}");
+                throw ex;
+            }
+            
         }
     }
 }

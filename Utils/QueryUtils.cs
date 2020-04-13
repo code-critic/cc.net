@@ -36,6 +36,11 @@ namespace CC.Net.Utils
                 return null;
             }
 
+            if (filter.id == "course")
+            {
+                return $"{nameof(CcData.course)}: \"{filter.value}\"";
+            }
+
             var extra = extras.FirstOrDefault(i => i.Id == filter.id);
             if (extra != null)
             {
