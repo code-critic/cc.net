@@ -32,6 +32,7 @@ namespace CC.Net.Controllers
             },
             {
                 ""$sort"": {
+                    ""points"": -1,
                     ""result.score"": -1
                 }
             },

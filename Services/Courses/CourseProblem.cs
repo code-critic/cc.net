@@ -3,6 +3,7 @@ using System.Linq;
 
 namespace CC.Net.Services.Courses
 {
+
     public class CourseProblem
     {
         public string id { get; set; }

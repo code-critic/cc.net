@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.IO;
 
 namespace CC.Net.Utils
@@ -8,8 +7,11 @@ namespace CC.Net.Utils
         public static T Read<T>(string path)
         {
             var content = File.ReadAllText(path);
-            return new YamlDotNet.Serialization.Deserializer()
-                .Deserialize<T>(content);
+            var deserializer = new YamlDotNet.Serialization.DeserializerBuilder()
+                .IgnoreUnmatchedProperties()
+                .Build();
+                
+            return deserializer.Deserialize<T>(content);
         }
     }
 }
