@@ -32,6 +32,7 @@ namespace CC.Net
                         .For<MarkSolutionItem>()
                         .For<TableRequest>()
                         .For<TableResponse>()
+                        .For<SingleCourse>()
 
                         .For<DiffResult>()
 

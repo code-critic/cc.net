@@ -33,6 +33,7 @@
 	interface ICourseProblem {
 		avail: string;
 		cat: string;
+		description: string;
 		id: string;
 		item: ICourseProblemCase;
 		name: string;
@@ -57,6 +58,12 @@
 	}
 	interface ICourseYearConfig {
 		item: ICourseProblem;
+		problems: ICourseProblem[];
+		year: string;
+	}
+	interface ISingleCourse {
+		course: string;
+		courseConfig: ICourseConfig;
 		problems: ICourseProblem[];
 		year: string;
 	}

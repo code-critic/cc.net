@@ -1,7 +1,7 @@
-import { observable, action } from "mobx"
+import { action, observable } from "mobx";
 import "react-table/react-table.css";
 import { httpClient } from "../init";
-import { ICcData, ILanguage, ITableRequestSort, ITableRequestFilter, ITableResponse, ICourse } from "../models/DataModel";
+import { ICcData, ICourse, ILanguage, ITableRequestFilter, ITableRequestSort, ITableResponse } from "../models/DataModel";
 import { ApiResource } from "../utils/ApiResource";
 
 
@@ -28,10 +28,5 @@ export class StudentResultListModel {
                 this.pages = Math.ceil(res.count / pageSize);
                 this.dataIsLoading = false;
             });
-    }
-
-    constructor() {
-        this.languages.load();
-        this.courses.load();
     }
 }

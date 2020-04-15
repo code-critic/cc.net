@@ -1,4 +1,3 @@
-
 interface HttpClientConfig {
     baseUrl: string;
     headers: { [key: string]: string };
@@ -28,8 +27,8 @@ export class LayoutUtils {
     public className: string = "";
     public setContainerStyle(style: string) {
         this.className = style
-        
-        if(this.onChange) {
+
+        if (this.onChange) {
             this.onChange(this.className);
         }
     }

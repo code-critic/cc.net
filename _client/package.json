@@ -42,6 +42,7 @@
     "oidc-client": "^1.9.0",
     "plotly.js": "^1.50.1",
     "react": "^16.0.0",
+    "react-ace-editor": "0.0.3",
     "react-bootstrap": "^1.0.0-beta.14",
     "react-dom": "^16.0.0",
     "react-highlight": "^0.12.0",
@@ -52,6 +53,7 @@
     "react-scripts": "^3.0.1",
     "react-spinners": "^0.6.1",
     "react-table": "^6.10.3",
+    "reactjs-localstorage": "0.0.8",
     "reactstrap": "^6.3.0",
     "rimraf": "^2.6.2",
     "throttle-debounce": "^2.1.0",
@@ -60,7 +62,8 @@
   "devDependencies": {
     "ajv": "^6.9.1",
     "cross-env": "^5.2.0",
-    "typescript": "^3.6.4"
+    "typescript": "^3.6.4",
+    "typescript-plugin-proactive-code-fixes": "0.0.18"
   },
   "eslintConfig": {
     "extends": "react-app"

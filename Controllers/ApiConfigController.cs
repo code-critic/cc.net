@@ -1,10 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using CC.Net.Collections;
 using CC.Net.Config;
 using CC.Net.Db;
 using CC.Net.Dto;
+using CC.Net.Services;
 using CC.Net.Services.Courses;
 using CC.Net.Services.Languages;
 using DiffPlex;
@@ -24,54 +26,79 @@ namespace CC.Net.Controllers
         private readonly LanguageService _languageService;
         private readonly DbService _dbService;
         private readonly AppOptions _appOptions;
+        private readonly ProblemDescriptionService _problemDescriptionService;
 
         public ApiConfigController(CourseService courseService, 
-            LanguageService languageService, DbService dbService, AppOptions appOptions)
+            LanguageService languageService, DbService dbService, AppOptions appOptions, ProblemDescriptionService problemDescriptionService)
         {
             _courseService = courseService;
             _languageService = languageService;
              _dbService = dbService;
              _appOptions = appOptions;
+            _problemDescriptionService = problemDescriptionService;
         }
 
-        [Route("courses")]
+        [HttpGet("courses")]
         public List<Course> Courses()
         {
             return _courseService.Courses;
         }
 
-        [Route("languages")]
+        [HttpGet("courses-full/{courseId}/{year}")]
+        public List<CourseProblem> CourseFull(string courseId, string year)
+        {
+            var course = _courseService[courseId];
+            var yearConfig = course[year];
+
+            var singleCourse = new SingleCourse
+            {
+                Course = course.Name,
+                Year = yearConfig.Year,
+                CourseConfig = course.CourseConfig,
+                Problems = yearConfig.Problems,
+            };
+
+            var problems = yearConfig
+                .Problems
+                .Select(i => i.AddDescription(_problemDescriptionService, singleCourse))
+                .ToList();
+
+            return problems;
+        }
+
+        [HttpGet("languages")]
         public List<Language> Languages()
         {
             return _languageService.Languages;
         }
 
-        [Route("course/{courseId}")]
+        [HttpGet("course/{courseId}")]
         public Course Course(string courseId)
         {
             return _courseService[courseId];
         }
 
-        [Route("course/{courseId}/{year}")]
+        [HttpGet("course/{courseId}/{year}")]
         public CourseYearConfig CourseYearConfig(string courseId, string year)
         {
             return _courseService[courseId][year];
         }
 
-        [Route("course/{courseId}/{year}/{problemId}")]
+        [HttpGet("course/{courseId}/{year}/{problemId}")]
         public CourseProblem CourseProblem(string courseId, string year, string problemId)
         {
-            return _courseService[courseId][year][problemId];
+            var problem = _courseService[courseId][year][problemId];
+            return problem;
         }
 
-        [Route("course/{courseId}/{year}/{problemId}/{caseId}")]
+        [HttpGet("course/{courseId}/{year}/{problemId}/{caseId}")]
         public CourseProblemCase CourseProblemCase(string courseId, string year, string problemId, string caseId)
         {
             return _courseService[courseId][year][problemId][caseId];
         }
 
 
-        [Route("mark-solution")]
+        [HttpGet("mark-solution")]
         public UpdateResult MarkSolution([FromBody] MarkSolutionItem item)
         {
             var filter = Builders<CcData>.Filter.Eq("id", new ObjectId(item.objectId));
@@ -80,7 +107,7 @@ namespace CC.Net.Controllers
                 .UpdateOne(filter, update);
         }
 
-        [Route("diff/{objectId}")]
+        [HttpGet("diff/{objectId}")]
         public IEnumerable<DiffResult> ViewDiff(string objectId)
         {
             var data = _dbService.Data

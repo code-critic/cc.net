@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * @license
  * Copyright (C) 2006 Google Inc.

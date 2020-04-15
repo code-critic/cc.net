@@ -3,6 +3,7 @@ import React from 'react';
 import { Navbar, Container, NavbarBrand, Collapse, NavItem } from 'react-bootstrap';
 import { NavLink } from 'react-router-dom';
 import './NavMenu.css';
+import { pageLinks } from '../pageLinks';
 
 
 interface NavMenuState {
@@ -37,15 +38,11 @@ export class NavMenu extends React.Component<NavMenuState, any, any> {
             {/* <NavbarToggler onClick={this.toggleNavbar} className="mr-2" /> */}
             <Collapse in={true}>
               <ul className="navbar-nav flex-grow">
-                <NavItem>
-                  <NavLink className="text-dark px-2" to="/">Home</NavLink>
-                </NavItem>
-                <NavItem>
-                  <NavLink className="text-dark px-2" to="/problem-student-matrix">Problem-Student Matrix</NavLink>
-                </NavItem>
-                <NavItem>
-                  <NavLink className="text-dark px-2" to="/view-results">View Results</NavLink>
-                </NavItem>
+                {pageLinks.map(i =>
+                  <NavItem key={i.path}>
+                    <NavLink className="text-dark px-2" to={i.to}>{i.title}</NavLink>
+                  </NavItem>
+                )}
               </ul>
             </Collapse>
           </Container>

@@ -1,18 +1,18 @@
+import "code-prettify/src/prettify.css";
+import { action, observable } from "mobx";
+import { observer } from "mobx-react";
 import React from "react";
-import { observer } from "mobx-react"
-import { observable, action, $mobx } from "mobx"
-import { httpClient } from "../init";
 // import Highlight from 'react-highlight'
-import { Modal, Button } from "react-bootstrap";
+import { Button, Modal } from "react-bootstrap";
+import { ModalDiff } from "../components/ModalDiff";
 import { SimpleLoader } from "../components/SimpleLoader";
-
+import { httpClient } from "../init";
+import { ICcData, IMarkSolutionItem } from "../models/DataModel";
 // import hljs from 'highlight.js';
 import "../styles/detail.css";
-import "code-prettify/src/prettify.css";
 import "../third_party/prettify.js";
 import { getPoints } from "../utils/DataUtils";
-import { ModalDiff } from "../components/ModalDiff";
-import { IMarkSolutionItem, ICcData } from "../models/DataModel";
+
 // import 'highlight.js/styles/github.css';
 
 

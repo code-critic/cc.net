@@ -1,11 +1,11 @@
-import React from "react";
-import { CellInfo, Filter, Column, ReactTableFunction } from "react-table";
-import { nameof } from "ts-simple-nameof"
-import "react-table/react-table.css";
-import Moment from 'react-moment';
 import moment from 'moment';
+import React from "react";
+import Moment from 'react-moment';
+import { CellInfo, Column, Filter, ReactTableFunction } from "react-table";
+import "react-table/react-table.css";
+import { nameof } from "ts-simple-nameof";
+import { ICcData, ICcDataResult, ICourse } from "../models/DataModel";
 import { StudentResultListModel } from "./StudentResultList.Model";
-import { ICcDataResult, ICcData, ICourse } from "../models/DataModel";
 
 
 export function getStatusOrDefault(result: ICcDataResult) {

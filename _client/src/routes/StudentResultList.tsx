@@ -1,20 +1,20 @@
+import { observable } from "mobx";
+import { observer } from "mobx-react";
 import React from "react";
-import { observer } from "mobx-react"
-import { observable } from "mobx"
-import { RowInfo, Column } from "react-table";
+import { Form } from "react-bootstrap";
+import { Column, RowInfo } from "react-table";
+import "react-table/react-table.css";
+import { throttle } from 'throttle-debounce';
+import { ICcData } from "../models/DataModel";
+import "../styles/detail.css";
+import "../styles/list.css";
+import { CondenseButton } from "../utils/CondenseButton";
 import { nestGet } from "../utils/NestGetter";
 import { ReactTableWithSelect } from "../utils/ReactTableWithSelect";
-import { CondenseButton } from "../utils/CondenseButton";
 import { StudentResultDetail } from "./StudentResultDetail";
 import { getColumns, getStatus } from "./StudentResultList.Columns";
 import { StudentResultListModel } from "./StudentResultList.Model";
-import { throttle } from 'throttle-debounce';
 
-import "react-table/react-table.css";
-import "../styles/detail.css";
-import "../styles/list.css";
-import { Modal, Dropdown, Row, Col, DropdownButton, Form } from "react-bootstrap";
-import { ICcData } from "../models/DataModel";
 
 
 interface StudentResultListState {

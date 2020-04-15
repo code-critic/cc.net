@@ -19,5 +19,13 @@ namespace CC.Net.Services.Courses
         {
             get => tests.First(i => i.id.ToLower() == key.ToLower());
         }
+
+        public string Description { get; set; }
+
+        public CourseProblem AddDescription(ProblemDescriptionService problemDescriptionService, SingleCourse course)
+        {
+            Description = problemDescriptionService.GetProblemReadMe(this, course);
+            return this;
+        }
     }
 }

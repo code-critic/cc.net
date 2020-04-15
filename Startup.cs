@@ -1,5 +1,6 @@
 using CC.Net.Config;
 using CC.Net.Db;
+using CC.Net.Services;
 using CC.Net.Services.Courses;
 using CC.Net.Services.Languages;
 using Microsoft.AspNetCore.Builder;
@@ -25,6 +26,8 @@ namespace CC.Net
         public MongoDBConfig MongoDBConfig { get; set; }
         public AppOptions AppOptions { get; set; }
 
+        public static IServiceProvider ServiceProvider { get; set; }
+
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
@@ -34,6 +37,7 @@ namespace CC.Net
             services.AddScoped<LanguageService>();
             services.AddScoped<CourseService>();
             services.AddScoped<DbService>();
+            services.AddScoped<ProblemDescriptionService>();
             services.AddControllersWithViews();
 
             // In production, the React files will be served from this directory
@@ -45,6 +49,8 @@ namespace CC.Net
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IServiceProvider serviceProvider)
         {
+            ServiceProvider = serviceProvider;
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -72,6 +78,7 @@ namespace CC.Net
                 endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{controller}/{action=Index}/{id?}");
+                endpoints.MapControllers();
             });
 
             app.UseSpa(spa =>

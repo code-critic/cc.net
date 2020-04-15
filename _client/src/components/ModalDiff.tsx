@@ -1,10 +1,9 @@
+import { observable } from "mobx";
+import { observer } from "mobx-react";
 import React from "react";
-import { observer } from "mobx-react"
-import { observable, action, $mobx } from "mobx"
+import { Modal } from "react-bootstrap";
 import { httpClient } from "../init";
-import { Modal, Button } from "react-bootstrap";
-import { SimpleLoader } from "../components/SimpleLoader";
-import { IDiffResult, IDiffPiece } from "../models/DataModel";
+import { IDiffPiece, IDiffResult } from "../models/DataModel";
 
 
 enum ChangeType {
@@ -20,7 +19,7 @@ export function renderDiff(result: IDiffResult) {
     return <div>
         <h3>{result.filename}</h3>
         <ul>
-            {result.lines.map((line, index) => 
+            {result.lines.map((line, index) =>
                 renderDiffLine(line, index)
             )}
         </ul>
@@ -29,7 +28,7 @@ export function renderDiff(result: IDiffResult) {
 
 export function renderDiffLine(line: IDiffPiece, index: number) {
     let cls = "";
-    switch(line.type as any) {
+    switch (line.type as any) {
         case ChangeType.Unchanged:
             cls = "";
             break;
@@ -55,13 +54,13 @@ export class ModalDiffModel {
     private objectId: string = "";
 
     viewDiff(objectId: string) {
-        if(this.objectId != objectId) {
+        if (this.objectId !== objectId) {
             this.objectId = objectId;
 
             httpClient.fetch(`diff/${objectId}`)
-            .then((data: IDiffResult[]) => {
-                this.data = data;
-            });
+                .then((data: IDiffResult[]) => {
+                    this.data = data;
+                });
         }
     }
 }
@@ -83,8 +82,8 @@ export class ModalDiff extends React.Component<ModalDiffProps, any, any> {
 
     render() {
         const { data } = this.model;
-        
-        if(!data) {
+
+        if (!data) {
             return "nope";
         }
 
@@ -98,7 +97,7 @@ export class ModalDiff extends React.Component<ModalDiffProps, any, any> {
 
                 <Modal.Header>Diff</Modal.Header>
                 <Modal.Body className="diff">
-                    {data.map((result: IDiffResult) => 
+                    {data.map((result: IDiffResult) =>
                         renderDiff(result)
                     )}
                 </Modal.Body>

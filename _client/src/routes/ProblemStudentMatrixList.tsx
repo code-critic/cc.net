@@ -1,20 +1,20 @@
+import { sum } from "d3";
+import { action, observable } from "mobx";
+import { observer } from "mobx-react";
 import React from "react";
-import { observer } from "mobx-react"
-import { observable, action } from "mobx"
-import { Column, CellInfo } from "react-table";
-import { ReactTableWithSelect } from "../utils/ReactTableWithSelect";
-import { httpClient } from "../init";
-
+import { Link } from "react-router-dom";
+import { CellInfo, Column } from "react-table";
 import "react-table/react-table.css";
+import { httpClient } from "../init";
+import { ICcDataAgg, ICcDataResult, ICourse } from "../models/DataModel";
 import "../styles/detail.css";
 import "../styles/list.css";
+import { getPoints } from "../utils/DataUtils";
 import { nestGet } from "../utils/NestGetter";
-import { Modal } from "react-bootstrap";
+import { ReactTableWithSelect } from "../utils/ReactTableWithSelect";
 import { StudentResultDetail } from "./StudentResultDetail";
 import { getStatus } from "./StudentResultList.Columns";
-import { getPoints } from "../utils/DataUtils";
-import { sum } from "d3";
-import { ICourse, ICcDataResult, ICcDataAgg } from "../models/DataModel";
+
 
 interface ProblemStudentMatrixListState {
 
@@ -123,7 +123,7 @@ export class ProblemStudentMatrixListModel {
                         Cell: (cellInfo: CellInfo) => (cellInfo.value as string)
                             .split('.')
                             .map(i => i.charAt(0).toUpperCase() + i.slice(1))
-                            .map((value, index) => index == 0 ? value : value.toUpperCase())
+                            .map((value, index) => index === 0 ? value : value.toUpperCase())
                             .join(' ')
                     }
                 ];
@@ -161,7 +161,7 @@ export class ProblemStudentMatrixList extends React.Component<any, ProblemStuden
     public isModelVisible: boolean = false;
 
     public model: ProblemStudentMatrixListModel = new ProblemStudentMatrixListModel(
-        this.props.match.params.id || null,
+        this.props.match.params.course || null,
         this.props.match.params.year || null,
     );
 
@@ -172,12 +172,11 @@ export class ProblemStudentMatrixList extends React.Component<any, ProblemStuden
 
         return <ul>{this.model.courses.map(i =>
             i.courseYears.map(j =>
-                <li>
-                    <a key={i.name + j.year}
-                        onClick={() => this.model.setId(i.name, j.year)}
-                        href={`/problem-student-matrix/${i.name}/${j.year}`}>
+                <li key={i.name + j.year}>
+                    <Link to={`/problem-student-matrix/${i.name}/${j.year}`}
+                        onClick={() => this.model.setId(i.name, j.year)}>
                         {i.name} - {j.year}
-                    </a>
+                    </Link>
                 </li>
             )
         )}</ul>;
@@ -214,13 +213,15 @@ export class ProblemStudentMatrixList extends React.Component<any, ProblemStuden
     
     render() {
         const { model } = this;
-        if (!model.courseId) {
+        
+        if (!this.props.match.params.course) {
             return this.renderCourses();
         }
 
         if (model.dataIsLoading) {
             return "loading";
         }
+        return "ok";
 
         return <div>
             <StudentResultDetail
