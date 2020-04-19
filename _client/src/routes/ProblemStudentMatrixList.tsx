@@ -12,7 +12,7 @@ import "../styles/list.css";
 import { getPoints } from "../utils/DataUtils";
 import { nestGet } from "../utils/NestGetter";
 import { ReactTableWithSelect } from "../utils/ReactTableWithSelect";
-import { StudentResultDetail } from "./StudentResultDetail";
+import { StudentResultDetail2 } from "./StudentResultDetail2";
 import { getStatus } from "./StudentResultList.Columns";
 
 
@@ -224,10 +224,10 @@ export class ProblemStudentMatrixList extends React.Component<any, ProblemStuden
         return "ok";
 
         return <div>
-            <StudentResultDetail
+            <StudentResultDetail2
                 show={this.isModelVisible}
                 objectId={model.detailObjectId}
-                onCloseModal={(reload) => this.closeModal(reload)}
+                onClose={(reload) => this.closeModal(reload)}
             />
             <ReactTableWithSelect
                 extractData={(key: string) => this.extractData(key)}

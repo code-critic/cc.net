@@ -9,7 +9,8 @@ namespace CC.Net.Collections
     [BsonIgnoreExtraElements]
     public class CcDataResult
     {
-        public string id { get; set; }
+        [BsonElement("id")]
+        public string caseId { get; set; }
         public string status { get; set; }
         public double duration { get; set; }
 

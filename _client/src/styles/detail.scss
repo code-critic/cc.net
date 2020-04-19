@@ -1,45 +1,80 @@
 .student-result-detail {
-    .hljs {
-        font-size: 0.7em;
+  .hljs {
+    font-size: 0.7em;
+  }
+}
+
+.no-line-numbers {
+  .linenums {
+    padding: 5px;
+
+    li.L0,
+    li.L1,
+    li.L2,
+    li.L3,
+    li.L4,
+    li.L5,
+    li.L6,
+    li.L7,
+    li.L8,
+    li.L9 {
+      list-style-type: none;
+      background: #fff;
     }
+  }
+}
+.linenums {
+  padding: 5px;
+  padding-left: 40px;
+
+  li.L0,
+  li.L1,
+  li.L2,
+  li.L3,
+  li.L4,
+  li.L5,
+  li.L6,
+  li.L7,
+  li.L8,
+  li.L9 {
+    list-style-type: inherit;
+    background: #fff;
+  }
 }
 
 .prettyprint {
-    font-size: 0.7em;
+  font-size: 0.7em;
 
-    .linenums {
+  .hover-effect {
+    li.L0,
+    li.L1,
+    li.L2,
+    li.L3,
+    li.L4,
+    li.L5,
+    li.L6,
+    li.L7,
+    li.L8,
+    li.L9 {
+      cursor: pointer;
 
-        li.L0,
-        li.L1,
-        li.L2,
-        li.L3,
-        li.L4,
-        li.L5,
-        li.L6,
-        li.L7,
-        li.L8,
-        li.L9 {
-            list-style-type: inherit;
-            background: #fff;
-            cursor: pointer;
-            
-            &:hover {
-                background: rgb(245, 245, 226);
-                &::before {
-                    color: #fff;
-                    background: rgb(31, 136, 255);
-                }
-            }
-
-            &::before {
-                content: "+";
-                padding: 0 4px;
-                margin: 1px 5px;
-                background: transparent;
-                color: transparent;
-                display: inline-block;
-                border-radius: 2px;
-            }
+      &:hover {
+        background: rgb(245, 245, 226);
+        &::before {
+          color: #fff;
+          background: rgb(31, 136, 255);
         }
+      }
+
+      &::before {
+        content: "+";
+        padding: 0 4px;
+        margin: 1px 5px;
+        background: transparent;
+        color: transparent;
+        display: inline-block;
+        border-radius: 2px;
+      }
     }
+  }
 }

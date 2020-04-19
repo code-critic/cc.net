@@ -1,9 +1,10 @@
+import React from "react";
 import * as H from 'history';
+
 import { observable, computed } from "mobx";
 import { observer } from "mobx-react";
-import React from "react";
 import ReactAce from 'react-ace-editor';
-import { Form } from "react-bootstrap";
+import { Link as RouterLink } from "react-router-dom";
 import { reactLocalStorage } from 'reactjs-localstorage';
 import { debounce } from 'throttle-debounce';
 import { CourseProblemSelect, ICourseYearProblem, RouteComponentProps } from "../components/CourseProblemSelect";
@@ -11,22 +12,26 @@ import { CourseProblemSelectModel } from "../components/CourseProblemSelect.Mode
 import { SimpleLoader } from "../components/SimpleLoader";
 import { ILanguage } from "../models/DataModel";
 import { ApiResource } from "../utils/ApiResource";
+import { Grid, Button, InputLabel, Select, MenuItem, FormControl, ButtonGroup, Dialog, DialogTitle, DialogContent, Tooltip, Container } from '@material-ui/core';
+
+
+import SendIcon from '@material-ui/icons/Send';
+import BubbleChartIcon from '@material-ui/icons/BubbleChart';
+import HelpIcon from '@material-ui/icons/Help';
+
+import LanguageExamples from '../utils/LanguageExamples';
+import { mapLanguage } from '../utils/LanguageMap';
+import StudentResults from "../components/StudentResults";
+import { User } from "../init";
+import { renderCode } from "../utils/renderers";
+
 
 interface SolutionSubmitProps extends RouteComponentProps<ICourseYearProblem> {
 }
 
 
-const mapLanguage = (id: string) => {
-    return {
-        CS: "csharp",
-        C: "c_cpp",
-        CC: "c_cpp",
-        JAVA: "java",
-        "PY-267": "python",
-        "PY-367": "python",
-    }[id] || "java";
-}
 
+const Adapt = ({ children, ...other }) => children(other);
 
 
 interface LocalStorateCodeSnippet {
@@ -48,6 +53,16 @@ export class SolutionSubmit extends React.Component<SolutionSubmitProps, any, an
     @observable selectedLanguage: string = "";
 
     public ace: any;
+
+
+    @observable
+    public exampleDialogOpen = false;
+
+
+    @observable
+    public resultsDialogOpen = false;
+
+
 
     @computed
     private get prefferedCode() {
@@ -132,57 +147,140 @@ export class SolutionSubmit extends React.Component<SolutionSubmitProps, any, an
         return this.model.problem(problem);
     }
 
+    public get currentLanguage() {
+        return this.languages.data.find(i => i.id == this.selectedLanguage);
+    }
+
     render() {
-        const { model } = this;
-        const { history } = this.props
+        const { model, languages } = this;
+        const { history } = this.props;
+        const { activeCourse } = this;
 
         if (model.courses.isLoading) {
-            return <>
+            return <Container>
                 <CourseProblemSelect prefix="courses" model={model} history={history} {...this.props.match.params} />
-            </>
+            </Container>
         }
 
-
-        if (model.problems.isLoading || !this.activeProblem) {
-            return <>
+        const { activeProblem } = this;
+        if (model.problems.isLoading || !activeProblem) {
+            return <Container>
                 <CourseProblemSelect prefix="courses" model={model} history={history} {...this.props.match.params} />
-            </>
+            </Container>
         }
 
-        if (this.languages.isLoading) {
-            return <>
+        if (languages.isLoading) {
+            return <Container>
                 <CourseProblemSelect prefix="courses" model={model} history={history} {...this.props.match.params} />
                 <SimpleLoader></SimpleLoader>
-            </>
+            </Container>
         }
 
-        return <>
+        const { currentLanguage, exampleDialogOpen, resultsDialogOpen } = this;
+
+        return <Container>
+
             <CourseProblemSelect prefix="courses" model={model} history={history} {...this.props.match.params} />
 
-            <div className="description" dangerouslySetInnerHTML={{ __html: this.activeProblem.description }}>
-            </div>
+            <Grid container spacing={2}>
+                <Grid item xs={12} sm={12} lg={6} >
+                    <div className="description" dangerouslySetInnerHTML={{ __html: activeProblem.description }}>
+                    </div>
+                </Grid>
 
-            <Form.Group>
-                <Form.Label>Select Language</Form.Label>
-                <Form.Control as="select"
-                    onChange={(e) => this.selectedLanguage = (e as any).target.value}
-                    value={this.selectedLanguage}>
-                    {this.languages.data
-                        .filter(i => !i.disabled)
-                        .map(i => <option key={i.id} value={i.id}>{i.name} ({i.version})</option>
-                        )}
-                </Form.Control>
-            </Form.Group>
+                <Grid item xs={12} sm={12} lg={6} >
+                    <Grid container spacing={3}>
+                        <Grid item xs={12}>
+                            <FormControl variant="outlined" fullWidth>
+                                <InputLabel id="select-Language-label">Select Language</InputLabel>
+                                <ButtonGroup fullWidth>
+                                    <Adapt>
+                                        {({ className, ...props }) => (
+                                            <Select fullWidth labelId="select-language-label"
+                                                className={className}
+                                                id="select-language"
+                                                label="Select Language"
+                                                value={this.selectedLanguage}
+                                                onChange={e => this.selectedLanguage = e.target.value as string}>
+                                                {this.languages.data
+                                                    .filter(i => !i.disabled)
+                                                    .map(i => <MenuItem key={i.id} value={i.id}>{i.name} ({i.version})</MenuItem>
+                                                    )}
+                                            </Select>
+                                        )}
+                                    </Adapt>
 
-            <ReactAce
-                mode={mapLanguage(this.selectedLanguage)}
-                theme="eclipse"
-                setReadOnly={false}
-                onChange={i => this.onChange(i)}
-                setValue={this.prefferedCode}
-                style={{ height: "400px" }}
-                ref={i => this.ace = i}
-            />
-        </>
+                                    {currentLanguage &&
+                                        <Tooltip title={`View Example in ${currentLanguage.name}`}>
+                                            <Button size="small" variant="outlined" style={{ width: 70 }}
+                                                onClick={() => this.exampleDialogOpen = !this.exampleDialogOpen}>
+                                                <HelpIcon />
+                                            </Button>
+                                        </Tooltip>
+                                    }
+                                </ButtonGroup>
+                                {(currentLanguage && this.exampleDialogOpen) &&
+                                    <Dialog maxWidth="md"
+                                        onClose={() => this.exampleDialogOpen = false}
+                                        open={exampleDialogOpen}
+                                        fullWidth>
+                                        <DialogTitle>{currentLanguage.name}</DialogTitle>
+                                        <DialogContent>
+                                            {renderCode(
+                                                LanguageExamples.examples[currentLanguage.id],
+                                                mapLanguage(currentLanguage.id)
+                                            )}
+                                            <pre><code>
+                                                {}
+                                            </code></pre>
+                                        </DialogContent>
+                                    </Dialog>
+                                }
+                            </FormControl>
+                        </Grid>
+
+                        <Grid item xs={12}>
+                            <FormControl variant="outlined" fullWidth>
+                                <ReactAce
+                                    id="source-code"
+                                    mode={mapLanguage(this.selectedLanguage)}
+                                    theme="eclipse"
+                                    setReadOnly={false}
+                                    onChange={i => this.onChange(i)}
+                                    setValue={this.prefferedCode}
+                                    style={{ height: "400px", width: "100%" }}
+                                    ref={i => this.ace = i}
+                                />
+                            </FormControl>
+                        </Grid>
+
+                        <Grid item xs={12} container className="button bar" justify="space-between">
+                            <Button onClick={() => this.resultsDialogOpen = !this.resultsDialogOpen}
+                                size="large" variant="outlined" color="secondary" endIcon={<BubbleChartIcon />}>
+                                View Results
+                            </Button>
+                            {(resultsDialogOpen && activeCourse && activeProblem) &&
+                                < Dialog open={true} onClose={() => this.resultsDialogOpen = false} maxWidth="lg" fullWidth>
+                                    <DialogTitle>{User.name}</DialogTitle>
+                                    <DialogContent>
+                                        <StudentResults
+                                            course={activeCourse.course}
+                                            year={activeCourse.year}
+                                            problem={activeProblem.id}
+                                            user={User.id}
+                                            languages={languages.data}
+                                        />
+                                    </DialogContent>
+                                </Dialog>
+                            }
+
+                            <Button size="large" variant="contained" color="primary" endIcon={<SendIcon />}>
+                                Submit Solution
+                            </Button>
+                        </Grid>
+                    </Grid>
+                </Grid>
+            </Grid>
+        </Container >
     }
 }

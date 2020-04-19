@@ -41,4 +41,18 @@ export const httpClient = new HttpClient({
     },
 });
 
+export const User = {
+    id: "jan.hybs",
+    name: "Jan Hybš",
+    role: "root"
+};
+
 export const layoutUtils = new LayoutUtils();
+
+
+window.addEventListener("keypress", event => {
+    if (!(event.which == 115 && event.ctrlKey) && !(event.which == 19)) return true
+    alert("Ctrl-S pressed");
+    event.preventDefault();
+    return false;
+});

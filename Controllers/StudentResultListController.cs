@@ -29,6 +29,21 @@ namespace CC.Net.Controllers
         }
 
         [HttpGet]
+        [Route("student-result-list/{course}/{year}/{problem}/{user}")]
+        public IEnumerable<CcData> StudentResultDetail(string course, string year, string problem, string user)
+        {
+            var courseFull = $"{course}-{year}";
+            return _dbService.Data
+                .Find(i => i.course == courseFull
+                     && i.problem == problem
+                     && i.user == user
+                     && i.action == "solve"
+                     )
+                .Limit(50)
+                .ToEnumerable();
+        }
+
+        [HttpGet]
         [Route("student-result-list/{id}")]
         public CcData ResultDetail(string id)
         {

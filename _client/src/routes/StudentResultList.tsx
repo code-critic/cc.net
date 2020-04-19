@@ -11,7 +11,7 @@ import "../styles/list.css";
 import { CondenseButton } from "../utils/CondenseButton";
 import { nestGet } from "../utils/NestGetter";
 import { ReactTableWithSelect } from "../utils/ReactTableWithSelect";
-import { StudentResultDetail } from "./StudentResultDetail";
+import { StudentResultDetail2 } from "./StudentResultDetail2";
 import { getColumns, getStatus } from "./StudentResultList.Columns";
 import { StudentResultListModel } from "./StudentResultList.Model";
 
@@ -117,10 +117,10 @@ export class StudentResultList extends React.Component<any, StudentResultListSta
         }
 
         return <div>
-            <StudentResultDetail
+            <StudentResultDetail2
                 show={this.isModelVisible}
                 objectId={model.detailObjectId}
-                onCloseModal={(reload) => this.isModelVisible = false}
+                onClose={(reload) => this.isModelVisible = false}
             />
 
             <div style={{ display: "flex" }}>

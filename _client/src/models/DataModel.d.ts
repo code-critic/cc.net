@@ -96,10 +96,10 @@
 		user: string;
 	}
 	interface ICcDataResult {
+		caseId: string;
 		cmd: string;
 		console: string[];
 		duration: number;
-		id: string;
 		message: string;
 		message_details: string[];
 		returncode: number;

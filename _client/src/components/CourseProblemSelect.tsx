@@ -2,12 +2,13 @@ import React from "react";
 import { observer } from "mobx-react";
 import { Breadcrumb, Form } from "react-bootstrap";
 import { CourseProblemSelectModel } from "./CourseProblemSelect.Model";
-import { CourseSelect } from "./CourseSelect";
+import { CardSelect } from "./CardSelect";
 import { ProblemSelect } from "./ProblemSelect";
 import { SimpleLoader } from "./SimpleLoader";
 import * as H from 'history';
-import { Link } from "react-router-dom";
 import { DropdownButtonEx } from "../utils/DropdownButtonEx";
+import { flattenCourse } from "../utils/DataUtils";
+import Moment from 'react-moment';
 
 
 export interface ICourseYearProblem {
@@ -101,10 +102,13 @@ export class CourseProblemSelect extends React.Component<CourseProblemSelectProp
         if (!activeCourse) {
             return <>
                 {this.renderBreadcrumbs()}
-                {CourseSelect(
-                    model.courses.data,
+                {CardSelect(
+                    model.courses.data.flatMap(flattenCourse),
                     i => `/${prefix}/${i.course}/${i.year}`,
-                    i => model.problems.load(`courses-full/${i.course}/${i.year}`)
+                    i => model.problems.load(`courses-full/${i.course}/${i.year}`),
+                    i => `${i.course}-${i.year}`,
+                    i => i.courseConfig.desc,
+                    i => `${i.problems.length} problems available`
                 )}
             </>
         }
@@ -120,9 +124,22 @@ export class CourseProblemSelect extends React.Component<CourseProblemSelectProp
         if (!activeProblem) {
             return <>
                 {this.renderBreadcrumbs()}
-                {ProblemSelect(
+                {CardSelect(
                     model.problems.data,
                     i => `/${prefix}/${course}/${year}/${i.id}`,
+                    i => null,
+                    i => `${i.name}`,
+                    i => i.id,
+                    i => {
+                        var date = new Date(i.avail).getTime();
+                        var now = new Date().getTime();
+                        if(date < now) {
+                            return <>Submission closed</>
+                        }
+                        return <>
+                            Submission closed in <Moment fromNow>{i.avail}</Moment>
+                        </>
+                    }
                 )}
             </>
         }

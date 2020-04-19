@@ -44,20 +44,6 @@ class StudentResultDetailModel {
     }
 }
 
-const mapLanguage = (id?: string): string => {
-    switch ((id = id || "").toLowerCase()) {
-        case "py-367":
-            return "python";
-        case "py-276": ;
-            return "python";
-        case "c":
-        case "cpp":
-            return "cpp";
-        default:
-            return id.toLowerCase();
-    }
-}
-
 export interface StudentResultDetailState {
     model?: StudentResultDetailModel;
 }
@@ -66,7 +52,7 @@ export interface StudentResultDetailProps {
     objectId: string;
     match?: any;
     show: boolean;
-    onCloseModal: (reload: boolean) => void;
+    onClose: (reload: boolean) => void;
 }
 
 declare global {
@@ -81,7 +67,7 @@ declare global {
 }
 
 @observer
-export class StudentResultDetail extends React.Component<StudentResultDetailProps, StudentResultDetailState, any> {
+export class StudentResultDetail2 extends React.Component<StudentResultDetailProps, StudentResultDetailState, any> {
     public model: StudentResultDetailModel;
 
     public nameInput: HTMLInputElement | null = null;
@@ -96,7 +82,7 @@ export class StudentResultDetail extends React.Component<StudentResultDetailProp
     }
 
     public closeModal = (reload: boolean = false) => {
-        this.props.onCloseModal(reload);
+        this.props.onClose(reload);
     }
 
     public renderBody() {
@@ -110,7 +96,7 @@ export class StudentResultDetail extends React.Component<StudentResultDetailProp
         return <>
             <div>
                 <div className="line-actions"></div>
-                <pre className="prettyprint linenums" dangerouslySetInnerHTML={{ __html: code }} />
+                <pre className="prettyprint no-hover-effect" dangerouslySetInnerHTML={{ __html: code }} />
             </div>
         </>;
     }

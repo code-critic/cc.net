@@ -1,21 +1,159 @@
 @media (min-width: 1600px) {
-    .container {
-        &.wide {
-            max-width: 1440px;
-        }
+  .container {
+    &.wide {
+      max-width: 1440px;
     }
+  }
 }
 
 @media (min-width: 1900px) {
-    .container {
-        &.wide {
-            max-width: 1840px;
-        }
+  .container {
+    &.wide {
+      max-width: 1840px;
     }
+  }
 }
 
-.breadcrumb-item .form-control {
+.breadcrumb-item.form-group {
+  margin-bottom: 0rem;
+
+  .form-control {
     width: unset;
     margin-bottom: 0;
     display: inline;
+  }
+}
+
+.MuiLink-underlineNone,
+.MuiLink-underlineNone:hover {
+  text-decoration: none;
+}
+
+.card-select {
+  .MuiButton-root {
+    width: 100%;
+    min-height: 140px;
+    text-transform: none;
+
+    .MuiButton-label {
+      > div {
+        width: 100%;
+      }
+    }
+  }
+
+  .MuiButton-text {
+    padding: 16px;
+  }
+  .MuiButton-label {
+    text-align: center;
+  }
+
+  .card-footer {
+    background: #f3f3f3;
+    display: block;
+    width: 100%;
+    font-size: 0.7rem;
+    padding: 5px;
+    text-align: center;
+  }
+}
+
+.description {
+  pre {
+    code {
+      font-size: 87.5%;
+      color: #e83e8c;
+      word-break: break-word;
+      background: #fbfbfb;
+      display: block;
+      padding: 1em;
+      border-radius: 3px;
+      border: 1px solid #c3c3c3;
+    }
+  }
+}
+
+.MuiListItemIcon-root {
+  &.bigger {
+    padding-right: 40px;
+
+    .MuiSvgIcon-root {
+      width: 1em;
+      height: 1em;
+      font-size: 2rem;
+    }
+  }
+}
+
+$statuses: (
+  answer-correct: #b5ffb5,
+  answer-correct-timeout: #f7ffb5,
+  ok: #efd3ff,
+  running: #faf6c6,
+  unknown: #e2b3b3,
+  answer-wrong: #f5d0d0,
+  answer-wrong-timeout: #f5d0d0,
+  global-timeout: #f5d0d0,
+  error-while-running: #f5d0d0,
+  compilation-failed: #f5d0d0,
+  skipped: #dadada,
+);
+
+.MuiChip-root {
+  @each $status, $color in $statuses {
+    &.chip-#{$status} {
+      background-color: darken($color, 40);
+      color: white;
+      height: 24px;
+      margin-top: 4px;
+    }
+  }
+}
+
+.result-list {
+  .subresult {
+    .MuiButton-root {
+      min-width: 32px;
+      height: 34px;
+      width: 34px;
+      border-radius: 50%;
+
+      &:focus {
+        outline: none;
+      }
+    }
+
+    .status {
+      @each $status, $color in $statuses {
+        &.status-#{$status} {
+          color: darken($color, 40);
+          background: radial-gradient(white 25%,rgba(255, 255, 255, 0) 40%);
+        }
+      }
+    }
+  }
+
+  & > .status {
+    margin: 4px;
+
+    @each $status, $color in $statuses {
+      &.status-#{$status} {
+        background: linear-gradient(to right, white, lighten($color, 5));
+
+        &:hover {
+          background: linear-gradient(to right, white, darken($color, 5));
+        }
+
+        .MuiListItemIcon-root.bigger {
+          .MuiSvgIcon-root {
+            color: white;
+            padding: 4px;
+            border-radius: 50%;
+            background: darken($color, 25);
+          }
+        }
+      }
+    }
+  }
 }
