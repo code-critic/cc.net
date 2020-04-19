@@ -42,7 +42,8 @@ export const httpClient = new HttpClient({
 });
 
 export const User = {
-    id: "jan.hybs",
+    id2: "jan.hybs",
+    id: "michal.dvorak",
     name: "Jan Hybš",
     role: "root"
 };

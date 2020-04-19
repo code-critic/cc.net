@@ -13,7 +13,7 @@ declare global {
 }
 
 export const renderCode = (code: string, language: string, lineNumbers: boolean = false) => {
-    const html = window.PR.prettyPrintOne(code, language, true);
+    const html = window.PR.prettyPrintOne(code.replace(/</g, "&lt;"), language, true);
     return <>
         <div>
             <div className="line-actions" > </div>

@@ -64,7 +64,8 @@ export default class StudentResults extends React.Component<StudentResultsProps,
                 />
                 <span className="subresult">
                     {results.map(j =>
-                        <Tooltip title={`${j.caseId} ended with ${j.status}`} key={`${item.objectId}-${j.caseId}`} arrow={true} enterDelay={0}>
+                        <Tooltip key={`${item.objectId}-${j.caseId}`} enterDelay={0}
+                            title={`${j.caseId} ended with ${j.status}`}  arrow>
                             <Button className={`status status-${j.status}`} variant="text" onClick={(e) => {
                                 e.stopPropagation();
                                 e.preventDefault();

@@ -197,7 +197,7 @@ export class SolutionSubmit extends React.Component<SolutionSubmitProps, any, an
                                     <Adapt>
                                         {({ className, ...props }) => (
                                             <Select fullWidth labelId="select-language-label"
-                                                className={className}
+                                                className={`${className} small`}
                                                 id="select-language"
                                                 label="Select Language"
                                                 value={this.selectedLanguage}
@@ -261,7 +261,7 @@ export class SolutionSubmit extends React.Component<SolutionSubmitProps, any, an
                             </Button>
                             {(resultsDialogOpen && activeCourse && activeProblem) &&
                                 < Dialog open={true} onClose={() => this.resultsDialogOpen = false} maxWidth="lg" fullWidth>
-                                    <DialogTitle>{User.name}</DialogTitle>
+                                    <DialogTitle>{User.name} ({User.id})</DialogTitle>
                                     <DialogContent>
                                         <StudentResults
                                             course={activeCourse.course}

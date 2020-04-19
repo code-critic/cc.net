@@ -157,3 +157,13 @@ $statuses: (
     }
   }
 }
+
+
+.small > .MuiOutlinedInput-input,
+.MuiOutlinedInput-input.small {
+    padding: 11px 14px;
+}
+
+.MuiTooltip-popper > .MuiTooltip-tooltip {
+  font-size: 0.7rem;
+}
