@@ -45,7 +45,7 @@
 .prettyprint {
   font-size: 0.7em;
 
-  .hover-effect {
+  &.hover-effect {
     li.L0,
     li.L1,
     li.L2,
@@ -77,4 +77,62 @@
       }
     }
   }
+}
+
+.source-code {
+  .avatar-inicials {
+    text-align: center;
+    display: inline-block;
+    width: 40px;
+    height: 40px;
+    line-height: 40px;
+    border-radius: 50%;
+    font-size: 1.3rem;
+    font-weight: bold;
+    color: white;
+
+    &.odd {
+      background: #008471;
+    }
+
+    &.even {
+      background: #a2520d;
+    }
+  }
+
+  .blob-code {
+    height: 20px;
+    line-height: 20px;
+    padding: 1px;
+    font-family: SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace;
+    font-size: 12px;
+    white-space: pre;
+
+    &.highlighted {
+      background-color: #fffbdd;
+    }
+  }
+
+  .blob-num {
+    min-width: 50px;
+    padding-right: 10px;
+    padding-left: 10px;
+    font-family: SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace;
+    font-size: 12px;
+    height: 20px;
+    line-height: 20px;
+    color: rgba(27, 31, 35, 0.3);
+    text-align: right;
+    white-space: nowrap;
+    vertical-align: top;
+    cursor: pointer;
+
+    &:before {
+      content: attr(data-line-number);
+    }
+  }
+}
+
+.unsaved .MuiDialog-paper {
+  border: 10px solid #3f51b5;
 }

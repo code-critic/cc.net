@@ -6,14 +6,18 @@ import './NavMenu.css';
 import { pageLinks } from '../pageLinks';
 
 
+
 interface NavMenuState {
 
 }
 
+
 export class NavMenu extends React.Component<NavMenuState, any, any> {
   static displayName = NavMenu.name;
 
-  constructor (props: any) {
+  public forceUpdateField = 0;
+
+  constructor(props: any) {
     super(props);
 
     this.toggleNavbar = this.toggleNavbar.bind(this);
@@ -22,15 +26,14 @@ export class NavMenu extends React.Component<NavMenuState, any, any> {
     };
   }
 
-  toggleNavbar () {
+  toggleNavbar() {
     this.setState({
       collapsed: !this.state.collapsed
     });
   }
 
-  render () {
+  render() {
     return (
-      
       <header>
         <Navbar>
           <Container>

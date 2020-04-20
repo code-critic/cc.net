@@ -132,7 +132,7 @@ export function getColumns(model: StudentResultListModel, courses: ICourse[]) {
                                     return { course: i.name, year: j.year, problem: k.id}
                                 })))
                             .filter((i, j, k) => k.find(l => l.problem === i.problem) !== null)
-                            .map(i => <option value={i.problem}>{i.course}-{i.problem}</option>)
+                        .map(i => <option key={`${i.course}-${i.year}-${i.problem}`} value={i.problem}>{i.course}-{i.problem}</option>)
                     }
                 </select>
         },

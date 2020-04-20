@@ -70,6 +70,7 @@
 	interface ICcData {
 		action: string;
 		attempt: number;
+		comments: ILineComment[];
 		course: string;
 		courseName: string;
 		courseYear: string;
@@ -82,6 +83,7 @@
 		problem: string;
 		result: ICcDataResult;
 		results: ICcDataResult[];
+		review: IKeyValuePair[];
 		review_request: Date;
 		solution: string;
 		user: string;
@@ -115,6 +117,16 @@
 		machine: number;
 		pid: number;
 		timestamp: number;
+	}
+	interface IKeyValuePair {
+		key: ITKey;
+		value: ITValue;
+	}
+	interface ILineComment {
+		line: any;
+		text: string;
+		time: number;
+		user: string;
 	}
 	interface IDiffResult {
 		filename: string;

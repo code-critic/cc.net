@@ -4,7 +4,7 @@ import React from "react";
 import { ICcData } from "../models/DataModel";
 import { httpClient } from "../init";
 import { SimpleLoader } from "./SimpleLoader";
-import { renderCode } from "../utils/renderers";
+import { renderCode, renderSolution } from "../utils/renderers";
 
 interface StudentResultDetailProps {
     objectId?: string;
@@ -12,10 +12,13 @@ interface StudentResultDetailProps {
     result?: ICcData
 }
 
+@observer
 export class StudentResultDetail extends React.Component<StudentResultDetailProps, any, any> {
 
 
-    @observable isLoading: boolean = false;
+    @observable
+    isLoading: boolean = false;
+
     public data?: ICcData;
 
     @action.bound
@@ -38,17 +41,6 @@ export class StudentResultDetail extends React.Component<StudentResultDetailProp
         }
     }
 
-    public renderCode(code: string, language: string, lineNumbers: boolean = false) {
-        const html = window.PR.prettyPrintOne(code, language, true);
-        return <>
-            <div>
-                <div className="line-actions"></div>
-                <pre className={`prettyprint  no-hover-effect ${lineNumbers ? "" : "no-line-numbers"}`} dangerouslySetInnerHTML={{ __html: html }} />
-            </div>
-        </>;
-    }
-
-
     render() {
         const { isLoading, data } = this;
         
@@ -57,7 +49,7 @@ export class StudentResultDetail extends React.Component<StudentResultDetailProp
         }
 
         return <div>
-            {renderCode(data.solution, data.lang)}
+            {renderSolution(data)}
         </div>
     }
 }

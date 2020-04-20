@@ -1,3 +1,7 @@
+import { ILineComment, ICcData } from "./models/DataModel";
+import { observable } from "mobx";
+import { Dispatcher } from 'flux';
+
 interface HttpClientConfig {
     baseUrl: string;
     headers: { [key: string]: string };
@@ -17,6 +21,25 @@ class HttpClient {
                 .catch(reason => reject(reason))
                 .then(data => resolve(data))
                 .catch(reason => reject(reason))
+        });
+    }
+}
+
+
+export interface CommentServiceItem {
+    comment: ILineComment;
+    result: ICcData;
+}
+
+class CommentService {
+
+    @observable
+    public items: CommentServiceItem[] = [];
+
+    public prepareComment(item: CommentServiceItem) {
+        this.items.push(item);
+        appDispatcher.dispatch({
+            actionType: "commentServiceChanged"
         });
     }
 }
@@ -57,3 +80,8 @@ window.addEventListener("keypress", event => {
     event.preventDefault();
     return false;
 });
+
+
+export const commentService = new CommentService();
+
+export const appDispatcher = new Dispatcher();

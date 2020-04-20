@@ -12,6 +12,7 @@ import { ICcData, IMarkSolutionItem } from "../models/DataModel";
 import "../styles/detail.css";
 import "../third_party/prettify.js";
 import { getPoints } from "../utils/DataUtils";
+import { renderCode, renderSolution } from "../utils/renderers";
 
 // import 'highlight.js/styles/github.css';
 
@@ -90,15 +91,8 @@ export class StudentResultDetail2 extends React.Component<StudentResultDetailPro
         if (model.isLoading || !model.data) {
             return <SimpleLoader />
         }
-        // var html = hljs.highlightAuto(model.data.solution);
-        // console.log(html);
-        const code = window.PR.prettyPrintOne(model.data.solution, "java", true);
-        return <>
-            <div>
-                <div className="line-actions"></div>
-                <pre className="prettyprint no-hover-effect" dangerouslySetInnerHTML={{ __html: code }} />
-            </div>
-        </>;
+        
+        return renderSolution(model.data);
     }
 
     public onCodeRowClicked(node: Element, line: number) {

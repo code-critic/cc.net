@@ -7,7 +7,6 @@ import { ApiResource } from "../utils/ApiResource";
 
 export class StudentResultListModel {
     @observable public dataIsLoading: boolean = true;
-    @observable public detailObjectId: string = "";
 
     public data: ICcData[] = [];
     public pages: number = 666;

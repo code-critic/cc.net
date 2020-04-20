@@ -48,9 +48,10 @@ namespace CC.Net.Controllers
         public CcData ResultDetail(string id)
         {
             var objectId = new ObjectId(id);
-            return _dbService.Data
+            var result = _dbService.Data
                 .Find(i => i.id == objectId)
                 .First();
+            return result;
         }
 
         [HttpPost]

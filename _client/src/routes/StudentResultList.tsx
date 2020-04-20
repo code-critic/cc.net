@@ -14,6 +14,9 @@ import { ReactTableWithSelect } from "../utils/ReactTableWithSelect";
 import { StudentResultDetail2 } from "./StudentResultDetail2";
 import { getColumns, getStatus } from "./StudentResultList.Columns";
 import { StudentResultListModel } from "./StudentResultList.Model";
+import { StudentResultDetail } from "../components/StudentResultDetail";
+import { Dialog, DialogTitle, DialogContent, Button, Box, AppBar, Grid } from "@material-ui/core";
+import { appDispatcher, commentService } from "../init";
 
 
 
@@ -21,23 +24,6 @@ interface StudentResultListState {
     model?: StudentResultListModel;
     columnsToCopy: any;
 }
-
-// function AComponentWrapper(callback: (objectId: string) => void) {
-
-//     function AComponent(props: any) {
-//         const className = `rt-tr ${props.className}`;
-//         const objectId = props.objectId ? props.objectId : null;
-
-//         if (objectId) {
-//             // const href = `/view-results/${objectId}`;
-//             return <a onClick={() => callback(objectId)} children={props.children} className={className} role="row" />
-//         } else {
-//             return <div children={props.children} className={className} role="row" />
-//         }
-//     }
-//     return AComponent;
-// }
-
 
 @observer
 export class StudentResultList extends React.Component<any, StudentResultListState, any> {
@@ -55,15 +41,34 @@ export class StudentResultList extends React.Component<any, StudentResultListSta
 
     private lastState: any;
 
+    @observable
+    public detailIsOpened: boolean = false;
+
+    @observable
+    public detailResult?: ICcData;
+
+    @observable
+    public forceUpdateField = 0;
+
+    constructor(props: any) {
+        super(props);
+
+        appDispatcher.register((payload: any) => {
+            if (payload.actionType == "commentServiceChanged") {
+                this.forceUpdateField++;
+            }
+        });
+    }
+
     private debounceFetch: (state: any) => void = throttle(300, false, (state: any) => {
         this.lastState = state;
-        
-        if(this.course !== "") {
+
+        if (this.course !== "") {
             this.model.load(state.pageSize, state.page, state.sorted, [
                 ...state.filtered,
-                {id: "course", value: this.course}
+                { id: "course", value: this.course }
             ]);
-        }else{
+        } else {
             this.model.load(state.pageSize, state.page, state.sorted, state.filtered);
         }
     })
@@ -85,30 +90,25 @@ export class StudentResultList extends React.Component<any, StudentResultListSta
             this.course === ""
                 ? this.model.courses.data
                 : this.model.courses.data.filter(i => !!~this.course.indexOf(i.name))
-            );
+        );
     }
 
     private changeDensity(value: string) {
         this.density = value;
     }
 
-    private onDetailIdChanged(objectId: string = "") {
-        if (this.model.detailObjectId === objectId || !objectId) {
-            this.model.detailObjectId = "";
-            this.isModelVisible = false;
-        } else {
-            this.model.detailObjectId = objectId;
-            this.isModelVisible = true;
-        }
+    private openDetail(result: ICcData) {
+        this.detailIsOpened = true;
+        this.detailResult = result;
     }
 
-    changeCourse (e: any) {
+    changeCourse(e: any) {
         this.course = e.target.value;
         this.onFetchData(this.lastState);
     }
 
     render() {
-        const { model } = this;
+        const { model, detailIsOpened, detailResult } = this;
         const data: ICcData[] = model.data;
         const isLoading = model.dataIsLoading;
 
@@ -117,11 +117,36 @@ export class StudentResultList extends React.Component<any, StudentResultListSta
         }
 
         return <div>
-            <StudentResultDetail2
+            {detailResult && detailIsOpened &&
+                <Dialog open={detailIsOpened} fullWidth maxWidth="md" className={commentService.items.length > 0 ? "unsaved" : ""}
+                    onClose={() => this.detailIsOpened = !detailIsOpened}>
+                    <DialogTitle>
+                        <Box padding={2}>
+                            <Grid container justify="space-between">
+                                <Grid item>
+                                    {detailResult.user}
+                                </Grid>
+                                {commentService.items.length > 0 && <Grid item>
+                                    <Button variant="contained" color="secondary">
+                                        Add {commentService.items.length} comment{commentService.items.length > 1 ? "s" : ""}
+                                    </Button>
+                                </Grid>}
+                            </Grid>
+                        </Box>
+                    </DialogTitle>
+                    <DialogContent>
+                        <StudentResultDetail
+                            objectId={detailResult.objectId}
+                        />
+                    </DialogContent>
+                </Dialog>
+            }
+
+            {/* <StudentResultDetail2
                 show={this.isModelVisible}
                 objectId={model.detailObjectId}
-                onClose={(reload) => this.isModelVisible = false}
-            />
+                onClose={() => this.isModelVisible = false}
+            /> */}
 
             <div style={{ display: "flex" }}>
                 <Form.Group>
@@ -167,7 +192,7 @@ export class StudentResultList extends React.Component<any, StudentResultListSta
                             return {
                                 className: getStatus(data.result),
                                 onClick: (e) => {
-                                    this.onDetailIdChanged((data as any)._original.objectId);
+                                    this.openDetail((data as any)._original);
                                 }
                             };
                         }}
