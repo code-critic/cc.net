@@ -1,5 +1,6 @@
 using CC.Net.Config;
 using CC.Net.Db;
+using CC.Net.Hubs;
 using CC.Net.Services;
 using CC.Net.Services.Courses;
 using CC.Net.Services.Languages;
@@ -34,11 +35,15 @@ namespace CC.Net
             services.AddOptions();
             services.AddSingleton(MongoDBConfig);
             services.AddSingleton(AppOptions);
+            services.AddSingleton<IdService>();
             services.AddScoped<LanguageService>();
             services.AddScoped<CourseService>();
             services.AddScoped<DbService>();
             services.AddScoped<ProblemDescriptionService>();
             services.AddControllersWithViews();
+
+            services.AddSignalR();
+            services.AddHostedService<ProcessService>();
 
             // In production, the React files will be served from this directory
             services.AddSpaStaticFiles(configuration =>
@@ -79,6 +84,7 @@ namespace CC.Net
                     name: "default",
                     pattern: "{controller}/{action=Index}/{id?}");
                 endpoints.MapControllers();
+                endpoints.MapHub<LiveHub>("/live");
             });
 
             app.UseSpa(spa =>

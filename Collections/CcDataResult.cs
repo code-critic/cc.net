@@ -17,7 +17,7 @@ namespace CC.Net.Collections
         public int? returncode { get; set; }
         public string message { get; set; }
         public int? score { get; set; }
-        public int?[] scores { get; set; }
+        public int[] scores { get; set; }
         public string cmd { get; set; }
         public string uuid { get; set; }
         public string[] console { get; set; }

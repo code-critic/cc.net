@@ -1,6 +1,8 @@
 import { ILineComment, ICcData } from "./models/DataModel";
 import { observable } from "mobx";
 import { Dispatcher } from 'flux';
+import { HubConnectionBuilder } from '@aspnet/signalr';
+import { NotificationManager } from 'react-notifications';
 
 interface HttpClientConfig {
     baseUrl: string;
@@ -85,3 +87,32 @@ window.addEventListener("keypress", event => {
 export const commentService = new CommentService();
 
 export const appDispatcher = new Dispatcher();
+
+export const liveConnection = new HubConnectionBuilder()
+    .withUrl("/live")
+    .build();
+
+
+type NotificationLevel = "info" | "success" | "warning" | "error";
+
+liveConnection.start()
+    .then(() => {
+        console.log("Connected to the hub")
+
+        liveConnection.on("OnMessage", (message: string, level: NotificationLevel) => {
+            switch (level) {
+                case "info":
+                    NotificationManager.info(message.toString());
+                    break;
+                case "success":
+                    NotificationManager.success(message.toString());
+                    break;
+                case "warning":
+                    NotificationManager.warning(message.toString());
+                    break;
+                case "error":
+                    NotificationManager.error(message.toString());
+                    break;
+            }
+        });
+    });

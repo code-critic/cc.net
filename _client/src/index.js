@@ -1,5 +1,6 @@
 import 'bootstrap/dist/css/bootstrap.css';
 import 'font-awesome/css/font-awesome.min.css';
+import 'react-notifications/lib/notifications.css';
 import './styles/index.css';
 import './styles/table.css';
 import './styles/diff.css';
@@ -15,7 +16,7 @@ const rootElement = document.getElementById('root');
 
 ReactDOM.render(
   <BrowserRouter basename={baseUrl}>
-    <App />
+      <App />
   </BrowserRouter>,
   rootElement);
 

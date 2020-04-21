@@ -19,11 +19,13 @@ namespace CC.Net.Db
             _client = new MongoClient(new MongoClientSettings()
             {
                 Server = MongoServerAddress.Parse(_dBConfig.Host),
-                Credential = MongoCredential.CreateCredential(
-                    _dBConfig.AuthSource,
-                    _dBConfig.Username,
-                    _dBConfig.Password
-                )
+                Credential = string.IsNullOrEmpty(_dBConfig.AuthMechanism)
+                    ? null
+                    : MongoCredential.CreateCredential(
+                        _dBConfig.AuthSource,
+                        _dBConfig.Username,
+                        _dBConfig.Password
+                    )
             });
             _dB = _client.GetDatabase(_dBConfig.Database);
             Logs = _dB.GetCollection<CcLog>(_dBConfig.CollectionLogs);

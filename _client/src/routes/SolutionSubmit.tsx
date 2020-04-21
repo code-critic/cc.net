@@ -1,16 +1,14 @@
 import React from "react";
-import * as H from 'history';
 
 import { observable, computed } from "mobx";
 import { observer } from "mobx-react";
 import ReactAce from 'react-ace-editor';
-import { Link as RouterLink } from "react-router-dom";
 import { reactLocalStorage } from 'reactjs-localstorage';
 import { debounce } from 'throttle-debounce';
 import { CourseProblemSelect, ICourseYearProblem, RouteComponentProps } from "../components/CourseProblemSelect";
 import { CourseProblemSelectModel } from "../components/CourseProblemSelect.Model";
 import { SimpleLoader } from "../components/SimpleLoader";
-import { ILanguage } from "../models/DataModel";
+import { ILanguage, ICcData } from "../models/DataModel";
 import { ApiResource } from "../utils/ApiResource";
 import { Grid, Button, InputLabel, Select, MenuItem, FormControl, ButtonGroup, Dialog, DialogTitle, DialogContent, Tooltip, Container } from '@material-ui/core';
 
@@ -22,14 +20,13 @@ import HelpIcon from '@material-ui/icons/Help';
 import LanguageExamples from '../utils/LanguageExamples';
 import { mapLanguage } from '../utils/LanguageMap';
 import StudentResults from "../components/StudentResults";
-import { User } from "../init";
+import { User, liveConnection } from "../init";
 import { renderCode } from "../utils/renderers";
-
+import { NotificationManager } from 'react-notifications';
+import StudentResultItem from "../components/StudentResults.Item";
 
 interface SolutionSubmitProps extends RouteComponentProps<ICourseYearProblem> {
 }
-
-
 
 const Adapt = ({ children, ...other }) => children(other);
 
@@ -63,6 +60,8 @@ export class SolutionSubmit extends React.Component<SolutionSubmitProps, any, an
     public resultsDialogOpen = false;
 
 
+    @observable
+    public liveResult?: ICcData;
 
     @computed
     private get prefferedCode() {
@@ -96,6 +95,11 @@ export class SolutionSubmit extends React.Component<SolutionSubmitProps, any, an
                     this.selectedLanguage = this.languages.data[0].id;
                 }
             });
+
+
+        liveConnection.on("OnProcessStart", (item: ICcData) => {
+            this.liveResult = item;
+        });
     }
 
     private onChange(state: any) {
@@ -151,6 +155,25 @@ export class SolutionSubmit extends React.Component<SolutionSubmitProps, any, an
         return this.languages.data.find(i => i.id == this.selectedLanguage);
     }
 
+    public submitSolution() {
+        const { activeCourse, activeProblem, ace, selectedLanguage } = this;
+        if (!activeCourse || !activeProblem) {
+            return;
+        }
+
+        // public async Task SubmitSolution(string userId, string courseName, string courseYear, string problemId, string solution, string langId, bool useDocker)
+        var message = [
+            User.id,
+            activeCourse.course,
+            activeCourse.year,
+            activeProblem.id,
+            ace.editor.getValue(),
+            selectedLanguage,
+            true
+        ];
+        liveConnection.invoke("SubmitSolution", ...message);
+    }
+
     render() {
         const { model, languages } = this;
         const { history } = this.props;
@@ -176,7 +199,7 @@ export class SolutionSubmit extends React.Component<SolutionSubmitProps, any, an
             </Container>
         }
 
-        const { currentLanguage, exampleDialogOpen, resultsDialogOpen } = this;
+        const { currentLanguage, exampleDialogOpen, resultsDialogOpen, liveResult } = this;
 
         return <Container>
 
@@ -259,6 +282,7 @@ export class SolutionSubmit extends React.Component<SolutionSubmitProps, any, an
                                 size="large" variant="outlined" color="secondary" endIcon={<BubbleChartIcon />}>
                                 View Results
                             </Button>
+
                             {(resultsDialogOpen && activeCourse && activeProblem) &&
                                 < Dialog open={true} onClose={() => this.resultsDialogOpen = false} maxWidth="lg" fullWidth>
                                     <DialogTitle>{User.name} ({User.id})</DialogTitle>
@@ -274,9 +298,12 @@ export class SolutionSubmit extends React.Component<SolutionSubmitProps, any, an
                                 </Dialog>
                             }
 
-                            <Button size="large" variant="contained" color="primary" endIcon={<SendIcon />}>
+                            <Button size="large" variant="contained" color="primary" endIcon={<SendIcon />}
+                                onClick={() => this.submitSolution()}
+                            >
                                 Submit Solution
                             </Button>
+                            {liveResult && <StudentResultItem item={liveResult} languages={languages.data} />}
                         </Grid>
                     </Grid>
                 </Grid>
