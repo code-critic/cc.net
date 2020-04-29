@@ -9,6 +9,7 @@ namespace CC.Net.Services.Courses
 
         public CourseConfig CourseConfig { get; set; }
         public List<CourseYearConfig> CourseYears { get; set; }
+        public string CourseDir { get; set; }
 
         public CourseYearConfig this[string key]
         {

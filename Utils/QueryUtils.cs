@@ -38,7 +38,7 @@ namespace CC.Net.Utils
 
             if (filter.id == "course")
             {
-                return $"{nameof(CcData.course)}: \"{filter.value}\"";
+                return $"course: \"{filter.value}\"";
             }
 
             var extra = extras.FirstOrDefault(i => i.Id == filter.id);
@@ -53,27 +53,27 @@ namespace CC.Net.Utils
                 return $"_id: {{\"$gt\": ObjectId(\"{minId}\")}}";
             }
 
-            if (filter.id == nameof(CcData.lang))
+            if (filter.id == nameof(CcData.Language))
             {
-                return $"{nameof(CcData.lang)}: \"{filter.value}\"";
+                return $"language: \"{filter.value}\"";
             }
 
-            if (filter.id == nameof(CcData.review_request))
+            if (filter.id == nameof(CcData.ReviewRequest))
             {
                 if (filter.value == "yes")
                 {
-                    return $"{nameof(CcData.review_request)}: {{ $ne: null }}";
+                    return $"reviewRequest: {{ $ne: null }}";
                 }
                 else
                 {
-                    return $"{nameof(CcData.review_request)}: {{ $eq: null }}";
+                    return $"reviewRequest: {{ $eq: null }}";
                 }
             }
 
-            var result_status = $"{nameof(CcData.result)}.{nameof(CcData.result.status)}";
+            var result_status = "result.status";
             if (filter.id == result_status && filter.value != "all")
             {
-                return $"\"{result_status}\": \"{filter.value}\"";
+                return $"\"result.status\": \"{filter.value}\"";
             }
 
             //default fallback

@@ -29,15 +29,15 @@ namespace CC.Net.Controllers
         }
 
         [HttpGet]
-        [Route("student-result-list/{course}/{year}/{problem}/{user}")]
-        public IEnumerable<CcData> StudentResultDetail(string course, string year, string problem, string user)
+        [Route("student-result-list/{courseName}/{courseYear}/{problem}/{user}")]
+        public IEnumerable<CcData> StudentResultDetail(string courseName, string courseYear, string problem, string user)
         {
-            var courseFull = $"{course}-{year}";
             return _dbService.Data
-                .Find(i => i.course == courseFull
-                     && i.problem == problem
-                     && i.user == user
-                     && i.action == "solve"
+                .Find(i => i.CourseName == courseName
+                     && i.CourseYear == courseYear
+                     && i.Problem == problem
+                     && i.User == user
+                     && i.Action == "solve"
                      )
                 .Limit(50)
                 .ToEnumerable();
@@ -49,7 +49,7 @@ namespace CC.Net.Controllers
         {
             var objectId = new ObjectId(id);
             var result = _dbService.Data
-                .Find(i => i.id == objectId)
+                .Find(i => i.Id == objectId)
                 .First();
             return result;
         }
@@ -73,7 +73,7 @@ namespace CC.Net.Controllers
                 filtered.ToArray(),
                 new ParseUtilType
                 {
-                    Id = nameof(CcData.attempt),
+                    Id = nameof(CcData.Attempt),
                     Parser = f => null,
                 }
             );
@@ -94,7 +94,7 @@ namespace CC.Net.Controllers
 
             var pipeline = new List<BsonDocument>() { project, match };
 
-            var attempt = filtered.FirstOrDefault(i => i.id == nameof(CcData.attempt) && i.value != "all");
+            var attempt = filtered.FirstOrDefault(i => i.id == nameof(CcData.Attempt) && i.value != "all");
             if (attempt != null)
             {
                 pipeline.Add(new BsonDocument("$sort",

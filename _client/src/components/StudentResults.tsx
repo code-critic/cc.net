@@ -10,6 +10,7 @@ import { ListItem, ListItemText, ListItemIcon, Dialog, Chip, Tooltip, DialogCont
 import CheckIcon from '@material-ui/icons/CheckCircle';
 import CancelIcon from '@material-ui/icons/Cancel';
 import { StudentResultDetail } from "./StudentResultDetail";
+import { StudentResultItem } from "./StudentResults.Item";
 
 interface StudentResultsProps {
     course: string;
@@ -45,7 +46,7 @@ export default class StudentResults extends React.Component<StudentResultsProps,
 
     renderResult(item: ICcData) {
         const { languages } = this.props;
-        const { result, lang } = item;
+        const { result, language: lang } = item;
         const { status } = result ? result : { status: "broken" };
         const language = languages.find(i => i.id == lang);
         const results = item.results || [];
@@ -64,8 +65,8 @@ export default class StudentResults extends React.Component<StudentResultsProps,
                 />
                 <span className="subresult">
                     {results.map(j =>
-                        <Tooltip key={`${item.objectId}-${j.caseId}`} enterDelay={0}
-                            title={`${j.caseId} ended with ${j.status}`}  arrow>
+                        <Tooltip key={`${item.objectId}-${j.case}`} enterDelay={0}
+                            title={`${j.case} ended with ${j.status}`}  arrow>
                             <Button className={`status status-${j.status}`} variant="text" onClick={(e) => {
                                 e.stopPropagation();
                                 e.preventDefault();
@@ -84,31 +85,17 @@ export default class StudentResults extends React.Component<StudentResultsProps,
         </div>
     }
     render() {
-        const { results, detailResult: detailObject, caseResult, caseSubresult } = this;
+        const { results } = this;
+        const { languages } = this.props;
+        
         if (results.isLoading) {
             return <SimpleLoader />
         }
 
         return <>
-            {results.data.map(i => this.renderResult(i))}
-            {detailObject &&
-                <Dialog open={!!detailObject} fullWidth maxWidth="lg"
-                    onClose={() => this.detailResult = undefined}>
-                    <DialogContent>
-                        <StudentResultDetail
-                            result={detailObject}
-                        />
-                    </DialogContent>
-                </Dialog>}
-
-            {(caseResult && caseSubresult) &&
-                <Dialog open={!!caseSubresult} fullWidth maxWidth="lg"
-                    onClose={() => this.caseSubresult = undefined}>
-                    <DialogTitle>{caseSubresult.caseId} - {caseSubresult.status}</DialogTitle>
-                    <DialogContent>
-                    </DialogContent>
-                </Dialog>
-            }
+            {results.data.map(i => 
+                <StudentResultItem key={i.objectId} item={i} languages={languages} />
+            )}
         </>
     }
 }

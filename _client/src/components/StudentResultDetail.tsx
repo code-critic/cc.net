@@ -4,7 +4,7 @@ import React from "react";
 import { ICcData } from "../models/DataModel";
 import { httpClient } from "../init";
 import { SimpleLoader } from "./SimpleLoader";
-import { renderCode, renderSolution } from "../utils/renderers";
+import { RenderSolution } from "../utils/renderers";
 
 interface StudentResultDetailProps {
     objectId?: string;
@@ -49,7 +49,7 @@ export class StudentResultDetail extends React.Component<StudentResultDetailProp
         }
 
         return <div>
-            {renderSolution(data)}
+            <RenderSolution result={data} />
         </div>
     }
 }

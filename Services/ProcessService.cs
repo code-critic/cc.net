@@ -9,6 +9,7 @@ using CC.Net.Extensions;
 using CC.Net.Hubs;
 using CC.Net.Services.Courses;
 using CC.Net.Services.Languages;
+using CC.Net.Utils;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -18,17 +19,17 @@ using MongoDB.Driver;
 
 namespace CC.Net.Services
 {
-    public class ProcessService : BackgroundService
+    public partial class ProcessService: BackgroundService
     {
         private ILogger<ProcessService> _logger;
-        private IServiceScopeFactory _scopeFactory;
-        private readonly IHubContext<LiveHub> _liveHub;
+        private readonly IServiceScopeFactory _serviceProvider;
 
-        public ProcessService(ILogger<ProcessService> logger, IServiceScopeFactory scopeFactory, IHubContext<LiveHub> liveHub)
+        public static readonly string ContainerName = "automatestWorker";
+
+        public ProcessService(ILogger<ProcessService> logger, IServiceScopeFactory serviceProvider)
         {
             _logger = logger;
-            _scopeFactory = scopeFactory;
-            _liveHub = liveHub;
+            _serviceProvider = serviceProvider;
         }
 
         protected override Task ExecuteAsync(CancellationToken stoppingToken)
@@ -36,6 +37,9 @@ namespace CC.Net.Services
             return Task.Run(async () =>
             {
                 _logger.LogInformation("ProcessService is starting.");
+
+                var dockerPurge = ProcessUtils.Popen($"docker rm -f {ContainerName}");
+                var dockerStart = ProcessUtils.Popen($"docker run -di --name {ContainerName} automatest/all");
 
                 // TODO: configurable period
                 while (stoppingToken.IsCancellationRequested == false)
@@ -46,76 +50,17 @@ namespace CC.Net.Services
             });
         }
 
-        private async Task ProcessOne(CcData item, IServiceProvider serviceProvider)
-        {
-            var dbService = serviceProvider.GetService<DbService>();
-            var idService = serviceProvider.GetService<IdService>();
-            var liveHub = serviceProvider.GetService<LiveHub>();
-            var courseService = serviceProvider.GetService<CourseService>();
-            var languageService = serviceProvider.GetService<LanguageService>();
-
-            var client = idService.UserMap.GetValueByKeyOrNull(item.id);
-
-            var course = courseService[item.courseName][item.courseYear];
-            var problem = course[item.problem];
-            var random = new Random();
-
-            item.result.status = CCDataStatuses.Running;
-            item.results = new List<CcDataResult>();
-
-            foreach (var test in problem.tests)
-            {
-                foreach (var subtest in test.Enumerate())
-                {
-                    item.results.Add(new CcDataResult()
-                    {
-                        caseId = subtest.id,
-                        status = CCDataStatuses.InQueue,
-                    });
-                }
-            }
-
-            if (client != null)
-            {
-                await LiveHub.OnProcessStart(client, item);
-            }
-
-            await dbService.Data
-                .ReplaceOneAsync(i => i.id == item.id, item);
-
-
-            foreach (var result in item.results)
-            {
-                Thread.Sleep(1000);
-                result.status = random.NextDouble() > 0.5
-                    ? CCDataStatuses.AnswerCorrect
-                    : CCDataStatuses.AnswerWrong;
-
-                if (client != null)
-                {
-                    await LiveHub.OnProcessStart(client, item);
-                }
-
-                await dbService.Data
-                    .ReplaceOneAsync(i => i.id == item.id, item);
-            }
-        }
 
         private async Task DoWork()
         {
             _logger.LogInformation("checking db");
-
-            using (var scope = _scopeFactory.CreateScope())
+            using (var scope = _serviceProvider.CreateScope())
             {
-                var serviceProvider = scope.ServiceProvider;
-                var dbService = serviceProvider.GetService<DbService>();
-                var idService = serviceProvider.GetService<IdService>();
-                var liveHub = serviceProvider.GetService<LiveHub>();
-                var courseService = serviceProvider.GetService<CourseService>();
-                var languageService = serviceProvider.GetService<LanguageService>();
+                var provider = scope.ServiceProvider;
+                var dbService = provider.GetService<DbService>();
 
                 var cursor = await dbService.Data
-                    .FindAsync(i => i.result.status == CCDataStatuses.InQueue);
+                    .FindAsync(i => i.Result.Status == ProcessStatus.InQueue.Value);
 
                 var items = await cursor
                     .ToListAsync();
@@ -124,22 +69,21 @@ namespace CC.Net.Services
 
                 foreach (var item in items)
                 {
-                    var client = idService.UserMap.GetValueByKeyOrNull(item.id);
-
-                    if (client != null)
+                    if (item.Action == "solve")
                     {
-                        try
-                        {
-                            await LiveHub.NotifyClient(client, $"Attempt #{item.attempt} now running", "error");
-                            await LiveHub.OnProcessStart(client, item);
-                        }
-                        catch (Exception e)
-                        {
-                            Console.WriteLine(e);
-                        }
-                    }
+                        var processItem = new ProcessItem(
+                            provider.GetService<ILogger<ProcessItem>>(),
+                            provider.GetService<CourseService>(),
+                            provider.GetService<LanguageService>(),
+                            provider.GetService<IdService>(),
+                            provider.GetService<IHubContext<LiveHub>>(),
+                            provider.GetService<CompareService>(),
+                            item
+                        );
 
-                    await ProcessOne(item, serviceProvider);
+                        _logger.LogInformation($"Processing item {item?.Id} {item?.User} {item?.CourseName}-{item?.CourseYear} {item?.Problem}");
+                        await processItem.Solve();
+                    }
                 }
             }
         }

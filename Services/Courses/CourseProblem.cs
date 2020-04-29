@@ -15,9 +15,12 @@ namespace CC.Net.Services.Courses
         public CourseReference reference { get; set; }
         public List<CourseProblemCase> tests { get; set; }
 
+        public IEnumerable<CourseProblemCase> AllTests =>
+            tests.SelectMany(i => i.Enumerate());
+
         public CourseProblemCase this[string key]
         {
-            get => tests.First(i => i.id.ToLower() == key.ToLower());
+            get => AllTests.First(i => i.id.ToLower() == key.ToLower());
         }
 
         public string Description { get; set; }

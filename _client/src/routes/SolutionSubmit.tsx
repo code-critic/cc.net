@@ -10,7 +10,7 @@ import { CourseProblemSelectModel } from "../components/CourseProblemSelect.Mode
 import { SimpleLoader } from "../components/SimpleLoader";
 import { ILanguage, ICcData } from "../models/DataModel";
 import { ApiResource } from "../utils/ApiResource";
-import { Grid, Button, InputLabel, Select, MenuItem, FormControl, ButtonGroup, Dialog, DialogTitle, DialogContent, Tooltip, Container } from '@material-ui/core';
+import { Grid, Button, InputLabel, Select, MenuItem, FormControl, ButtonGroup, Dialog, DialogTitle, DialogContent, Tooltip, Container, Box } from '@material-ui/core';
 
 
 import SendIcon from '@material-ui/icons/Send';
@@ -20,10 +20,10 @@ import HelpIcon from '@material-ui/icons/Help';
 import LanguageExamples from '../utils/LanguageExamples';
 import { mapLanguage } from '../utils/LanguageMap';
 import StudentResults from "../components/StudentResults";
-import { User, liveConnection } from "../init";
+import { User, liveConnection, appDispatcher, commentService } from "../init";
 import { renderCode } from "../utils/renderers";
 import { NotificationManager } from 'react-notifications';
-import StudentResultItem from "../components/StudentResults.Item";
+import { StudentResultItem } from "../components/StudentResults.Item";
 
 interface SolutionSubmitProps extends RouteComponentProps<ICourseYearProblem> {
 }
@@ -74,6 +74,9 @@ export class SolutionSubmit extends React.Component<SolutionSubmitProps, any, an
         return code;
     }
 
+    @observable
+    public forceUpdateField = 0;
+
     constructor(props: SolutionSubmitProps) {
         super(props);
 
@@ -99,6 +102,13 @@ export class SolutionSubmit extends React.Component<SolutionSubmitProps, any, an
 
         liveConnection.on("OnProcessStart", (item: ICcData) => {
             this.liveResult = item;
+        });
+
+
+        appDispatcher.register((payload: any) => {
+            if (payload.actionType == "commentServiceChanged") {
+                this.forceUpdateField++;
+            }
         });
     }
 
@@ -206,7 +216,12 @@ export class SolutionSubmit extends React.Component<SolutionSubmitProps, any, an
             <CourseProblemSelect prefix="courses" model={model} history={history} {...this.props.match.params} />
 
             <Grid container spacing={2}>
-                <Grid item xs={12} sm={12} lg={6} >
+
+                {liveResult && <Grid item xs={12} sm={12} lg={12}>
+                    <StudentResultItem item={liveResult} languages={languages.data} />
+                </Grid>}
+
+                <Grid item xs={12} sm={12} lg={6}>
                     <div className="description" dangerouslySetInnerHTML={{ __html: activeProblem.description }}>
                     </div>
                 </Grid>
@@ -284,8 +299,24 @@ export class SolutionSubmit extends React.Component<SolutionSubmitProps, any, an
                             </Button>
 
                             {(resultsDialogOpen && activeCourse && activeProblem) &&
-                                < Dialog open={true} onClose={() => this.resultsDialogOpen = false} maxWidth="lg" fullWidth>
-                                    <DialogTitle>{User.name} ({User.id})</DialogTitle>
+                                <Dialog className={commentService.items.length > 0 ? "unsaved" : ""}
+                                    open={true}
+                                    onClose={() => this.resultsDialogOpen = false}
+                                    maxWidth="lg" fullWidth>
+                                    <DialogTitle>
+                                        <Box padding={2}>
+                                            <Grid container justify="space-between">
+                                                <Grid item>
+                                                    {User.name} ({User.id})
+                                            </Grid>
+                                                {commentService.items.length > 0 && <Grid item>
+                                                    <Button variant="contained" color="secondary">
+                                                        Add {commentService.items.length} comment{commentService.items.length > 1 ? "s" : ""}
+                                                    </Button>
+                                                </Grid>}
+                                            </Grid>
+                                        </Box>
+                                    </DialogTitle>
                                     <DialogContent>
                                         <StudentResults
                                             course={activeCourse.course}
@@ -299,11 +330,9 @@ export class SolutionSubmit extends React.Component<SolutionSubmitProps, any, an
                             }
 
                             <Button size="large" variant="contained" color="primary" endIcon={<SendIcon />}
-                                onClick={() => this.submitSolution()}
-                            >
+                                onClick={() => this.submitSolution()}>
                                 Submit Solution
                             </Button>
-                            {liveResult && <StudentResultItem item={liveResult} languages={languages.data} />}
                         </Grid>
                     </Grid>
                 </Grid>

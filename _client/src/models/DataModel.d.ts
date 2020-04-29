@@ -4,6 +4,7 @@
 		tags: string[];
 	}
 	interface ILanguage {
+		compilationNeeded: boolean;
 		compile: string[];
 		disabled: boolean;
 		extension: string;
@@ -17,6 +18,7 @@
 	}
 	interface ICourse {
 		courseConfig: ICourseConfig;
+		courseDir: string;
 		courseYears: ICourseYearConfig[];
 		item: ICourseYearConfig;
 		name: string;
@@ -31,6 +33,7 @@
 		teachers: IUser[];
 	}
 	interface ICourseProblem {
+		allTests: ICourseProblemCase[];
 		avail: string;
 		cat: string;
 		description: string;
@@ -71,23 +74,20 @@
 		action: string;
 		attempt: number;
 		comments: ILineComment[];
-		course: string;
 		courseName: string;
 		courseYear: string;
 		docker: boolean;
 		id: IObjectId;
-		lang: string;
+		language: string;
 		objectId: string;
-		output_dir: string;
+		outputDir: string;
 		points: number;
 		problem: string;
 		result: ICcDataResult;
-		results: ICcDataResult[];
-		review: IKeyValuePair[];
-		review_request: Date;
-		solution: string;
+		results: ICcDataCaseResult[];
+		reviewRequest: Date;
+		solutions: ICcDataSolution[];
 		user: string;
-		uuid: string;
 	}
 	interface ICcDataAgg {
 		id: ICcDataAggId;
@@ -97,18 +97,19 @@
 		problem: string;
 		user: string;
 	}
-	interface ICcDataResult {
-		caseId: string;
+	interface ICcDataCaseResult extends ICcDataResult {
+		case: string;
 		cmd: string;
+		returncode: number;
+	}
+	interface ICcDataResult {
 		console: string[];
 		duration: number;
 		message: string;
-		message_details: string[];
-		returncode: number;
+		messages: string[];
 		score: number;
 		scores: number[];
-		status: string;
-		uuid: string;
+		status: number;
 	}
 	interface IObjectId {
 		creationTime: Date;
@@ -118,19 +119,24 @@
 		pid: number;
 		timestamp: number;
 	}
-	interface IKeyValuePair {
-		key: ITKey;
-		value: ITValue;
+	interface ICcDataSolution {
+		content: string;
+		filename: string;
+		index: number;
+		isMain: boolean;
 	}
 	interface ILineComment {
+		filename: string;
 		line: any;
 		text: string;
 		time: number;
 		user: string;
 	}
 	interface IDiffResult {
-		filename: string;
+		generated: string;
+		isOk: boolean;
 		lines: IDiffPiece[];
+		reference: string;
 	}
 	interface IMarkSolutionItem {
 		objectId: string;

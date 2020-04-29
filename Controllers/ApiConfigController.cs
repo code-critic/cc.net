@@ -9,6 +9,7 @@ using CC.Net.Dto;
 using CC.Net.Services;
 using CC.Net.Services.Courses;
 using CC.Net.Services.Languages;
+using CC.Net.Utils;
 using DiffPlex;
 using DiffPlex.DiffBuilder;
 using DiffPlex.DiffBuilder.Model;
@@ -27,15 +28,20 @@ namespace CC.Net.Controllers
         private readonly DbService _dbService;
         private readonly AppOptions _appOptions;
         private readonly ProblemDescriptionService _problemDescriptionService;
+        private readonly CompareService _compareService;
 
-        public ApiConfigController(CourseService courseService, 
-            LanguageService languageService, DbService dbService, AppOptions appOptions, ProblemDescriptionService problemDescriptionService)
+        public ApiConfigController(
+            CourseService courseService, LanguageService languageService, DbService dbService,
+            AppOptions appOptions, ProblemDescriptionService problemDescriptionService,
+            CompareService compareService
+            )
         {
             _courseService = courseService;
             _languageService = languageService;
-             _dbService = dbService;
-             _appOptions = appOptions;
+            _dbService = dbService;
+            _appOptions = appOptions;
             _problemDescriptionService = problemDescriptionService;
+            _compareService = compareService;
         }
 
         [HttpGet("courses")]
@@ -44,11 +50,11 @@ namespace CC.Net.Controllers
             return _courseService.Courses;
         }
 
-        [HttpGet("courses-full/{courseId}/{year}")]
-        public List<CourseProblem> CourseFull(string courseId, string year)
+        [HttpGet("courses-full/{courseName}/{courseYear}")]
+        public List<CourseProblem> CourseFull(string courseName, string courseYear)
         {
-            var course = _courseService[courseId];
-            var yearConfig = course[year];
+            var course = _courseService[courseName];
+            var yearConfig = course[courseYear];
 
             var singleCourse = new SingleCourse
             {
@@ -107,53 +113,15 @@ namespace CC.Net.Controllers
                 .UpdateOne(filter, update);
         }
 
-        [HttpGet("diff/{objectId}")]
-        public IEnumerable<DiffResult> ViewDiff(string objectId)
+        [HttpGet("diff/{objectId}/{caseId}")]
+        public DiffResult ViewDiff(string objectId, string caseId)
         {
             var data = _dbService.Data
-                .Find(i => i.id == new ObjectId(objectId))
+                .Find(i => i.Id == new ObjectId(objectId))
                 .First();
 
-            var problem = _courseService[data.courseName][data.courseYear][data.problem];
-            var solutionDir = Path.Combine(_appOptions.RootDir, data.output_dir, "output");
-            var studentDirInfo = new DirectoryInfo(solutionDir);
-            var courseDirInfo = new DirectoryInfo(
-                Path.Combine(
-                    _appOptions.CourseDir, data.courseName, data.courseYear, "problems", data.problem, "output"
-                )
-            );
-            foreach(var refO in courseDirInfo.GetFiles()) {
-                var studentO = new FileInfo(Path.Combine(solutionDir, refO.Name));
-                var diffBuilder = new InlineDiffBuilder(new Differ());
-                var diff = diffBuilder.BuildDiffModel(
-                    File.ReadAllText(refO.ToString()), File.ReadAllText(studentO.ToString())
-                );
-
-                yield return new DiffResult() {
-                    filename = refO.Name,
-                    lines = diff.Lines
-                };
-                foreach (var line in diff.Lines)
-                {
-                    switch (line.Type)
-                    {
-                        case ChangeType.Inserted:
-                            Console.ForegroundColor = ConsoleColor.Red;
-                            Console.Write("+ ");
-                            break;
-                        case ChangeType.Deleted:
-                            Console.ForegroundColor = ConsoleColor.Green;
-                            Console.Write("- ");
-                            break;
-                        default:
-                            Console.ForegroundColor = ConsoleColor.White;
-                            Console.Write("  ");
-                            break;
-                    }
-
-                    Console.WriteLine(line.Text);
-                }
-            }
+            var context = new CourseContext(_courseService, _languageService, data);
+            return _compareService.CompareFiles(context, context.CourseProblem[caseId]);
         }
     }
 }

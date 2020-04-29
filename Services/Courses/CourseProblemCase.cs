@@ -18,7 +18,7 @@ namespace CC.Net.Services.Courses
                 {
                     yield return new CourseProblemCase
                     {
-                        id = $"{id}.{i+1}",
+                        id = $"{id}.{i + 0}",
                         size = size,
                         timeout = timeout,
                     };

@@ -97,7 +97,13 @@ type NotificationLevel = "info" | "success" | "warning" | "error";
 
 liveConnection.start()
     .then(() => {
-        console.log("Connected to the hub")
+
+        console.log("Connected to the hub");
+
+        (window as any).foo = liveConnection;
+        liveConnection.invoke("RegisterUser", User.id);
+        console.log((window as any).foo);
+        
 
         liveConnection.on("OnMessage", (message: string, level: NotificationLevel) => {
             switch (level) {

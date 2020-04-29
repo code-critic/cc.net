@@ -30,7 +30,8 @@ namespace CC.Net.Services.Courses
                     var course = new Course
                     {
                         CourseConfig = YamlRead.Read<CourseConfig>(config),
-                        CourseYears = ParseCourse(dir)
+                        CourseYears = ParseCourse(dir),
+                        CourseDir = dir
                     };
 
                     result.Add(course);

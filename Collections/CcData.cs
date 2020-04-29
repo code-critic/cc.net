@@ -13,75 +13,108 @@ namespace CC.Net.Collections
     {
         [BsonId]
         [BsonElement("_id")]
-        public ObjectId id { get; set; }
+        public ObjectId Id { get; set; }
 
-        public string objectId
+        override public string ToString()
+        {
+            return $"CC({CourseName}/{CourseYear}/{Problem} {User} written {Language}, action {Action})";
+        }
+
+        public string ObjectId
         {
             get
             {
-                return id.ToString();
+                return Id.ToString();
             }
         }
 
-        public string user { get; set; }
-        public string course { get; set; }
-        public string problem { get; set; }
-        public string action { get; set; }
-        public bool docker { get; set; }
+        [BsonElement("user")]
+        public string User { get; set; }
 
-        public string courseName => course.Split('-')[0];
-        public string courseYear => course.Split('-')[1];
+        [BsonElement("courseName")]
+        public string CourseName { get; set; }
 
-        public CcDataResult result { get; set; }
-        public List<CcDataResult> results { get; set; }
-        public string uuid { get; set; }
-        public string lang { get; set; }
-        public string solution { get; set; }
-        public string output_dir { get; set; }
-        public int? attempt { get; set; }
-        public float? points { get; set; }
+        [BsonElement("courseYear")]
+        public string CourseYear { get; set; }
 
+        [BsonElement("problem")]
+        public string Problem { get; set; }
 
-        public DateTime? review_request { get; set; }
+        [BsonElement("action")]
+        public string Action { get; set; }
 
-        [JsonIgnore]
-        public Dictionary<object, IEnumerable<LineComment>> review { get; set; }
+        [BsonElement("docker")]
+        public bool Docker { get; set; }
 
-        public IEnumerable<LineComment> comments
-        {
-            get
-            {
-                if (review == null || review.Count == 0)
-                {
-                    return new List<LineComment>();
-                }
+        [BsonElement("result")]
+        public CcDataResult Result { get; set; }
 
-                var comments = review
-                    .SelectMany(i => i.Value.Select(j => new LineComment
-                    {
-                        text = j.text,
-                        time = j.time,
-                        user = j.user,
-                        line = i.Key,
-                    }));
+        [BsonElement("results")]
+        public List<CcDataCaseResult> Results { get; set; } = new List<CcDataCaseResult>();
 
-                return comments;
-            }
-        }
+        [BsonElement("language")]
+        public string Language { get; set; }
+
+        [BsonElement("solutions")]
+        public List<CcDataSolution> Solutions { get; set; } = new List<CcDataSolution>();
+
+        [BsonElement("outputDir")]
+        public string OutputDir { get; set; }
+
+        [BsonElement("attempt")]
+        public int Attempt { get; set; }
+
+        [BsonElement("points")]
+        public float Points { get; set; }
+
+        [BsonElement("reviewRequest")]
+        public DateTime? ReviewRequest { get; set; }
+
+        [BsonElement("comments")]
+        public List<LineComment> Comments { get; set; } = new List<LineComment>();
 
         public class LineComment
         {
-            public string text { get; set; }
-            public double time { get; set; }
-            public string user { get; set; }
-            public object line { get; set; }
+            [BsonElement("text")]
+            public string Text { get; set; }
+
+            [BsonElement("time")]
+            public double Time { get; set; }
+
+            [BsonElement("user")]
+            public string User { get; set; }
+
+            [BsonElement("line")]
+            public object Line { get; set; }
+
+            [BsonElement("filename")]
+            public string Filename { get; set; }
         }
 
-        // public BsonDocument compilation { get; set; }
-        // // public BsonDocument time { get; set; }
-        // public BsonDocument active { get; set; }
+        public class CcDataSolution
+        {
+            [BsonElement("filename")]
+            public string Filename { get; set; }
 
-        // [BsonExtraElements]
-        // public Dictionary<string, object> Rest { get; set; }
+            [BsonElement("content")]
+            public string Content { get; set; }
+
+            [BsonElement("index")]
+            public int Index { get; set; }
+
+            [BsonElement("isMain")]
+            public bool IsMain { get; set; }
+
+            public static CcDataSolution Single(string content, string filename, int index = 0, bool isMain = true)
+            {
+                return new CcDataSolution
+                {
+                    Filename = filename,
+                    Content = content,
+                    Index = index,
+                    IsMain = isMain
+                };
+            }
+        }
     }
 }

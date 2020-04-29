@@ -1,27 +1,23 @@
-using System;
-using System.Collections.Generic;
-using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
-using TypeLite;
 
 namespace CC.Net.Collections
 {
     [BsonIgnoreExtraElements]
     public class CcDataResult
     {
-        [BsonElement("id")]
-        public string caseId { get; set; }
-        public string status { get; set; }
-        public double duration { get; set; }
-
-        public int? returncode { get; set; }
-        public string message { get; set; }
-        public int? score { get; set; }
-        public int[] scores { get; set; }
-        public string cmd { get; set; }
-        public string uuid { get; set; }
-        public string[] console { get; set; }
-        public string[] message_details { get; set; }
-        // public string[] attachments { get; set; }
+        [BsonElement("status")]
+        public int Status { get; set; }
+        [BsonElement("duration")]
+        public double Duration { get; set; }
+        [BsonElement("message")]
+        public string Message { get; set; }
+        [BsonElement("score")]
+        public int Score { get; set; }
+        [BsonElement("scores")]
+        public int[] Scores { get; set; }
+        [BsonElement("console")]
+        public string[] Console { get; set; }
+        [BsonElement("messages")]
+        public string[] Messages { get; set; }
     }
 }

@@ -11,7 +11,6 @@ import "../styles/list.css";
 import { CondenseButton } from "../utils/CondenseButton";
 import { nestGet } from "../utils/NestGetter";
 import { ReactTableWithSelect } from "../utils/ReactTableWithSelect";
-import { StudentResultDetail2 } from "./StudentResultDetail2";
 import { getColumns, getStatus } from "./StudentResultList.Columns";
 import { StudentResultListModel } from "./StudentResultList.Model";
 import { StudentResultDetail } from "../components/StudentResultDetail";
@@ -115,6 +114,9 @@ export class StudentResultList extends React.Component<any, StudentResultListSta
         if (model.apiIsLoading) {
             return <div>loading</div>
         }
+        
+        console.log(commentService.items);
+        
 
         return <div>
             {detailResult && detailIsOpened &&
@@ -141,12 +143,6 @@ export class StudentResultList extends React.Component<any, StudentResultListSta
                     </DialogContent>
                 </Dialog>
             }
-
-            {/* <StudentResultDetail2
-                show={this.isModelVisible}
-                objectId={model.detailObjectId}
-                onClose={() => this.isModelVisible = false}
-            /> */}
 
             <div style={{ display: "flex" }}>
                 <Form.Group>

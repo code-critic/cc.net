@@ -4,7 +4,6 @@ import { observer } from "mobx-react";
 import React from "react";
 // import Highlight from 'react-highlight'
 import { Button, Modal } from "react-bootstrap";
-import { ModalDiff } from "../components/ModalDiff";
 import { SimpleLoader } from "../components/SimpleLoader";
 import { httpClient } from "../init";
 import { ICcData, IMarkSolutionItem } from "../models/DataModel";
@@ -12,7 +11,7 @@ import { ICcData, IMarkSolutionItem } from "../models/DataModel";
 import "../styles/detail.css";
 import "../third_party/prettify.js";
 import { getPoints } from "../utils/DataUtils";
-import { renderCode, renderSolution } from "../utils/renderers";
+import { RenderSolution } from "../utils/renderers";
 
 // import 'highlight.js/styles/github.css';
 
@@ -92,7 +91,7 @@ export class StudentResultDetail2 extends React.Component<StudentResultDetailPro
             return <SimpleLoader />
         }
         
-        return renderSolution(model.data);
+        return <RenderSolution result={model.data} />
     }
 
     public onCodeRowClicked(node: Element, line: number) {
@@ -217,10 +216,6 @@ export class StudentResultDetail2 extends React.Component<StudentResultDetailPro
                     </Button>
                 </Modal.Footer>
             </Modal>
-            <ModalDiff objectId={data.objectId}
-                show={this.isDiffVisible}
-                onCloseModal={() => this.closeDiff()}
-            />
         </>);
     }
 }

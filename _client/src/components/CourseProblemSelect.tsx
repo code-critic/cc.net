@@ -51,7 +51,11 @@ export class CourseProblemSelect extends React.Component<CourseProblemSelectProp
 
 
         return <Breadcrumb>
-            <Breadcrumb.Item href={prefix} active={!course}>courses</Breadcrumb.Item>
+            <Breadcrumb.Item
+                onClick={() => history.push(`${prefix}`)}
+                active={!course}>
+                    courses
+            </Breadcrumb.Item>
 
             {/* {(course && year) && <Breadcrumb.Item href={prefix}>
                 {course}-{year}

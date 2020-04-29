@@ -98,7 +98,7 @@ export function getColumns(model: StudentResultListModel, courses: ICourse[]) {
         },
         {
             Header: "Language",
-            accessor: nameof<ICcData>(i => i.lang),
+            accessor: nameof<ICcData>(i => i.language),
             filterMethod: (filter: Filter, row: ICcData) => {
                 if (filter.value === "all") {
                     return true;
@@ -138,7 +138,7 @@ export function getColumns(model: StudentResultListModel, courses: ICourse[]) {
         },
         {
             Header: "Review Request",
-            accessor: nameof<ICcData>(i => i.review_request),
+            accessor: nameof<ICcData>(i => i.reviewRequest),
             Cell: (cellInfo: CellInfo) => cellInfo.value ? "yes" : "",
             Filter: (params: { column: Column, filter: any, onChange: ReactTableFunction, key?: string }) =>
                 <select onChange={event => params.onChange(event.target.value)} style={{ width: "100%" }}

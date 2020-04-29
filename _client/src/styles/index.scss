@@ -90,7 +90,7 @@ $statuses: (
   answer-correct: #b5ffb5,
   answer-correct-timeout: #f7ffb5,
   ok: #efd3ff,
-  running: #faf6c6,
+  running: #c6e9fa,
   unknown: #e2b3b3,
   answer-wrong: #f5d0d0,
   answer-wrong-timeout: #f5d0d0,
@@ -113,7 +113,7 @@ $statuses: (
 
 .result-list {
   width: 100%;
-  
+
   .subresult {
     .MuiButton-root {
       min-width: 32px;
@@ -130,7 +130,8 @@ $statuses: (
       @each $status, $color in $statuses {
         &.status-#{$status} {
           color: darken($color, 40);
-          background: radial-gradient(white 25%,rgba(255, 255, 255, 0) 40%);
+          background: radial-gradient(white 25%, rgba(255, 255, 255, 0) 40%);
+          transition: all 0.35s ease-in-out;
         }
       }
     }
@@ -142,6 +143,7 @@ $statuses: (
     @each $status, $color in $statuses {
       &.status-#{$status} {
         background: linear-gradient(to right, white, lighten($color, 5));
+        transition: all 0.35s ease-in-out;
 
         &:hover {
           background: linear-gradient(to right, white, darken($color, 5));
@@ -153,6 +155,7 @@ $statuses: (
             padding: 4px;
             border-radius: 50%;
             background: darken($color, 25);
+            transition: all 0.35s ease-in-out;
           }
         }
       }
@@ -160,12 +163,60 @@ $statuses: (
   }
 }
 
-
 .small > .MuiOutlinedInput-input,
 .MuiOutlinedInput-input.small {
-    padding: 11px 14px;
+  padding: 11px 14px;
 }
 
 .MuiTooltip-popper > .MuiTooltip-tooltip {
   font-size: 0.7rem;
+}
+
+.source-code.diff {
+  width: 100%;
+  border-spacing: 0;
+
+  .blob-num {
+    width: 50px;
+    cursor: default;
+  }
+  
+  tr {
+    width: 100%;
+  }
+
+  .line {
+    padding: 0 5px;
+    width: 100%;
+    font-size: 17px;
+    line-height: 20px;
+    height: 20px;
+    display: block;
+
+    .space {
+      font-size: 0.0001rem;
+      line-height: 0;
+
+      &::before {
+        content: '\b7';
+        font-size: 17px;
+        color: #bbb;
+        white-space: pre;
+        display: inline-block;
+      }
+    }
+
+    &.line-unchanged {
+      background-color: rgb(255, 255, 255);
+    }
+    &.line-deleted {
+      background-color: rgb(255, 208, 208);
+    }
+    &.line-inserted {
+      background-color: rgb(210, 255, 208);
+    }
+    &.line-modified {
+      background-color: rgb(255, 208, 253);
+    }
+  }
 }

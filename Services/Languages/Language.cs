@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace CC.Net.Services.Languages
 {
@@ -20,5 +21,7 @@ namespace CC.Net.Services.Languages
         {
             return $"<{id}({name})>";
         }
+
+        public bool CompilationNeeded => compile != null && compile.Any();
     }
 }

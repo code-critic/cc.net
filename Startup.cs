@@ -6,11 +6,15 @@ using CC.Net.Services.Courses;
 using CC.Net.Services.Languages;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using System;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace CC.Net
 {
@@ -40,10 +44,11 @@ namespace CC.Net
             services.AddScoped<CourseService>();
             services.AddScoped<DbService>();
             services.AddScoped<ProblemDescriptionService>();
-            services.AddControllersWithViews();
-
-            services.AddSignalR();
+            services.AddScoped<CompareService>();
             services.AddHostedService<ProcessService>();
+
+            services.AddControllersWithViews();
+            services.AddSignalR();
 
             // In production, the React files will be served from this directory
             services.AddSpaStaticFiles(configuration =>
@@ -55,6 +60,15 @@ namespace CC.Net
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IServiceProvider serviceProvider)
         {
             ServiceProvider = serviceProvider;
+            var db = serviceProvider.GetService<DbService>();
+            var id = serviceProvider.GetService<IdService>();
+
+            /*GlobalHost.DependencyResolver.Register(
+                typeof(LiveHub),
+                () => {
+                    return new LiveHub(db, id);
+                });*/
+
 
             if (env.IsDevelopment())
             {
@@ -66,12 +80,6 @@ namespace CC.Net
                 // 30 days, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
-
-            var db = serviceProvider.GetService<DbService>();
-            var c = serviceProvider.GetService<CourseService>();
-
-            Console.WriteLine(c["ADA"]["2019"]["04-palindrom-number"]["case-1.s"].random);
-
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseSpaStaticFiles();
