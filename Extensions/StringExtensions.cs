@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq.Expressions;
 using MongoDB.Bson;
@@ -17,13 +18,22 @@ namespace CC.Net.Extensions
             return File.ReadAllText(path);
         }
 
+        public static IEnumerable<string> ReadLines(this string path)
+        {
+            if (File.Exists(path))
+            {
+                return File.ReadLines(path);
+            }
+            return new List<string>();
+        }
+
         public static string[] SplitLines(this string text)
         {
             if (string.IsNullOrEmpty(text))
             {
                 return new string[] { };
             }
-            
+
             return text.Split(
                 new[] { "\r\n", "\r", "\n" },
                 StringSplitOptions.None

@@ -1,3 +1,31 @@
+$statuses: (
+  answer-correct: #c0f3b3,
+  answer-correct-timeout: #f0e097,
+  ok: #efd3ff,
+  running: #c6e9fa,
+  unknown: #e2b3b3,
+  answer-wrong: #f5d0d0,
+  answer-wrong-timeout: #f5d0d0,
+  global-timeout: #f5d0d0,
+  error-while-running: #f5d0d0,
+  compilation-failed: #f5d0d0,
+  in-queue: #dadada,
+  skipped: #dadada,
+);
+
+$diffs: (
+  unchanged: #e6f1df,
+  deleted: #ffd0d0,
+  inserted: #ffd0d0,
+  modified: #ffd0d0,
+  1: #e6f1df,
+  2: #ffd0d0,
+  // unchanged: rgb(255, 255, 255),
+    // deleted: rgb(255, 208, 208),
+    // inserted: rgb(210, 255, 208),
+    // modified: rgb(255, 208, 253),,,,,,,,,,,,,,
+);
+
 @media (min-width: 1600px) {
   .container {
     &.wide {
@@ -86,20 +114,6 @@
   }
 }
 
-$statuses: (
-  answer-correct: #b5ffb5,
-  answer-correct-timeout: #f7ffb5,
-  ok: #efd3ff,
-  running: #c6e9fa,
-  unknown: #e2b3b3,
-  answer-wrong: #f5d0d0,
-  answer-wrong-timeout: #f5d0d0,
-  global-timeout: #f5d0d0,
-  error-while-running: #f5d0d0,
-  compilation-failed: #f5d0d0,
-  skipped: #dadada,
-);
-
 .MuiChip-root {
   @each $status, $color in $statuses {
     &.chip-#{$status} {
@@ -111,8 +125,44 @@ $statuses: (
   }
 }
 
-.result-list {
+.result-item {
   width: 100%;
+  position: relative;
+  overflow: hidden;
+
+  &.with-comment {
+    &::before {
+      content: "COMMENT";
+      font-size: 0.6rem;
+      transform: rotate(-45deg);
+      position: absolute;
+      display: block;
+      background-color: #ffc800;
+      border: 1px solid darken(#ffc800, 5);
+      box-shadow: 2px 2px 5px 0px #00000033;
+      padding: 1px 25px;
+      z-index: 1000;
+      top: 20px;
+      left: -22px;
+    }
+  }
+
+  &.with-review {
+    &::after {
+      content: "REVIEW";
+      font-size: 0.6rem;
+      transform: rotate(-45deg);
+      position: absolute;
+      display: block;
+      background-color: #aaf2ff;
+      border: 1px solid darken(#aaf2ff, 5);
+      box-shadow: 2px 2px 5px 0px #00000033;
+      padding: 1px 20px;
+      z-index: 999;
+      top: 9px;
+      left: -23px;
+    }
+  }
 
   .subresult {
     .MuiButton-root {
@@ -130,8 +180,12 @@ $statuses: (
       @each $status, $color in $statuses {
         &.status-#{$status} {
           color: darken($color, 40);
-          background: radial-gradient(white 25%, rgba(255, 255, 255, 0) 40%);
+          background: radial-gradient(white 35%, rgba(255, 255, 255, 0) 40%);
           transition: all 0.35s ease-in-out;
+
+          .MuiCircularProgress-colorPrimary {
+            color: darken($color, 40);
+          }
         }
       }
     }
@@ -149,12 +203,16 @@ $statuses: (
           background: linear-gradient(to right, white, darken($color, 5));
         }
 
+        .MuiCircularProgress-colorPrimary {
+          color: darken($color, 40);
+        }
+
         .MuiListItemIcon-root.bigger {
           .MuiSvgIcon-root {
             color: white;
             padding: 4px;
             border-radius: 50%;
-            background: darken($color, 25);
+            background: darken($color, 40);
             transition: all 0.35s ease-in-out;
           }
         }
@@ -175,30 +233,30 @@ $statuses: (
 .source-code.diff {
   width: 100%;
   border-spacing: 0;
+  margin-bottom: 10px;
 
   .blob-num {
     width: 50px;
     cursor: default;
   }
-  
+
   tr {
     width: 100%;
   }
 
   .line {
     padding: 0 5px;
-    width: 100%;
     font-size: 17px;
     line-height: 20px;
     height: 20px;
-    display: block;
+    border-bottom: 1px solid #fff;
 
     .space {
       font-size: 0.0001rem;
       line-height: 0;
 
       &::before {
-        content: '\b7';
+        content: "\b7";
         font-size: 17px;
         color: #bbb;
         white-space: pre;
@@ -206,17 +264,148 @@ $statuses: (
       }
     }
 
-    &.line-unchanged {
-      background-color: rgb(255, 255, 255);
+    @each $status, $color in $diffs {
+      &.line-#{$status} {
+        background: linear-gradient(to left, white, $color);
+      }
     }
-    &.line-deleted {
-      background-color: rgb(255, 208, 208);
+  }
+}
+
+.diff-legend {
+  hr {
+    margin: 5px 0;
+  }
+  .diff-legend-items {
+    display: flex;
+    align-items: stretch;
+    justify-content: flex-end;
+    align-content: center;
+    height: 30px;
+
+    .line {
+      margin: 10px;
+      display: flex;
+      align-items: center;
+      margin-left: 25px;
+
+      .label {
+        display: inline-block;
+        height: 20px;
+      }
+
+      .square {
+        font-size: 1.3rem;
+        border: 1px dashed #000;
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        margin-right: 10px;
+
+        @each $status, $color in $diffs {
+          &.line-#{$status} {
+            background-color: $color;
+          }
+        }
+      }
     }
-    &.line-inserted {
-      background-color: rgb(210, 255, 208);
+  }
+}
+
+.MuiButtonBase-root.MuiFab-root {
+  &.pending-changes {
+    position: relative;
+    bottom: 15px;
+    right: 15px;
+  }
+}
+
+.MuiSvgIcon-root.expand-icon,
+.expand-icon {
+  transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
+  transform: rotate(0deg);
+
+  &.expanded {
+    transform: rotate(180deg);
+  }
+}
+
+.expand-content {
+  transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
+
+  &.collapsed {
+    max-height: 0px;
+    min-height: 0px;
+  }
+
+  &.expanded {
+    max-height: 300px;
+    min-height: 0px;
+  }
+}
+
+.MuiTab-root.tab-separator {
+  pointer-events: none;
+  height: 20px;
+  min-height: 20px;
+  border-bottom: 1px solid #b1b1b1;
+  padding: 0 15px;
+  margin: 8px 0;
+  position: relative;
+
+  &::after {
+    content: attr(title);
+    display: block;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    font-size: 0.6rem;
+  }
+}
+
+.button-group {
+  display: flex;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  margin: 4px 0 1rem 0;
+  height: 48px;
+  align-items: flex-end;
+  position: relative;
+
+  &.with-label {
+    height: 64px;
+    &::before {
+      content: attr(data-title);
+      position: absolute;
+      top: 0;
+      left: 0;
+      font-size: 0.7rem;
     }
-    &.line-modified {
-      background-color: rgb(255, 208, 253);
+  }
+}
+
+.MuiButton-root.MuiToggleButton-root {
+  border: none;
+  margin: 6px 2px;
+  padding: 0px 8px;
+  height: 40px;
+  min-width: 40px;
+
+  &:first-child {
+    margin-left: 6px;
+    margin-right: 2px;
+  }
+
+  &:last-child {
+    margin-right: 6px;
+    margin-left: 2px;
+  }
+
+  &.selected {
+    background-color: rgba(0, 0, 0, 0.12);
+    // box-shadow: inset 0 0 3px 0 rgba(0, 0, 0, 0.46);
+
+    &:hover {
+      background-color: rgba(0, 0, 0, 0.2);
     }
   }
 }

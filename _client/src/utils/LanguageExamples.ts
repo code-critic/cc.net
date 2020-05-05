@@ -84,7 +84,7 @@ int main(void)
   printf("Enter your name: ");
   fgets(name, BUFSIZ, stdin);
   
-  printf ("Hello %s, your number was %d\n", name, i);
+  printf ("Hello %s, your number was %d", name, i);
   
   return(0);
 }`,

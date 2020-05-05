@@ -6,6 +6,7 @@ using CC.Net.Collections;
 using CC.Net.Config;
 using CC.Net.Db;
 using CC.Net.Dto;
+using CC.Net.Extensions;
 using CC.Net.Services;
 using CC.Net.Services.Courses;
 using CC.Net.Services.Languages;
@@ -114,14 +115,53 @@ namespace CC.Net.Controllers
         }
 
         [HttpGet("diff/{objectId}/{caseId}")]
-        public DiffResult ViewDiff(string objectId, string caseId)
+        public DiffResultComposite ViewDiff(string objectId, string caseId)
         {
             var data = _dbService.Data
                 .Find(i => i.Id == new ObjectId(objectId))
                 .First();
 
             var context = new CourseContext(_courseService, _languageService, data);
-            return _compareService.CompareFiles(context, context.CourseProblem[caseId]);
+            var generatedFile = context.StudentDir.OutputFile(caseId);
+            var referenceFile = context.ProblemDir.OutputFile(caseId);
+            return _compareService.CompareFilesComposite(generatedFile, referenceFile);
+        }
+
+        [HttpGet("browse-dir/{objectId}/{dir}")]
+        public IEnumerable<FileDto> BrowseDir(string objectId, string dir)
+        {
+            var allowed = new string[] { "input", "output", "error", "reference" };
+            var data = _dbService.Data
+                .Find(i => i.Id == new ObjectId(objectId))
+                .First();
+
+
+            var context = new CourseContext(_courseService, _languageService, data);
+            var dirName = dir.ToLower();
+
+            if (!allowed.Any(i => i == dirName))
+            {
+                throw new Exception("Access denied");
+            }
+
+            var directory = dirName == "reference" 
+                ? context.ProblemDir.OutputDir
+                : data.Action != "solve"
+                    ? context.ProblemDir.RootFile(dirName)
+                    : context.StudentDir.RootFile(dirName);
+
+            if (!Directory.Exists(directory))
+            {
+                return new FileDto[] { };
+            }
+
+            var files = new DirectoryInfo(directory).GetFiles();
+
+            return files.Select(i => new FileDto
+            {
+                Filename = i.Name,
+                Content = i.FullName.ReadAllText()
+            });
         }
     }
 }

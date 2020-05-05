@@ -80,10 +80,11 @@
 		id: IObjectId;
 		language: string;
 		objectId: string;
-		outputDir: string;
 		points: number;
 		problem: string;
+		resu: string;
 		result: ICcDataResult;
+		resultDir: string;
 		results: ICcDataCaseResult[];
 		reviewRequest: Date;
 		solutions: ICcDataSolution[];
@@ -99,7 +100,8 @@
 	}
 	interface ICcDataCaseResult extends ICcDataResult {
 		case: string;
-		cmd: string;
+		command: string;
+		fullCommand: string;
 		returncode: number;
 	}
 	interface ICcDataResult {
@@ -123,20 +125,38 @@
 		content: string;
 		filename: string;
 		index: number;
+		isDynamic: boolean;
 		isMain: boolean;
+		isSeparator: boolean;
 	}
 	interface ILineComment {
 		filename: string;
-		line: any;
+		line: number;
 		text: string;
 		time: number;
 		user: string;
+	}
+	export const enum DiffResultLineType {
+		Correct = 1,
+		Wrong = 2
 	}
 	interface IDiffResult {
 		generated: string;
 		isOk: boolean;
 		lines: IDiffPiece[];
 		reference: string;
+	}
+	interface IDiffResultComposite {
+		error: string;
+		generated: string;
+		isOk: boolean;
+		lines: IDiffResultLine[];
+		reference: string;
+	}
+	interface IDiffResultLine {
+		generated: string;
+		reference: string;
+		type: DiffResultLineType;
 	}
 	interface IMarkSolutionItem {
 		objectId: string;
@@ -159,6 +179,30 @@
 	interface ITableResponse {
 		count: number;
 		data: any[];
+	}
+	export const enum ProcessStatusCodes {
+		InQueue = 1,
+		Running = 2,
+		Skipped = 9,
+		Ok = 10,
+		GlobalTimeout = 12,
+		AnswerCorrect = 100,
+		AnswerCorrectTimeout = 101,
+		AnswerWrong = 200,
+		AnswerWrongTimeout = 201,
+		CompilationFailed = 400,
+		ErrorWhileRunning = 500
+	}
+	interface IProcessStatus {
+		code: ProcessStatusCodes;
+		description: string;
+		letter: string;
+		name: string;
+		value: number;
+	}
+	interface ICommentServiceItem {
+		comment: ILineComment;
+		objectId: string;
 	}
 	export const enum ChangeType {
 		Unchanged = 0,

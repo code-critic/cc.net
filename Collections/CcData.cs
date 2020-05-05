@@ -1,7 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
-using System.Text.Json.Serialization;
+using CC.Net.Services;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using TypeLite;
@@ -17,7 +18,17 @@ namespace CC.Net.Collections
 
         override public string ToString()
         {
-            return $"CC({CourseName}/{CourseYear}/{Problem} {User} written {Language}, action {Action})";
+            return $"{Id}/{Action}/{User, -10} {CourseName}/{CourseYear}/{Problem} [{Result?.Duration:0.000} sec] {ProcessStatus.Get(Result?.Status ?? -1).Name}";
+        }       
+
+        public string ToString(CcDataCaseResult result)
+        {
+            return $"{Id}/{Action}/{User, -10} {CourseName}/{CourseYear}/{Problem}/{result.Case} [{result?.Duration:0.000} sec] {ProcessStatus.Get(result?.Status ?? -1).Name}";
+        }
+        
+        public string ToString(string caseId)
+        {
+            return $"{Id}/{Action}/{User, -10} {CourseName}/{CourseYear}/{Problem}/{caseId} [{Result?.Duration:0.000} sec] {ProcessStatus.Get(Result?.Status ?? -1).Name}";
         }
 
         public string ObjectId
@@ -30,6 +41,9 @@ namespace CC.Net.Collections
 
         [BsonElement("user")]
         public string User { get; set; }
+
+        [BsonIgnore]
+        public string Resu => string.Join('.', User.Split('.').Reverse());
 
         [BsonElement("courseName")]
         public string CourseName { get; set; }
@@ -58,8 +72,12 @@ namespace CC.Net.Collections
         [BsonElement("solutions")]
         public List<CcDataSolution> Solutions { get; set; } = new List<CcDataSolution>();
 
-        [BsonElement("outputDir")]
-        public string OutputDir { get; set; }
+        [BsonIgnore]
+        public string ResultDir =>
+            Path.Combine(
+                CourseYear, "results", Resu, Problem,
+                $"{Attempt:D2}-{ProcessStatus.Get(Result.Status).Letter}-{ProcessStatus.Get(Result.Status).Name}"
+            );
 
         [BsonElement("attempt")]
         public int Attempt { get; set; }
@@ -85,7 +103,7 @@ namespace CC.Net.Collections
             public string User { get; set; }
 
             [BsonElement("line")]
-            public object Line { get; set; }
+            public int Line { get; set; }
 
             [BsonElement("filename")]
             public string Filename { get; set; }
@@ -105,6 +123,12 @@ namespace CC.Net.Collections
             [BsonElement("isMain")]
             public bool IsMain { get; set; }
 
+            [BsonIgnore]
+            public bool IsDynamic { get; set; } = false;
+
+            [BsonIgnore]
+            public bool IsSeparator { get; set; } = false;
+
             public static CcDataSolution Single(string content, string filename, int index = 0, bool isMain = true)
             {
                 return new CcDataSolution
@@ -112,7 +136,28 @@ namespace CC.Net.Collections
                     Filename = filename,
                     Content = content,
                     Index = index,
-                    IsMain = isMain
+                    IsMain = isMain,
+                    IsDynamic = false
+                };
+            }
+
+            public static CcDataSolution Seperator(string title)
+            {
+                return new CcDataSolution{
+                    IsSeparator = true,
+                    Filename = title,
+                };
+            }
+
+            public static CcDataSolution Dynamic(string filename, string url, int index = 0)
+            {
+                return new CcDataSolution
+                {
+                    Filename = filename,
+                    Content = url,
+                    Index = index,
+                    IsMain = false,
+                    IsDynamic = true
                 };
             }
         }

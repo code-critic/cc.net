@@ -6,10 +6,11 @@ import { observer } from "mobx-react";
 import ReactMde from "react-mde";
 import * as Showdown from "showdown";
 import "react-mde/lib/styles/css/react-mde-all.css";
-import { ICcData, ILineComment } from "../models/DataModel";
+import { ICcData, ILineComment, ICcDataSolution, ICommentServiceItem } from "../models/DataModel";
 import { ListItem, ListItemText, ListItemIcon, Tooltip, Button, Tabs, Tab } from "@material-ui/core";
 import Moment from "react-moment";
-import { commentService, User, CommentServiceItem, appDispatcher } from "../init";
+import { commentService, User, appDispatcher } from "../init";
+import { DynamicFolder } from "../components/DynamicFolder";
 
 
 const converter = new Showdown.Converter({
@@ -55,9 +56,8 @@ export class CodeLine extends React.Component<CodeLineProps, any, any> {
 
     makeComment() {
         const { lineNo, result, filename } = this.props;
-
-        const comment: CommentServiceItem = {
-            result: result,
+        const comment: ICommentServiceItem = {
+            objectId: result.objectId,
             comment: {
                 line: lineNo,
                 text: converter.makeHtml(this.editorValue),
@@ -144,23 +144,41 @@ export class CodeLine extends React.Component<CodeLineProps, any, any> {
     }
 }
 
-export const renderCode = (code: string, language: string) => {
-    const html = window.PR.prettyPrintOne(code.replace(/</g, "&lt;"), language, true);
-    const parsed = parse(html) as any;
-    const children = (parsed.props.children || []) as React.ElementType<HTMLDataListElement>[];
+export const renderCode = (code: string, language: string = "none") => {
+    if (language === "none") {
+        const children = code.trimEnd().split("\n");
 
-    return <>
-        <table className="source-code">
-            <tbody>
-                {children.map((liElement, lineNo) =>
-                    <tr>
-                        <td className="blob-num" data-line-number={lineNo + 1}></td>
-                        <td className="blob-code" children={(liElement as any).props.children} />
-                    </tr>
-                )}
-            </tbody>
-        </table>
-    </>;
+        return <>
+            <table className="source-code">
+                <tbody>
+                    {children.map((liElement, lineNo) =>
+                        <tr key={lineNo}>
+                            <td className="blob-num" data-line-number={lineNo + 1}></td>
+                            <td className="blob-code">{liElement}</td>
+                        </tr>
+                    )}
+                </tbody>
+            </table>
+        </>;
+    } else {
+        const html = window.PR.prettyPrintOne(code.replace(/</g, "&lt;"), language, true);
+        const parsed = parse(html) as any;
+        const children = (parsed.props.children || []) as any[];
+
+        return <>
+            <table className="source-code">
+                <tbody>
+                    {children.map((liElement, lineNo) =>
+                        <tr key={lineNo}>
+                            <td className="blob-num" data-line-number={lineNo + 1}></td>
+                            <td className="blob-code" children={(liElement as any).props.children} />
+                        </tr>
+                    )}
+                </tbody>
+            </table>
+        </>;
+    }
+
 }
 
 
@@ -172,11 +190,11 @@ interface RenderSolutionProps {
 export class RenderSolution extends React.Component<RenderSolutionProps, any, any> {
 
     @observable
-    public tabIndex = 0;
+    public tabIndex = 1;
 
     render() {
         const { result } = this.props;
-        const solutions = [...result.solutions, { filename: "foo", content: "bar\nbar" }];
+        const solutions: ICcDataSolution[] = result.solutions;
 
         return <div style={{ flexGrow: 1, display: "flex", minHeight: 480 }}>
             <Tabs
@@ -184,31 +202,45 @@ export class RenderSolution extends React.Component<RenderSolutionProps, any, an
                 onChange={(e, i) => this.tabIndex = i}
                 orientation="vertical"
                 variant="scrollable">
-                {solutions.map((i, j) => <Tab key={j} label={i.filename}></Tab>)}
+
+                {solutions.map((i, j) => {
+                    i.index = j;
+                    if (i.isSeparator) {
+                        return <Tab title={i.filename} key={j} className="tab-separator"></Tab>
+                    }
+                    return <Tab key={j} label={i.filename}></Tab>
+                })}
             </Tabs>
 
-            {solutions.map((solution, j) => {
-                const html = window.PR.prettyPrintOne(solution.content.replace(/</g, "&lt;"), result.language, true);
-                const parsed = parse(html) as any;
-                let children = (parsed.props.children || []) as React.ElementType<HTMLDataListElement>[];
-                if (!Array.isArray(children)) {
-                    children = [children];
-                }
+            {solutions
+                .filter(i => !i.isSeparator)
+                .map((solution, j) => {
+                    if(solution.isDynamic) {
+                        return solution.index == this.tabIndex &&
+                            <DynamicFolder solution={solution} key={j} />
+                    }
+                    const html = window.PR.prettyPrintOne(solution.content.replace(/</g, "&lt;"), result.language, true);
+                    const parsed = parse(html) as any;
+                    let children = (parsed.props.children || []) as React.ElementType<HTMLDataListElement>[];
 
-                return j == this.tabIndex &&
-                    <table key={j} className="source-code">
-                        <tbody>
-                            {children.map((liElement, lineNo) =>
-                                <CodeLine
-                                    filename={solution.filename}
-                                    key={lineNo}
-                                    lineNo={lineNo + 1}
-                                    liElement={liElement}
-                                    result={result} />
-                            )}
-                        </tbody>
-                    </table>
-            })}
+                    if (!Array.isArray(children)) {
+                        children = [children];
+                    }
+
+                    return solution.index == this.tabIndex &&
+                        <table key={j} className="source-code">
+                            <tbody>
+                                {children.map((liElement, lineNo) =>
+                                    <CodeLine
+                                        filename={solution.filename}
+                                        key={lineNo}
+                                        lineNo={lineNo + 1}
+                                        liElement={liElement}
+                                        result={result} />
+                                )}
+                            </tbody>
+                        </table>
+                })}
         </div>;
     }
 }

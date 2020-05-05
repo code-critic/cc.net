@@ -1,116 +1,72 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using CC.Net.Collections;
 using CC.Net.Extensions;
 using CC.Net.Hubs;
 using CC.Net.Services.Courses;
+using CC.Net.Utils;
 using Microsoft.Extensions.Logging;
 
 namespace CC.Net.Services
 {
     public partial class ProcessItem
     {
-
-        private void DetermineResult()
+        public async Task<CcData> Solve()
         {
-            foreach (var result in Item.Results)
+            var prepareResult = await PrepareItem();
+            if (prepareResult.Failed)
             {
-                if (result.Status == ProcessStatus.InQueue.Value)
-                {
-                    result.Status = ProcessStatus.Skipped.Value;
-                }
+                return Item;
             }
-
-            var globalResult = StatusResolver
-                .DetermineResult(Item.Results);
-
-            Item.Result.Status = globalResult.Status;
-            Item.Result.Message = globalResult.Message;
-            Item.Result.Messages = globalResult.Messages;
-        }
-
-        public async Task Solve()
-        {
-            var course = _courseService[Item.CourseName][Item.CourseYear];
-            var problem = course[Item.Problem];
-            var channel = _liveHub.Clients.Clients(_idService[Item.User]);
-
-            Item.Result.Status = ProcessStatus.Running.Value;
-            Item.Results = new List<CcDataCaseResult>();
-
-            foreach (var subtest in problem.AllTests)
-            {
-                Item.Results.Add(new CcDataCaseResult()
-                {
-                    Case = subtest.id,
-                    Status = ProcessStatus.InQueue.Value,
-                });
-            }
-
-            await channel.OnProcessStart(Item);
-            PrepareFiles();
-
-            // compile if needed
-            if (Context.Language.CompilationNeeded)
-            {
-                var compilationCase = new CcDataCaseResult
-                {
-                    Case = "Compilation",
-                    Status = ProcessStatus.Running.Value,
-                };
-                Item.Results.Insert(0, compilationCase);
-                await channel.OnProcessStart(Item);
-
-                var compilationResult = CompileIfNeeded();
-                if (compilationResult != null && compilationResult.IsBroken)
-                {
-                    _logger.LogError("Failed to compile");
-                    CopyFromDocker(Context.CompilationFileName);
-                    var compileError = Context.SolutionCompilationFile.ReadAllText();
-                    compilationCase.Status = ProcessStatus.CompilationFailed.Value;
-                    compilationCase.Message = ProcessStatus.CompilationFailed.Description;
-                    compilationCase.Messages = (compileError ?? "Unknown Error").SplitLines();
-                    await channel.OnProcessStart(Item);
-
-                    DetermineResult();
-                    return;
-                }
-
-                // remove if compilation was ok
-                Item.Results.RemoveAt(0);
-            }
-
 
             // solve all cases
-            await SolveCasesAsync(problem.AllTests);
+            await RunCasesAsync(prepareResult, SolveCaseAsync);
+            
             DetermineResult();
-            await channel.OnProcessStart(Item);
-            //await dbService.Data.ReplaceOneAsync(i => i.Id == item.Id, item);
-            return;
+            CopyToResultDir();
+
+            await prepareResult.Channel.ItemChanged(Item);
+            return Item;
         }
 
-        private async Task<IEnumerable<CourseProblemCase>> SolveCasesAsync(IEnumerable<CourseProblemCase> problems)
+        private void CopyToResultDir(string sourceDir, string targetDir, bool ensuryEmpty = true)
         {
-            foreach (var subtest in problems)
+            if(ensuryEmpty)
             {
-                try
+                if (Directory.Exists(targetDir))
                 {
-                    await SolveCaseAsync(subtest);
-                }
-                catch (Exception e)
-                {
-                    _logger.LogError(e, "Error while solving the subcase {subcase} on item {item}", subtest.id, Item);
+                    Directory.Delete(targetDir, true);
                 }
             }
-            return problems;
+
+            if (!Directory.Exists(targetDir))
+            {
+                Directory.CreateDirectory(targetDir);
+            }
+
+            DirectoryUtils.Copy(
+                sourceDir,
+                targetDir
+            );
+        }
+
+        private void CopyToResultDir(bool ensuryEmpty = true)
+        {
+            var targetDir = Path.Combine(
+                Context.CourseDir,
+                Item.ResultDir
+            );
+            var sourceDir = Context.TmpDir.Root;
+
+            CopyToResultDir(sourceDir, targetDir, ensuryEmpty);
         }
 
 
-        private async Task SolveCaseAsync(CourseProblemCase @case)
+        private ProcessResult SolveCaseBase(CourseProblemCase @case)
         {
-            var channel = _liveHub.Clients.Clients(_idService[Item.User]);
             var caseId = @case.id;
             var subcase = Item.Results.First(i => i.Case == caseId);
             var timeout = @case.timeout < 0.001 ? 5 : @case.timeout;
@@ -122,12 +78,13 @@ namespace CC.Net.Services
             {
                 subcase.Status = ProcessStatus.Skipped.Value;
                 subcase.Message = "Ran out of time";
-                await channel.OnProcessStart(Item);
-                return;
+                return new ProcessResult
+                {
+                    ReturnCode = 666
+                };
             }
 
             subcase.Status = ProcessStatus.Running.Value;
-            await channel.OnProcessStart(Item);
 
             var result = RunPipeline(
                 $"{string.Join(" ", Context.Language.run)}".Replace("<filename>", Context.MainFileName),
@@ -139,18 +96,21 @@ namespace CC.Net.Services
             );
 
             TimeRemaining -= result.Duration;
+            subcase.Duration = result.Duration;
+            subcase.Returncode = result.ReturnCode;
+            subcase.FullCommand = result.FullCommand;
+            subcase.Command = result.Command;
+            CopyOutputFromDocker(@case);
+            CopyErrorFromDocker(@case);
 
 
             if (result.isOk)
             {
-                CopyOutputFromDocker(@case);
                 subcase.Status = ProcessStatus.Ok.Value;
                 subcase.Message = ProcessStatus.Ok.Description;
             }
             else
             {
-                CopyOutputFromDocker(@case);
-                CopyErrorFromDocker(@case);
                 if (result.ReturnCode == 666)
                 {
                     subcase.Status = ProcessStatus.GlobalTimeout.Value;
@@ -164,22 +124,37 @@ namespace CC.Net.Services
                 {
                     subcase.Status = ProcessStatus.ErrorWhileRunning.Value;
                     subcase.Message = ProcessStatus.ErrorWhileRunning.Description;
-                    subcase.Messages = Context.GetSolutionErrorMessage(@case.id).SplitLines();
+                    subcase.Messages = Context.GetTmpDirErrorMessage(@case.id).SplitLines();
                 }
             }
+            return result;
+        }
 
-            await channel.OnProcessStart(Item);
-            var match = _compareService.CompareFiles(Context, @case);
+        private async Task SolveCaseAsync(CourseProblemCase @case)
+        {
 
-            if (match.isOk)
+            var result = SolveCaseBase(@case);
+            if (result.IsBroken)
+            {
+                return;
+            }
+
+            var subcase = Item.Results.First(i => i.Case == @case.id);
+            var timeout = @case.timeout < 0.001 ? 5 : @case.timeout;
+            var scalefactor = Context.Language.scale;
+            var scalledTimeout = timeout * scalefactor;
+
+            var diffResult = _compareService.CompareFiles(Context, @case);
+
+            if (diffResult.isOk)
             {
                 if (result.Duration > scalledTimeout)
                 {
                     subcase.Status = ProcessStatus.AnswerCorrectTimeout.Value;
                     subcase.Message = ProcessStatus.AnswerCorrectTimeout.Description;
                     subcase.Messages = new string[] {
-                        $"Allowed time: {scalledTimeout} sec (programming language scale factor: {scalefactor}×)",
-                        $"Program time: {result.Duration} sec",
+                        $"Allowed time for {subcase.Case}: {scalledTimeout} sec (programming language scale factor: {scalefactor}×)",
+                        $"Actual solution walltime: {result.Duration} sec",
                     };
                 }
                 else
@@ -193,9 +168,6 @@ namespace CC.Net.Services
                 subcase.Status = ProcessStatus.AnswerWrong.Value;
                 subcase.Message = ProcessStatus.AnswerWrong.Description;
             }
-
-            await channel.OnProcessStart(Item);
-            Console.WriteLine(result);
         }
 
     }

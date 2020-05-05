@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using CC.Net.Collections;
@@ -11,6 +12,7 @@ using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using Newtonsoft.Json;
+using static CC.Net.Collections.CcData;
 
 namespace CC.Net.Controllers
 {
@@ -32,15 +34,33 @@ namespace CC.Net.Controllers
         [Route("student-result-list/{courseName}/{courseYear}/{problem}/{user}")]
         public IEnumerable<CcData> StudentResultDetail(string courseName, string courseYear, string problem, string user)
         {
-            return _dbService.Data
+            var results = _dbService.Data
                 .Find(i => i.CourseName == courseName
                      && i.CourseYear == courseYear
                      && i.Problem == problem
                      && i.User == user
-                     && i.Action == "solve"
+                    //  && i.Action == "solve"
                      )
-                .Limit(50)
+                .SortByDescending(i => i.Id)
+                .Limit(25)
                 .ToEnumerable();
+
+            foreach (var item in results)
+            {
+                // add separators
+                item.Solutions.Insert(0, CcDataSolution.Seperator("Solution Files"));
+                item.Solutions.Add(CcDataSolution.Seperator("Browser Directories"));
+
+                item.Solutions.AddRange(
+                    new CcDataSolution[] {
+                        CcDataSolution.Dynamic("Input", item.ObjectId),
+                        CcDataSolution.Dynamic("Output", item.ObjectId),
+                        CcDataSolution.Dynamic("Error", item.ObjectId),
+                        CcDataSolution.Dynamic("Reference", item.ObjectId)
+                    }
+                );
+                yield return item;
+            }
         }
 
         [HttpGet]

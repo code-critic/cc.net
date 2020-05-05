@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using CC.Net.Collections;
+using CC.Net.Config;
 using CC.Net.Db;
 using CC.Net.Extensions;
 using CC.Net.Hubs;
@@ -19,7 +20,7 @@ using MongoDB.Driver;
 
 namespace CC.Net.Services
 {
-    public partial class ProcessService: BackgroundService
+    public partial class ProcessService : BackgroundService
     {
         private ILogger<ProcessService> _logger;
         private readonly IServiceScopeFactory _serviceProvider;
@@ -51,6 +52,23 @@ namespace CC.Net.Services
         }
 
 
+        private async Task<bool> SaveItem(DbService dbService, CcData item)
+        {
+
+            var saveResult = await dbService.Data.ReplaceOneAsync(i => i.Id == item.Id, item);
+
+            if (saveResult.ModifiedCount == 1)
+            {
+                _logger.LogInformation("Yep Saved: {Item}", item);
+                return true;
+            }
+            else
+            {
+                _logger.LogInformation("Not Saved: {Item}", item);
+                return false;
+            }
+        }
+
         private async Task DoWork()
         {
             _logger.LogInformation("checking db");
@@ -69,20 +87,42 @@ namespace CC.Net.Services
 
                 foreach (var item in items)
                 {
+
+                    var processItem = new ProcessItem(
+                        provider.GetService<ILogger<ProcessItem>>(),
+                        provider.GetService<CourseService>(),
+                        provider.GetService<LanguageService>(),
+                        provider.GetService<IdService>(),
+                        provider.GetService<AppOptions>(),
+                        provider.GetService<IHubContext<LiveHub>>(),
+                        provider.GetService<CompareService>(),
+                        item
+                    );
+
                     if (item.Action == "solve")
                     {
-                        var processItem = new ProcessItem(
-                            provider.GetService<ILogger<ProcessItem>>(),
-                            provider.GetService<CourseService>(),
-                            provider.GetService<LanguageService>(),
-                            provider.GetService<IdService>(),
-                            provider.GetService<IHubContext<LiveHub>>(),
-                            provider.GetService<CompareService>(),
-                            item
-                        );
+                        _logger.LogInformation("Executing: {Item}", item);
+                        var itemResult = await processItem.Solve();
 
-                        _logger.LogInformation($"Processing item {item?.Id} {item?.User} {item?.CourseName}-{item?.CourseYear} {item?.Problem}");
-                        await processItem.Solve();
+                        _logger.LogInformation("Item Done: {Item}", item);
+                        await SaveItem(dbService, item);
+                    }
+
+                    else if (item.Action == "input")
+                    {
+                        _logger.LogInformation("Executing: {Item}", item);
+                        var itemResult = await processItem.GenerateInput();
+
+                        _logger.LogInformation("Item Done: {Item}", item);
+                        await SaveItem(dbService, item);
+                    }
+                    else if (item.Action == "output")
+                    {
+                        _logger.LogInformation("Executing: {Item}", item);
+                        var itemResult = await processItem.GenerateOutput();
+
+                        _logger.LogInformation("Item Done: {Item}", item);
+                        await SaveItem(dbService, item);
                     }
                 }
             }

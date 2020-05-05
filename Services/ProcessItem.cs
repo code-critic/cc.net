@@ -5,7 +5,9 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using CC.Net.Collections;
+using CC.Net.Config;
 using CC.Net.Dto;
+using CC.Net.Extensions;
 using CC.Net.Hubs;
 using CC.Net.Services.Courses;
 using CC.Net.Services.Languages;
@@ -24,7 +26,8 @@ namespace CC.Net.Services
         private readonly LanguageService _languageService;
         private readonly IHubContext<LiveHub> _liveHub;
         private readonly CompareService _compareService;
-        public readonly IdService _idService;
+        private readonly IdService _idService;
+        private readonly AppOptions _appOptions;
 
         private CcData Item { get; set; }
         private CourseContext Context { get; set; }
@@ -35,13 +38,14 @@ namespace CC.Net.Services
 
         public ProcessItem(
             ILogger<ProcessItem> logger, CourseService courseService, LanguageService languageService,
-            IdService idService, IHubContext<LiveHub> liveHub, CompareService compareService, CcData item)
+            IdService idService, AppOptions appOptions, IHubContext<LiveHub> liveHub, CompareService compareService, CcData item)
         {
             _logger = logger;
             _courseService = courseService;
             _languageService = languageService;
             _liveHub = liveHub;
             _idService = idService;
+            _appOptions = appOptions;
             _compareService = compareService;
 
             Item = item;
@@ -50,8 +54,73 @@ namespace CC.Net.Services
                 _languageService,
                 Item
             );
-            TimeRemaining = Math.Max(Context.CourseProblem.timeout, 30) * Context.Language.scale;
+
+            var timeout = Context.CourseProblem.timeout;
+            TimeRemaining = (timeout < 1 ? 30 : timeout) * Context.Language.scale;
             TimeAvailable = TimeRemaining;
+        }
+
+
+        private void DetermineResult()
+        {
+            foreach (var result in Item.Results)
+            {
+                if (result.Status == ProcessStatus.InQueue.Value)
+                {
+                    result.Status = ProcessStatus.Skipped.Value;
+                }
+            }
+
+            var globalResult = StatusResolver
+                .DetermineResult(Item.Results);
+
+            Item.Result.Status = globalResult.Status;
+            Item.Result.Message = globalResult.Message;
+            Item.Result.Messages = globalResult.Messages;
+            Item.Result.Duration = Item.Results
+                ?.Sum(i => i.Duration) ?? 0.0;
+        }
+
+        private async Task UpdateStatus()
+        {
+            var channel = _liveHub.Clients.Clients(_idService[Item.User]);
+
+            Item.Result.Scores = new int[]
+            {
+                Item.Results.Count(i => i.Status == ProcessStatus.AnswerCorrect.Value),
+                Item.Results.Count(i => i.Status == ProcessStatus.AnswerCorrectTimeout.Value),
+                Item.Results.Count(i => i.Status != ProcessStatus.AnswerCorrect.Value && i.Status != ProcessStatus.AnswerCorrectTimeout.Value),
+            };
+
+            await channel.ItemChanged(Item);
+        }
+
+        public async Task RunCasesAsync(PrepareItemResult prepareItemResult, Func<CourseProblemCase, Task> runAction)
+        {
+            foreach (var subtest in prepareItemResult.Problem.AllTests)
+            {
+                try
+                {
+                    var subcase = Item.Results.First(i => i.Case == subtest.id);
+                    subcase.Status = ProcessStatus.Running.Value;
+
+                    _logger.LogInformation("Executing: {Item}", Item.ToString(subcase));
+                    await UpdateStatus();
+
+                    await runAction(subtest);
+
+                    await UpdateStatus();
+                    _logger.LogInformation("Case Done: {Item}", Item.ToString(subcase));
+                }
+                catch (Exception e)
+                {
+                    _logger.LogError(e, "Error processing item: {Item}", Item.ToString(subtest.id));
+
+                    Item.Result.Status = ProcessStatus.ErrorWhileRunning.Value;
+                    Item.Result.Message = e.Message;
+                    Item.Result.Messages = e.StackTrace?.SplitLines();
+                }
+            }
         }
 
         public ProcessResult RunPipeline(string command, string workdir, int timeout = 0, string input = null, string output = null, string error = null)
@@ -72,7 +141,7 @@ namespace CC.Net.Services
             if (!res.Output.Any())
             {
                 var fallBackDuration = sw.ElapsedMilliseconds / 1000.0;
-                res.Output = new List<string> { "666", fallBackDuration.ToString()};
+                res.Output = new List<string> { "666", fallBackDuration.ToString() };
             }
 
             var returncode = int.Parse(res.Output[0]);

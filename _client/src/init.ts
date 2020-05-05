@@ -1,4 +1,4 @@
-import { ILineComment, ICcData } from "./models/DataModel";
+import { ILineComment, ICcData, ICommentServiceItem } from "./models/DataModel";
 import { observable } from "mobx";
 import { Dispatcher } from 'flux';
 import { HubConnectionBuilder } from '@aspnet/signalr';
@@ -10,6 +10,8 @@ interface HttpClientConfig {
 }
 
 class HttpClient {
+
+    private cache: Map<string, any> = new Map();
     constructor(private config: HttpClientConfig) {
     }
 
@@ -25,21 +27,70 @@ class HttpClient {
                 .catch(reason => reject(reason))
         });
     }
+
+    public fetchWithCache(url, ttl: number=5): Promise<any> {
+        const item = this.cache.get(url);
+        if (item != null) {
+            if (item.validUntil.getTime() > new Date().getTime()) {
+                return new Promise((resolve, reject) => {
+                    resolve(item.content);
+                });
+            } else {
+                this.cache.delete(url);
+            }
+        }
+        return new Promise((resolve, reject) => {
+            this.fetch(url)
+                .then(data => {
+                    this.cache.set(url, {
+                        content: data,
+                        validUntil: new Date(new Date().getTime() + 1000 * 60 * ttl)
+                    });
+                    resolve(data);
+                })
+                .catch(reason => reject(reason))
+        });
+    }
 }
 
-
-export interface CommentServiceItem {
-    comment: ILineComment;
-    result: ICcData;
-}
 
 class CommentService {
 
     @observable
-    public items: CommentServiceItem[] = [];
+    public items: ICommentServiceItem[] = [];
 
-    public prepareComment(item: CommentServiceItem) {
+    public prepareComment(item: ICommentServiceItem) {
         this.items.push(item);
+        appDispatcher.dispatch({
+            actionType: "commentServiceChanged"
+        });
+    }
+
+    public discardComments() {
+        this.items = [];
+        appDispatcher.dispatch({
+            actionType: "commentServiceChanged"
+        });
+    }
+
+    public postComments() {
+        if (!this.items.length) {
+            return;
+        }
+
+        const recovery = this.items;
+        httpClient.fetch("comments", this.items, "post")
+            .then(data => {
+                const { status, updated } = data;
+                if(status === "ok") {
+                    NotificationManager.success(`Ok, Saved ${updated} comments`);
+                } else {
+                    NotificationManager.error(`Failed to save ${recovery.length} comments`);
+                }
+                
+            });
+
+        this.items = [];
         appDispatcher.dispatch({
             actionType: "commentServiceChanged"
         });
@@ -103,7 +154,7 @@ liveConnection.start()
         (window as any).foo = liveConnection;
         liveConnection.invoke("RegisterUser", User.id);
         console.log((window as any).foo);
-        
+
 
         liveConnection.on("OnMessage", (message: string, level: NotificationLevel) => {
             switch (level) {

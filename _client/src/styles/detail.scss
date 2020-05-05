@@ -79,6 +79,17 @@
   }
 }
 
+.font-code,
+p.font-code,
+.blob-code {
+  font-family: SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace;
+  font-size: 12px;
+}
+
+.right-side {
+  text-align: right;
+}
+
 .source-code {
   .avatar-inicials {
     text-align: center;

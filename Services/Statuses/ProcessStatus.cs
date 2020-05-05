@@ -2,19 +2,32 @@ using System.Linq;
 
 namespace CC.Net.Services
 {
-    public partial class ProcessStatus
+    public partial class ProcessStatus : IJson
     {
         public ProcessStatusCodes Code { get; internal set; }
         public int Value => (int) Code;
         public string Name { get; internal set; }
         public string Description { get; internal set; }
+        public string Letter { get; internal set; }
 
 
-        public ProcessStatus(ProcessStatusCodes code, string name, string description = null)
+        public ProcessStatus(ProcessStatusCodes code, string name, string description, string letter)
         {
             Code = code;
             Name = name;
             Description = description;
+            Letter = letter;
+        }
+
+        public string AsJson()
+        {
+            return @$"{{
+                code: ProcessStatusCodes.{Code},
+                value: {Value},
+                name: ""{Name}"",
+                description: ""{Description}"",
+                letter: ""{Letter}"",
+            }}";
         }
 
         public override string ToString()
@@ -38,7 +51,7 @@ namespace CC.Net.Services
         }
 
         public static ProcessStatus Get(int value) {
-            return All.First(i => i.Value == value);
+            return All.FirstOrDefault(i => i.Value == value) ?? UknownStatus;
         }
 
         public static ProcessStatus Get(ProcessStatusCodes code) {

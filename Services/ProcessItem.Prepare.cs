@@ -1,11 +1,28 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
+using CC.Net.Collections;
+using CC.Net.Extensions;
+using CC.Net.Hubs;
 using CC.Net.Services.Courses;
 using CC.Net.Utils;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
 
 namespace CC.Net.Services
 {
+
+    public class PrepareItemResult
+    {
+        public CourseProblem Problem { get; set; }
+        public CourseYearConfig Course { get; set; }
+        public IClientProxy Channel { get; set; }
+        public string Error { get; set; }
+        public bool Failed => !string.IsNullOrEmpty(Error);
+
+    }
+
     public partial class ProcessItem
     {
         private void PrepareFiles()
@@ -21,6 +38,74 @@ namespace CC.Net.Services
             }
         }
 
+        private async Task<PrepareItemResult> PrepareItem()
+        {
+            var course = _courseService[Item.CourseName][Item.CourseYear];
+            var problem = course[Item.Problem];
+            var channel = _liveHub.Clients.Clients(_idService[Item.User]);
+
+            Item.Result.Status = ProcessStatus.Running.Value;
+            Item.Results = new List<CcDataCaseResult>();
+
+            foreach (var subtest in problem.AllTests)
+            {
+                Item.Results.Add(new CcDataCaseResult()
+                {
+                    Case = subtest.id,
+                    Status = ProcessStatus.InQueue.Value,
+                });
+            }
+
+            await channel.ItemChanged(Item);
+            PrepareFiles();
+
+            // compile if needed
+            if (Context.Language.CompilationNeeded)
+            {
+                var compilationCase = new CcDataCaseResult
+                {
+                    Case = "Compilation",
+                    Status = ProcessStatus.Running.Value,
+                };
+                Item.Results.Insert(0, compilationCase);
+                await channel.ItemChanged(Item);
+
+                var compilationResult = CompileIfNeeded();
+                if (compilationResult != null && compilationResult.IsBroken)
+                {
+                    _logger.LogError("Failed to compile");
+                    CopyFromDocker(Context.TmpDir.CompilationFile);
+                    var compileError = Context.TmpDir.CompilationFile.ReadAllText();
+                    compilationCase.Status = ProcessStatus.CompilationFailed.Value;
+                    compilationCase.Message = ProcessStatus.CompilationFailed.Description;
+                    compilationCase.Messages = (compileError ?? "Unknown Error").SplitLines();
+                    await channel.ItemChanged(Item);
+
+                    DetermineResult();
+                    CopyToResultDir();
+                    await channel.ItemChanged(Item);
+
+                    return new PrepareItemResult
+                    {
+                        Channel = channel,
+                        Problem = problem,
+                        Course = course,
+                        Error = "Failed to compile"
+                    };
+                }
+
+                // remove if compilation was ok
+                Item.Results.RemoveAt(0);
+            }
+
+            return new PrepareItemResult
+            {
+                Channel = channel,
+                Problem = problem,
+                Course = course,
+            };
+        }
+
 
         private ProcessResult CompileIfNeeded()
         {
@@ -34,26 +119,26 @@ namespace CC.Net.Services
                 Context.DockerTmpWorkdir,
                 30, // fixed compilation timeout
                 null,
-                Context.CompilationFileName,
-                Context.CompilationFileName
+                CourseContext.CompilationFileName,
+                CourseContext.CompilationFileName
             );
         }
 
         public ProcessResult CopyOutputFromDocker(CourseProblemCase @case)
         {
-            var cpCommand = $"docker cp \"{ProcessService.ContainerName}:{Context.DockerTmpWorkdir}/output/{@case.id}\" \"{Context.SolutionOutputDir}\"";
+            var cpCommand = $"docker cp \"{ProcessService.ContainerName}:{Context.DockerTmpWorkdir}/output/{@case.id}\" \"{Context.TmpDir.OutputDir}\"";
             return ProcessUtils.Popen(cpCommand);
         }
 
         public ProcessResult CopyErrorFromDocker(CourseProblemCase @case)
         {
-            var cpCommand = $"docker cp \"{ProcessService.ContainerName}:{Context.DockerTmpWorkdir}/error/{@case.id}\" \"{Context.SolutionErrorDir}\"";
+            var cpCommand = $"docker cp \"{ProcessService.ContainerName}:{Context.DockerTmpWorkdir}/error/{@case.id}\" \"{Context.TmpDir.ErrorDir}\"";
             return ProcessUtils.Popen(cpCommand);
         }
 
         public ProcessResult CopyFromDocker(string file)
         {
-            var cpCommand = $"docker cp \"{ProcessService.ContainerName}:{Context.DockerTmpWorkdir}/{file}\" \"{Context.SolutionDir}\"";
+            var cpCommand = $"docker cp \"{ProcessService.ContainerName}:{Context.DockerTmpWorkdir}/{file}\" \"{Context.TmpDir.Root}\"";
             return ProcessUtils.Popen(cpCommand);
         }
 
@@ -66,21 +151,21 @@ namespace CC.Net.Services
                 ProcessUtils.Popen($"docker exec --user root {ProcessService.ContainerName} rm -rf {Context.DockerTmpWorkdir}");
             }
 
-            var cpCommand = $"docker cp \"{Context.SolutionDir}\" \"{ProcessService.ContainerName}:{Context.DockerTmpWorkdir}\"";
+            var cpCommand = $"docker cp \"{Context.TmpDir.Root}\" \"{ProcessService.ContainerName}:{Context.DockerTmpWorkdir}\"";
             ProcessUtils.Popen(cpCommand);
         }
 
         public void PrepareLocalDir()
         {
-            Directory.CreateDirectory(Context.SolutionDir);
-            Directory.CreateDirectory(Context.SolutionInputDir);
-            Directory.CreateDirectory(Context.SolutionOutputDir);
-            Directory.CreateDirectory(Context.SolutionErrorDir);
+            Directory.CreateDirectory(Context.TmpDir.Root);
+            Directory.CreateDirectory(Context.TmpDir.InputDir);
+            Directory.CreateDirectory(Context.TmpDir.OutputDir);
+            Directory.CreateDirectory(Context.TmpDir.ErrorDir);
 
             foreach (var solution in Item.Solutions)
             {
                 File.WriteAllText(
-                    Path.Combine(Context.SolutionDir, solution.Filename),
+                    Path.Combine(Context.TmpDir.Root, solution.Filename),
                     solution.Content
                 );
             }
@@ -90,11 +175,14 @@ namespace CC.Net.Services
             {
                 foreach (var subtest in test.Enumerate())
                 {
-                    var input = Context.ProblemInput(subtest.id);
-                    File.WriteAllText(
-                        Context.SolutionInput(subtest.id),
-                        File.ReadAllText(input)
-                    );
+                    var input = Context.ProblemDir.InputFile(subtest.id);
+                    if (File.Exists(input))
+                    {
+                        File.WriteAllText(
+                            Context.TmpDir.InputFile(subtest.id),
+                            File.ReadAllText(input)
+                        );
+                    }
                 }
             }
         }

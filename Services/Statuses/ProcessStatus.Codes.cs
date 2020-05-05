@@ -6,8 +6,8 @@ namespace CC.Net.Services
     {
         InQueue = 1,
         Running = 2,
+        Skipped = 9,
         Ok = 10,
-        Skipped = 11,
         GlobalTimeout = 12,
         AnswerCorrect = 100,
         AnswerCorrectTimeout = 101,
@@ -17,72 +17,95 @@ namespace CC.Net.Services
         ErrorWhileRunning = 500,
     }
 
-    public partial class ProcessStatus
+    public interface IJson
+    {
+        string AsJson();
+    }
+
+    public partial class ProcessStatus : IJson
     {
         public static readonly ProcessStatus InQueue = new ProcessStatus(
             ProcessStatusCodes.InQueue,
             "in-queue",
-            "In Queue"
+            "In Queue",
+            "IQ"
         );
 
         public static readonly ProcessStatus Running = new ProcessStatus(
             ProcessStatusCodes.Running,
             "running",
-            "Running"
+            "Running",
+            "IP"
         );
 
         public static readonly ProcessStatus Ok = new ProcessStatus(
             ProcessStatusCodes.Ok,
             "ok",
-            "Program ended gracefully"
+            "Program ended gracefully",
+            "OK"
         );
 
         public static readonly ProcessStatus Skipped = new ProcessStatus(
             ProcessStatusCodes.Skipped,
             "skipped",
-            "Test was skipped"
+            "Test was skipped",
+            "SK"
         );
 
         public static readonly ProcessStatus GlobalTimeout = new ProcessStatus(
             ProcessStatusCodes.GlobalTimeout,
             "global-timeout",
-            "Program had to be terminated since ii did not end within designated time period"
+            "Program had to be terminated since ii did not end within designated time period",
+            "TO"
         );
 
         public static readonly ProcessStatus AnswerCorrect = new ProcessStatus(
             ProcessStatusCodes.AnswerCorrect,
             "answer-correct",
-            "Submitted solution is correct"
+            "Submitted solution is correct",
+            "AC"
         );
 
         public static readonly ProcessStatus AnswerCorrectTimeout = new ProcessStatus(
             ProcessStatusCodes.AnswerCorrectTimeout,
             "answer-correct-timeout",
-            "Solution is correct, but does not meet duration criteria"
+            "Solution is correct, but does not meet duration criteria",
+            "AT"
         );
 
         public static readonly ProcessStatus AnswerWrong = new ProcessStatus(
             ProcessStatusCodes.AnswerWrong,
             "answer-wrong",
-            "Submitted solution is wrong"
+            "Submitted solution is wrong",
+            "AW"
         );
 
         public static readonly ProcessStatus AnswerWrongTimeout = new ProcessStatus(
             ProcessStatusCodes.AnswerWrongTimeout,
             "answer-wrong-timeout",
-            "Solution is wrong and does not meet duration criteria"
+            "Solution is wrong and does not meet duration criteria",
+            "WT"
         );
 
         public static readonly ProcessStatus CompilationFailed = new ProcessStatus(
             ProcessStatusCodes.CompilationFailed,
             "compilation-failed",
-            "Failed to compile"
+            "Failed to compile",
+            "CF"
         );
 
         public static readonly ProcessStatus ErrorWhileRunning = new ProcessStatus(
             ProcessStatusCodes.ErrorWhileRunning,
             "error-while-running",
-            "Program ended with an error"
+            "Program ended with an error",
+            "ER"
+        );
+
+        public static readonly ProcessStatus UknownStatus = new ProcessStatus(
+            ProcessStatusCodes.ErrorWhileRunning,
+            "uknown-status",
+            "Status is unknown",
+            "??"
         );
 
         public static readonly List<ProcessStatus> All = new List<ProcessStatus>{

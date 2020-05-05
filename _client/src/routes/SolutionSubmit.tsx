@@ -1,8 +1,7 @@
-import React from "react";
+import React, { Suspense } from "react";
 
 import { observable, computed } from "mobx";
 import { observer } from "mobx-react";
-import ReactAce from 'react-ace-editor';
 import { reactLocalStorage } from 'reactjs-localstorage';
 import { debounce } from 'throttle-debounce';
 import { CourseProblemSelect, ICourseYearProblem, RouteComponentProps } from "../components/CourseProblemSelect";
@@ -10,25 +9,25 @@ import { CourseProblemSelectModel } from "../components/CourseProblemSelect.Mode
 import { SimpleLoader } from "../components/SimpleLoader";
 import { ILanguage, ICcData } from "../models/DataModel";
 import { ApiResource } from "../utils/ApiResource";
-import { Grid, Button, InputLabel, Select, MenuItem, FormControl, ButtonGroup, Dialog, DialogTitle, DialogContent, Tooltip, Container, Box } from '@material-ui/core';
+import { Grid, Button, ButtonGroup, Container } from '@material-ui/core';
 
 
 import SendIcon from '@material-ui/icons/Send';
 import BubbleChartIcon from '@material-ui/icons/BubbleChart';
-import HelpIcon from '@material-ui/icons/Help';
+import AddCircleOutlineOutlinedIcon from '@material-ui/icons/AddCircleOutlineOutlined';
+import CheckCircleOutlinedIcon from '@material-ui/icons/CheckCircleOutlined';
 
-import LanguageExamples from '../utils/LanguageExamples';
-import { mapLanguage } from '../utils/LanguageMap';
-import StudentResults from "../components/StudentResults";
-import { User, liveConnection, appDispatcher, commentService } from "../init";
-import { renderCode } from "../utils/renderers";
-import { NotificationManager } from 'react-notifications';
+import { User, liveConnection, appDispatcher } from "../init";
 import { StudentResultItem } from "../components/StudentResults.Item";
+import { StudentResultsDialog } from "../components/StudentResultsDialog";
+import { SolutionSubmitForm } from "./SolutionSubmit.Form";
+
+
+
 
 interface SolutionSubmitProps extends RouteComponentProps<ICourseYearProblem> {
 }
 
-const Adapt = ({ children, ...other }) => children(other);
 
 
 interface LocalStorateCodeSnippet {
@@ -77,6 +76,8 @@ export class SolutionSubmit extends React.Component<SolutionSubmitProps, any, an
     @observable
     public forceUpdateField = 0;
 
+    public forcedResultId: string = "";
+
     constructor(props: SolutionSubmitProps) {
         super(props);
 
@@ -93,7 +94,7 @@ export class SolutionSubmit extends React.Component<SolutionSubmitProps, any, an
 
 
         this.languages.load()
-            .then(data => {
+            .then(() => {
                 if (!this.selectedLanguage) {
                     this.selectedLanguage = this.languages.data[0].id;
                 }
@@ -112,10 +113,6 @@ export class SolutionSubmit extends React.Component<SolutionSubmitProps, any, an
         });
     }
 
-    private onChange(state: any) {
-        this.debounceChange(state);
-    }
-
     public get problemPath() {
         const { course, year, problem } = this.props.match.params;
         if (!course || !year || !problem) {
@@ -131,7 +128,7 @@ export class SolutionSubmit extends React.Component<SolutionSubmitProps, any, an
         return `${course}/${year}/${problem}/${this.selectedLanguage}`;
     }
 
-    private debounceChange: (state: any) => void = debounce(300, false, (state: any) => {
+    private debounceChange: (state: any) => void = debounce(300, false, () => {
         const { problemPath, problemLanguagePath, selectedLanguage } = this;
         if (!problemPath || !problemLanguagePath) {
             return;
@@ -184,8 +181,44 @@ export class SolutionSubmit extends React.Component<SolutionSubmitProps, any, an
         liveConnection.invoke("SubmitSolution", ...message);
     }
 
+    public generateInput() {
+        const { activeCourse, activeProblem } = this;
+        if (!activeCourse || !activeProblem) {
+            return;
+        }
+
+        // public async Task GenerateInput(string userId, string courseName, string courseYear, string problemId)
+        var message = [
+            User.id,
+            activeCourse.course,
+            activeCourse.year,
+            activeProblem.id,
+        ];
+        liveConnection.invoke("GenerateInput", ...message);
+    }
+
+    public generateOutput() {
+        const { activeCourse, activeProblem } = this;
+        if (!activeCourse || !activeProblem) {
+            return;
+        }
+
+        // public async Task GenerateOutput(string userId, string courseName, string courseYear, string problemId)
+        var message = [
+            User.id,
+            activeCourse.course,
+            activeCourse.year,
+            activeProblem.id,
+        ];
+        liveConnection.invoke("GenerateOutput", ...message);
+    }
+
+    public openResultDialog() {
+        this.resultsDialogOpen = true;
+    }
+
     render() {
-        const { model, languages } = this;
+        const { model, languages, selectedLanguage, prefferedCode } = this;
         const { history } = this.props;
         const { activeCourse } = this;
 
@@ -209,134 +242,83 @@ export class SolutionSubmit extends React.Component<SolutionSubmitProps, any, an
             </Container>
         }
 
-        const { currentLanguage, exampleDialogOpen, resultsDialogOpen, liveResult } = this;
+        const { currentLanguage, resultsDialogOpen, liveResult, forcedResultId } = this;
 
-        return <Container>
+        return <>
+            <Suspense fallback={<div>Loading...</div>}>
+                <Container>
 
-            <CourseProblemSelect prefix="courses" model={model} history={history} {...this.props.match.params} />
+                    <CourseProblemSelect prefix="courses" model={model} history={history} {...this.props.match.params} />
 
-            <Grid container spacing={2}>
+                    <Grid container spacing={2}>
 
-                {liveResult && <Grid item xs={12} sm={12} lg={12}>
-                    <StudentResultItem item={liveResult} languages={languages.data} />
-                </Grid>}
+                        {liveResult && <Grid item xs={12} sm={12} lg={12}>
+                            <StudentResultItem
+                                item={liveResult}
+                                languages={languages.data}
+                                onClick={() => {
+                                    this.forcedResultId = liveResult.objectId
+                                    this.openResultDialog()
+                                }}
+                            />
+                        </Grid>}
 
-                <Grid item xs={12} sm={12} lg={6}>
-                    <div className="description" dangerouslySetInnerHTML={{ __html: activeProblem.description }}>
-                    </div>
-                </Grid>
+                        <Grid item xs={12} sm={12} lg={6}>
+                            <div className="description" dangerouslySetInnerHTML={{ __html: activeProblem.description }}>
+                            </div>
+                        </Grid>
 
-                <Grid item xs={12} sm={12} lg={6} >
-                    <Grid container spacing={3}>
-                        <Grid item xs={12}>
-                            <FormControl variant="outlined" fullWidth>
-                                <InputLabel id="select-Language-label">Select Language</InputLabel>
-                                <ButtonGroup fullWidth>
-                                    <Adapt>
-                                        {({ className, ...props }) => (
-                                            <Select fullWidth labelId="select-language-label"
-                                                className={`${className} small`}
-                                                id="select-language"
-                                                label="Select Language"
-                                                value={this.selectedLanguage}
-                                                onChange={e => this.selectedLanguage = e.target.value as string}>
-                                                {this.languages.data
-                                                    .filter(i => !i.disabled)
-                                                    .map(i => <MenuItem key={i.id} value={i.id}>{i.name} ({i.version})</MenuItem>
-                                                    )}
-                                            </Select>
-                                        )}
-                                    </Adapt>
-
-                                    {currentLanguage &&
-                                        <Tooltip title={`View Example in ${currentLanguage.name}`}>
-                                            <Button size="small" variant="outlined" style={{ width: 70 }}
-                                                onClick={() => this.exampleDialogOpen = !this.exampleDialogOpen}>
-                                                <HelpIcon />
-                                            </Button>
-                                        </Tooltip>
-                                    }
+                        <Grid item xs={12} sm={12} lg={6}>
+                            {User.role == "root" &&
+                                <ButtonGroup size="large" fullWidth>
+                                    <Button startIcon={<AddCircleOutlineOutlinedIcon />} onClick={() => this.generateInput()}>
+                                        Generate Input
+                                    </Button>
+                                    <Button endIcon={<CheckCircleOutlinedIcon />} onClick={() => this.generateOutput()}>
+                                        Generate Output
+                                    </Button>
                                 </ButtonGroup>
-                                {(currentLanguage && this.exampleDialogOpen) &&
-                                    <Dialog maxWidth="md"
-                                        onClose={() => this.exampleDialogOpen = false}
-                                        open={exampleDialogOpen}
-                                        fullWidth>
-                                        <DialogTitle>{currentLanguage.name}</DialogTitle>
-                                        <DialogContent>
-                                            {renderCode(
-                                                LanguageExamples.examples[currentLanguage.id],
-                                                mapLanguage(currentLanguage.id)
-                                            )}
-                                            <pre><code>
-                                                {}
-                                            </code></pre>
-                                        </DialogContent>
-                                    </Dialog>
-                                }
-                            </FormControl>
-                        </Grid>
-
-                        <Grid item xs={12}>
-                            <FormControl variant="outlined" fullWidth>
-                                <ReactAce
-                                    id="source-code"
-                                    mode={mapLanguage(this.selectedLanguage)}
-                                    theme="eclipse"
-                                    setReadOnly={false}
-                                    onChange={i => this.onChange(i)}
-                                    setValue={this.prefferedCode}
-                                    style={{ height: "400px", width: "100%" }}
-                                    ref={i => this.ace = i}
-                                />
-                            </FormControl>
-                        </Grid>
-
-                        <Grid item xs={12} container className="button bar" justify="space-between">
-                            <Button onClick={() => this.resultsDialogOpen = !this.resultsDialogOpen}
-                                size="large" variant="outlined" color="secondary" endIcon={<BubbleChartIcon />}>
-                                View Results
-                            </Button>
-
-                            {(resultsDialogOpen && activeCourse && activeProblem) &&
-                                <Dialog className={commentService.items.length > 0 ? "unsaved" : ""}
-                                    open={true}
-                                    onClose={() => this.resultsDialogOpen = false}
-                                    maxWidth="lg" fullWidth>
-                                    <DialogTitle>
-                                        <Box padding={2}>
-                                            <Grid container justify="space-between">
-                                                <Grid item>
-                                                    {User.name} ({User.id})
-                                            </Grid>
-                                                {commentService.items.length > 0 && <Grid item>
-                                                    <Button variant="contained" color="secondary">
-                                                        Add {commentService.items.length} comment{commentService.items.length > 1 ? "s" : ""}
-                                                    </Button>
-                                                </Grid>}
-                                            </Grid>
-                                        </Box>
-                                    </DialogTitle>
-                                    <DialogContent>
-                                        <StudentResults
-                                            course={activeCourse.course}
-                                            year={activeCourse.year}
-                                            problem={activeProblem.id}
-                                            user={User.id}
-                                            languages={languages.data}
-                                        />
-                                    </DialogContent>
-                                </Dialog>
                             }
 
-                            <Button size="large" variant="contained" color="primary" endIcon={<SendIcon />}
-                                onClick={() => this.submitSolution()}>
-                                Submit Solution
-                            </Button>
+                            <Grid container spacing={3}>
+                                <SolutionSubmitForm
+                                    selectedLanguage={selectedLanguage}
+                                    languages={languages.data}
+                                    currentLanguage={currentLanguage}
+                                    prefferedCode={prefferedCode}
+                                    onLanguageChange={i => this.selectedLanguage = i}
+                                    onEditorChange={i => this.debounceChange(i)}
+                                    onEditorRef={i => this.ace = i}
+                                />
+
+                                <Grid item xs={12} container className="button bar" justify="space-between">
+                                    <Button onClick={() => this.openResultDialog()}
+                                        size="large" variant="outlined" color="secondary" endIcon={<BubbleChartIcon />}>
+                                        View Results
+                                    </Button>
+                                    {(resultsDialogOpen && activeCourse && activeProblem) &&
+                                        <StudentResultsDialog
+                                            onClose={() => {
+                                                this.resultsDialogOpen = false;
+                                                this.forcedResultId = "";
+                                            }}
+                                            languages={languages.data}
+                                            activeCourse={activeCourse}
+                                            activeProblem={activeProblem}
+                                            forcedResultId={forcedResultId}
+                                        />
+                                    }
+                                    <Button size="large" variant="contained" color="primary" endIcon={<SendIcon />}
+                                        onClick={() => this.submitSolution()}>
+                                        Submit Solution
+                                    </Button>
+                                </Grid>
+
+                            </Grid>
                         </Grid>
                     </Grid>
-                </Grid>
-            </Grid>
-        </Container >
+                </Container>
+            </Suspense>
+        </>
     }
 }
