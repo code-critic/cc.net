@@ -46,7 +46,7 @@ export const DynamicFolder = (props: { solution: ICcDataSolution }) => {
 
         {files.map((i, j) => {
             return j == value &&
-                <div>{renderCode(i.content)}</div>
+                <div key={j}>{renderCode(i.content)}</div>
         })}
     </div>
 };

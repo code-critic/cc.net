@@ -13,8 +13,9 @@ namespace CC.Net.Services.Languages
         public string version { get; set; }
         public string extension { get; set; }
         public string style { get; set; }
-        public List<string> compile { get; set; }
-        public List<string> run { get; set; }
+        public List<string> compile { get; set; } = new List<string>();
+        public List<string> run { get; set; } = new List<string>();
+        public List<string> unittest { get; set; } = new List<string>();
         public bool disabled { get; set; }
 
         override public String ToString()
@@ -22,6 +23,6 @@ namespace CC.Net.Services.Languages
             return $"<{id}({name})>";
         }
 
-        public bool CompilationNeeded => compile != null && compile.Any();
+        public bool CompilationNeeded => compile.Any();
     }
 }

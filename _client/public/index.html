@@ -23,7 +23,9 @@
     -->
     <title>cc.net</title>
       <script type="text/javascript">
-        const auth = async () => {const response = await fetch("home/whoami"); if (response.ok) window.currentUser = await response.json();else window.location.href = "https://flowdb.nti.tul.cz/secure/";};
+        const auth = async () => {const response = await fetch("home/whoami"); 
+        if (response.ok) window.currentUser = await response.json();
+        else window.location.href = "https://flowdb.nti.tul.cz/auth/";};
         auth();
     </script>
   </head>

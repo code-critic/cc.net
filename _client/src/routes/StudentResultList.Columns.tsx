@@ -6,11 +6,13 @@ import "react-table/react-table.css";
 import { nameof } from "ts-simple-nameof";
 import { ICcData, ICcDataResult, ICourse } from "../models/DataModel";
 import { StudentResultListModel } from "./StudentResultList.Model";
+import { ProcessStatusCodes, ProcessStatusStatic } from "../models/Enums";
 
 
 export function getStatusOrDefault(result: ICcDataResult) {
     if (result && result.status) {
-        return result.status;
+        const status = ProcessStatusStatic.All.find(i => i.code === result.status);
+        return status ? status.name : "unknown";
     } else {
         return "unknown";
     }
@@ -35,13 +37,10 @@ const dateRanges: DateRange[] = [
     { name: "3 months", value: moment(now).subtract(93, 'days').unix() },
 ];
 
-const statuses = {
-    "answer-correct": "Answer Correct",
-    "answer-correct-timeout": "Answer Correct Timeout",
-    "answer-wrong": "Answer Wrong",
-    "global-timeout": "Global Timeout",
-    "compilation-failed": "Compilation Failed",
-}
+const statuses = ProcessStatusStatic.All.map(i => {
+    return {key: `[${i.letter}] - ${i.description}`, value: i.code }
+});
+
 
 function statusRenderer(cellInfo: CellInfo) {
     var data = cellInfo.value as ICcDataResult;
@@ -165,11 +164,15 @@ export function getColumns(model: StudentResultListModel, courses: ICourse[]) {
         {
             Header: "Status",
             accessor: nameof<ICcData>(i => i.result.status),
+            Cell: (cellInfo: CellInfo) => {
+                const status = ProcessStatusStatic.All.find(i => i.code === cellInfo.value);
+                return !status ? "" : status.letter;
+            },
             Filter: (params: { column: Column, filter: any, onChange: ReactTableFunction, key?: string }) =>
                 <select onChange={event => params.onChange(event.target.value)} style={{ width: "100%" }}
                     value={params.filter ? params.filter.value : "all"}>
                     <option value="all">Show All</option>
-                    {Object.entries(statuses).map(([v, k]) => <option key={v} value={v}>{k}</option>)}
+                    {statuses.map(i => <option key={i.value} value={i.value}>{i.key}</option>)}
                 </select>
         },
         {

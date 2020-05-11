@@ -157,6 +157,11 @@ namespace CC.Net.Services
 
         public void PrepareLocalDir()
         {
+            if (Directory.Exists(Context.TmpDir.Root))
+            {
+                Directory.Delete(Context.TmpDir.Root, true);
+            }
+
             Directory.CreateDirectory(Context.TmpDir.Root);
             Directory.CreateDirectory(Context.TmpDir.InputDir);
             Directory.CreateDirectory(Context.TmpDir.OutputDir);

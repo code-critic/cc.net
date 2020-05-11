@@ -31,6 +31,21 @@ namespace CC.Net.Controllers
             _logger = logger;
             _dbService = dbService;
         }
+        private CcData ConvertToExtended(CcData item)
+        {
+            item.Solutions.Insert(0, CcDataSolution.Seperator("Solution Files"));
+            item.Solutions.Add(CcDataSolution.Seperator("Browser Directories"));
+
+            item.Solutions.AddRange(
+                new CcDataSolution[] {
+                    CcDataSolution.Dynamic("Input", item.ObjectId),
+                    CcDataSolution.Dynamic("Output", item.ObjectId),
+                    CcDataSolution.Dynamic("Error", item.ObjectId),
+                    CcDataSolution.Dynamic("Reference", item.ObjectId)
+                }
+            );
+            return item;
+        }
 
         [HttpGet]
         [Route("student-result-list/{courseName}/{courseYear}/{problem}/{user}")]
@@ -49,19 +64,7 @@ namespace CC.Net.Controllers
 
             foreach (var item in results)
             {
-                // add separators
-                item.Solutions.Insert(0, CcDataSolution.Seperator("Solution Files"));
-                item.Solutions.Add(CcDataSolution.Seperator("Browser Directories"));
-
-                item.Solutions.AddRange(
-                    new CcDataSolution[] {
-                        CcDataSolution.Dynamic("Input", item.ObjectId),
-                        CcDataSolution.Dynamic("Output", item.ObjectId),
-                        CcDataSolution.Dynamic("Error", item.ObjectId),
-                        CcDataSolution.Dynamic("Reference", item.ObjectId)
-                    }
-                );
-                yield return item;
+                yield return ConvertToExtended(item);
             }
         }
 
@@ -73,7 +76,7 @@ namespace CC.Net.Controllers
             var result = _dbService.Data
                 .Find(i => i.Id == objectId)
                 .First();
-            return result;
+            return ConvertToExtended(result);
         }
 
         [HttpPost]

@@ -89,7 +89,7 @@ namespace CC.Net.Utils
             var result_status = "result.status";
             if (filter.id == result_status && filter.value != "all")
             {
-                return $"\"result.status\": \"{filter.value}\"";
+                return $"\"result.status\": {int.Parse(filter.value)}";
             }
 
             //default fallback

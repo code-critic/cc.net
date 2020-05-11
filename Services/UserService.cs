@@ -21,10 +21,11 @@ namespace CC.Net.Services
 
         public AppUser FromPrincipal(ClaimsPrincipal principal)
         {
-            if(principal is null) {
+            if(principal == null || principal.Claims == null || string.IsNullOrEmpty(principal.FindFirstValue(nameof(AppUser.Eppn)))) {
                 return Guest;
             }
-            var user = new AppUser{
+
+            var user = new AppUser {
                 Eppn = principal.FindFirstValue(nameof(AppUser.Eppn)),
                 Affiliation = principal.FindFirstValue(nameof(AppUser.Affiliation)),
             };

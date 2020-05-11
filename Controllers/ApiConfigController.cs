@@ -61,6 +61,7 @@ namespace CC.Net.Controllers
 
             var singleCourse = new SingleCourse
             {
+                CourseRef = course,
                 Course = course.Name,
                 Year = yearConfig.Year,
                 CourseConfig = course.CourseConfig,

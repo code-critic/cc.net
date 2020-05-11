@@ -86,9 +86,13 @@ namespace CC.Net.Services
             var filename = isUnitTest
                 ? Context.CourseProblem.Reference.Name
                 : Context.MainFileName;
+            
+            var pipeline = isUnitTest && Context.Language.unittest.Any()
+                ? Context.Language.unittest
+                : Context.Language.run;
 
             var result = RunPipeline(
-                $"{string.Join(" ", Context.Language.run)}".Replace("<filename>", Context.MainFileName),
+                $"{string.Join(" ", pipeline)}".Replace("<filename>", filename),
                 Context.DockerTmpWorkdir,
                 (int)Math.Ceiling(TimeRemaining),
                 isUnitTest ? null : $"input/{@case.Id}",

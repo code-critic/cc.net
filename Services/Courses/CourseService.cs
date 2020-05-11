@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using CC.Net.Config;
 using CC.Net.Utils;
+using Microsoft.Extensions.Logging;
 
 namespace CC.Net.Services.Courses
 {
@@ -12,10 +13,12 @@ namespace CC.Net.Services.Courses
     {
         private readonly AppOptions _appOptions;
         public readonly List<Course> Courses;
+        public readonly ILogger<CourseService> _logger;
 
-        public CourseService(AppOptions appOptions)
+        public CourseService(AppOptions appOptions, ILogger<CourseService> logger)
         {
             _appOptions = appOptions;
+            _logger = logger;
             Courses = Parse();
         }
 
@@ -35,8 +38,14 @@ namespace CC.Net.Services.Courses
                     };
 
                     course.CourseYears.ForEach(i => i.SetCourse(course));
-
-                    result.Add(course);
+                    if(!course.CourseConfig.Disabled)
+                    {
+                        result.Add(course);
+                    }
+                    else
+                    {
+                        _logger.LogInformation("Ignoring course {course}", course.Name);
+                    }
                 }
             }
             return result;

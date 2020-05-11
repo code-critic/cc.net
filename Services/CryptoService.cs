@@ -79,6 +79,8 @@ namespace CC.Net.Services
                     Encoding.ASCII.GetBytes(_appOptions.AESKey)
                 );
 
+                Console.WriteLine(jsonstring);
+
                 try
                 {
                     return JsonConvert.DeserializeObject<AppUser>(jsonstring);
