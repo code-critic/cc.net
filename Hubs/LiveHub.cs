@@ -59,15 +59,15 @@ namespace CC.Net.Hubs
             var id = ObjectId.GenerateNewId();
             var course = _courseService[courseName][courseYear];
             var problem = course[problemId];
-            var language = _languageService[problem.reference.lang];
+            var language = _languageService[problem.Reference.Lang];
 
             var courseDir = _courseService[courseName].CourseDir;
             var problemDir = Path.Combine(courseDir, courseYear, "problems", problemId);
 
             var solutions = new List<CcDataSolution>{
                 CcDataSolution.Single(
-                    Path.Combine(problemDir, problem.reference.name).ReadAllText(),
-                    problem.reference.name
+                    Path.Combine(problemDir, problem.Reference.Name).ReadAllText(),
+                    problem.Reference.Name
                 )
             };
 
@@ -97,78 +97,90 @@ namespace CC.Net.Hubs
         }
 
         public async Task SubmitSolution(string userId, string courseName, string courseYear, string problemId, string solution, string langId, bool useDocker)
+        {
+            var course = _courseService[courseName];
+            var courseYearConfig = course[courseYear];
+            var problem = courseYearConfig[problemId];
+            var language = _languageService[langId];
+
+            var attemptNo = 1 + await _dbService.Data
+                .CountDocumentsAsync(i => i.CourseName == courseName
+                    && i.CourseYear == courseYear
+                    && i.User == userId
+                    && i.Problem == problemId
+                // && i.Action == "solve"
+                );
+
+            var solutions = new List<CcDataSolution>();
+
+            if (problem.Unittest)
             {
-                var language = _languageService[langId];
+                var refCode = problem.ProblemDir().RootFile(problem.Reference.Name).ReadAllText();
+                solutions.Add(CcDataSolution.Single(refCode, problem.Reference.Name));
+                solutions.Add(CcDataSolution.Single(solution, problem.Libname, 1, false));
+            }
+            else
+            {
+                solutions.Add(CcDataSolution.Single(solution, $"main.{language.extension}"));
+            }
 
-                var attemptNo = 1 + await _dbService.Data
-                    .CountDocumentsAsync(i => i.CourseName == courseName
-                        && i.CourseYear == courseYear
-                        && i.User == userId
-                        && i.Action == "solve"
-                        && i.Problem == problemId
-                    );
+            var attemptId = ObjectId.GenerateNewId();
 
-                var solutions = new List<CcDataSolution>{
-                CcDataSolution.Single(solution, $"main.{language.extension}")
+            var ccData = new CcData
+            {
+                Id = attemptId,
+                User = userId,
+                CourseName = courseName,
+                CourseYear = courseYear,
+                Action = "solve",
+                Docker = useDocker,
+                Problem = problemId,
+                Language = langId,
+                Solutions = solutions,
+                Attempt = (int)attemptNo,
+
+                Result = new CcDataResult
+                {
+                    Status = ProcessStatus.InQueue.Value,
+                    Duration = 0,
+                    Message = null,
+                    Score = 0,
+                    Scores = new[] { 0, 0, 0 },
+                }
             };
 
-                var attemptId = ObjectId.GenerateNewId();
+            _idService.RemeberClient(Clients.Caller, attemptId);
+            await Clients.Clients(_idService[ccData.User]).NotifyClient($"Attempt {attemptNo} inserted into queue");
+            await _dbService.Data.InsertOneAsync(ccData);
+        }
+    }
 
-                var ccData = new CcData
-                {
-                    Id = attemptId,
-                    User = userId,
-                    CourseName = courseName,
-                    CourseYear = courseYear,
-                    Action = "solve",
-                    Docker = useDocker,
-                    Problem = problemId,
-                    Language = langId,
-                    Solutions = solutions,
-                    Attempt = (int)attemptNo,
-
-                    Result = new CcDataResult
-                    {
-                        Status = ProcessStatus.InQueue.Value,
-                        Duration = 0,
-                        Message = null,
-                        Score = 0,
-                        Scores = new[] { 0, 0, 0 },
-                    }
-                };
-
-                _idService.RemeberClient(Clients.Caller, attemptId);
-                await Clients.Clients(_idService[ccData.User]).NotifyClient($"Attempt {attemptNo} inserted into queue");
-                await _dbService.Data.InsertOneAsync(ccData);
+    public static class LiveHubExtensions
+    {
+        public static Task NotifyClient(this IClientProxy clients, string message, string level = "info")
+        {
+            try
+            {
+                return clients.SendAsync("OnMessage", message, level);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.StackTrace);
+                return Task.CompletedTask;
             }
         }
 
-        public static class LiveHubExtensions
+        public static Task ItemChanged(this IClientProxy clients, CcData item)
         {
-            public static Task NotifyClient(this IClientProxy clients, string message, string level = "info")
+            try
             {
-                try
-                {
-                    return clients.SendAsync("OnMessage", message, level);
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e.StackTrace);
-                    return Task.CompletedTask;
-                }
+                return clients.SendAsync("OnProcessStart", item);
             }
-
-            public static Task ItemChanged(this IClientProxy clients, CcData item)
+            catch (Exception e)
             {
-                try
-                {
-                    return clients.SendAsync("OnProcessStart", item);
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e.StackTrace);
-                    return Task.CompletedTask;
-                }
+                Console.WriteLine(e.StackTrace);
+                return Task.CompletedTask;
             }
         }
     }
+}

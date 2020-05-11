@@ -22,7 +22,8 @@ namespace CC.Net.Utils
 
             var result = filters.ToList()
                 .Select(f => Parse(f, extras))
-                .Where(s => !string.IsNullOrEmpty(s));
+                .Where(s => !string.IsNullOrEmpty(s))
+                .ToList();
 
             var doc = string.Join(",\n", result);
             Console.WriteLine(doc);
@@ -39,6 +40,21 @@ namespace CC.Net.Utils
             if (filter.id == "course")
             {
                 return $"course: \"{filter.value}\"";
+            }
+
+            if (filter.id == "courseName")
+            {
+                return $"courseName: \"{filter.value}\"";
+            }
+
+            if (filter.id == "courseYear")
+            {
+                return $"courseYear: \"{filter.value}\"";
+            }
+
+            if (filter.id == "action")
+            {
+                return $"action: \"{filter.value}\"";
             }
 
             var extra = extras.FirstOrDefault(i => i.Id == filter.id);

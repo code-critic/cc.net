@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using CC.Net.Db;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Bson;
 using MongoDB.Driver;
@@ -9,6 +10,7 @@ namespace CC.Net.Controllers
 {
     [ApiController]
     [Route("api")]
+    [Authorize]
     public class CommentsController
     {
         private readonly DbService _dbService;

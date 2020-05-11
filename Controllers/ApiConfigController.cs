@@ -2,18 +2,20 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Security.Claims;
 using CC.Net.Collections;
 using CC.Net.Config;
 using CC.Net.Db;
 using CC.Net.Dto;
+using CC.Net.Entities;
 using CC.Net.Extensions;
 using CC.Net.Services;
 using CC.Net.Services.Courses;
 using CC.Net.Services.Languages;
 using CC.Net.Utils;
-using DiffPlex;
-using DiffPlex.DiffBuilder;
-using DiffPlex.DiffBuilder.Model;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Bson;
 using MongoDB.Driver;
@@ -22,25 +24,25 @@ namespace CC.Net.Controllers
 {
     [ApiController]
     [Route("api")]
+    [Authorize]
     public class ApiConfigController
     {
         private readonly CourseService _courseService;
         private readonly LanguageService _languageService;
         private readonly DbService _dbService;
-        private readonly AppOptions _appOptions;
         private readonly ProblemDescriptionService _problemDescriptionService;
         private readonly CompareService _compareService;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
         public ApiConfigController(
             CourseService courseService, LanguageService languageService, DbService dbService,
-            AppOptions appOptions, ProblemDescriptionService problemDescriptionService,
-            CompareService compareService
+            ProblemDescriptionService problemDescriptionService,
+            CompareService compareService, IHttpContextAccessor httpContextAccessor
             )
         {
             _courseService = courseService;
             _languageService = languageService;
             _dbService = dbService;
-            _appOptions = appOptions;
             _problemDescriptionService = problemDescriptionService;
             _compareService = compareService;
         }
@@ -50,7 +52,7 @@ namespace CC.Net.Controllers
         {
             return _courseService.Courses;
         }
-
+        
         [HttpGet("courses-full/{courseName}/{courseYear}")]
         public List<CourseProblem> CourseFull(string courseName, string courseYear)
         {

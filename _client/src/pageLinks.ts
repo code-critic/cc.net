@@ -9,6 +9,8 @@ export interface IPageLink<T> {
     path: string;
     exact: boolean;
     component: React.ComponentType<T>;
+
+    rootOnly: boolean;
 }
 
 export const pageLinks: IPageLink<any>[] = [
@@ -18,6 +20,7 @@ export const pageLinks: IPageLink<any>[] = [
         path: "/",
         exact: true,
         component: Home,
+        rootOnly: false,
     },
     {
         title: "Problem-Student Matrix",
@@ -25,6 +28,7 @@ export const pageLinks: IPageLink<any>[] = [
         path: "/problem-student-matrix/:course?/:year?",
         exact: false,
         component: ProblemStudentMatrixList,
+        rootOnly: true,
     },
     {
         title: "View Results",
@@ -32,6 +36,7 @@ export const pageLinks: IPageLink<any>[] = [
         path: "/view-results",
         exact: true,
         component: StudentResultList,
+        rootOnly: true,
     },
     {
         title: "Submit Solution",
@@ -39,5 +44,6 @@ export const pageLinks: IPageLink<any>[] = [
         path: "/courses/:course?/:year?/:problem?",
         exact: false,
         component: SolutionSubmit,
+        rootOnly: false,
     }
 ];

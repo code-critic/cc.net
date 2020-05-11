@@ -409,3 +409,13 @@ $diffs: (
     }
   }
 }
+
+
+a.MuiButtonBase-root:hover {
+  color: inherit;
+  text-decoration: none;
+}
+
+div.MuiMenu-paper {
+  min-width: 250px;
+}

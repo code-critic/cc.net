@@ -22,7 +22,7 @@ namespace CC.Net.Services
                 course.Course,
                 course.Year,
                 "problems",
-                problem.id,
+                problem.Id,
                 "README.md"
             );
 

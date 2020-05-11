@@ -1,3 +1,4 @@
+using cc.net.Controllers;
 using CC.Net.Config;
 using CC.Net.Db;
 using CC.Net.Hubs;
@@ -45,7 +46,17 @@ namespace CC.Net
             services.AddScoped<DbService>();
             services.AddScoped<ProblemDescriptionService>();
             services.AddScoped<CompareService>();
+            services.AddScoped<CryptoService>();
+            services.AddScoped<UserService>();
             services.AddHostedService<ProcessService>();
+            services.AddHttpContextAccessor();
+
+            services.AddAuthentication("CookieAuth")
+                .AddCookie("CookieAuth", config =>
+                {
+                    config.Cookie.Name = "CC.Cookie";
+                    config.LoginPath = $"/Home/{nameof(HomeController.Login)}";
+                });
 
             services.AddControllersWithViews();
             services.AddSignalR();
@@ -63,13 +74,6 @@ namespace CC.Net
             var db = serviceProvider.GetService<DbService>();
             var id = serviceProvider.GetService<IdService>();
 
-            /*GlobalHost.DependencyResolver.Register(
-                typeof(LiveHub),
-                () => {
-                    return new LiveHub(db, id);
-                });*/
-
-
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -86,18 +90,24 @@ namespace CC.Net
 
             app.UseRouting();
 
+            // who are you
+            app.UseAuthentication();
+
+            // are you allowed
+            app.UseAuthorization();
+
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{controller}/{action=Index}/{id?}");
-                endpoints.MapControllers();
                 endpoints.MapHub<LiveHub>("/live");
             });
 
             app.UseSpa(spa =>
             {
                 spa.Options.SourcePath = "_client";
+                spa.Options.DefaultPage = "/Home/Index";
 
                 if (env.IsDevelopment())
                 {

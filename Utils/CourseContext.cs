@@ -41,7 +41,7 @@ namespace CC.Net.Utils
 
             _tmpDir = Path.Combine(Path.GetTempPath(), "automatest", Id);
             _problemDir = Path.Combine(CourseDir, Item.CourseYear, "problems", Item.Problem);
-            _studentDir = problemDir ? _problemDir : Path.Combine(CourseDir, Item.ResultDir);
+            _studentDir = problemDir ? _problemDir : Item.ResultDir(CourseDir);
 
             ProblemDir = new FileTree(_problemDir);
             TmpDir = new FileTree(_tmpDir);

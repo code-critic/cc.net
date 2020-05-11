@@ -9,7 +9,7 @@ import "react-mde/lib/styles/css/react-mde-all.css";
 import { ICcData, ILineComment, ICcDataSolution, ICommentServiceItem } from "../models/DataModel";
 import { ListItem, ListItemText, ListItemIcon, Tooltip, Button, Tabs, Tab } from "@material-ui/core";
 import Moment from "react-moment";
-import { commentService, User, appDispatcher } from "../init";
+import { commentService, currentUser, appDispatcher } from "../init";
 import { DynamicFolder } from "../components/DynamicFolder";
 
 
@@ -61,7 +61,7 @@ export class CodeLine extends React.Component<CodeLineProps, any, any> {
             comment: {
                 line: lineNo,
                 text: converter.makeHtml(this.editorValue),
-                user: User.id,
+                user: currentUser.id,
                 time: new Date().getTime() / 1000,
                 filename: filename
             }

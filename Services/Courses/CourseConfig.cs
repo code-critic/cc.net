@@ -1,17 +1,32 @@
 using System.Collections.Generic;
 using CC.Net.Entities;
+using YamlDotNet.Serialization;
 
 namespace CC.Net.Services.Courses
 {
     public class CourseConfig
     {
-        public string name { get; set; }
-        public string desc { get; set; }
-        public bool disabled { get; set; }
-        public string access { get; set; }
 
-        public List<User> teachers {get; set;}
-        public List<User> students {get; set;}
-        public List<CourseTag> tags {get; set;}
+        [YamlMember(Alias = "name")]
+        public string Name { get; set; }
+
+        [YamlMember(Alias = "desc")]
+        public string Desc { get; set; }
+
+        [YamlMember(Alias = "disabled")]
+        public bool Disabled { get; set; }
+
+        [YamlMember(Alias = "access")]
+        public string Access { get; set; }
+
+        [YamlMember(Alias = "teachers")]
+        public List<User> Teachers { get; set; }
+
+        [YamlMember(Alias = "students")]
+        public List<User> Students { get; set; }
+
+        [YamlMember(Alias = "tags")]
+        public List<CourseTag> Tags { get; set; }
+
     }
 }

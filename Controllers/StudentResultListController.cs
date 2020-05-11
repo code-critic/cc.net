@@ -7,6 +7,7 @@ using CC.Net.Collections;
 using CC.Net.Db;
 using CC.Net.Extensions;
 using CC.Net.Utils;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
@@ -18,6 +19,7 @@ namespace CC.Net.Controllers
 {
     [ApiController]
     [Route("api")]
+    [Authorize]
     public class StudentResultListController : ControllerBase
     {
 
@@ -88,6 +90,7 @@ namespace CC.Net.Controllers
                 id = "action",
                 value = "solve",
             });
+
 
             var matchBody = QueryUtils.Parse(
                 filtered.ToArray(),

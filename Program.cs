@@ -64,6 +64,7 @@ namespace CC.Net
                         .For<CommentServiceItem>()
 
                         .For<DiffResult>()
+                        .For<AppUser>()
                         .For<DiffResultComposite>()
 
                         .WithModuleNameFormatter((moduleName) => "")

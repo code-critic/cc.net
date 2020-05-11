@@ -7,6 +7,7 @@ using CC.Net.Db;
 using CC.Net.Extensions;
 using CC.Net.Services.Courses;
 using CC.Net.Utils;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
@@ -19,6 +20,7 @@ namespace CC.Net.Controllers
 
     [ApiController]
     [Route("api")]
+    [Authorize]
     public class ProblemStudentMatrixController : ControllerBase
     {
 
@@ -69,8 +71,8 @@ namespace CC.Net.Controllers
         public IEnumerable<CcDataAgg> Get(string id, string year)
         {
             var course = _courseService[id];
-            var problems = course[year].Problems.Select(i => i.id);
-            var users = course.CourseConfig.students.Select(i => i.id);
+            var problems = course[year].Problems.Select(i => i.Id);
+            var users = course.CourseConfig.Students.Select(i => i.id);
 
             var courseName = $"{id}-{year}";
             var pipeline = BsonDocument.Parse(

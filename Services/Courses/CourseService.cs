@@ -34,6 +34,8 @@ namespace CC.Net.Services.Courses
                         CourseDir = dir
                     };
 
+                    course.CourseYears.ForEach(i => i.SetCourse(course));
+
                     result.Add(course);
                 }
             }

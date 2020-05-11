@@ -55,7 +55,7 @@ namespace CC.Net.Services
                 Item
             );
 
-            var timeout = Context.CourseProblem.timeout;
+            var timeout = Context.CourseProblem.Timeout;
             TimeRemaining = (timeout < 1 ? 30 : timeout) * Context.Language.scale;
             TimeAvailable = TimeRemaining;
         }
@@ -101,7 +101,7 @@ namespace CC.Net.Services
             {
                 try
                 {
-                    var subcase = Item.Results.First(i => i.Case == subtest.id);
+                    var subcase = Item.Results.First(i => i.Case == subtest.Id);
                     subcase.Status = ProcessStatus.Running.Value;
 
                     _logger.LogInformation("Executing: {Item}", Item.ToString(subcase));
@@ -114,7 +114,7 @@ namespace CC.Net.Services
                 }
                 catch (Exception e)
                 {
-                    _logger.LogError(e, "Error processing item: {Item}", Item.ToString(subtest.id));
+                    _logger.LogError(e, "Error processing item: {Item}", Item.ToString(subtest.Id));
 
                     Item.Result.Status = ProcessStatus.ErrorWhileRunning.Value;
                     Item.Result.Message = e.Message;

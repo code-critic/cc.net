@@ -1,6 +1,6 @@
 import React from "react";
 import { Dialog, DialogTitle, Box, Grid, Button, DialogContent, ButtonGroup, Paper, Tooltip, IconButton } from "@material-ui/core";
-import { commentService, appDispatcher, User } from "../init";
+import { commentService, appDispatcher, currentUser } from "../init";
 import CloseIcon from '@material-ui/icons/Close';
 import StudentResults from "./StudentResults";
 import { ISingleCourse, ILanguage, ICourseProblem } from "../models/DataModel";
@@ -41,7 +41,7 @@ export const StudentResultsDialog = (props: StudentResultsDialogProps) => {
             <Box padding={2}>
                 <Grid container justify="space-between">
                     <Grid item>
-                        {User.name} ({User.id})
+                        {currentUser.username} ({currentUser.id})
                                                     </Grid>
                     <Grid item>
                         {items.length > 0 &&
@@ -85,7 +85,7 @@ export const StudentResultsDialog = (props: StudentResultsDialogProps) => {
                 course={activeCourse.course}
                 year={activeCourse.year}
                 problem={activeProblem.id}
-                user={User.id}
+                user={currentUser.id}
                 languages={languages}
                 forcedResultId={forcedResultId}
             />

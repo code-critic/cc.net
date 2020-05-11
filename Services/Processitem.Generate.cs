@@ -61,7 +61,7 @@ namespace CC.Net.Services
 
         private async Task GenerateInputAction(CourseProblemCase @case)
         {
-            var subcase = Item.Results.First(i => i.Case == @case.id);
+            var subcase = Item.Results.First(i => i.Case == @case.Id);
 
             if (!@case.IsGeneretable())
             {
@@ -76,10 +76,10 @@ namespace CC.Net.Services
             var result = RunPipeline(
                 fullCommand,
                 Context.DockerTmpWorkdir,
-                @case.timeout < 0.01 ? 120 : (int)Math.Ceiling(@case.timeout),
+                @case.Timeout < 0.01 ? 120 : (int)Math.Ceiling(@case.Timeout),
                 null,
-                $"output/{@case.id}",
-                $"error/{@case.id}"
+                $"output/{@case.Id}",
+                $"error/{@case.Id}"
             );
 
             TimeRemaining -= result.Duration;
@@ -91,7 +91,7 @@ namespace CC.Net.Services
             CopyOutputFromDocker(@case);
             CopyErrorFromDocker(@case);
 
-            var inputFile = Context.ProblemDir.InputFile(@case.id);
+            var inputFile = Context.ProblemDir.InputFile(@case.Id);
 
             if (result.isOk && File.Exists(inputFile))
             {
@@ -102,7 +102,7 @@ namespace CC.Net.Services
             {
                 subcase.Status = ProcessStatus.ErrorWhileRunning.Value;
                 subcase.Message = ProcessStatus.ErrorWhileRunning.Description;
-                subcase.Messages = Context.GetTmpDirErrorMessage(@case.id).SplitLines();
+                subcase.Messages = Context.GetTmpDirErrorMessage(@case.Id).SplitLines();
             }
 
         }

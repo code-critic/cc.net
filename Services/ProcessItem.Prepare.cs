@@ -51,7 +51,7 @@ namespace CC.Net.Services
             {
                 Item.Results.Add(new CcDataCaseResult()
                 {
-                    Case = subtest.id,
+                    Case = subtest.Id,
                     Status = ProcessStatus.InQueue.Value,
                 });
             }
@@ -126,13 +126,13 @@ namespace CC.Net.Services
 
         public ProcessResult CopyOutputFromDocker(CourseProblemCase @case)
         {
-            var cpCommand = $"docker cp \"{ProcessService.ContainerName}:{Context.DockerTmpWorkdir}/output/{@case.id}\" \"{Context.TmpDir.OutputDir}\"";
+            var cpCommand = $"docker cp \"{ProcessService.ContainerName}:{Context.DockerTmpWorkdir}/output/{@case.Id}\" \"{Context.TmpDir.OutputDir}\"";
             return ProcessUtils.Popen(cpCommand);
         }
 
         public ProcessResult CopyErrorFromDocker(CourseProblemCase @case)
         {
-            var cpCommand = $"docker cp \"{ProcessService.ContainerName}:{Context.DockerTmpWorkdir}/error/{@case.id}\" \"{Context.TmpDir.ErrorDir}\"";
+            var cpCommand = $"docker cp \"{ProcessService.ContainerName}:{Context.DockerTmpWorkdir}/error/{@case.Id}\" \"{Context.TmpDir.ErrorDir}\"";
             return ProcessUtils.Popen(cpCommand);
         }
 
@@ -171,15 +171,15 @@ namespace CC.Net.Services
             }
 
             // copy inputs to tmp
-            foreach (var test in Context.CourseProblem.tests)
+            foreach (var test in Context.CourseProblem.Tests)
             {
                 foreach (var subtest in test.Enumerate())
                 {
-                    var input = Context.ProblemDir.InputFile(subtest.id);
+                    var input = Context.ProblemDir.InputFile(subtest.Id);
                     if (File.Exists(input))
                     {
                         File.WriteAllText(
-                            Context.TmpDir.InputFile(subtest.id),
+                            Context.TmpDir.InputFile(subtest.Id),
                             File.ReadAllText(input)
                         );
                     }

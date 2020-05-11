@@ -31,15 +31,15 @@ namespace CC.Net.Services
 
         public DiffResult CompareFiles(CourseContext Context, CourseProblemCase @case)
         {
-            var generatedFile = Context.TmpDir.OutputFile(@case.id);
-            var referenceFile = Context.ProblemDir.OutputFile(@case.id);
+            var generatedFile = Context.TmpDir.OutputFile(@case.Id);
+            var referenceFile = Context.ProblemDir.OutputFile(@case.Id);
             return CompareFiles(generatedFile, referenceFile);
         }
 
         public DiffResultComposite CompareFilesComposite(CourseContext Context, CourseProblemCase @case)
         {
-            var generatedFile = Context.TmpDir.OutputFile(@case.id);
-            var referenceFile = Context.ProblemDir.OutputFile(@case.id);
+            var generatedFile = Context.TmpDir.OutputFile(@case.Id);
+            var referenceFile = Context.ProblemDir.OutputFile(@case.Id);
             return CompareFilesComposite(generatedFile, referenceFile);
         }
         public DiffResultComposite CompareFilesComposite(string generatedFile, string referenceFile)

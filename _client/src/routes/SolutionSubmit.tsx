@@ -17,10 +17,11 @@ import BubbleChartIcon from '@material-ui/icons/BubbleChart';
 import AddCircleOutlineOutlinedIcon from '@material-ui/icons/AddCircleOutlineOutlined';
 import CheckCircleOutlinedIcon from '@material-ui/icons/CheckCircleOutlined';
 
-import { User, liveConnection, appDispatcher } from "../init";
+import { currentUser, liveConnection, appDispatcher } from "../init";
 import { StudentResultItem } from "../components/StudentResults.Item";
 import { StudentResultsDialog } from "../components/StudentResultsDialog";
 import { SolutionSubmitForm } from "./SolutionSubmit.Form";
+import { NotificationManager } from 'react-notifications';
 
 
 
@@ -163,14 +164,24 @@ export class SolutionSubmit extends React.Component<SolutionSubmitProps, any, an
     }
 
     public submitSolution() {
-        const { activeCourse, activeProblem, ace, selectedLanguage } = this;
+        const { activeCourse, activeProblem, ace, selectedLanguage, languages } = this;
         if (!activeCourse || !activeProblem) {
+            return;
+        }
+
+        const enabledLanguages = activeProblem.unittest
+            ? languages.data.filter(i => i.id == activeProblem.reference.lang)
+            : languages.data;
+
+        if (!enabledLanguages.find(i => selectedLanguage == i.id)) {
+            this.selectedLanguage = enabledLanguages[0].id;
+            NotificationManager.error("Programming language not supported, switched to the first supported language", "Proramming Language error");
             return;
         }
 
         // public async Task SubmitSolution(string userId, string courseName, string courseYear, string problemId, string solution, string langId, bool useDocker)
         var message = [
-            User.id,
+            currentUser.id,
             activeCourse.course,
             activeCourse.year,
             activeProblem.id,
@@ -189,7 +200,7 @@ export class SolutionSubmit extends React.Component<SolutionSubmitProps, any, an
 
         // public async Task GenerateInput(string userId, string courseName, string courseYear, string problemId)
         var message = [
-            User.id,
+            currentUser.id,
             activeCourse.course,
             activeCourse.year,
             activeProblem.id,
@@ -205,7 +216,7 @@ export class SolutionSubmit extends React.Component<SolutionSubmitProps, any, an
 
         // public async Task GenerateOutput(string userId, string courseName, string courseYear, string problemId)
         var message = [
-            User.id,
+            currentUser.id,
             activeCourse.course,
             activeCourse.year,
             activeProblem.id,
@@ -243,7 +254,10 @@ export class SolutionSubmit extends React.Component<SolutionSubmitProps, any, an
         }
 
         const { currentLanguage, resultsDialogOpen, liveResult, forcedResultId } = this;
-
+        const enabledLanguages = activeProblem.unittest
+            ? languages.data.filter(i => i.id == activeProblem.reference.lang)
+            : languages.data;
+        
         return <>
             <Suspense fallback={<div>Loading...</div>}>
                 <Container>
@@ -269,7 +283,7 @@ export class SolutionSubmit extends React.Component<SolutionSubmitProps, any, an
                         </Grid>
 
                         <Grid item xs={12} sm={12} lg={6}>
-                            {User.role == "root" &&
+                            {currentUser.role === "root" &&
                                 <ButtonGroup size="large" fullWidth>
                                     <Button startIcon={<AddCircleOutlineOutlinedIcon />} onClick={() => this.generateInput()}>
                                         Generate Input
@@ -282,8 +296,9 @@ export class SolutionSubmit extends React.Component<SolutionSubmitProps, any, an
 
                             <Grid container spacing={3}>
                                 <SolutionSubmitForm
-                                    selectedLanguage={selectedLanguage}
+                                    enabledLanguages={enabledLanguages}
                                     languages={languages.data}
+                                    selectedLanguage={selectedLanguage}
                                     currentLanguage={currentLanguage}
                                     prefferedCode={prefferedCode}
                                     onLanguageChange={i => this.selectedLanguage = i}

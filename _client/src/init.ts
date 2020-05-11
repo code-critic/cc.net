@@ -1,4 +1,4 @@
-import { ILineComment, ICcData, ICommentServiceItem } from "./models/DataModel";
+import { ILineComment, ICcData, ICommentServiceItem, IAppUser } from "./models/DataModel";
 import { observable } from "mobx";
 import { Dispatcher } from 'flux';
 import { HubConnectionBuilder } from '@aspnet/signalr';
@@ -117,12 +117,7 @@ export const httpClient = new HttpClient({
     },
 });
 
-export const User = {
-    id2: "jan.hybs",
-    id: "michal.dvorak",
-    name: "Jan Hybš",
-    role: "root"
-};
+export const currentUser: IAppUser = (window as any).currentUser as IAppUser;
 
 export const layoutUtils = new LayoutUtils();
 
@@ -152,7 +147,7 @@ liveConnection.start()
         console.log("Connected to the hub");
 
         (window as any).foo = liveConnection;
-        liveConnection.invoke("RegisterUser", User.id);
+        liveConnection.invoke("RegisterUser", currentUser.id);
         console.log((window as any).foo);
 
 

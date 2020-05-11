@@ -16,6 +16,7 @@ const Adapt = ({ children, ...other }) => children(other);
 interface SolutionSubmitFormProps {
     selectedLanguage: string;
     languages: ILanguage[];
+    enabledLanguages: ILanguage[];
     currentLanguage: ILanguage | undefined;
     prefferedCode: string;
 
@@ -25,7 +26,7 @@ interface SolutionSubmitFormProps {
 }
 
 export const SolutionSubmitForm = (props: SolutionSubmitFormProps) => {
-    const { languages, selectedLanguage, currentLanguage, prefferedCode } = props;
+    const { languages, selectedLanguage, currentLanguage, prefferedCode, enabledLanguages } = props;
     const { onEditorRef, onEditorChange, onLanguageChange } = props;
 
     const [exampleDialogOpen, setExampleDialogOpen] = React.useState(false);
@@ -45,7 +46,10 @@ export const SolutionSubmitForm = (props: SolutionSubmitFormProps) => {
                                 onChange={e => onLanguageChange(e.target.value as string)}>
                                 {languages
                                     .filter(i => !i.disabled)
-                                    .map(i => <MenuItem key={i.id} value={i.id}>{i.name} ({i.version})</MenuItem>
+                                    .map(i => 
+                                        <MenuItem key={i.id} value={i.id} disabled={!enabledLanguages.find(j => j.id == i.id)}>
+                                            {i.name} ({i.version})
+                                        </MenuItem>
                                     )}
                             </Select>
                         )}

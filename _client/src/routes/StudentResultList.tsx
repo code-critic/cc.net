@@ -36,6 +36,12 @@ export class StudentResultList extends React.Component<any, StudentResultListSta
     private density: string = "";
 
     @observable
+    private courseName: string = "";
+
+    @observable
+    private courseYear: string = "";
+
+    @observable
     private course: string = "";
 
     private lastState: any;
@@ -60,15 +66,17 @@ export class StudentResultList extends React.Component<any, StudentResultListSta
     }
 
     private debounceFetch: (state: any) => void = throttle(300, false, (state: any) => {
+        const { courseName, courseYear, model } = this;
         this.lastState = state;
 
-        if (this.course !== "") {
-            this.model.load(state.pageSize, state.page, state.sorted, [
+        if (courseName !== "") {
+            model.load(state.pageSize, state.page, state.sorted, [
                 ...state.filtered,
-                { id: "course", value: this.course }
+                { id: "courseName", value: courseName },
+                { id: "courseYear", value: courseYear },
             ]);
         } else {
-            this.model.load(state.pageSize, state.page, state.sorted, state.filtered);
+            model.load(state.pageSize, state.page, state.sorted, state.filtered);
         }
     })
 
@@ -88,7 +96,7 @@ export class StudentResultList extends React.Component<any, StudentResultListSta
             this.model,
             this.course === ""
                 ? this.model.courses.data
-                : this.model.courses.data.filter(i => !!~this.course.indexOf(i.name))
+                : this.model.courses.data.filter(i => !!~this.courseName.indexOf(i.name))
         );
     }
 
@@ -102,6 +110,9 @@ export class StudentResultList extends React.Component<any, StudentResultListSta
     }
 
     changeCourse(e: any) {
+        const dataset = e.target.selectedOptions[0].dataset;
+        this.courseName = dataset.name;
+        this.courseYear = dataset.year;
         this.course = e.target.value;
         this.onFetchData(this.lastState);
     }
@@ -114,9 +125,9 @@ export class StudentResultList extends React.Component<any, StudentResultListSta
         if (model.apiIsLoading) {
             return <div>loading</div>
         }
-        
+
         console.log(commentService.items);
-        
+
 
         return <div>
             {detailResult && detailIsOpened &&
@@ -148,10 +159,11 @@ export class StudentResultList extends React.Component<any, StudentResultListSta
                 <Form.Group>
                     <Form.Label>Select course</Form.Label>
                     <Form.Control as="select" onChange={(e) => this.changeCourse(e)} value={this.course}>
-                        <option value="">Show all</option>
+                        <option value="" data-name="" data-year="">Show all</option>
                         {model.courses.data.flatMap(i => i.courseYears.map(j => { return { name: i.name, year: j.year } }
                         )).map(i =>
-                            <option value={`${i.name}-${i.year}`} key={`${i.name}-${i.year}`}>
+                            <option data-name={i.name} data-year={i.year}
+                                value={`${i.name}-${i.year}`} key={`${i.name}-${i.year}`}>
                                 {i.name}-{i.year}
                             </option>
                         )}

@@ -5,7 +5,7 @@ namespace CC.Net.Services.Courses
 {
     public class Course
     {
-        public string Name => CourseConfig.name;
+        public string Name => CourseConfig.Name;
 
         public CourseConfig CourseConfig { get; set; }
         public List<CourseYearConfig> CourseYears { get; set; }

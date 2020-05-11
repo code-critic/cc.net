@@ -1,12 +1,16 @@
 using System.Collections.Generic;
 using System.Linq;
+using YamlDotNet.Serialization;
 
 namespace CC.Net.Services.Courses
 {
     public class CourseReference
     {
-        public string name { get; set; }
-        public string lang { get; set; }
+        [YamlMember(Alias = "name")]
+        public string Name { get; set; }
+
+        [YamlMember(Alias = "lang")]
+        public string Lang { get; set; }
 
         // public CourseProblemTest this[string key]
         // {

@@ -39,16 +39,19 @@
 		description: string;
 		id: string;
 		item: ICourseProblemCase;
+		libname: string;
 		name: string;
 		reference: ICourseReference;
 		since: string;
 		tests: ICourseProblemCase[];
 		timeout: number;
+		unittest: boolean;
 	}
 	interface ICourseProblemCase {
 		id: string;
 		random: number;
 		size: number;
+		test: string;
 		timeout: number;
 	}
 	interface ICourseReference {
@@ -84,7 +87,6 @@
 		problem: string;
 		resu: string;
 		result: ICcDataResult;
-		resultDir: string;
 		results: ICcDataCaseResult[];
 		reviewRequest: Date;
 		solutions: ICcDataSolution[];
@@ -192,6 +194,18 @@
 		AnswerWrongTimeout = 201,
 		CompilationFailed = 400,
 		ErrorWhileRunning = 500
+	}
+	interface IAppUser {
+		affiliation: string;
+		datetime: string;
+		email: string;
+		eppn: string;
+		id: string;
+		isRoot: boolean;
+		lastFirstName: string;
+		role: string;
+		roles: string[];
+		username: string;
 	}
 	interface IProcessStatus {
 		code: ProcessStatusCodes;

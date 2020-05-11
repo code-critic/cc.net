@@ -55,10 +55,7 @@ namespace CC.Net.Services
 
         private void CopyToResultDir(bool ensuryEmpty = true)
         {
-            var targetDir = Path.Combine(
-                Context.CourseDir,
-                Item.ResultDir
-            );
+            var targetDir = Item.ResultDir(Context.CourseDir);
             var sourceDir = Context.TmpDir.Root;
 
             CopyToResultDir(sourceDir, targetDir, ensuryEmpty);
@@ -67,9 +64,9 @@ namespace CC.Net.Services
 
         private ProcessResult SolveCaseBase(CourseProblemCase @case)
         {
-            var caseId = @case.id;
+            var caseId = @case.Id;
             var subcase = Item.Results.First(i => i.Case == caseId);
-            var timeout = @case.timeout < 0.001 ? 5 : @case.timeout;
+            var timeout = @case.Timeout < 0.001 ? 5 : @case.Timeout;
             var scalefactor = Context.Language.scale;
             var scalledTimeout = timeout * scalefactor;
 
@@ -85,14 +82,18 @@ namespace CC.Net.Services
             }
 
             subcase.Status = ProcessStatus.Running.Value;
+            var isUnitTest = Context.CourseProblem.Unittest;
+            var filename = isUnitTest
+                ? Context.CourseProblem.Reference.Name
+                : Context.MainFileName;
 
             var result = RunPipeline(
                 $"{string.Join(" ", Context.Language.run)}".Replace("<filename>", Context.MainFileName),
                 Context.DockerTmpWorkdir,
                 (int)Math.Ceiling(TimeRemaining),
-                $"input/{@case.id}",
-                $"output/{@case.id}",
-                $"error/{@case.id}"
+                isUnitTest ? null : $"input/{@case.Id}",
+                $"output/{@case.Id}",
+                $"error/{@case.Id}"
             );
 
             TimeRemaining -= result.Duration;
@@ -124,7 +125,7 @@ namespace CC.Net.Services
                 {
                     subcase.Status = ProcessStatus.ErrorWhileRunning.Value;
                     subcase.Message = ProcessStatus.ErrorWhileRunning.Description;
-                    subcase.Messages = Context.GetTmpDirErrorMessage(@case.id).SplitLines();
+                    subcase.Messages = Context.GetTmpDirErrorMessage(@case.Id).SplitLines();
                 }
             }
             return result;
@@ -139,10 +140,40 @@ namespace CC.Net.Services
                 return;
             }
 
-            var subcase = Item.Results.First(i => i.Case == @case.id);
-            var timeout = @case.timeout < 0.001 ? 5 : @case.timeout;
+            var subcase = Item.Results.First(i => i.Case == @case.Id);
+            var timeout = @case.Timeout < 0.001 ? 5 : @case.Timeout;
             var scalefactor = Context.Language.scale;
             var scalledTimeout = timeout * scalefactor;
+
+
+            if (Context.CourseProblem.Unittest)
+            {
+                var errorText = Context.TmpDir.ErrorFile(@case.Id).ReadAllText();
+                if(string.IsNullOrEmpty(errorText))
+                {
+                    if (result.Duration > scalledTimeout)
+                    {
+                        subcase.Status = ProcessStatus.AnswerCorrectTimeout.Value;
+                        subcase.Message = ProcessStatus.AnswerCorrectTimeout.Description;
+                        subcase.Messages = new string[] {
+                        $"Allowed time for {subcase.Case}: {scalledTimeout} sec (programming language scale factor: {scalefactor}×)",
+                        $"Actual solution walltime: {result.Duration} sec",
+                    };
+                    }
+                    else
+                    {
+                        subcase.Status = ProcessStatus.AnswerCorrect.Value;
+                        subcase.Message = ProcessStatus.AnswerCorrect.Description;
+                    }
+                }
+                else
+                {
+                    subcase.Status = ProcessStatus.AnswerWrong.Value;
+                    subcase.Message = ProcessStatus.AnswerWrong.Description;
+                    subcase.Messages = errorText.SplitLines();
+                }
+                return;
+            }
 
             var diffResult = _compareService.CompareFiles(Context, @case);
 

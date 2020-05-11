@@ -72,10 +72,9 @@ namespace CC.Net.Collections
         [BsonElement("solutions")]
         public List<CcDataSolution> Solutions { get; set; } = new List<CcDataSolution>();
 
-        [BsonIgnore]
-        public string ResultDir =>
+        public string ResultDir(string courseDir) => 
             Path.Combine(
-                CourseYear, "results", Resu, Problem,
+                courseDir, CourseYear, "results", Resu, Problem,
                 $"{Attempt:D2}-{ProcessStatus.Get(Result.Status).Letter}-{ProcessStatus.Get(Result.Status).Name}"
             );
 
