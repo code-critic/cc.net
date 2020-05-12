@@ -29,8 +29,14 @@ namespace CC.Net.Services
         {
             try
             {
+                // prepare local directory
                 PrepareLocalDir();
+
+                // copy everything to docker
                 CopyToDocker();
+
+                // copy out everything from assets to root
+                CopyInDocker("assets/*");
             }
             catch (Exception e)
             {
@@ -155,18 +161,30 @@ namespace CC.Net.Services
             ProcessUtils.Popen(cpCommand);
         }
 
+        public void CopyInDocker(string source, string dest="")
+        {
+            var cpCommand = $"cp {Context.DockerTmpWorkdir}/{source} {Context.DockerTmpWorkdir}/{dest}";
+            var shCommand = $@"bash -c ""{cpCommand}""";
+            var doCommand = $"docker exec --user root {ProcessService.ContainerName} {shCommand}";
+            ProcessUtils.Popen(doCommand);
+            // var cpCommand = $"docker cp \"{Context.TmpDir.Root}/{filename}\" \"{ProcessService.ContainerName}:{Context.DockerTmpWorkdir}/{filename}\"";
+        }
+
         public void PrepareLocalDir()
         {
+            // 1) delete tmp dir if exists
             if (Directory.Exists(Context.TmpDir.Root))
             {
                 Directory.Delete(Context.TmpDir.Root, true);
             }
 
+            // 2) create input, output, error but not the assets dirs
             Directory.CreateDirectory(Context.TmpDir.Root);
             Directory.CreateDirectory(Context.TmpDir.InputDir);
             Directory.CreateDirectory(Context.TmpDir.OutputDir);
             Directory.CreateDirectory(Context.TmpDir.ErrorDir);
 
+            // 3) copy all solution files to the tmp dir root
             foreach (var solution in Item.Solutions)
             {
                 File.WriteAllText(
@@ -175,7 +193,7 @@ namespace CC.Net.Services
                 );
             }
 
-            // copy inputs to tmp
+            // 4) copy all input files to tmpdir input dir
             foreach (var test in Context.CourseProblem.Tests)
             {
                 foreach (var subtest in test.Enumerate())
@@ -189,6 +207,13 @@ namespace CC.Net.Services
                         );
                     }
                 }
+            }
+
+            // 5) copy all assets to the tmpdir assets dir
+            //      note: we cannot create assets since copying requires dir to not exists
+            if (Directory.Exists(Context.ProblemDir.AssetsDir))
+            {
+                DirectoryUtils.Copy(Context.ProblemDir.AssetsDir, Context.TmpDir.AssetsDir);
             }
         }
     }

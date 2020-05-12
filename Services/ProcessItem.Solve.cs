@@ -81,6 +81,9 @@ namespace CC.Net.Services
                 };
             }
 
+            // copy test assets
+            CopyInDocker($"assets/{caseId}/*");
+            
             subcase.Status = ProcessStatus.Running.Value;
             var isUnitTest = Context.CourseProblem.Unittest;
             var filename = isUnitTest
@@ -105,8 +108,16 @@ namespace CC.Net.Services
             subcase.Returncode = result.ReturnCode;
             subcase.FullCommand = result.FullCommand;
             subcase.Command = result.Command;
+
             CopyOutputFromDocker(@case);
             CopyErrorFromDocker(@case);
+            CopyFromDocker(".report.json");
+
+            var reportJson = Context.TmpDir.RootFile(".report.json");
+            if(File.Exists(reportJson))
+            {
+                Console.WriteLine(reportJson.ReadAllText());
+            }
 
 
             if (result.isOk)

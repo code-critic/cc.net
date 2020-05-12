@@ -1,7 +1,7 @@
 import React from "react";
 
 import { ILanguage } from "../models/DataModel";
-import { Grid, Button, InputLabel, Select, MenuItem, FormControl, ButtonGroup, Dialog, DialogTitle, DialogContent, Tooltip } from '@material-ui/core';
+import { Grid, Button, InputLabel, Select, MenuItem, FormControl, ButtonGroup, Dialog, DialogTitle, DialogContent, Tooltip, IconButton } from '@material-ui/core';
 
 
 import HelpIcon from '@material-ui/icons/Help';
@@ -10,6 +10,8 @@ import LanguageExamples from '../utils/LanguageExamples';
 import { mapLanguage } from '../utils/LanguageMap';
 import { renderCode } from "../utils/renderers";
 import ReactAce from 'react-ace-editor';
+import FullscreenIcon from '@material-ui/icons/Fullscreen';
+import FullscreenExitIcon from '@material-ui/icons/FullscreenExit';
 
 
 const Adapt = ({ children, ...other }) => children(other);
@@ -28,8 +30,9 @@ interface SolutionSubmitFormProps {
 export const SolutionSubmitForm = (props: SolutionSubmitFormProps) => {
     const { languages, selectedLanguage, currentLanguage, prefferedCode, enabledLanguages } = props;
     const { onEditorRef, onEditorChange, onLanguageChange } = props;
-
+    
     const [exampleDialogOpen, setExampleDialogOpen] = React.useState(false);
+    const [isFullScreen, setFullScreen] = React.useState(false);
 
     return <>
         <Grid item xs={12}>
@@ -84,7 +87,12 @@ export const SolutionSubmitForm = (props: SolutionSubmitFormProps) => {
             </FormControl>
         </Grid>
         <Grid item xs={12}>
-            <FormControl variant="outlined" fullWidth>
+            <FormControl variant="outlined" fullWidth
+                className={`form-control-editor ${isFullScreen ? "fullscreen" : ""}`}>
+                <IconButton className="btn-fullscreen" onClick={() => setFullScreen(!isFullScreen)}>
+                    {isFullScreen && <FullscreenExitIcon />}
+                    {!isFullScreen && <FullscreenIcon />}
+                </IconButton>
                 <ReactAce
                     mode={mapLanguage(selectedLanguage)}
                     onChange={i => onEditorChange(i)}

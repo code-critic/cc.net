@@ -419,3 +419,55 @@ a.MuiButtonBase-root:hover {
 div.MuiMenu-paper {
   min-width: 250px;
 }
+
+.MuiButtonBase-root.btn-fullscreen,
+.btn-fullscreen {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 999;
+  opacity: 0.5;
+
+  &:hover {
+    opacity: 1;
+  }
+
+  &:focus {
+    outline: none;
+  }
+}
+
+.MuiFormControl-root.form-control-editor,
+.form-control-editor {
+  padding: 4px;
+  border: 1px solid rgba(0, 0, 0, 0.23);
+  border-radius: 4px;
+}
+
+.MuiFormControl-root {
+  &.fullscreen {
+    position: absolute;
+    top: 20px;
+    bottom: 20px;
+    left: 20px;
+    right: 20px;
+    width: calc(100% - 40px);
+
+    &::before {
+      content: " ";
+      background-color: rgba(0, 0, 0, 0.5);
+      display: block;
+      position: fixed;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      right: 0;
+  }
+
+    &>#ace-editor {
+      width: 100% !important;
+      height: 100% !important;
+      z-index: 998;
+    }
+  }
+}
