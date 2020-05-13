@@ -49,7 +49,7 @@ namespace CC.Net.Utils
         }
 
         public Language Language => LanguageService[Item.Language];
-        public string MainFileName => $"main.{Language.extension}";
+        public string MainFileName => $"main.{Language.Extension}";
         public static string CompilationFileName = "compilation.log";
 
         public Course Course => CourseService[Item.CourseName];

@@ -71,7 +71,7 @@ namespace CC.Net.Services
             }
 
             subcase.Status = ProcessStatus.Running.Value;
-            var baseCommand = $"{string.Join(" ", Context.Language.run)}".Replace("<filename>", Context.MainFileName);
+            var baseCommand = $"{string.Join(" ", Context.Language.Run)}".Replace("<filename>", Context.MainFileName);
             var fullCommand = $"{baseCommand} {@case.GetArguments()}";
             var result = RunPipeline(
                 fullCommand,

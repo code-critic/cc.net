@@ -79,7 +79,7 @@ namespace CC.Net.Hubs
                 CourseYear = courseYear,
                 Problem = problemId,
                 Action = action,
-                Language = language.id,
+                Language = language.Id,
                 Solutions = solutions,
                 Result = new CcDataResult
                 {
@@ -121,7 +121,7 @@ namespace CC.Net.Hubs
             }
             else
             {
-                solutions.Add(CcDataSolution.Single(solution, $"main.{language.extension}"));
+                solutions.Add(CcDataSolution.Single(solution, $"main.{language.Extension}"));
             }
 
             var attemptId = ObjectId.GenerateNewId();

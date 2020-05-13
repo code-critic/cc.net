@@ -67,8 +67,8 @@ namespace CC.Net.Services
             var caseId = @case.Id;
             var subcase = Item.Results.First(i => i.Case == caseId);
             var timeout = @case.Timeout < 0.001 ? 5 : @case.Timeout;
-            var scalefactor = Context.Language.scale;
-            var scalledTimeout = timeout * scalefactor;
+            var language = Context.Language;
+            var scalledTimeout = language.ScalledTimeout(timeout);
 
             // ran out of time
             if (TimeRemaining < 0)
@@ -90,9 +90,9 @@ namespace CC.Net.Services
                 ? Context.CourseProblem.Reference.Name
                 : Context.MainFileName;
             
-            var pipeline = isUnitTest && Context.Language.unittest.Any()
-                ? Context.Language.unittest
-                : Context.Language.run;
+            var pipeline = isUnitTest && language.Unittest.Any()
+                ? language.Unittest
+                : language.Run;
 
             var result = RunPipeline(
                 $"{string.Join(" ", pipeline)}".Replace("<filename>", filename),
@@ -157,8 +157,8 @@ namespace CC.Net.Services
 
             var subcase = Item.Results.First(i => i.Case == @case.Id);
             var timeout = @case.Timeout < 0.001 ? 5 : @case.Timeout;
-            var scalefactor = Context.Language.scale;
-            var scalledTimeout = timeout * scalefactor;
+            var language = Context.Language;
+            var scalledTimeout = language.ScalledTimeout(timeout);
 
 
             if (Context.CourseProblem.Unittest)
@@ -171,7 +171,7 @@ namespace CC.Net.Services
                         subcase.Status = ProcessStatus.AnswerCorrectTimeout.Value;
                         subcase.Message = ProcessStatus.AnswerCorrectTimeout.Description;
                         subcase.Messages = new string[] {
-                        $"Allowed time for {subcase.Case}: {scalledTimeout} sec (programming language scale factor: {scalefactor}×)",
+                        $"Allowed time for {subcase.Case}: {scalledTimeout} sec (scalling: {language.ScaleInfo})",
                         $"Actual solution walltime: {result.Duration} sec",
                     };
                     }
@@ -199,7 +199,7 @@ namespace CC.Net.Services
                     subcase.Status = ProcessStatus.AnswerCorrectTimeout.Value;
                     subcase.Message = ProcessStatus.AnswerCorrectTimeout.Description;
                     subcase.Messages = new string[] {
-                        $"Allowed time for {subcase.Case}: {scalledTimeout} sec (programming language scale factor: {scalefactor}×)",
+                        $"Allowed time for {subcase.Case}: {scalledTimeout} sec (scalling: {language.ScaleInfo})",
                         $"Actual solution walltime: {result.Duration} sec",
                     };
                 }

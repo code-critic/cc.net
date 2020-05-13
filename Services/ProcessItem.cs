@@ -56,7 +56,7 @@ namespace CC.Net.Services
             );
 
             var timeout = Context.CourseProblem.Timeout;
-            TimeRemaining = (timeout < 1 ? 30 : timeout) * Context.Language.scale;
+            TimeRemaining = (timeout < 1 ? 30 : timeout) * Context.Language.ScaleFactor;
             TimeAvailable = TimeRemaining;
         }
 

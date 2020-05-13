@@ -28,7 +28,7 @@ namespace CC.Net.Services.Languages
 
         public Language this[string key]
         {
-            get => Languages.First(i => i.id.ToLower() == key.ToLower());
+            get => Languages.First(i => i.Id.ToLower() == key.ToLower());
         }
     }
 }

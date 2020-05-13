@@ -121,7 +121,7 @@ namespace CC.Net.Services
             }
 
             return RunPipeline(
-                $"{string.Join(" ", Context.Language.compile)}".Replace("<filename>", Context.MainFileName),
+                $"{string.Join(" ", Context.Language.Compile)}".Replace("<filename>", Context.MainFileName),
                 Context.DockerTmpWorkdir,
                 30, // fixed compilation timeout
                 null,
