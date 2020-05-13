@@ -22,6 +22,7 @@ import { StudentResultItem } from "../components/StudentResults.Item";
 import { StudentResultsDialog } from "../components/StudentResultsDialog";
 import { SolutionSubmitForm } from "./SolutionSubmit.Form";
 import { NotificationManager } from 'react-notifications';
+import { mapLanguage } from '../utils/LanguageMap';
 
 
 
@@ -163,6 +164,10 @@ export class SolutionSubmit extends React.Component<SolutionSubmitProps, any, an
         return this.languages.data.find(i => i.id == this.selectedLanguage);
     }
 
+    public changeLanguage(language: string) {
+        this.selectedLanguage = language;
+    }
+
     public submitSolution() {
         const { activeCourse, activeProblem, ace, selectedLanguage, languages } = this;
         if (!activeCourse || !activeProblem) {
@@ -301,7 +306,7 @@ export class SolutionSubmit extends React.Component<SolutionSubmitProps, any, an
                                     selectedLanguage={selectedLanguage}
                                     currentLanguage={currentLanguage}
                                     prefferedCode={prefferedCode}
-                                    onLanguageChange={i => this.selectedLanguage = i}
+                                    onLanguageChange={i => this.changeLanguage(i)}
                                     onEditorChange={i => this.debounceChange(i)}
                                     onEditorRef={i => this.ace = i}
                                 />

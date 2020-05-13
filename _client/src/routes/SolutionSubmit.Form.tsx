@@ -78,9 +78,6 @@ export const SolutionSubmitForm = (props: SolutionSubmitFormProps) => {
                                 LanguageExamples.examples[currentLanguage.id],
                                 mapLanguage(currentLanguage.id)
                             )}
-                            <pre><code>
-                                {}
-                            </code></pre>
                         </DialogContent>
                     </Dialog>
                 }
@@ -96,7 +93,7 @@ export const SolutionSubmitForm = (props: SolutionSubmitFormProps) => {
                 <ReactAce
                     mode={mapLanguage(selectedLanguage)}
                     onChange={i => onEditorChange(i)}
-                    ref={i => onEditorRef(i)}
+                    ref={i => {onEditorRef(i); (window as any).acei = i}}
                     id="source-code"
                     theme="eclipse"
                     setReadOnly={false}
