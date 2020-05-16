@@ -20,6 +20,44 @@ namespace CC.Net.Controllers
             _dbService = dbService;
         }
 
+        [HttpGet("reviewrequest/{objectId}")]
+        public async Task<object> RequestCodeReview(string objectId)
+        {
+            var oid = new ObjectId(objectId);
+            var data = _dbService.Data
+                .Find(i => i.Id == oid)
+                .First();
+
+            data.ReviewRequest = System.DateTime.Now;
+            var result = await _dbService.Data.ReplaceOneAsync(i => i.Id == oid, data);
+            var updated = (int)result.ModifiedCount;
+
+            return new
+            {
+                status = "ok",
+                updated
+            };
+        }
+
+        [HttpDelete("reviewrequest/{objectId}")]
+        public async Task<object> CancelCodeReview(string objectId)
+        {
+            var oid = new ObjectId(objectId);
+            var data = _dbService.Data
+                .Find(i => i.Id == oid)
+                .First();
+
+            data.ReviewRequest = null;
+            var result = await _dbService.Data.ReplaceOneAsync(i => i.Id == oid, data);
+            var updated = (int)result.ModifiedCount;
+
+            return new
+            {
+                status = "ok",
+                updated
+            };
+        }
+
         [HttpPost("comments")]
         public async Task<object> PostComments(IEnumerable<CommentServiceItem> items)
         {

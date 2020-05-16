@@ -23,7 +23,7 @@ $diffs: (
   // unchanged: rgb(255, 255, 255),
     // deleted: rgb(255, 208, 208),
     // inserted: rgb(210, 255, 208),
-    // modified: rgb(255, 208, 253),,,,,,,,,,,,,,
+    // modified: rgb(255, 208, 253),,,,,,,,,,,,,,,,,,
 );
 
 @media (min-width: 1600px) {
@@ -410,7 +410,6 @@ $diffs: (
   }
 }
 
-
 a.MuiButtonBase-root:hover {
   color: inherit;
   text-decoration: none;
@@ -462,12 +461,65 @@ div.MuiMenu-paper {
       bottom: 0;
       left: 0;
       right: 0;
-  }
+    }
 
-    &>#ace-editor {
+    & > #ace-editor {
       width: 100% !important;
       height: 100% !important;
       z-index: 998;
     }
   }
+}
+
+.file-explorer.MuiTabs-root {
+  min-width: 200px;
+
+  &.dynamic-files {
+    min-height: 33px;
+    button.MuiButtonBase-root {
+      min-height: 33px;
+    }
+  }
+
+  button.MuiButtonBase-root {
+    min-height: 24px;
+    padding: 4px;
+    min-width: 130px;
+
+    &[aria-selected="true"] {
+      background-color: #e6e6e6;
+    }
+
+    &:focus {
+      outline: none;
+    }
+
+    .MuiTab-wrapper {
+      flex-direction: row;
+      align-items: center;
+      justify-content: flex-start;
+      font-size: 0.7rem;
+      text-transform: none;
+
+      .MuiSvgIcon-root {
+        margin: 0;
+      }
+      // font-family: SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace;
+    }
+  }
+}
+
+
+.grow {
+  flex-grow: 1;
+}
+
+.tiny {
+  font-size: 50%;
+}
+
+.MuiBox-root.dialog-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }

@@ -9,13 +9,14 @@ interface HttpClientConfig {
     headers: { [key: string]: string };
 }
 
+type methodType = "auto" | "get" | "post" | "delete" | "put" | "patch";
 class HttpClient {
 
     private cache: Map<string, any> = new Map();
     constructor(private config: HttpClientConfig) {
     }
 
-    public fetch(url: string, data: any = null, method: string = "auto"): Promise<object | any> {
+    public fetch(url: string, data: any = null, method: methodType = "auto"): Promise<object | any> {
         const headers = this.config.headers || {};
         const body = data === null ? null : JSON.stringify(data);
         method = method === "auto" ? (data === null ? "get" : "post") : method;
@@ -28,7 +29,7 @@ class HttpClient {
         });
     }
 
-    public fetchWithCache(url, ttl: number=5): Promise<any> {
+    public fetchWithCache(url, ttl: number = 5): Promise<any> {
         const item = this.cache.get(url);
         if (item != null) {
             if (item.validUntil.getTime() > new Date().getTime()) {
@@ -82,12 +83,12 @@ class CommentService {
         httpClient.fetch("comments", this.items, "post")
             .then(data => {
                 const { status, updated } = data;
-                if(status === "ok") {
+                if (status === "ok") {
                     NotificationManager.success(`Ok, Saved ${updated} comments`);
                 } else {
                     NotificationManager.error(`Failed to save ${recovery.length} comments`);
                 }
-                
+
             });
 
         this.items = [];

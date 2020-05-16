@@ -36,6 +36,7 @@ export const DynamicFolder = (props: { solution: ICcDataSolution }) => {
 
     return <div>
         <Tabs
+            className="file-explorer dynamic-files"
             value={value}
             onChange={handleChange}
             indicatorColor="primary"

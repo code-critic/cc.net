@@ -4,18 +4,20 @@ import { ICcData, ILanguage, ICcDataResult, ICcDataCaseResult } from "../models/
 import { observable } from "mobx";
 import { observer } from "mobx-react";
 import Moment from "react-moment";
-import { ListItem, ListItemText, ListItemIcon, Dialog, Chip, Tooltip, DialogContent, Button, DialogTitle, CircularProgress, Grid, Typography } from "@material-ui/core";
+import { ListItem, ListItemText, ListItemIcon, Dialog, Chip, Tooltip, DialogContent, Button, DialogTitle, CircularProgress, Grid, Typography, Box, ButtonGroup } from "@material-ui/core";
 
 import CheckIcon from '@material-ui/icons/CheckCircle';
 import CancelIcon from '@material-ui/icons/Cancel';
 import { DiffView } from "./DiffView";
-import { RenderSolution, renderCode } from "../utils/renderers";
+import { RenderSolution, renderCode, Grow, Tiny } from "../utils/renderers";
 import { isStatusOk, getStatus } from "../utils/StatusUtils";
 import { ProcessStatusCodes } from "../models/Enums";
 import CloseIcon from '@material-ui/icons/Close';
 
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import ExpandLessIcon from '@material-ui/icons/ExpandLess';
+import { NotificationManager } from 'react-notifications';
+import { httpClient } from "../init";
 
 
 
@@ -101,7 +103,7 @@ export class StudentResultItem extends React.Component<StudentResultItemProps, a
         return <>
             <Grid container direction="row" alignItems="center">
                 <ListItemIcon className="bigger">{this.getIcon(resultStatus.code, 36)}</ListItemIcon>
-                <ListItemText style={{maxWidth: 300}}
+                <ListItemText style={{ maxWidth: 300 }}
                     primary={<>
                         Attempt #{attempt}
                     </>}
@@ -141,6 +143,38 @@ export class StudentResultItem extends React.Component<StudentResultItemProps, a
         </>
     }
 
+    requestCodeReview() {
+        const { item } = this.props;
+        httpClient
+            .fetch(`reviewrequest/${item.objectId}`)
+            .then(data => {
+                const { status, updated } = data;
+                if (status === "ok") {
+                    NotificationManager.success(`Ok, Teacher(s) have been notified`);
+                    this.props.item.reviewRequest = new Date();
+                    this.setState({ reviewRequest: new Date() });
+                } else {
+                    NotificationManager.error(`Failed notify Teacher(s) comments`);
+                }
+            });
+    }
+
+    cancelCodeReview() {
+        const { item } = this.props;
+        httpClient
+            .fetch(`reviewrequest/${item.objectId}`, null, "delete")
+            .then(data => {
+                const { status, updated } = data;
+                if (status === "ok") {
+                    NotificationManager.success(`Ok, review request cancelled`);
+                    this.props.item.reviewRequest = null as any;
+                    this.setState({ reviewRequest: undefined});
+                } else {
+                    NotificationManager.error(`Could not cancel the operation`);
+                }
+            });
+    }
+
     render() {
         const { caseSubresult, sourceCode, resultStatus } = this;
         const { item, onClick } = this.props;
@@ -163,9 +197,27 @@ export class StudentResultItem extends React.Component<StudentResultItemProps, a
                 <Dialog open={sourceCode} fullWidth maxWidth="lg"
                     onClose={() => this.sourceCode = false}>
                     <DialogTitle className="text-right">
-                        <Button onClick={() => this.sourceCode = false}>
-                            <CloseIcon />
-                        </Button>
+                        <Box className="dialog-title">
+                            <div>
+                                <ButtonGroup variant="contained" color="primary">
+                                    <Button
+                                        disabled={!!item.reviewRequest}
+                                        onClick={() => this.requestCodeReview()}>
+                                        Request Code Review
+                                    </Button>
+                                {item.reviewRequest &&
+                                    <Button onClick={() => this.cancelCodeReview()}><CloseIcon /></Button>
+                                }
+                                </ButtonGroup>
+                                {item.reviewRequest &&
+                                    <Tiny>
+                                        Requested: <Moment locale="div" date={item.reviewRequest} calendar />
+                                    </Tiny>
+                                }
+                            </div>
+                            <Grow />
+                            <Button onClick={() => this.sourceCode = false}><CloseIcon /></Button>
+                        </Box>
                     </DialogTitle>
                     <DialogContent>
                         <RenderSolution result={item} />

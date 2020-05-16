@@ -9,8 +9,9 @@ import "react-mde/lib/styles/css/react-mde-all.css";
 import { ICcData, ILineComment, ICcDataSolution, ICommentServiceItem } from "../models/DataModel";
 import { ListItem, ListItemText, ListItemIcon, Tooltip, Button, Tabs, Tab } from "@material-ui/core";
 import Moment from "react-moment";
-import { commentService, currentUser, appDispatcher } from "../init";
+import { commentService, currentUser } from "../init";
 import { DynamicFolder } from "../components/DynamicFolder";
+import FolderIcon from '@material-ui/icons/Folder';
 
 
 const converter = new Showdown.Converter({
@@ -198,6 +199,7 @@ export class RenderSolution extends React.Component<RenderSolutionProps, any, an
 
         return <div style={{ flexGrow: 1, display: "flex", minHeight: 480 }}>
             <Tabs
+                className="file-explorer"
                 value={this.tabIndex}
                 onChange={(e, i) => this.tabIndex = i}
                 orientation="vertical"
@@ -208,6 +210,9 @@ export class RenderSolution extends React.Component<RenderSolutionProps, any, an
                     if (i.isSeparator) {
                         return <Tab title={i.filename} key={j} className="tab-separator"></Tab>
                     }
+                    if (i.isDynamic) {
+                        return <Tab key={j} icon={<FolderIcon />} label={i.filename}></Tab>
+                    }
                     return <Tab key={j} label={i.filename}></Tab>
                 })}
             </Tabs>
@@ -215,7 +220,7 @@ export class RenderSolution extends React.Component<RenderSolutionProps, any, an
             {solutions
                 .filter(i => !i.isSeparator)
                 .map((solution, j) => {
-                    if(solution.isDynamic) {
+                    if (solution.isDynamic) {
                         return solution.index == this.tabIndex &&
                             <DynamicFolder solution={solution} key={j} />
                     }
@@ -243,4 +248,12 @@ export class RenderSolution extends React.Component<RenderSolutionProps, any, an
                 })}
         </div>;
     }
+}
+
+export const Grow = (props:any) => {
+    return <span className="grow" {...props}>&nbsp;</span>
+}
+
+export const Tiny = (props:any) => {
+    return <div className="tiny" {...props} />
 }

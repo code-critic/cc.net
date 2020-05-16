@@ -131,7 +131,7 @@ export class StudentResultList extends React.Component<any, StudentResultListSta
 
         return <div>
             {detailResult && detailIsOpened &&
-                <Dialog open={detailIsOpened} fullWidth maxWidth="md" className={commentService.items.length > 0 ? "unsaved" : ""}
+                <Dialog open={detailIsOpened} fullWidth maxWidth="lg" className={commentService.items.length > 0 ? "unsaved" : ""}
                     onClose={() => this.detailIsOpened = !detailIsOpened}>
                     <DialogTitle>
                         <Box padding={2}>

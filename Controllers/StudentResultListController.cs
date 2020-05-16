@@ -33,6 +33,9 @@ namespace CC.Net.Controllers
         }
         private CcData ConvertToExtended(CcData item)
         {
+            item.Solutions = item.Solutions
+                .OrderByDescending(i => i.Index)
+                .ToList();
             item.Solutions.Insert(0, CcDataSolution.Seperator("Solution Files"));
             item.Solutions.Add(CcDataSolution.Seperator("Browser Directories"));
 
