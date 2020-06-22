@@ -32,6 +32,11 @@ namespace cc.net.Controllers
             _appOptions = appOptions;
         }
 
+        private string LoginUrl =>
+            string.IsNullOrEmpty(_appOptions.ReturnUrl)
+            ? $"{_appOptions.LoginUrl}"
+            : $"{_appOptions.LoginUrl}?returnurl={_appOptions.ReturnUrl}";
+
         [HttpGet("whoami")]
         [AllowAnonymous]
         public AppUser Whoami()
@@ -39,7 +44,8 @@ namespace cc.net.Controllers
             var user = _userService.CurrentUser;
             if(user == null)
             {
-                Response.Redirect("https://flowdb.nti.tul.cz/secure/");
+                Console.Error.WriteLine(LoginUrl);
+                Response.Redirect(LoginUrl);
                 throw new Exception("Not authorized");
             }
 
@@ -58,7 +64,7 @@ namespace cc.net.Controllers
         [Route("login")]
         public IActionResult Login()
         {
-            return Redirect(_appOptions.LoginUrl);
+            return Redirect(LoginUrl);
         }
         
         [Route("logout")]

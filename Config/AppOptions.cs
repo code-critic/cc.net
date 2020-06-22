@@ -14,6 +14,7 @@ namespace CC.Net.Config
 
         public string AESKey { get; set; }
         public string LoginUrl { get; set; }
+        public string ReturnUrl { get; set; } = null;
         public IList<string> Admins { get; set; } = new List<string>();
 
     }

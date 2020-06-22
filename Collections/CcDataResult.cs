@@ -1,11 +1,35 @@
+using System;
+using CC.Net.Services;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Bson.Serialization.Serializers;
 
 namespace CC.Net.Collections
 {
+
+    public class BsonStatusSerializer : SerializerBase<int>
+{
+    public override int Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
+    {
+        var type = context.Reader.GetCurrentBsonType();
+        if (type == BsonType.Int32)
+        {
+            return context.Reader.ReadInt32();
+        }
+        else if (type == BsonType.String)
+        {
+            return (int)context.Reader.ReadDouble();
+        } 
+        return (int) ProcessStatusCodes.ErrorWhileRunning;
+    }
+}
+
     [BsonIgnoreExtraElements]
     public class CcDataResult
     {
         [BsonElement("status")]
+        [BsonSerializer(typeof(BsonStatusSerializer))]
         public int Status { get; set; }
         [BsonElement("duration")]
         public double Duration { get; set; }
