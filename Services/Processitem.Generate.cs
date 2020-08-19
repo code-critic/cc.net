@@ -90,6 +90,7 @@ namespace CC.Net.Services
 
             CopyOutputFromDocker(@case);
             CopyErrorFromDocker(@case);
+            CopyToResultDir(Context.TmpDir.OutputDir, Context.ProblemDir.InputDir, false);
 
             var inputFile = Context.ProblemDir.InputFile(@case.Id);
 

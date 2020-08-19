@@ -51,24 +51,6 @@ namespace CC.Net.Services
             });
         }
 
-
-        private async Task<bool> SaveItem(DbService dbService, CcData item)
-        {
-
-            var saveResult = await dbService.Data.ReplaceOneAsync(i => i.Id == item.Id, item);
-
-            if (saveResult.ModifiedCount == 1)
-            {
-                _logger.LogInformation("Yep Saved: {Item}", item);
-                return true;
-            }
-            else
-            {
-                _logger.LogInformation("Not Saved: {Item}", item);
-                return false;
-            }
-        }
-
         private async Task DoWork()
         {
             _logger.LogInformation("checking db");
@@ -105,7 +87,7 @@ namespace CC.Net.Services
                         var itemResult = await processItem.Solve();
 
                         _logger.LogInformation("Item Done: {Item}", item);
-                        await SaveItem(dbService, item);
+                        await ResultsUtils.SaveItemAsync(dbService, item);
                     }
 
                     else if (item.Action == "input")
@@ -114,7 +96,7 @@ namespace CC.Net.Services
                         var itemResult = await processItem.GenerateInput();
 
                         _logger.LogInformation("Item Done: {Item}", item);
-                        await SaveItem(dbService, item);
+                        await ResultsUtils.SaveItemAsync(dbService, item);
                     }
                     else if (item.Action == "output")
                     {
@@ -122,7 +104,7 @@ namespace CC.Net.Services
                         var itemResult = await processItem.GenerateOutput();
 
                         _logger.LogInformation("Item Done: {Item}", item);
-                        await SaveItem(dbService, item);
+                        await ResultsUtils.SaveItemAsync(dbService, item);
                     }
                 }
             }

@@ -68,7 +68,8 @@ namespace CC.Net.Hubs
                 CcDataSolution.Single(
                     Path.Combine(problemDir, problem.Reference.Name).ReadAllText(),
                     problem.Reference.Name
-                )
+                ),
+                CcDataSolution.Single(string.Empty, $".debug", int.MaxValue, false)
             };
 
             var ccData = new CcData
@@ -118,10 +119,12 @@ namespace CC.Net.Hubs
                 var refCode = problem.ProblemDir().RootFile(problem.Reference.Name).ReadAllText();
                 solutions.Add(CcDataSolution.Single(refCode, problem.Reference.Name));
                 solutions.Add(CcDataSolution.Single(solution, problem.Libname, 1, false));
+                solutions.Add(CcDataSolution.Single(string.Empty, $".debug", int.MaxValue, false));
             }
             else
             {
                 solutions.Add(CcDataSolution.Single(solution, $"main.{language.Extension}"));
+                solutions.Add(CcDataSolution.Single(string.Empty, $".debug", int.MaxValue, false));
             }
 
             var attemptId = ObjectId.GenerateNewId();

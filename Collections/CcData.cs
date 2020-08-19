@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.Json.Serialization;
 using CC.Net.Services;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;

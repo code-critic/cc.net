@@ -84,13 +84,15 @@ namespace CC.Net.Services
         private async Task UpdateStatus()
         {
             var channel = _liveHub.Clients.Clients(_idService[Item.User]);
-
-            Item.Result.Scores = new int[]
+            
+            var scores = new int[]
             {
                 Item.Results.Count(i => i.Status == ProcessStatus.AnswerCorrect.Value),
                 Item.Results.Count(i => i.Status == ProcessStatus.AnswerCorrectTimeout.Value),
                 Item.Results.Count(i => i.Status != ProcessStatus.AnswerCorrect.Value && i.Status != ProcessStatus.AnswerCorrectTimeout.Value),
             };
+            Item.Result.Scores = scores;
+            Item.Result.Score =  ResultsUtils.ComputeScore(scores);
 
             await channel.ItemChanged(Item);
         }

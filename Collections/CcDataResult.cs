@@ -23,13 +23,18 @@ namespace CC.Net.Collections
         } 
         return (int) ProcessStatusCodes.ErrorWhileRunning;
     }
+
+    public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, int value)
+    {
+        base.Serialize(context, args, value);
+    }
 }
 
     [BsonIgnoreExtraElements]
     public class CcDataResult
     {
         [BsonElement("status")]
-        [BsonSerializer(typeof(BsonStatusSerializer))]
+        // [BsonSerializer(typeof(BsonStatusSerializer))]
         public int Status { get; set; }
         [BsonElement("duration")]
         public double Duration { get; set; }

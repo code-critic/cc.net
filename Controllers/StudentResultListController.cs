@@ -34,8 +34,10 @@ namespace CC.Net.Controllers
         private CcData ConvertToExtended(CcData item)
         {
             item.Solutions = item.Solutions
-                .OrderByDescending(i => i.Index)
+                .OrderBy(i => i.IsMain ? 0 : int.MaxValue)
+                    .ThenBy(i => i.Index)
                 .ToList();
+
             item.Solutions.Insert(0, CcDataSolution.Seperator("Solution Files"));
             item.Solutions.Add(CcDataSolution.Seperator("Browser Directories"));
 
@@ -102,7 +104,7 @@ namespace CC.Net.Controllers
                 filtered.ToArray(),
                 new ParseUtilType
                 {
-                    Id = nameof(CcData.Attempt),
+                    Id = nameof(CcData.Attempt).ToLower(),
                     Parser = f => null,
                 }
             );
@@ -123,11 +125,11 @@ namespace CC.Net.Controllers
 
             var pipeline = new List<BsonDocument>() { project, match };
 
-            var attempt = filtered.FirstOrDefault(i => i.id == nameof(CcData.Attempt) && i.value != "all");
+            var attempt = filtered.FirstOrDefault(i => i.id == nameof(CcData.Attempt).ToLower() && i.value != "all");
             if (attempt != null)
             {
                 pipeline.Add(new BsonDocument("$sort",
-                    BsonDocument.Parse(@" {""result.score"": -1,}"))
+                    BsonDocument.Parse(@"{""result.score"": -1}"))
                 );
                 pipeline.Add(new BsonDocument("$group",
                     BsonDocument.Parse(@"
@@ -161,6 +163,7 @@ namespace CC.Net.Controllers
 
             if (attempt != null)
             {
+                Console.WriteLine(pipeline.ToJson());
                 var data = _dbService.Data.Aggregate<CcData>(pipeline.ToArray()).ToEnumerable();
                 return new TableResponse
                 {

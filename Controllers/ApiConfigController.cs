@@ -158,7 +158,9 @@ namespace CC.Net.Controllers
                 return new FileDto[] { };
             }
 
-            var files = new DirectoryInfo(directory).GetFiles();
+            var files = new DirectoryInfo(directory)
+                .GetFiles()
+                .OrderBy(i => i.Name);
 
             return files.Select(i => new FileDto
             {
