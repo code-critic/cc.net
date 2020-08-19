@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using CC.Net.Collections;
+using CC.Net.Dto.UnitTest;
 using CC.Net.Extensions;
 using CC.Net.Hubs;
 using CC.Net.Services.Courses;
@@ -116,7 +117,18 @@ namespace CC.Net.Services
             var reportJson = Context.TmpDir.RootFile(".report.json");
             if(File.Exists(reportJson))
             {
-                Console.WriteLine(reportJson.ReadAllText());
+                var report = PythonReport.FromJson(reportJson.ReadAllText());
+                Item.Results.AddRange(
+                    report.Report.Tests.Select(i => new CcDataCaseResult()
+                    {
+                        Case = i.Name,
+                        Duration = i.Duration,
+                        Status = i.Outcome == "passed"
+                            ? (int) ProcessStatusCodes.AnswerCorrect
+                            : (int) ProcessStatusCodes.AnswerWrong
+                    })
+                );
+                Console.WriteLine(report);
             }
 
 
