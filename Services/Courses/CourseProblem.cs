@@ -34,6 +34,15 @@ namespace CC.Net.Services.Courses
         [YamlMember(Alias = "since")]
         public string Since { get; set; }
 
+
+        [YamlMember(Alias = "include")]
+        public List<string> Include { get; set; } = new List<string>();
+
+        [YamlMember(Alias = "export")]
+        public List<string> Export { get; set; } = new List<string>();
+
+
+
         [YamlMember(Alias = "reference")]
         public CourseReference Reference { get; set; }
 

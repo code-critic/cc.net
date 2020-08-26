@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 // For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -24,12 +25,14 @@ namespace cc.net.Controllers
         private CryptoService _cryptoService;
         private UserService _userService;
         private AppOptions _appOptions;
+        private readonly ILogger<HomeController> _logger;
 
-        public HomeController(CryptoService cryptoService, UserService userService, AppOptions appOptions)
+        public HomeController(CryptoService cryptoService, UserService userService, AppOptions appOptions, ILogger<HomeController> logger)
         {
             _cryptoService = cryptoService;
             _userService = userService;
             _appOptions = appOptions;
+            _logger = logger;
         }
 
         private string LoginUrl =>
@@ -64,6 +67,8 @@ namespace cc.net.Controllers
         [Route("login")]
         public IActionResult Login()
         {
+            _logger.LogError(LoginUrl);
+            _logger.LogError(_appOptions.ReturnUrl);
             return Redirect(LoginUrl);
         }
         

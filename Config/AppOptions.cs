@@ -12,6 +12,8 @@ namespace CC.Net.Config
         public string ConfigDir { get; set; }
         public string RootDir => new DirectoryInfo(CourseDir).Parent.ToString();
 
+        public DockerOptions DockerOptions { get; set; }
+
         public string AESKey { get; set; }
         public string LoginUrl { get; set; }
         public string ReturnUrl { get; set; } = null;

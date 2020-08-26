@@ -24,13 +24,14 @@ namespace CC.Net.Services
     {
         private ILogger<ProcessService> _logger;
         private readonly IServiceScopeFactory _serviceProvider;
-
+        private readonly AppOptions _appOptions;
         public static readonly string ContainerName = "automatestWorker";
 
-        public ProcessService(ILogger<ProcessService> logger, IServiceScopeFactory serviceProvider)
+        public ProcessService(ILogger<ProcessService> logger, IServiceScopeFactory serviceProvider, AppOptions appOptions)
         {
             _logger = logger;
             _serviceProvider = serviceProvider;
+            _appOptions = appOptions;
         }
 
         protected override Task ExecuteAsync(CancellationToken stoppingToken)
@@ -39,8 +40,11 @@ namespace CC.Net.Services
             {
                 _logger.LogInformation("ProcessService is starting.");
 
-                var dockerPurge = ProcessUtils.Popen($"docker rm -f {ContainerName}");
-                var dockerStart = ProcessUtils.Popen($"docker run -di --name {ContainerName} automatest/all");
+                var dockerPurge = ProcessUtils
+                    .Popen($"docker rm -f {ContainerName}");
+                    
+                var dockerStart = ProcessUtils
+                    .Popen($"docker run -di --name {ContainerName} {_appOptions.DockerOptions.Args} {_appOptions.DockerOptions.Image}");
 
                 // TODO: configurable period
                 while (stoppingToken.IsCancellationRequested == false)

@@ -117,8 +117,8 @@ namespace CC.Net.Hubs
             if (problem.Unittest)
             {
                 var refCode = problem.ProblemDir().RootFile(problem.Reference.Name).ReadAllText();
-                solutions.Add(CcDataSolution.Single(refCode, problem.Reference.Name));
-                solutions.Add(CcDataSolution.Single(solution, problem.Libname, 1, false));
+                solutions.Add(CcDataSolution.Single(solution, problem.Libname, 1, true));
+                solutions.Add(CcDataSolution.Single(refCode, problem.Reference.Name, 2, false));
                 solutions.Add(CcDataSolution.Single(string.Empty, $".debug", int.MaxValue, false));
             }
             else

@@ -224,6 +224,14 @@ export class RenderSolution extends React.Component<RenderSolutionProps, any, an
                         return solution.index == this.tabIndex &&
                             <DynamicFolder solution={solution} key={j} />
                     }
+
+                    if (solution.filename.toLowerCase().endsWith(".png"))
+                    {
+                        return solution.index == this.tabIndex &&
+                            <img src={`data:image/png;base64,${solution.content}`}
+                                 style={{maxWidth: "calc(100% - 200px)", height: "auto"}} />
+                    }
+
                     const html = window.PR.prettyPrintOne(solution.content.replace(/</g, "&lt;"), result.language, true);
                     const parsed = parse(html) as any;
                     let children = (parsed.props.children || []) as React.ElementType<HTMLDataListElement>[];

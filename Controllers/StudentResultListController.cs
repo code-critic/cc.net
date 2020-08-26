@@ -6,6 +6,8 @@ using System.Threading;
 using CC.Net.Collections;
 using CC.Net.Db;
 using CC.Net.Extensions;
+using CC.Net.Services.Courses;
+using CC.Net.Services.Languages;
 using CC.Net.Utils;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -25,20 +27,50 @@ namespace CC.Net.Controllers
 
         private readonly ILogger<StudentResultListController> _logger;
         private readonly DbService _dbService;
+        private readonly CourseService _courseService;
+        private readonly LanguageService _languageService;
 
-        public StudentResultListController(ILogger<StudentResultListController> logger, DbService dbService)
+        public StudentResultListController(ILogger<StudentResultListController> logger, 
+        DbService dbService, CourseService courseService, LanguageService languageService)
         {
             _logger = logger;
             _dbService = dbService;
+            _courseService = courseService;
+            _languageService = languageService;
         }
+
         private CcData ConvertToExtended(CcData item)
         {
+            var course = _courseService[item.CourseName];
+            var courseYearConfig = course[item.CourseYear];
+            var problem = courseYearConfig[item.Problem];
+
             item.Solutions = item.Solutions
                 .OrderBy(i => i.IsMain ? 0 : int.MaxValue)
                     .ThenBy(i => i.Index)
                 .ToList();
 
             item.Solutions.Insert(0, CcDataSolution.Seperator("Solution Files"));
+
+            
+            if (problem.Export.Any())
+            {
+                var context = new CourseContext(_courseService, _languageService, item);
+                item.Solutions.Add(CcDataSolution.Seperator("Result files"));
+                foreach(var f in problem.Export)
+                {
+                    var filepath = context.StudentDir.RootFile(f);
+                    if (System.IO.File.Exists(filepath))
+                    {
+                        item.Solutions.Add(new CcDataSolution{
+                            Filename = f,
+                            Content =  Convert.ToBase64String(System.IO.File.ReadAllBytes(filepath))
+                        });
+                    }
+                }
+            }
+            
+
             item.Solutions.Add(CcDataSolution.Seperator("Browser Directories"));
 
             item.Solutions.AddRange(

@@ -37,6 +37,9 @@ namespace CC.Net.Services
 
                 // copy out everything from assets to root
                 CopyInDocker("assets/*");
+
+                // set permissions
+                ProcessUtils.Popen($"docker exec --user root {ProcessService.ContainerName} chmod -R 777 {Context.DockerTmpWorkdir}");
             }
             catch (Exception e)
             {
@@ -121,7 +124,7 @@ namespace CC.Net.Services
             }
 
             return RunPipeline(
-                $"{string.Join(" ", Context.Language.Compile)}".Replace("<filename>", Context.MainFileName),
+                $"{string.Join(" ", Context.Language.Compile)}".ReplaceCommon(Context.MainFileName),
                 Context.DockerTmpWorkdir,
                 30, // fixed compilation timeout
                 null,

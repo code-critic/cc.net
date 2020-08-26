@@ -84,6 +84,9 @@ namespace CC.Net.Services
 
             // copy test assets
             CopyInDocker($"assets/{caseId}/*");
+
+            // set permissions
+            ProcessUtils.Popen($"docker exec --user root {ProcessService.ContainerName} chmod -R 777 {Context.DockerTmpWorkdir}");
             
             subcase.Status = ProcessStatus.Running.Value;
             var isUnitTest = Context.CourseProblem.Unittest;
@@ -96,7 +99,7 @@ namespace CC.Net.Services
                 : language.Run;
 
             var result = RunPipeline(
-                $"{string.Join(" ", pipeline)}".Replace("<filename>", filename),
+                $"{string.Join(" ", pipeline)}".ReplaceCommon(filename),
                 Context.DockerTmpWorkdir,
                 (int)Math.Ceiling(TimeRemaining),
                 isUnitTest ? null : $"input/{@case.Id}",
@@ -113,6 +116,10 @@ namespace CC.Net.Services
             CopyOutputFromDocker(@case);
             CopyErrorFromDocker(@case);
             CopyFromDocker(".report.json");
+            foreach (var f in Context.CourseProblem.Export)
+            {
+                CopyFromDocker(f);
+            }
 
             var reportJson = Context.TmpDir.RootFile(".report.json");
             if(File.Exists(reportJson))
@@ -199,6 +206,17 @@ namespace CC.Net.Services
                     subcase.Message = ProcessStatus.AnswerWrong.Description;
                     subcase.Messages = errorText.SplitLines();
                 }
+                return;
+            }
+
+            var referenceFile = Context.ProblemDir.OutputFile(@case.Id);
+            if (!File.Exists(referenceFile))
+            {
+                subcase.Status = ProcessStatus.Skipped.Value;
+                subcase.Message = "Reference file is missing";
+                subcase.Messages = new string[] {
+                    $"File {referenceFile} does not exists, contact the administrator or a teacher."
+                };
                 return;
             }
 
