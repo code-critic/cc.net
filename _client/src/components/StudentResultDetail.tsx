@@ -1,6 +1,9 @@
+import React from "react";
+import "../third_party/prettify.js";
+import "code-prettify/src/prettify.css";
+import "../styles/detail.css";
 import { action, observable } from "mobx";
 import { observer } from "mobx-react";
-import React from "react";
 import { ICcData } from "../models/DataModel";
 import { httpClient } from "../init";
 import { SimpleLoader } from "./SimpleLoader";

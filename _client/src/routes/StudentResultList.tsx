@@ -140,7 +140,8 @@ export class StudentResultList extends React.Component<any, StudentResultListSta
                                     {detailResult.user}
                                 </Grid>
                                 {commentService.items.length > 0 && <Grid item>
-                                    <Button variant="contained" color="secondary">
+                                    <Button onClick={() => commentService.postComments()}
+                                            variant="contained" color="secondary">
                                         Add {commentService.items.length} comment{commentService.items.length > 1 ? "s" : ""}
                                     </Button>
                                 </Grid>}

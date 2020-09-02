@@ -177,6 +177,9 @@ export function getColumns(model: StudentResultListModel, courses: ICourse[]) {
         },
         {
             Header: () => <i className="fa fa-clock-o" />,
+        },
+        {
+            Header: () => <i className="fa fa-clock-o" />,
             Cell: (cellInfo: CellInfo) => <span>{Number(cellInfo.value).toFixed(2)}</span>,
             accessor: nameof<ICcData>(i => i.result.duration),
             filterable: false,

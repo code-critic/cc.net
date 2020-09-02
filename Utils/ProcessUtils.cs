@@ -61,7 +61,7 @@ namespace CC.Net.Utils
     }
     public static class ProcessUtils
     {
-        public static ProcessResult Popen(string cmd, int timeoutInSec = 120)
+        public static ProcessResult Popen(string cmd, int timeoutInSec = 120, bool useShellExecute=false)
         {
             var args = cmd.Split(" ", 2);
             var binary = args.First();
@@ -78,7 +78,7 @@ namespace CC.Net.Utils
                 process.StartInfo = new ProcessStartInfo(binary, rest)
                 {
                     CreateNoWindow = true,
-                    UseShellExecute = false,
+                    UseShellExecute = useShellExecute,
                     RedirectStandardOutput = true,
                     RedirectStandardError = true
                 };

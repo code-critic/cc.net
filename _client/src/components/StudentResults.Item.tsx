@@ -92,6 +92,7 @@ export class StudentResultItem extends React.Component<StudentResultItemProps, a
             </Button>
         </Tooltip>
     }
+
     renderRow() {
         const { resultStatus, resultLanguage, showMessages } = this;
         const { item: { id, attempt, result, results } } = this.props;

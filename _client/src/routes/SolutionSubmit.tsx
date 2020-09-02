@@ -288,7 +288,7 @@ export class SolutionSubmit extends React.Component<SolutionSubmitProps, any, an
                         </Grid>
 
                         <Grid item xs={12} sm={12} lg={6}>
-                            {currentUser.role === "root" &&
+                            {currentUser.role === "root" && activeProblem.unittest === false &&
                                 <ButtonGroup size="large" fullWidth>
                                     <Button startIcon={<AddCircleOutlineOutlinedIcon />} onClick={() => this.generateInput()}>
                                         Generate Input
