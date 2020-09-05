@@ -21,9 +21,9 @@ $diffs: (
   1: #e6f1df,
   2: #ffd0d0,
   // unchanged: rgb(255, 255, 255),
-    // deleted: rgb(255, 208, 208),
-    // inserted: rgb(210, 255, 208),
-    // modified: rgb(255, 208, 253),,,,,,,,,,,,,,,,,,
+  // deleted: rgb(255, 208, 208),
+  // inserted: rgb(210, 255, 208),
+  // modified: rgb(255, 208, 253),,,,,,,,,,,,,,,,,,,,
 );
 
 @media (min-width: 1600px) {
@@ -451,6 +451,7 @@ div.MuiMenu-paper {
     left: 20px;
     right: 20px;
     width: calc(100% - 40px);
+    z-index: 9999;
 
     &::before {
       content: " ";
@@ -509,7 +510,6 @@ div.MuiMenu-paper {
   }
 }
 
-
 .grow {
   flex-grow: 1;
 }
@@ -522,4 +522,62 @@ div.MuiMenu-paper {
   display: flex;
   align-items: center;
   justify-content: space-between;
+}
+
+.dropzone {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px 20px;
+  border-width: 2px;
+  border-radius: 2px;
+  border-color: #eeeeee;
+  border-style: dashed;
+  background-color: #fafafa;
+  color: #bdbdbd;
+  outline: none;
+  transition: border 0.24s ease-in-out, padding 0.24s ease-in-out;
+
+  p {
+    padding: 0;
+    margin: 0;
+  }
+
+  &.dropzone-active {
+    padding: 30px 20px;
+    border-color: #28601f;
+  }
+}
+
+.CodeMirror {
+  font-size: 12px;
+}
+
+.fullscreen .react-codemirror2,
+.fullscreen .CodeMirror  {
+  height: calc(100% - 0px);
+}
+
+.tab-file-editor.MuiAppBar-root {
+  background-color: #91b53f;
+  color: black;
+  // position: relative;
+  z-index: 0;
+
+  .MuiTabs-root {
+    min-height: 26px;
+
+    .MuiButtonBase-root {
+      line-height: 26px;
+      min-height:  26px;
+      font-size: 0.8em;
+      text-transform: none;
+      min-width: 80px;
+    }
+  }
+  .PrivateTabIndicator-root-1 {
+    background-color: #28601f;
+    height: 3px;
+  }
 }

@@ -9,3 +9,32 @@ export const mapLanguage = (id: string) => {
         "PY-367": "python",
     }[id] || "java";
 }
+
+export const mapByExtension = (extension: string) => {
+    const ext = extension || "";
+
+    switch(ext.toLowerCase()) {
+        case "c":
+        case "cc":
+        case "cpp":
+        case "h":
+        case "hh":
+        case "hpp":
+            return "clike";
+
+        case "py":
+            return "python";
+
+        case "m":
+            return "octave";
+
+        case "json":
+            return "javascript";
+
+        case "java":
+            return "clike";
+
+        default:
+            return "text";
+    }
+}

@@ -7,7 +7,7 @@ import { debounce } from 'throttle-debounce';
 import { CourseProblemSelect, ICourseYearProblem, RouteComponentProps } from "../components/CourseProblemSelect";
 import { CourseProblemSelectModel } from "../components/CourseProblemSelect.Model";
 import { SimpleLoader } from "../components/SimpleLoader";
-import { ILanguage, ICcData } from "../models/DataModel";
+import { ILanguage, ICcData, ICourse, ICourseProblem } from "../models/DataModel";
 import { ApiResource } from "../utils/ApiResource";
 import { Grid, Button, ButtonGroup, Container } from '@material-ui/core';
 
@@ -23,6 +23,7 @@ import { StudentResultsDialog } from "../components/StudentResultsDialog";
 import { SolutionSubmitForm } from "./SolutionSubmit.Form";
 import { NotificationManager } from 'react-notifications';
 import { mapLanguage } from '../utils/LanguageMap';
+import { IFile } from "../components/FileChooser";
 
 
 
@@ -38,9 +39,154 @@ interface LocalStorateCodeSnippet {
     language: string;
 }
 
+export const SolutionSubmit = (props) => {
+
+    const { history, match } = props;
+    const [courses, setCourses] = React.useState<ICourse[]>([]);
+    const [languages, setLanguages] = React.useState<ILanguage[]>([]);
+
+    const [liveResult, setLiveResult] = React.useState<ICcData>();
+    const [, setActiveProblem] = React.useState<ICourseProblem>();
+    const [model, setModel] = React.useState(new CourseProblemSelectModel());
+
+    const getActiveProblem = () => {
+        const { problem } = match.params;
+        return model.problem(problem);
+    }
+
+    model.onProblemChanged = () => {
+        setActiveProblem(getActiveProblem());
+    }
+
+    if (courses.length == 0) {
+        model.courses.load()
+            .then(data => setCourses(data));
+    }
+
+    if (languages.length == 0) {
+        model.languages.load()
+            .then(data => setLanguages(data));
+    }
+
+    if (courses.length === 0 || languages.length === 0) {
+        return <SimpleLoader />
+    }
+
+    if (!getActiveProblem()) {
+        return <Container>
+            <CourseProblemSelect prefix="courses" model={model} history={history} {...match.params} />
+        </Container>
+    }
+
+    const problem = getActiveProblem() as ICourseProblem;
+    return (<>
+        <Container>
+            <CourseProblemSelect prefix="courses" model={model} history={history} {...match.params} />
+
+            <Grid container spacing={2}>
+                {liveResult && <Grid item xs={12} sm={12} lg={12}>
+                    <StudentResultItem
+                        item={liveResult}
+                        languages={languages}
+                        onClick={() => {
+                            // this.forcedResultId = liveResult.objectId
+                            // this.openResultDialog()
+                        }}
+                    />
+                </Grid>}
+
+
+                <Grid item xs={12} sm={12} lg={6}>
+                    <div className="description" dangerouslySetInnerHTML={{ __html: problem.description }}>
+                    </div>
+                </Grid>
+
+                <Grid item xs={12} sm={12} lg={6}>
+                    {currentUser.role === "root" && problem.unittest === false &&
+                        <ButtonGroup size="large" fullWidth>
+                            <Button startIcon={<AddCircleOutlineOutlinedIcon />} onClick={() => {
+                                // this.generateInput()
+                            }}>
+                                Generate Input
+                                    </Button>
+                            <Button endIcon={<CheckCircleOutlinedIcon />} onClick={() => {
+                                // this.generateOutput()
+                            }}>
+                                Generate Output
+                                    </Button>
+                        </ButtonGroup>
+                    }
+
+                    <Grid container spacing={3}>
+                        <SolutionSubmitForm
+                            onLanguageChange={language => {
+                                // 
+                            }}
+                            languages={languages}
+                            onFileChange={files => {
+                                // this.handleNewFiles(files)
+                            }}
+                            activeProblem={problem}
+                        />
+
+                        <Grid item xs={12} container className="button bar" justify="space-between">
+                            <Button onClick={() => {
+                                // this.openResultDialog()
+                            }}
+                                size="large" variant="outlined" color="secondary" endIcon={<BubbleChartIcon />}>
+                                View Results
+                                    </Button>
+                            {/* {(resultsDialogOpen && activeCourse && activeProblem) &&
+                                <StudentResultsDialog
+                                    onClose={() => {
+                                        // this.resultsDialogOpen = false;
+                                        // this.forcedResultId = "";
+                                    }}
+                                    languages={languages}
+                                    activeCourse={activeCourse}
+                                    activeProblem={activeProblem}
+                                    forcedResultId={forcedResultId}
+                                />
+                            } */}
+                            <Button size="large" variant="contained" color="primary" endIcon={<SendIcon />}
+                                onClick={() => {
+                                    // this.submitSolution()
+                                }}>
+                                Submit Solution
+                                    </Button>
+                        </Grid>
+
+                    </Grid>
+                </Grid>
+            </Grid>
+        </Container>
+    </>);
+}
+
+// if (languages.isLoading) {
+//     return <Container>
+//         <CourseProblemSelect prefix="courses" model={model} history={history} {...this.props.match.params} />
+//         <SimpleLoader></SimpleLoader>
+//     </Container>
+// }
+
+// return (<>
+//     <SolutionSubmitForm
+//         enabledLanguages={enabledLanguages}
+//         languages={languages.data}
+//         selectedLanguage={selectedLanguage}
+//         currentLanguage={currentLanguage}
+//         prefferedCode={prefferedCode}
+//         onLanguageChange={i => this.changeLanguage(i)}
+//         onEditorChange={i => this.debounceChange(i)}
+//         onEditorRef={i => this.ace = i}
+//         onFileChange={files => this.handleNewFiles(files)}
+//         activeProblem={activeProblem}
+//     />
+// </>);
 
 @observer
-export class SolutionSubmit extends React.Component<SolutionSubmitProps, any, any> {
+export class SolutionSubmit2 extends React.Component<SolutionSubmitProps, any, any> {
 
     @observable
     public model: CourseProblemSelectModel = new CourseProblemSelectModel();
@@ -122,6 +268,7 @@ export class SolutionSubmit extends React.Component<SolutionSubmitProps, any, an
         }
         return `${course}/${year}/${problem}`;
     }
+
     public get problemLanguagePath() {
         const { course, year, problem } = this.props.match.params;
         if (!course || !year || !problem || !this.selectedLanguage) {
@@ -149,6 +296,10 @@ export class SolutionSubmit extends React.Component<SolutionSubmitProps, any, an
         reactLocalStorage.setObject(problemLanguagePath, codeSnippet);
         reactLocalStorage.setObject(problemPath, problemInfo);
     })
+
+    public handleNewFiles(files: IFile[]) {
+
+    }
 
     public get activeCourse() {
         const { course, year } = this.props.match.params;
@@ -262,7 +413,7 @@ export class SolutionSubmit extends React.Component<SolutionSubmitProps, any, an
         const enabledLanguages = activeProblem.unittest
             ? languages.data.filter(i => i.id == activeProblem.reference.lang)
             : languages.data;
-        
+
         return <>
             <Suspense fallback={<div>Loading...</div>}>
                 <Container>
@@ -309,6 +460,8 @@ export class SolutionSubmit extends React.Component<SolutionSubmitProps, any, an
                                     onLanguageChange={i => this.changeLanguage(i)}
                                     onEditorChange={i => this.debounceChange(i)}
                                     onEditorRef={i => this.ace = i}
+                                    onFileChange={files => this.handleNewFiles(files)}
+                                    activeProblem={activeProblem}
                                 />
 
                                 <Grid item xs={12} container className="button bar" justify="space-between">

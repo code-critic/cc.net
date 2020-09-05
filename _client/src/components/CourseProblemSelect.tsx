@@ -131,7 +131,7 @@ export class CourseProblemSelect extends React.Component<CourseProblemSelectProp
                 {CardSelect(
                     model.problems.data,
                     i => `/${prefix}/${course}/${year}/${i.id}`,
-                    i => null,
+                    i => model.onProblemChanged(),
                     i => `${i.name}`,
                     i => i.id,
                     i => {
@@ -146,6 +146,8 @@ export class CourseProblemSelect extends React.Component<CourseProblemSelectProp
                     }
                 )}
             </>
+        } else {
+            model.onProblemChanged();
         }
 
         return <>

@@ -1,14 +1,18 @@
 import React from "react";
 import { ApiResource } from "../utils/ApiResource";
-import { ICourse, ICourseProblem, ISingleCourse } from "../models/DataModel";
+import { ICourse, ICourseProblem, ISingleCourse, ILanguage } from "../models/DataModel";
 import { flattenCourse } from "../utils/DataUtils";
 import { observable, computed } from "mobx";
 
 export class CourseProblemSelectModel {
 
-    courses: ApiResource<ICourse> = new ApiResource<ICourse>("courses");
+    courses: ApiResource<ICourse> = new ApiResource<ICourse>("courses", false);
+
+    languages: ApiResource<ILanguage> = new ApiResource<ILanguage>("languages", false);
 
     problems: ApiResource<ICourseProblem> = new ApiResource<ICourseProblem>("---", false);
+
+    public onProblemChanged = () => console.log(1)
 
     public get singleCourses(): ISingleCourse[] {
         return this.courses ? this.courses.data.flatMap(flattenCourse) : [];

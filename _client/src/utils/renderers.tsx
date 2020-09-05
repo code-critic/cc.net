@@ -74,6 +74,7 @@ export class CodeLine extends React.Component<CodeLineProps, any, any> {
         this.editorOpen = false;
 
     }
+
     render() {
         const { lineNo, liElement, result, filename } = this.props;
         const { editorOpen, selectedTab, editorValue, extraComments } = this;
@@ -225,7 +226,7 @@ export class RenderSolution extends React.Component<RenderSolutionProps, any, an
                             <DynamicFolder solution={solution} key={j} />
                     }
 
-                    if (solution.filename.toLowerCase().endsWith(".png"))
+                    if (solution.filename?.toLowerCase().endsWith(".png"))
                     {
                         return solution.index == this.tabIndex &&
                             <img src={`data:image/png;base64,${solution.content}`}

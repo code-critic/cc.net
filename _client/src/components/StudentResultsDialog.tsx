@@ -42,7 +42,7 @@ export const StudentResultsDialog = (props: StudentResultsDialogProps) => {
                 <Grid container justify="space-between">
                     <Grid item>
                         {currentUser.username} ({currentUser.id})
-                                                    </Grid>
+                    </Grid>
                     <Grid item>
                         {items.length > 0 &&
                             <ButtonGroup variant="contained" color="primary">
