@@ -7,12 +7,13 @@ import ReactMde from "react-mde";
 import * as Showdown from "showdown";
 import "react-mde/lib/styles/css/react-mde-all.css";
 import { ICcData, ILineComment, ICcDataSolution, ICommentServiceItem } from "../models/DataModel";
-import { ListItem, ListItemText, ListItemIcon, Tooltip, Button, Tabs, Tab } from "@material-ui/core";
+import { ListItem, ListItemText, ListItemIcon, Button, Tabs, Tab } from "@material-ui/core";
 import Moment from "react-moment";
 import { commentService, getUser } from "../init";
 import { DynamicFolder } from "../components/DynamicFolder";
 import FolderIcon from '@material-ui/icons/Folder';
-
+import VisibilityIcon from '@material-ui/icons/Visibility';
+import Tooltip from '@material-ui/core/Tooltip';
 
 const converter = new Showdown.Converter({
     tables: true,
@@ -38,6 +39,7 @@ interface CodeLineProps {
     liElement: React.ElementType<HTMLDataListElement>;
     filename: string;
     result: ICcData;
+    hidden: boolean;
 }
 
 @observer
@@ -76,7 +78,7 @@ export class CodeLine extends React.Component<CodeLineProps, any, any> {
     }
 
     render() {
-        const { lineNo, liElement, result, filename } = this.props;
+        const { lineNo, liElement, result, filename, hidden } = this.props;
         const { editorOpen, selectedTab, editorValue, extraComments } = this;
         const allComments = [...extraComments, ...(result.comments || [])];
 
@@ -147,7 +149,6 @@ export class CodeLine extends React.Component<CodeLineProps, any, any> {
 }
 
 export const renderCode = (code: string, language: string = "none") => {
-    debugger;
     if (language === "none") {
         const children = code.trimEnd().split("\n");
 
@@ -189,6 +190,20 @@ interface RenderSolutionProps {
     result: ICcData;
 }
 
+const InvisibleIcon = (hidden: boolean) => {
+    if (hidden) {
+        return <>
+            <Tooltip title="Only visible to teachers">
+                <>
+                    <VisibilityIcon fontSize="small" color="secondary" className="tiny-icon" />
+                    <span>&nbsp;</span>
+                </>
+            </Tooltip>
+        </>
+    }
+    return <></>;
+}
+
 @observer
 export class RenderSolution extends React.Component<RenderSolutionProps, any, any> {
 
@@ -197,7 +212,9 @@ export class RenderSolution extends React.Component<RenderSolutionProps, any, an
 
     render() {
         const { result } = this.props;
-        const solutions: ICcDataSolution[] = result.solutions;
+        const user = getUser();
+        const solutions: ICcDataSolution[] = result.solutions
+            .filter(i => !i.hidden || user?.role === "root");
 
         return <div style={{ flexGrow: 1, display: "flex", minHeight: 480 }}>
             <Tabs
@@ -215,7 +232,7 @@ export class RenderSolution extends React.Component<RenderSolutionProps, any, an
                     if (i.isDynamic) {
                         return <Tab key={j} icon={<FolderIcon />} label={i.filename}></Tab>
                     }
-                    return <Tab key={j} label={i.filename}></Tab>
+                    return <Tab key={j} icon={InvisibleIcon(i.hidden)} label={i.filename}></Tab>
                 })}
             </Tabs>
 
@@ -227,11 +244,10 @@ export class RenderSolution extends React.Component<RenderSolutionProps, any, an
                             <DynamicFolder solution={solution} key={j} />
                     }
 
-                    if (solution.filename?.toLowerCase().endsWith(".png"))
-                    {
+                    if (solution.filename?.toLowerCase().endsWith(".png")) {
                         return solution.index == this.tabIndex &&
                             <img src={`data:image/png;base64,${solution.content}`}
-                                 style={{maxWidth: "calc(100% - 200px)", height: "auto"}} />
+                                style={{ maxWidth: "calc(100% - 200px)", height: "auto" }} />
                     }
 
                     const html = window.PR.prettyPrintOne(solution.content.replace(/</g, "&lt;"), result.language, true);
@@ -247,6 +263,7 @@ export class RenderSolution extends React.Component<RenderSolutionProps, any, an
                             <tbody>
                                 {children.map((liElement, lineNo) =>
                                     <CodeLine
+                                        hidden={solution.hidden}
                                         filename={solution.filename}
                                         key={lineNo}
                                         lineNo={lineNo + 1}
@@ -260,10 +277,10 @@ export class RenderSolution extends React.Component<RenderSolutionProps, any, an
     }
 }
 
-export const Grow = (props:any) => {
+export const Grow = (props: any) => {
     return <span className="grow" {...props}>&nbsp;</span>
 }
 
-export const Tiny = (props:any) => {
+export const Tiny = (props: any) => {
     return <div className="tiny" {...props} />
 }

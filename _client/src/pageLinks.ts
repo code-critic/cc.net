@@ -19,7 +19,7 @@ export const pageLinks: IPageLink<any>[] = [
         to: "/",
         path: "/",
         exact: true,
-        component: Home,
+        component: SolutionSubmit,
         rootOnly: false,
     },
     // {

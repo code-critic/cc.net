@@ -9,7 +9,7 @@ import { CourseProblemSelectModel } from "../components/CourseProblemSelect.Mode
 import { SimpleLoader } from "../components/SimpleLoader";
 import { ILanguage, ICcData, ICourse, ICourseProblem, ISingleCourse, IAppUser } from "../models/DataModel";
 import { ApiResource } from "../utils/ApiResource";
-import { Grid, Button, ButtonGroup, Container } from '@material-ui/core';
+import { Grid, Button, ButtonGroup, Container, Breadcrumbs } from '@material-ui/core';
 
 
 import SendIcon from '@material-ui/icons/Send';
@@ -27,6 +27,9 @@ import { IFile } from "../components/FileChooser";
 import { CourseProblemSelector } from "../components/CourseProblemSelector";
 import { flattenCourse } from "../utils/DataUtils";
 import { openCloseState } from "../utils/StateUtils";
+import { Link as RouterLink } from "react-router-dom";
+import Link from "@material-ui/core/Link";
+import NavigateNextIcon from '@material-ui/icons/NavigateNext';
 
 
 
@@ -72,6 +75,7 @@ export const SolutionSubmit = (props) => {
     const [languages, setLanguages] = React.useState<ILanguage[]>([]);
 
     const [liveResult, setLiveResult] = React.useState<ICcData>();
+    const [forcedResultId, setForcedResultId] = React.useState("");
     const [problem, setProblem] = React.useState<ICourseProblem>();
     const [user, setUser] = React.useState(getUser());
     const [files, setFiles] = React.useState<IFile[]>([]);
@@ -81,6 +85,12 @@ export const SolutionSubmit = (props) => {
     const [apiLanguages, setApiLanguages] = React.useState(new ApiResource<ILanguage>("languages", false));
     const [resultsDialog, setResultsDialog] = React.useState(false);
     const [openResults, closeResults] = openCloseState(setResultsDialog);
+
+    
+    const { course: urlCourse, year: urlYear, problem: urlProblem } = match.params;
+    const activeProblem = problem;
+    const coursesFlatten = courses.flatMap(flattenCourse);
+    const activeCourse = coursesFlatten.find(i => i.course == urlCourse && i.year == urlYear) as ISingleCourse;
 
     apiCourses.loadState(setCourses);
     apiLanguages.loadState(setLanguages);
@@ -97,29 +107,54 @@ export const SolutionSubmit = (props) => {
         return <SimpleLoader />
     });
 
+    
+    liveConnection.on("OnProcessStart", (item: ICcData) => {
+        setLiveResult(item);
+    });
+
     if (!user.role || !apiCourses.isLoaded || !apiLanguages.isLoaded) {
         return <SimpleLoader />
     }
 
-    if (!problem) {
-        return <CourseProblemSelector match={match}
-            courses={courses} languages={languages}
-            onProblemChange={(p) => setProblem(p)}
-        />
+    if (!problem || !activeProblem) {
+        return <Container>
+            <Breadcrumbs aria-label="breadcrumb" separator={<NavigateNextIcon fontSize="small" />} className="breadcrumb">
+                <Link to={`/`} component={RouterLink}>courses</Link>
+                {activeCourse && <Link to={`/courses/`} component={RouterLink}>{activeCourse.course}-{activeCourse.year}</Link>}
+                {activeProblem && <Link to={`/courses/${activeCourse.course}/${activeCourse.year}`} component={RouterLink}>{activeProblem.name}</Link>}
+            </Breadcrumbs>
+
+            <CourseProblemSelector match={match}
+                courses={courses} languages={languages}
+                onProblemChange={(p) => setProblem(p)}
+            />
+        </Container>
     }
 
-    const { course: urlCourse, year: urlYear, problem: urlProblem } = match.params;
-    const activeProblem = problem;
-    const coursesFlatten = courses.flatMap(flattenCourse);
-    const activeCourse = coursesFlatten.find(i => i.course == urlCourse && i.year == urlYear) as ISingleCourse;
     const defaultLanguage = activeProblem.unittest
         ? languages.find(i => i.id === activeProblem.reference.lang)
         : languages[0];
 
-    
-
     return <Container>
+        <Breadcrumbs aria-label="breadcrumb" separator={<NavigateNextIcon fontSize="small" />} className="breadcrumb">
+            <Link to={`/`} component={RouterLink}>courses</Link>
+            <Link to={`/courses/`} component={RouterLink}>{activeCourse.course}-{activeCourse.year}</Link>
+            <Link to={`/courses/${activeCourse.course}/${activeCourse.year}`} component={RouterLink}>{activeProblem.name}</Link>
+        </Breadcrumbs>
+
         <Grid container spacing={2}>
+            {/* live result */}
+            {liveResult && <Grid item xs={12} sm={12} lg={12}>
+                <StudentResultItem
+                    item={liveResult}
+                    languages={languages}
+                    onClick={() => {
+                        setForcedResultId(liveResult.objectId);
+                        openResults();
+                    }}
+                />
+            </Grid>}
+
             {/* col 1 */}
             <Grid item xs={12} sm={12} lg={6}>
                 {/* description */}
@@ -129,6 +164,7 @@ export const SolutionSubmit = (props) => {
 
             {/* col 2 */}
             <Grid item xs={12} sm={12} lg={6}>
+
                 {/* generate i/o */}
                 {user.role === "root" && problem.unittest === false &&
                     <ButtonGroup size="large" fullWidth>
@@ -168,7 +204,7 @@ export const SolutionSubmit = (props) => {
                 languages={languages}
                 activeProblem={activeProblem}
                 activeCourse={activeCourse}
-                forcedResultId=""
+                forcedResultId={forcedResultId}
             />
         }
     </Container>

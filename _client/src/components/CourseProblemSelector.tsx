@@ -1,13 +1,16 @@
 import React from "react";
 import { ICourseProblem, ICourse, ILanguage, ISingleCourse } from "../models/DataModel";
 import Button from "@material-ui/core/Button";
-import { Link as RouterLink } from "react-router-dom";
 import { flattenCourse } from "../utils/DataUtils";
 import Grid from "@material-ui/core/Grid";
 import Card from "@material-ui/core/Card";
 import Typography from "@material-ui/core/Typography";
 import { ApiResource } from "../utils/ApiResource";
 import { SimpleLoader } from "./SimpleLoader";
+import Breadcrumbs from "@material-ui/core/Breadcrumbs";
+import { Link as RouterLink } from "react-router-dom";
+import Link from "@material-ui/core/Link";
+import NavigateNextIcon from '@material-ui/icons/NavigateNext';
 
 interface CourseProblemSelectorProps {
     courses: ICourse[];
@@ -44,7 +47,7 @@ export const CourseProblemSelector = (props: CourseProblemSelectorProps) => {
             setCourse(courseHint);
         }
     } else {
-        if(!courseHint) {
+        if (!courseHint) {
             setCourse(undefined);
             // setFullProblem(undefined);
             setProblem(undefined);
@@ -81,7 +84,7 @@ export const CourseProblemSelector = (props: CourseProblemSelectorProps) => {
 
     const problemHint = course.problems.find(i => i.id == urlProblem);
 
-    if(!problem) {
+    if (!problem) {
         if (problemHint) {
             setProblem(problemHint);
         }
@@ -115,7 +118,7 @@ export const CourseProblemSelector = (props: CourseProblemSelectorProps) => {
             .then(data => {
                 setProblems(data);
             });
-            return <SimpleLoader />
+        return <SimpleLoader />
     }
 
     if (problems && !fullProblem) {
@@ -131,7 +134,7 @@ export const CourseProblemSelector = (props: CourseProblemSelectorProps) => {
             setFullProblem(undefined);
         }
     }
-    
+
 
     return <SimpleLoader />
 }

@@ -117,7 +117,7 @@ namespace CC.Net.Hubs
             if (problem.Unittest)
             {
                 var refCode = problem.ProblemDir().RootFile(problem.Reference.Name).ReadAllText();
-                solutions.Add(CcDataSolution.Single(refCode, problem.Reference.Name, 2, false, problem.));
+                solutions.Add(CcDataSolution.Single(refCode, problem.Reference.Name, 2, false, problem.Reference.Hidden));
                 solutions.AddRange(files.Select(i => CcDataSolution.Single(i.Content, i.Path)));
             }
             else
@@ -126,7 +126,33 @@ namespace CC.Net.Hubs
                 solutions.AddRange(files.Select(i => CcDataSolution.Single(i.Content, i.Path)));
             }
 
-            return;
+            var attemptId = ObjectId.GenerateNewId();
+            var ccData = new CcData
+            {
+                Id = attemptId,
+                User = userId,
+                CourseName = courseName,
+                CourseYear = courseYear,
+                Action = "solve",
+                Docker = true,
+                Problem = problemId,
+                Language = langId,
+                Solutions = solutions,
+                Attempt = (int)attemptNo,
+
+                Result = new CcDataResult
+                {
+                    Status = ProcessStatus.InQueue.Value,
+                    Duration = 0,
+                    Message = null,
+                    Score = 0,
+                    Scores = new[] { 0, 0, 0 },
+                }
+            };
+
+            _idService.RemeberClient(Clients.Caller, attemptId);
+            await Clients.Clients(_idService[ccData.User]).NotifyClient($"Attempt {attemptNo} inserted into queue");
+            await _dbService.Data.InsertOneAsync(ccData);
         }
 
         public async Task SubmitSolution(string userId, string courseName, string courseYear, string problemId, string solution, string langId, bool useDocker)

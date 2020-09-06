@@ -12,6 +12,9 @@ namespace CC.Net.Services.Courses
         [YamlMember(Alias = "lang")]
         public string Lang { get; set; }
 
+        [YamlMember(Alias = "hidden")]
+        public bool Hidden { get; set; } = false;
+
         // public CourseProblemTest this[string key]
         // {
         //     get => tests.First(i => i.id.ToLower() == key.ToLower());

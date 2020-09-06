@@ -9,11 +9,12 @@
 		disabled: boolean;
 		extension: string;
 		id: string;
-		image: string;
 		name: string;
 		run: string[];
-		scale: number;
-		style: string;
+		scaleFactor: number;
+		scaleInfo: string;
+		scaleStart: number;
+		unittest: string[];
 		version: string;
 	}
 	interface ICourse {
@@ -37,7 +38,9 @@
 		avail: string;
 		cat: string;
 		description: string;
+		export: string[];
 		id: string;
+		include: string[];
 		item: ICourseProblemCase;
 		libname: string;
 		name: string;
@@ -55,6 +58,7 @@
 		timeout: number;
 	}
 	interface ICourseReference {
+		hidden: boolean;
 		lang: string;
 		name: string;
 	}
@@ -70,6 +74,7 @@
 	interface ISingleCourse {
 		course: string;
 		courseConfig: ICourseConfig;
+		courseRef: ICourse;
 		problems: ICourseProblem[];
 		year: string;
 	}
@@ -126,6 +131,7 @@
 	interface ICcDataSolution {
 		content: string;
 		filename: string;
+		hidden: boolean;
 		index: number;
 		isDynamic: boolean;
 		isMain: boolean;

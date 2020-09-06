@@ -23,7 +23,7 @@ export function getDefaultPoints(data: ICcData, defaultValue: number=0): number 
 }
 
 function toSingleCourse(i: ICourse, j: ICourseYearConfig): ISingleCourse {
-    return { course: i.name, year: j.year, problems: j.problems, courseConfig: i.courseConfig };
+    return { course: i.name, year: j.year, problems: j.problems, courseConfig: i.courseConfig, courseRef: i };
 }
 
 export function flattenCourses(courses: ICourse[]): ISingleCourse[] {

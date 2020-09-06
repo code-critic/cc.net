@@ -6,6 +6,7 @@ using System.Threading;
 using CC.Net.Collections;
 using CC.Net.Db;
 using CC.Net.Extensions;
+using CC.Net.Services;
 using CC.Net.Services.Courses;
 using CC.Net.Services.Languages;
 using CC.Net.Utils;
@@ -29,14 +30,17 @@ namespace CC.Net.Controllers
         private readonly DbService _dbService;
         private readonly CourseService _courseService;
         private readonly LanguageService _languageService;
+        private readonly UserService _userService;
 
         public StudentResultListController(ILogger<StudentResultListController> logger, 
-        DbService dbService, CourseService courseService, LanguageService languageService)
+        DbService dbService, CourseService courseService, LanguageService languageService,
+        UserService userService)
         {
             _logger = logger;
             _dbService = dbService;
             _courseService = courseService;
             _languageService = languageService;
+            _userService = userService;
         }
 
         private CcData ConvertToExtended(CcData item)
@@ -46,6 +50,7 @@ namespace CC.Net.Controllers
             var problem = courseYearConfig[item.Problem];
 
             item.Solutions = item.Solutions
+                .Where(i => !i.Hidden || _userService.CurrentUser?.Role == "root")
                 .OrderBy(i => i.IsMain ? 0 : int.MaxValue)
                     .ThenBy(i => i.Index)
                 .ToList();

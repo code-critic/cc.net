@@ -140,7 +140,7 @@ namespace CC.Net.Collections
                     Content = content,
                     Index = index,
                     IsMain = isMain,
-                    IsDynamic = false
+                    IsDynamic = false,
                     Hidden = hidden,
                 };
             }

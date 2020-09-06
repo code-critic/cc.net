@@ -99,11 +99,17 @@ export const SolutionSubmitForm = (props: SolutionSubmitFormProps) => {
     }
 
     const handleFileUpdate = (index, newContent) => {
-        if (newContent === null) {
-            checkFilesAndConfirm(files.filter((i, j) => j != index));
+        if (index >= files.length) {
+            const newName = newContent;
+            setFiles([...files, { name: newName, path: newName, content: "" }]);
         } else {
-            files[index].content = newContent;
-            checkFilesAndConfirm(files);
+
+            if (newContent === null) {
+                checkFilesAndConfirm(files.filter((i, j) => j != index));
+            } else {
+                files[index].content = newContent;
+                checkFilesAndConfirm(files);
+            }
         }
     }
 
