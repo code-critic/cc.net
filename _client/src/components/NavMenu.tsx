@@ -4,14 +4,14 @@ import { Navbar, Container, NavbarBrand, Collapse, NavItem } from 'react-bootstr
 import { NavLink, Link } from 'react-router-dom';
 import './NavMenu.css';
 import { pageLinks } from '../pageLinks';
-import { currentUser, httpClient } from '../init';
+import { getUser, appDispatcher } from '../init';
 import { AppBar, Toolbar, IconButton, Typography, Button, Menu, MenuItem } from '@material-ui/core';
 import CodeIcon from '@material-ui/icons/Code';
 import AccountCircleIcon from '@material-ui/icons/AccountCircle';
 import NotificationsIcon from '@material-ui/icons/Notifications';
-import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import CancelIcon from '@material-ui/icons/Cancel';
 import SupervisorAccountIcon from '@material-ui/icons/SupervisorAccount';
+import { SimpleLoader } from './SimpleLoader';
 
 interface NavMenuProps {
 
@@ -19,10 +19,18 @@ interface NavMenuProps {
 
 
 export const NavMenu = (props: NavMenuProps) => {
-
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
-  const [user, setUser] = React.useState(currentUser);
+  const [user, setUser] = React.useState(getUser());
 
+  appDispatcher.register((payload: any) => {
+    if (payload.actionType == "userChanged") {
+      setUser(getUser());
+    }
+  });
+
+  if (!user.role) {
+    return <SimpleLoader />
+  }
   const isMenuOpen = Boolean(anchorEl);
 
   const handleMenuClose = () => {
@@ -48,11 +56,11 @@ export const NavMenu = (props: NavMenuProps) => {
       open={isMenuOpen}
       onClose={handleMenuClose}
     >
-      <MenuItem disabled>{currentUser.username} (<small>{currentUser.id}</small>)</MenuItem>
+      <MenuItem disabled>{user.username} (<small>{user.id}</small>)</MenuItem>
       {isRoot &&
         <MenuItem onClick={() => {
-          currentUser.role = "student";
-          setUser(currentUser);
+          user.role = "student";
+          setUser(user);
           handleMenuClose();
         }}>
           <SupervisorAccountIcon />Switch to role student
@@ -60,8 +68,8 @@ export const NavMenu = (props: NavMenuProps) => {
       }
       {!isRoot && canBeRoot &&
         <MenuItem onClick={() => {
-          currentUser.role = "root";
-          setUser(currentUser);
+          user.role = "root";
+          setUser(user);
           handleMenuClose();
         }}>
           <SupervisorAccountIcon />Switch back to root
@@ -79,7 +87,7 @@ export const NavMenu = (props: NavMenuProps) => {
   );
 
   const availLinks = pageLinks
-    .filter(i => !i.rootOnly || (i.rootOnly && currentUser.role === "root"));
+    .filter(i => !i.rootOnly || (i.rootOnly && user.role === "root"));
 
   return <>
     <AppBar position="static" className="mb-2">
@@ -93,7 +101,7 @@ export const NavMenu = (props: NavMenuProps) => {
 
 
         {availLinks.map(i =>
-          <MenuItem key={i.path} component={Link} to={i.to}>{i.title}</MenuItem>  
+          <MenuItem key={i.path} component={Link} to={i.to}>{i.title}</MenuItem>
         )}
         <IconButton
           edge="end"
@@ -115,26 +123,4 @@ export const NavMenu = (props: NavMenuProps) => {
     </AppBar>
     {renderMenu}
   </>
-
-  /*return (
-    <header>
-      <Navbar>
-        <Container>
-          <NavbarBrand href="/">cc.net</NavbarBrand>
-          <Collapse in={true}>
-            <ul className="navbar-nav flex-grow">
-              {availLinks.map(i =>
-                <NavItem key={i.path}>
-                  <NavLink className="text-dark px-2" to={i.to}>{i.title}</NavLink>
-                </NavItem>
-              )}
-              <NavItem>
-                {currentUser.username}
-              </NavItem>
-            </ul>
-          </Collapse>
-        </Container>
-      </Navbar>
-    </header>
-  );*/
 }

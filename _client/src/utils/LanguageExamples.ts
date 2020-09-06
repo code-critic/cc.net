@@ -43,7 +43,7 @@ int main()
 
         'JAVA': `// JAVA example
 import java.util.Scanner;
-public class MatrixReader {
+public class main {
     public static void main(String[] args) {
         Scanner input = new Scanner(System.in);
         while (input.hasNext()) {
@@ -88,5 +88,11 @@ int main(void)
   
   return(0);
 }`,
+
+        'MATLAB': `// Matlab code
+close all; clear *;
+vv = 1901:2:2000;
+disp(vv);
+`,
     };
 }

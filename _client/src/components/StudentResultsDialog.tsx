@@ -1,6 +1,6 @@
 import React from "react";
 import { Dialog, DialogTitle, Box, Grid, Button, DialogContent, ButtonGroup, Paper, Tooltip, IconButton } from "@material-ui/core";
-import { commentService, appDispatcher, currentUser } from "../init";
+import { commentService, appDispatcher, getUser } from "../init";
 import CloseIcon from '@material-ui/icons/Close';
 import StudentResults from "./StudentResults";
 import { ISingleCourse, ILanguage, ICourseProblem } from "../models/DataModel";
@@ -10,6 +10,7 @@ import CommentIcon from '@material-ui/icons/Comment';
 import FeedbackIcon from '@material-ui/icons/Feedback';
 import DeleteForeverOutlinedIcon from '@material-ui/icons/DeleteForeverOutlined';
 import { AlertDialog } from "./AlertDialog";
+import { SimpleLoader } from "./SimpleLoader";
 
 
 interface StudentResultsDialogProps {
@@ -21,11 +22,22 @@ interface StudentResultsDialogProps {
 }
 
 export const StudentResultsDialog = (props: StudentResultsDialogProps) => {
+    const { onClose, activeCourse, activeProblem, languages, forcedResultId } = props;
+    
     const [items, setItems] = React.useState(commentService.items);
     const [filters, setFilters] = React.useState({ comments: false, review: false });
     const [discardDialog, setDiscardDialog] = React.useState(false);
+    const [user, setUser] = React.useState(getUser());
 
-    const { onClose, activeCourse, activeProblem, languages, forcedResultId } = props;
+    appDispatcher.register((payload: any) => {
+      if (payload.actionType == "userChanged") {
+        setUser(getUser());
+      }
+    });
+  
+    if (!user.role) {
+      return <SimpleLoader />
+    }
 
     appDispatcher.register((payload: any) => {
         if (payload.actionType == "commentServiceChanged") {
@@ -41,7 +53,7 @@ export const StudentResultsDialog = (props: StudentResultsDialogProps) => {
             <Box padding={2}>
                 <Grid container justify="space-between">
                     <Grid item>
-                        {currentUser.username} ({currentUser.id})
+                        {user.username} ({user.id})
                     </Grid>
                     <Grid item>
                         {items.length > 0 &&
@@ -85,7 +97,7 @@ export const StudentResultsDialog = (props: StudentResultsDialogProps) => {
                 course={activeCourse.course}
                 year={activeCourse.year}
                 problem={activeProblem.id}
-                user={currentUser.id}
+                user={user.id}
                 languages={languages}
                 forcedResultId={forcedResultId}
             />

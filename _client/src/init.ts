@@ -1,8 +1,13 @@
-import { ILineComment, ICcData, ICommentServiceItem, IAppUser } from "./models/DataModel";
+import { ICommentServiceItem, IAppUser } from "./models/DataModel";
 import { observable } from "mobx";
 import { Dispatcher } from 'flux';
 import { HubConnectionBuilder } from '@aspnet/signalr';
 import { NotificationManager } from 'react-notifications';
+import { auth } from './auth';
+
+// console.log('init auth');
+// await auth();
+// console.log('init auth end');
 
 interface HttpClientConfig {
     baseUrl: string;
@@ -118,7 +123,19 @@ export const httpClient = new HttpClient({
     },
 });
 
-export const currentUser: IAppUser = (window as any).currentUser as IAppUser;
+let _currentUser: IAppUser = {
+    affiliation: "guest",
+    datetime: "guest",
+    email: "guest@tul.cz",
+    eppn: "guest",
+    id: "guest",
+    isRoot: false,
+    lastFirstName: "guest guest",
+    role: null as any,
+    roles: [],
+    username: "guest",
+}
+export const getUser = () => _currentUser;
 
 export const layoutUtils = new LayoutUtils();
 
@@ -142,30 +159,32 @@ export const liveConnection = new HubConnectionBuilder()
 
 type NotificationLevel = "info" | "success" | "warning" | "error";
 
-liveConnection.start()
-    .then(() => {
+auth()
+    .then(i => {
+        _currentUser = (window as any).currentUser as IAppUser;
+        appDispatcher.dispatch({ actionType: "userChanged" });
+        liveConnection.start()
+            .then(() => {
+                console.log("Connected to the hub");
+                (window as any).foo = liveConnection;
+                liveConnection.invoke("RegisterUser", _currentUser.id);
 
-        console.log("Connected to the hub");
 
-        (window as any).foo = liveConnection;
-        liveConnection.invoke("RegisterUser", currentUser.id);
-        console.log((window as any).foo);
-
-
-        liveConnection.on("OnMessage", (message: string, level: NotificationLevel) => {
-            switch (level) {
-                case "info":
-                    NotificationManager.info(message.toString());
-                    break;
-                case "success":
-                    NotificationManager.success(message.toString());
-                    break;
-                case "warning":
-                    NotificationManager.warning(message.toString());
-                    break;
-                case "error":
-                    NotificationManager.error(message.toString());
-                    break;
-            }
-        });
+                liveConnection.on("OnMessage", (message: string, level: NotificationLevel) => {
+                    switch (level) {
+                        case "info":
+                            NotificationManager.info(message.toString());
+                            break;
+                        case "success":
+                            NotificationManager.success(message.toString());
+                            break;
+                        case "warning":
+                            NotificationManager.warning(message.toString());
+                            break;
+                        case "error":
+                            NotificationManager.error(message.toString());
+                            break;
+                    }
+                });
+            });
     });

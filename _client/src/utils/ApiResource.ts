@@ -1,5 +1,5 @@
-import { observable, action } from "mobx";
 import { httpClient } from "../init";
+import { observable } from "mobx";
 
 export class ApiResource<T> {
 
@@ -8,6 +8,8 @@ export class ApiResource<T> {
 
     @observable public isLoading: boolean = false;
 
+    public isLoaded: boolean = false;
+
 
     constructor(public path: string, autoload = true) {
         if (autoload) {
@@ -15,12 +17,24 @@ export class ApiResource<T> {
         }
     }
 
-    @action.bound
-    public load(path?: string): Promise<T[]> {
-        if (this.isLoading) {
-            return new Promise((resolve, reject) => {}); // too late to return the promise
+    public loadState(callback: (data: T[]) => void, path?: string) {
+        if (this.isLoaded) {
+            return;
+        } else {
+            this.load(path)
+                .then((data) => callback(data));
         }
-        
+    }
+
+    public load(path?: string): Promise<T[]> {
+        if (this.isLoaded) {
+            return new Promise((resolve, reject) => resolve(this.data));
+        }
+
+        if (this.isLoading) {
+            return new Promise((resolve, reject) => { }); // too late to return the promise
+        }
+
         this.isLoading = true;
 
         return new Promise((resolve, reject) => {
@@ -30,8 +44,9 @@ export class ApiResource<T> {
                 })
                 .then((data: T[]) => {
                     this.data = data;
-                    resolve(data);
                     this.isLoading = false;
+                    this.isLoaded = true;
+                    resolve(data);
                 });
         });
     }

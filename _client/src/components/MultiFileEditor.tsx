@@ -34,7 +34,7 @@ export const MultiFileEditor = (props: MultiFileEditorProps) => {
 
     const handleTabClick = (event: React.MouseEvent<HTMLDivElement, MouseEvent>, index: number) => {
         // delete file
-        if (event.button == 1 && index !== value) {
+        if (event.button == 1 ) {
             setValue(0);
             updateFile(index, null as any);
         }

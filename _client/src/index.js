@@ -5,6 +5,7 @@ import './styles/index.css';
 import './styles/table.css';
 import './styles/diff.css';
 
+// import { auth } from './auth';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { BrowserRouter } from 'react-router-dom';
@@ -16,7 +17,7 @@ const rootElement = document.getElementById('root');
 
 ReactDOM.render(
   <BrowserRouter basename={baseUrl}>
-      <App />
+    <App />
   </BrowserRouter>,
   rootElement);
 

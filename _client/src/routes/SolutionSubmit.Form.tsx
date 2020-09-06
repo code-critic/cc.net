@@ -27,28 +27,23 @@ export class MultiFileModel {
 
 const Adapt = ({ children, ...other }) => children(other);
 interface SolutionSubmitFormProps {
-    selectedLanguage?: string;
-    enabledLanguages?: ILanguage[];
-    currentLanguage?: ILanguage | undefined;
-    prefferedCode?: string;
-    
-    onEditorChange?: (state: any) => void;
-    onEditorRef?: (ref: any) => void;
-    
-    onLanguageChange: (language: string) => void;
-    onFileChange: (files: IFile[]) => void;
     languages: ILanguage[];
+    defaultLanguage: ILanguage;
+    onLanguageChange: (language: ILanguage) => void;
+    onFileChange: (files: IFile[]) => void;
     activeProblem: ICourseProblem;
 }
 
 export const SolutionSubmitForm = (props: SolutionSubmitFormProps) => {
-    const { languages, selectedLanguage, currentLanguage, prefferedCode, enabledLanguages, activeProblem } = props;
-    const { onEditorRef, onEditorChange, onLanguageChange } = props;
+    const { languages, defaultLanguage, activeProblem } = props;
+    const { onLanguageChange } = props;
     const { onFileChange } = props;
 
     const [exampleDialogOpen, setExampleDialogOpen] = React.useState(false);
     const [isFullScreen, setFullScreen] = React.useState(false);
-    const extension = currentLanguage ? currentLanguage.extension : "py";
+    const [language, setLanguage] = React.useState(defaultLanguage);
+
+    const extension = language ? language.extension : "py";
     const unittest = activeProblem.unittest === true;
     const libName = unittest ? activeProblem.libname : null;
     const defaultName = libName || `main.${extension}`;
@@ -56,7 +51,27 @@ export const SolutionSubmitForm = (props: SolutionSubmitFormProps) => {
     const [files, setFiles] = React.useState<IFile[]>([{
         name: defaultName,
         path: defaultName,
+        content: "",
     }]);
+
+    const removeEmptyFiles = (files: IFile[]) => {
+        return files.filter(i => !!i.content);
+    }
+
+    const handleLanguage = (id: string) => {
+        const newLang = languages.find(i => i.id === id);
+        if (newLang) {
+            setLanguage(newLang)
+            onLanguageChange(newLang);
+            const mainFile = `main.${newLang.extension}`;
+            if (!files.find(i => i.path === mainFile)) {
+                setFiles([
+                    ...removeEmptyFiles(files),
+                    { name: mainFile, path: mainFile, content: "" }
+                ]);
+            }
+        }
+    }
 
     const checkFilesAndConfirm = (files) => {
         const reqIndex = files.map(i => i.path).indexOf(defaultName);
@@ -118,8 +133,8 @@ export const SolutionSubmitForm = (props: SolutionSubmitFormProps) => {
                                 className={`${className} small`}
                                 id="select-language"
                                 label="Select Language"
-                                value={selectedLanguage}
-                                onChange={e => onLanguageChange(e.target.value as string)}>
+                                value={language.id}
+                                onChange={e => handleLanguage(e.target.value as string)}>
                                 {languages
                                     .filter(i => !i.disabled)
                                     .map(i =>
@@ -131,8 +146,8 @@ export const SolutionSubmitForm = (props: SolutionSubmitFormProps) => {
                         )}
                     </Adapt>
 
-                    {currentLanguage &&
-                        <Tooltip title={`View Example in ${currentLanguage.name}`}>
+                    {language &&
+                        <Tooltip title={`View Example in ${language.name}`}>
                             <Button size="small" variant="outlined" style={{ width: 70 }}
                                 onClick={() => setExampleDialogOpen(!exampleDialogOpen)}>
                                 <HelpIcon />
@@ -140,16 +155,16 @@ export const SolutionSubmitForm = (props: SolutionSubmitFormProps) => {
                         </Tooltip>
                     }
                 </ButtonGroup>
-                {(currentLanguage && exampleDialogOpen) &&
+                {(language && exampleDialogOpen) &&
                     <Dialog maxWidth="md"
                         onClose={() => setExampleDialogOpen(false)}
                         open={exampleDialogOpen}
                         fullWidth>
-                        <DialogTitle>{currentLanguage.name}</DialogTitle>
+                        <DialogTitle>{language.name}</DialogTitle>
                         <DialogContent>
                             {renderCode(
-                                LanguageExamples.examples[currentLanguage.id],
-                                mapLanguage(currentLanguage.id)
+                                LanguageExamples.examples[language.id],
+                                mapLanguage(language.id)
                             )}
                         </DialogContent>
                     </Dialog>

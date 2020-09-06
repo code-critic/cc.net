@@ -123,13 +123,16 @@ namespace CC.Net.Collections
             [BsonElement("isMain")]
             public bool IsMain { get; set; }
 
+            [BsonElement("hidden")]
+            public bool Hidden { get; set; }
+
             [BsonIgnore]
             public bool IsDynamic { get; set; } = false;
 
             [BsonIgnore]
             public bool IsSeparator { get; set; } = false;
 
-            public static CcDataSolution Single(string content, string filename, int index = 0, bool isMain = true)
+            public static CcDataSolution Single(string content, string filename, int index = 0, bool isMain = true, bool hidden = false)
             {
                 return new CcDataSolution
                 {
@@ -138,6 +141,7 @@ namespace CC.Net.Collections
                     Index = index,
                     IsMain = isMain,
                     IsDynamic = false
+                    Hidden = hidden,
                 };
             }
 

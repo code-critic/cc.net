@@ -1,6 +1,6 @@
 import { SolutionSubmit } from "./routes/SolutionSubmit";
-import { ProblemStudentMatrixList } from "./routes/ProblemStudentMatrixList";
 import { StudentResultList } from "./routes/StudentResultList";
+import { CourseProblemSelector } from "./components/CourseProblemSelector";
 import { Home } from "./components/Home";
 
 export interface IPageLink<T> {
@@ -19,7 +19,7 @@ export const pageLinks: IPageLink<any>[] = [
         to: "/",
         path: "/",
         exact: true,
-        component: SolutionSubmit,
+        component: Home,
         rootOnly: false,
     },
     // {

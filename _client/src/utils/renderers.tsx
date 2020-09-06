@@ -9,7 +9,7 @@ import "react-mde/lib/styles/css/react-mde-all.css";
 import { ICcData, ILineComment, ICcDataSolution, ICommentServiceItem } from "../models/DataModel";
 import { ListItem, ListItemText, ListItemIcon, Tooltip, Button, Tabs, Tab } from "@material-ui/core";
 import Moment from "react-moment";
-import { commentService, currentUser } from "../init";
+import { commentService, getUser } from "../init";
 import { DynamicFolder } from "../components/DynamicFolder";
 import FolderIcon from '@material-ui/icons/Folder';
 
@@ -62,7 +62,7 @@ export class CodeLine extends React.Component<CodeLineProps, any, any> {
             comment: {
                 line: lineNo,
                 text: converter.makeHtml(this.editorValue),
-                user: currentUser.id,
+                user: getUser().id,
                 time: new Date().getTime() / 1000,
                 filename: filename
             }
@@ -147,6 +147,7 @@ export class CodeLine extends React.Component<CodeLineProps, any, any> {
 }
 
 export const renderCode = (code: string, language: string = "none") => {
+    debugger;
     if (language === "none") {
         const children = code.trimEnd().split("\n");
 

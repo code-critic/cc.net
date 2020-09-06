@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using CC.Net.Collections;
 using CC.Net.Db;
+using CC.Net.Dto;
 using CC.Net.Extensions;
 using CC.Net.Services;
 using CC.Net.Services.Courses;
@@ -95,6 +96,37 @@ namespace CC.Net.Hubs
             _idService.RemeberClient(Clients.Caller, id);
             await Clients.Clients(_idService[ccData.User]).NotifyClient($"Job submitted");
             await _dbService.Data.InsertOneAsync(ccData);
+        }
+
+        public async Task SubmitSolutions(string userId, string courseName, string courseYear, string problemId, string langId, IList<SimpleFile> files)
+        {
+            var course = _courseService[courseName];
+            var courseYearConfig = course[courseYear];
+            var problem = courseYearConfig[problemId];
+            var language = _languageService[langId];
+
+            var attemptNo = 1 + await _dbService.Data
+                .CountDocumentsAsync(i => i.CourseName == courseName
+                    && i.CourseYear == courseYear
+                    && i.User == userId
+                    && i.Problem == problemId
+                // && i.Action == "solve"
+                );
+
+            var solutions = new List<CcDataSolution>();
+            if (problem.Unittest)
+            {
+                var refCode = problem.ProblemDir().RootFile(problem.Reference.Name).ReadAllText();
+                solutions.Add(CcDataSolution.Single(refCode, problem.Reference.Name, 2, false, problem.));
+                solutions.AddRange(files.Select(i => CcDataSolution.Single(i.Content, i.Path)));
+            }
+            else
+            {
+                // add all files
+                solutions.AddRange(files.Select(i => CcDataSolution.Single(i.Content, i.Path)));
+            }
+
+            return;
         }
 
         public async Task SubmitSolution(string userId, string courseName, string courseYear, string problemId, string solution, string langId, bool useDocker)
