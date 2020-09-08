@@ -241,12 +241,12 @@ export class RenderSolution extends React.Component<RenderSolutionProps, any, an
                 .map((solution, j) => {
                     if (solution.isDynamic) {
                         return solution.index == this.tabIndex &&
-                            <DynamicFolder solution={solution} key={j} />
+                            <DynamicFolder key={j} solution={solution} />
                     }
 
                     if (solution.filename?.toLowerCase().endsWith(".png")) {
                         return solution.index == this.tabIndex &&
-                            <img src={`data:image/png;base64,${solution.content}`}
+                            <img key={j} src={`data:image/png;base64,${solution.content}`}
                                 style={{ maxWidth: "calc(100% - 200px)", height: "auto" }} />
                     }
 

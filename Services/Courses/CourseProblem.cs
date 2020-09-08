@@ -38,6 +38,9 @@ namespace CC.Net.Services.Courses
         [YamlMember(Alias = "include")]
         public List<string> Include { get; set; } = new List<string>();
 
+        [YamlMember(Alias = "assets")]
+        public List<string> Assets { get; set; } = new List<string>();
+
         [YamlMember(Alias = "export")]
         public List<string> Export { get; set; } = new List<string>();
 

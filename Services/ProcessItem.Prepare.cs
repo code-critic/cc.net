@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using CC.Net.Collections;
 using CC.Net.Extensions;
@@ -37,6 +38,12 @@ namespace CC.Net.Services
 
                 // copy out everything from assets to root
                 CopyInDocker("assets/*");
+
+                // copy everything specified in config.yaml
+                if (Context.CourseProblem.Assets.Any())
+                {
+                    Context.CourseProblem.Assets.ForEach(i => CopyInDocker(i));
+                }
 
                 // set permissions
                 ProcessUtils.Popen($"docker exec --user root {ProcessService.ContainerName} chmod -R 777 {Context.DockerTmpWorkdir}");
@@ -217,6 +224,15 @@ namespace CC.Net.Services
             if (Directory.Exists(Context.ProblemDir.AssetsDir))
             {
                 DirectoryUtils.Copy(Context.ProblemDir.AssetsDir, Context.TmpDir.AssetsDir);
+            }
+
+            // 6) copy all manual assets
+            if (Context.CourseProblem.Assets.Any())
+            {
+                Context.CourseProblem.Assets
+                    .Where(i => File.Exists(Context.ProblemDir.RootFile(i)))
+                    .ToList()
+                    .ForEach(i => File.Copy(Context.ProblemDir.RootFile(i), Context.TmpDir.RootFile(i), true));
             }
         }
     }

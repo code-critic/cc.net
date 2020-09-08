@@ -3,6 +3,8 @@ using CC.Net.Services.Courses;
 using Markdig;
 using System.IO;
 using Microsoft.Extensions.Logging;
+using Markdig.Renderers;
+using Markdig.Parsers;
 
 namespace CC.Net.Services
 {
@@ -34,12 +36,32 @@ namespace CC.Net.Services
                 _logger.LogWarning("Could not find README.md {}", readmePath);
             }
 
+            var pipeline = new MarkdownPipelineBuilder().Build();
+            var writer = new StringWriter();
+            var renderer = new HtmlRenderer(writer);
+            renderer.LinkRewriter = arg => {
+                if(arg.StartsWith("http"))
+                {
+                    return arg;
+                }
+
+                return $"/static-files/serve/{course.Course}/{course.Year}/{problem.Id}/{arg}";
+            };
 
             var content = File.Exists(readmePath)
                 ? File.ReadAllText(readmePath)
                 : "no description provided";
 
-            return Markdown.ToHtml(content);
+            var document = MarkdownParser.Parse(content, pipeline);
+            renderer.Render(document);
+            writer.Flush();
+            
+            return writer.ToString();
+        }
+
+        private string linkRewriter(string arg)
+        {
+            return arg+arg;
         }
     }
 }

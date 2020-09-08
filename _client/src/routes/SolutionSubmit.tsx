@@ -9,7 +9,7 @@ import { CourseProblemSelectModel } from "../components/CourseProblemSelect.Mode
 import { SimpleLoader } from "../components/SimpleLoader";
 import { ILanguage, ICcData, ICourse, ICourseProblem, ISingleCourse, IAppUser } from "../models/DataModel";
 import { ApiResource } from "../utils/ApiResource";
-import { Grid, Button, ButtonGroup, Container, Breadcrumbs } from '@material-ui/core';
+import { Grid, Button, ButtonGroup, Container, Breadcrumbs, Typography } from '@material-ui/core';
 
 
 import SendIcon from '@material-ui/icons/Send';
@@ -22,7 +22,6 @@ import { StudentResultItem } from "../components/StudentResults.Item";
 import { StudentResultsDialog } from "../components/StudentResultsDialog";
 import { SolutionSubmitForm } from "./SolutionSubmit.Form";
 import { NotificationManager } from 'react-notifications';
-import { mapLanguage } from '../utils/LanguageMap';
 import { IFile } from "../components/FileChooser";
 import { CourseProblemSelector } from "../components/CourseProblemSelector";
 import { flattenCourse } from "../utils/DataUtils";
@@ -30,8 +29,9 @@ import { openCloseState } from "../utils/StateUtils";
 import { Link as RouterLink } from "react-router-dom";
 import Link from "@material-ui/core/Link";
 import NavigateNextIcon from '@material-ui/icons/NavigateNext';
-
-
+import HomeIcon from '@material-ui/icons/Home';
+import ExtensionIcon from '@material-ui/icons/Extension';
+import SchoolIcon from '@material-ui/icons/School';
 
 
 interface SolutionSubmitProps extends RouteComponentProps<ICourseYearProblem> {
@@ -68,6 +68,42 @@ const submitSolution = (user: IAppUser, activeCourse: ISingleCourse,
     liveConnection.invoke("SubmitSolutions", ...message);
 }
 
+interface RenderBreadcrumbsProps {
+    activeCourse?: ISingleCourse;
+    activeProblem?: ICourseProblem;
+}
+const RenderBreadcrumbs = (props: RenderBreadcrumbsProps) => {
+    const { activeCourse, activeProblem } = props;
+
+    const breadcrumbComponents = [{
+        to: `/courses`,
+        title: <><HomeIcon fontSize="small"/> Courses</>
+    }];
+    if (activeCourse) {
+        breadcrumbComponents.push({
+            to:`/courses/${activeCourse.course}/${activeCourse.year}`,
+            title: <><SchoolIcon fontSize="small" /> {`${activeCourse.course}-${activeCourse.year}`}</>
+        });
+    }
+    
+    if (activeCourse && activeProblem) {
+        breadcrumbComponents.push({
+            to: `/courses/${activeCourse.course}/${activeCourse.year}/${activeProblem.id}`,
+            title: <><ExtensionIcon fontSize="small"/> {`${activeProblem.name}`}</>
+        });
+    }
+
+    const last = breadcrumbComponents.length - 1;
+    return <Breadcrumbs aria-label="breadcrumb" separator={<NavigateNextIcon fontSize="small" />} className="breadcrumb">
+        {breadcrumbComponents.map((i, j) => {
+            if(j == last) {
+                return <Typography key={j} color="textPrimary">{i.title}</Typography>
+            }
+            return <Link key={j} to={i.to} component={RouterLink} className="display-flex">{i.title}</Link>
+        })}
+    </Breadcrumbs>
+}
+
 export const SolutionSubmit = (props) => {
 
     const { history, match } = props;
@@ -86,7 +122,7 @@ export const SolutionSubmit = (props) => {
     const [resultsDialog, setResultsDialog] = React.useState(false);
     const [openResults, closeResults] = openCloseState(setResultsDialog);
 
-    
+
     const { course: urlCourse, year: urlYear, problem: urlProblem } = match.params;
     const activeProblem = problem;
     const coursesFlatten = courses.flatMap(flattenCourse);
@@ -107,7 +143,7 @@ export const SolutionSubmit = (props) => {
         return <SimpleLoader />
     });
 
-    
+
     liveConnection.on("OnProcessStart", (item: ICcData) => {
         setLiveResult(item);
     });
@@ -116,13 +152,12 @@ export const SolutionSubmit = (props) => {
         return <SimpleLoader />
     }
 
+
+
+
     if (!problem || !activeProblem) {
         return <Container>
-            <Breadcrumbs aria-label="breadcrumb" separator={<NavigateNextIcon fontSize="small" />} className="breadcrumb">
-                <Link to={`/`} component={RouterLink}>courses</Link>
-                {activeCourse && <Link to={`/courses/`} component={RouterLink}>{activeCourse.course}-{activeCourse.year}</Link>}
-                {activeProblem && <Link to={`/courses/${activeCourse.course}/${activeCourse.year}`} component={RouterLink}>{activeProblem.name}</Link>}
-            </Breadcrumbs>
+            <RenderBreadcrumbs activeCourse={activeCourse} activeProblem={activeProblem} />
 
             <CourseProblemSelector match={match}
                 courses={courses} languages={languages}
@@ -136,11 +171,7 @@ export const SolutionSubmit = (props) => {
         : languages[0];
 
     return <Container>
-        <Breadcrumbs aria-label="breadcrumb" separator={<NavigateNextIcon fontSize="small" />} className="breadcrumb">
-            <Link to={`/`} component={RouterLink}>courses</Link>
-            <Link to={`/courses/`} component={RouterLink}>{activeCourse.course}-{activeCourse.year}</Link>
-            <Link to={`/courses/${activeCourse.course}/${activeCourse.year}`} component={RouterLink}>{activeProblem.name}</Link>
-        </Breadcrumbs>
+        <RenderBreadcrumbs activeCourse={activeCourse} activeProblem={activeProblem} />
 
         <Grid container spacing={2}>
             {/* live result */}
@@ -209,25 +240,3 @@ export const SolutionSubmit = (props) => {
         }
     </Container>
 }
-
-// if (languages.isLoading) {
-//     return <Container>
-//         <CourseProblemSelect prefix="courses" model={model} history={history} {...this.props.match.params} />
-//         <SimpleLoader></SimpleLoader>
-//     </Container>
-// }
-
-// return (<>
-//     <SolutionSubmitForm
-//         enabledLanguages={enabledLanguages}
-//         languages={languages.data}
-//         selectedLanguage={selectedLanguage}
-//         currentLanguage={currentLanguage}
-//         prefferedCode={prefferedCode}
-//         onLanguageChange={i => this.changeLanguage(i)}
-//         onEditorChange={i => this.debounceChange(i)}
-//         onEditorRef={i => this.ace = i}
-//         onFileChange={files => this.handleNewFiles(files)}
-//         activeProblem={activeProblem}
-//     />
-// </>);
