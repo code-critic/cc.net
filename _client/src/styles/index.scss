@@ -23,7 +23,7 @@ $diffs: (
   // unchanged: rgb(255, 255, 255),
   // deleted: rgb(255, 208, 208),
   // inserted: rgb(210, 255, 208),
-  // modified: rgb(255, 208, 253),,,,,,,,,,,,,,,,,,,,
+  // modified: rgb(255, 208, 253),,,,,,,,,,,,,,,,,,,,,
 );
 
 @media (min-width: 1600px) {
@@ -558,7 +558,7 @@ div.MuiMenu-paper {
 }
 
 .fullscreen .react-codemirror2,
-.fullscreen .CodeMirror  {
+.fullscreen .CodeMirror {
   height: calc(100% - 0px);
 }
 
@@ -573,7 +573,7 @@ div.MuiMenu-paper {
 
     .MuiButtonBase-root {
       line-height: 26px;
-      min-height:  26px;
+      min-height: 26px;
       font-size: 0.8em;
       text-transform: none;
       min-width: 80px;
@@ -589,11 +589,45 @@ div.MuiMenu-paper {
   background-color: #efefef;
   margin-bottom: 0.5rem;
 
-  .MuiLink-root, .MuiTypography-root {
+  .MuiLink-root,
+  .MuiTypography-root {
     display: flex;
   }
 }
 
 .MuiSvgIcon-root.tiny-icon {
   font-size: 1rem;
+}
+
+.h-30 {
+  height: 30px;
+  line-height: 30px;
+  display: block;
+}
+
+.result-status-bar {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 30px;
+
+  .result-status {
+    display: block;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    font-size: 9px;
+    padding-top: 5px;
+    font-weight: bold;
+    color: #fff;
+    text-align: center;
+    margin: 2px;
+
+    &.result-status-0 {
+      background-color: rgb(231, 63, 63);
+    }
+    &.result-status-1 {
+      background-color: rgb(56, 185, 56);
+    }
+  }
 }

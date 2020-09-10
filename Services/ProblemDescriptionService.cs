@@ -36,7 +36,10 @@ namespace CC.Net.Services
                 _logger.LogWarning("Could not find README.md {}", readmePath);
             }
 
-            var pipeline = new MarkdownPipelineBuilder().Build();
+            var pipeline = new MarkdownPipelineBuilder()
+                // .UseAdvancedExtensions()
+                // .UseMathematics()
+                .Build();
             var writer = new StringWriter();
             var renderer = new HtmlRenderer(writer);
             renderer.LinkRewriter = arg => {

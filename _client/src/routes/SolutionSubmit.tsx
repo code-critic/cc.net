@@ -1,4 +1,4 @@
-import React, { Suspense } from "react";
+import React, { Suspense, useEffect } from "react";
 
 import { observable, computed } from "mobx";
 import { observer } from "mobx-react";
@@ -32,7 +32,7 @@ import NavigateNextIcon from '@material-ui/icons/NavigateNext';
 import HomeIcon from '@material-ui/icons/Home';
 import ExtensionIcon from '@material-ui/icons/Extension';
 import SchoolIcon from '@material-ui/icons/School';
-
+import "../third_party/mathjax";
 
 interface SolutionSubmitProps extends RouteComponentProps<ICourseYearProblem> {
 }
@@ -64,7 +64,6 @@ const submitSolution = (user: IAppUser, activeCourse: ISingleCourse,
         })
     ];
 
-    console.log(message);
     liveConnection.invoke("SubmitSolutions", ...message);
 }
 
@@ -77,31 +76,63 @@ const RenderBreadcrumbs = (props: RenderBreadcrumbsProps) => {
 
     const breadcrumbComponents = [{
         to: `/courses`,
-        title: <><HomeIcon fontSize="small"/> Courses</>
+        title: <><HomeIcon fontSize="small" /> Courses</>
     }];
     if (activeCourse) {
         breadcrumbComponents.push({
-            to:`/courses/${activeCourse.course}/${activeCourse.year}`,
+            to: `/courses/${activeCourse.course}/${activeCourse.year}`,
             title: <><SchoolIcon fontSize="small" /> {`${activeCourse.course}-${activeCourse.year}`}</>
         });
     }
-    
+
     if (activeCourse && activeProblem) {
         breadcrumbComponents.push({
             to: `/courses/${activeCourse.course}/${activeCourse.year}/${activeProblem.id}`,
-            title: <><ExtensionIcon fontSize="small"/> {`${activeProblem.name}`}</>
+            title: <><ExtensionIcon fontSize="small" /> {`${activeProblem.name}`}</>
         });
     }
 
     const last = breadcrumbComponents.length - 1;
     return <Breadcrumbs aria-label="breadcrumb" separator={<NavigateNextIcon fontSize="small" />} className="breadcrumb">
         {breadcrumbComponents.map((i, j) => {
-            if(j == last) {
+            if (j == last) {
                 return <Typography key={j} color="textPrimary">{i.title}</Typography>
             }
             return <Link key={j} to={i.to} component={RouterLink} className="display-flex">{i.title}</Link>
         })}
     </Breadcrumbs>
+}
+export const SolutionSubmit2 = (props) => {
+    const [course, setCourse] = React.useState<ICourse>();
+    const [isLoading, setIsLoading] = React.useState(false);
+
+    const [courses, setCourses] = React.useState<ICourse[]>([]);
+    const [languages, setLanguages] = React.useState<ILanguage[]>([]);
+
+    useEffect(() => {
+        setIsLoading(true);
+        var promises = [
+            new ApiResource<ICourse>("courses", false).load(),
+            new ApiResource<ILanguage>("languages", false).load()
+        ] as Promise<any>[];
+
+        Promise.all(promises)
+        .then((data: any) => {
+            setCourses(data[0]);
+            setLanguages(data[1]);
+            setIsLoading(false);
+        });
+    }, []);
+
+    useEffect(() => {
+        console.log("effect course");
+    }, [course]);
+
+    if (isLoading || !courses || !languages) {
+        return <SimpleLoader />
+    }
+
+    return <Button onClick={() => setCourse({} as any)}>ok</Button>
 }
 
 export const SolutionSubmit = (props) => {
@@ -116,11 +147,19 @@ export const SolutionSubmit = (props) => {
     const [user, setUser] = React.useState(getUser());
     const [files, setFiles] = React.useState<IFile[]>([]);
     const [language, setLanguage] = React.useState<ILanguage>();
+    const [params, setParams] = React.useState<any>();
 
     const [apiCourses, setApiCourses] = React.useState(new ApiResource<ICourse>("courses", false));
     const [apiLanguages, setApiLanguages] = React.useState(new ApiResource<ILanguage>("languages", false));
     const [resultsDialog, setResultsDialog] = React.useState(false);
     const [openResults, closeResults] = openCloseState(setResultsDialog);
+
+    useEffect(() => {
+        const MathJax = (window as any).MathJax;
+        if (MathJax && MathJax.typeset) {
+            MathJax.typeset();
+        }
+    });
 
 
     const { course: urlCourse, year: urlYear, problem: urlProblem } = match.params;
@@ -140,7 +179,7 @@ export const SolutionSubmit = (props) => {
 
     history.listen((location, action) => {
         setProblem(undefined);
-        return <SimpleLoader />
+        // setParams(match.params);
     });
 
 
@@ -159,7 +198,7 @@ export const SolutionSubmit = (props) => {
         return <Container>
             <RenderBreadcrumbs activeCourse={activeCourse} activeProblem={activeProblem} />
 
-            <CourseProblemSelector match={match}
+            <CourseProblemSelector match={match} history={history} params={params}
                 courses={courses} languages={languages}
                 onProblemChange={(p) => setProblem(p)}
             />
@@ -169,6 +208,7 @@ export const SolutionSubmit = (props) => {
     const defaultLanguage = activeProblem.unittest
         ? languages.find(i => i.id === activeProblem.reference.lang)
         : languages[0];
+
 
     return <Container>
         <RenderBreadcrumbs activeCourse={activeCourse} activeProblem={activeProblem} />

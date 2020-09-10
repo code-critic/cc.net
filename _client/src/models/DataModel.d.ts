@@ -35,6 +35,7 @@
 	}
 	interface ICourseProblem {
 		allTests: ICourseProblemCase[];
+		assets: string[];
 		avail: string;
 		cat: string;
 		description: string;
@@ -69,6 +70,7 @@
 	interface ICourseYearConfig {
 		item: ICourseProblem;
 		problems: ICourseProblem[];
+		results: ICcData[][];
 		year: string;
 	}
 	interface ISingleCourse {

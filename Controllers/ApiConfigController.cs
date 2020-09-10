@@ -32,12 +32,13 @@ namespace CC.Net.Controllers
         private readonly DbService _dbService;
         private readonly ProblemDescriptionService _problemDescriptionService;
         private readonly CompareService _compareService;
+        private readonly UserService _userService;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
         public ApiConfigController(
             CourseService courseService, LanguageService languageService, DbService dbService,
             ProblemDescriptionService problemDescriptionService,
-            CompareService compareService, IHttpContextAccessor httpContextAccessor
+            CompareService compareService, IHttpContextAccessor httpContextAccessor, UserService userService
             )
         {
             _courseService = courseService;
@@ -45,6 +46,7 @@ namespace CC.Net.Controllers
             _dbService = dbService;
             _problemDescriptionService = problemDescriptionService;
             _compareService = compareService;
+            _userService = userService;
         }
 
         [HttpGet("courses")]
@@ -82,6 +84,15 @@ namespace CC.Net.Controllers
             return _languageService.Languages;
         }
 
+        [HttpGet("result/{objectId}")]
+        public CcData GetResult(string objectId)
+        {
+            var id = new ObjectId(objectId);
+            return _dbService.Data
+                .Find(i => i.Id == id)
+                .FirstOrDefault();
+        }
+
         [HttpGet("course/{courseId}")]
         public Course Course(string courseId)
         {
@@ -91,7 +102,34 @@ namespace CC.Net.Controllers
         [HttpGet("course/{courseId}/{year}")]
         public CourseYearConfig CourseYearConfig(string courseId, string year)
         {
-            return _courseService[courseId][year];
+            var course = _courseService[courseId];
+            var yearConfig = course[year];
+
+            var singleCourse = new SingleCourse
+            {
+                CourseRef = course,
+                Course = course.Name,
+                Year = yearConfig.Year,
+                CourseConfig = course.CourseConfig,
+                Problems = yearConfig.Problems,
+            };
+
+            var currentUser = _userService.CurrentUser.Id;
+            var problems = yearConfig.Problems.Select(i => i.Id).ToList();
+            var results = _dbService.Data
+                .Find(i => i.User == currentUser && problems.Contains(i.Problem))
+                .ToList()
+                .OrderByDescending(i => i.Result.Score)
+                    .ThenByDescending(i => i.Attempt)
+                .GroupBy(i => i.Problem)
+                .Select(i => i.Take(3).ToList())
+                .ToList();
+            var cfg = _courseService[courseId][year];
+            cfg.Results = results;
+            cfg.Problems = cfg.Problems
+                .Select(i => i.AddDescription(_problemDescriptionService, singleCourse))
+                .ToList();
+            return cfg;
         }
 
         [HttpGet("course/{courseId}/{year}/{problemId}")]
