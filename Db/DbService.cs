@@ -1,7 +1,9 @@
 using CC.Net.Collections;
 using CC.Net.Config;
+using MongoDB.Bson;
 using MongoDB.Driver;
 using System;
+using System.Threading.Tasks;
 
 namespace CC.Net.Db
 {
@@ -10,8 +12,8 @@ namespace CC.Net.Db
         private readonly MongoDBConfig _dBConfig;
         private readonly MongoClient _client;
         private readonly IMongoDatabase _dB;
-        public readonly IMongoCollection<CcLog> Logs;
         public readonly IMongoCollection<CcData> Data;
+        public readonly IMongoCollection<CcEvent> Events;
 
         public DbService(MongoDBConfig dBConfig)
         {
@@ -28,8 +30,14 @@ namespace CC.Net.Db
                     )
             });
             _dB = _client.GetDatabase(_dBConfig.Database);
-            Logs = _dB.GetCollection<CcLog>(_dBConfig.CollectionLogs);
+
             Data = _dB.GetCollection<CcData>(_dBConfig.CollectionData);
+            Events = _dB.GetCollection<CcEvent>(_dBConfig.CollectionEvents);
+        }
+
+        public Task<CcData> DataSingleOrDefaultAsync(ObjectId objectId)
+        {
+            return Data.Find(i => i.Id == objectId).SingleOrDefaultAsync();
         }
     }
 }

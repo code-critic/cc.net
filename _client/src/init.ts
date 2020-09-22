@@ -1,4 +1,4 @@
-import { ICommentServiceItem, IAppUser } from "./models/DataModel";
+import { ICommentServiceItem, IAppUser, ICcEvent } from "./models/DataModel";
 import { observable } from "mobx";
 import { Dispatcher } from 'flux';
 import { HubConnectionBuilder } from '@aspnet/signalr';
@@ -15,6 +15,7 @@ interface HttpClientConfig {
 }
 
 type methodType = "auto" | "get" | "post" | "delete" | "put" | "patch";
+
 class HttpClient {
 
     private cache: Map<string, any> = new Map();
@@ -61,6 +62,13 @@ class HttpClient {
 
 
 class CommentService {
+
+    public markAsRead(event: ICcEvent) {
+      httpClient.fetch(`notification/mark-as-read/${event.objectId}`)
+        .then(i => {
+            console.log(i);
+        });
+    }
 
     @observable
     public items: ICommentServiceItem[] = [];
@@ -137,6 +145,11 @@ let _currentUser: IAppUser = {
 }
 export const getUser = () => _currentUser;
 
+export const updateUser = (user: IAppUser) => {
+    _currentUser = user;
+    appDispatcher.dispatch({ actionType: "userChanged" });
+}
+
 export const layoutUtils = new LayoutUtils();
 
 
@@ -148,9 +161,16 @@ window.addEventListener("keypress", event => {
 });
 
 
+export type DispatcherActionType = 'userChanged' | 'commentServiceChanged' | 'newNotification';
+export interface IDispatcher {
+    actionType: DispatcherActionType;
+    data?: any;
+}
+
+
 export const commentService = new CommentService();
 
-export const appDispatcher = new Dispatcher();
+export const appDispatcher = new Dispatcher<IDispatcher>();
 
 export const liveConnection = new HubConnectionBuilder()
     .withUrl("/live")
@@ -168,6 +188,13 @@ auth()
                 console.log("Connected to the hub");
                 (window as any).foo = liveConnection;
                 liveConnection.invoke("RegisterUser", _currentUser.id);
+
+                liveConnection.on("newNotification", payload => {
+                    appDispatcher.dispatch({
+                        actionType: "newNotification",
+                        data: payload
+                    })
+                });
 
 
                 liveConnection.on("OnMessage", (message: string, level: NotificationLevel) => {

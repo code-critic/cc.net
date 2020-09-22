@@ -57,11 +57,18 @@ namespace CC.Net.Services
 
         private async Task DoWork()
         {
+            
             _logger.LogInformation("checking db");
             using (var scope = _serviceProvider.CreateScope())
             {
                 var provider = scope.ServiceProvider;
                 var dbService = provider.GetService<DbService>();
+                var hub = provider.GetService<IHubContext<LiveHub>>();
+
+                var events = await dbService.Events.Find(i => true)
+                    .ToListAsync();
+
+                await hub.Clients.All.NewNotification(events);
 
                 var cursor = await dbService.Data
                     .FindAsync(i => i.Result.Status == ProcessStatus.InQueue.Value);

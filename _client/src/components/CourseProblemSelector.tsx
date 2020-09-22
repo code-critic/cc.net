@@ -6,12 +6,14 @@ import Grid from "@material-ui/core/Grid";
 import Card from "@material-ui/core/Card";
 import Typography from "@material-ui/core/Typography";
 import { ApiResource } from "../utils/ApiResource";
+import { randomColorCss } from "../utils/randomcolor";
 import { SimpleLoader } from "./SimpleLoader";
 import Breadcrumbs from "@material-ui/core/Breadcrumbs";
 import { Link as RouterLink } from "react-router-dom";
 import Link from "@material-ui/core/Link";
 import NavigateNextIcon from '@material-ui/icons/NavigateNext';
 import { getStatus, isStatusOk } from "../utils/StatusUtils";
+import Tooltip from '@material-ui/core/Tooltip';
 
 interface CourseProblemSelectorProps {
     courses: ICourse[];
@@ -252,11 +254,14 @@ export const CourseProblemSelector = (props: CourseProblemSelectorProps) => {
     if (!course) {
         return <>
             <Grid container spacing={2} className="card-select">
-                {coursesFlatten.map((i, j) =>
-                    <Grid item xs={12} sm={6} lg={3} key={j}>
+                {coursesFlatten.map((i, j) => {
+                    const fullname = `/courses/${i.course}/${i.year}`;
+
+                    return <Grid item xs={12} sm={6} lg={3} key={j}>
                         <Card elevation={3}>
+                            <div className="color-bar" style={randomColorCss(fullname)} />
                             <Button component={RouterLink}
-                                to={`/courses/${i.course}/${i.year}`}
+                                to={fullname}
                                 onClick={() => changeCourse(i)}>
                                 <div>
                                     <Typography gutterBottom variant="h5" component="h2">
@@ -269,6 +274,7 @@ export const CourseProblemSelector = (props: CourseProblemSelectorProps) => {
                             </Button>
                         </Card>
                     </Grid>
+                }
                 )}
             </Grid>
         </>
@@ -290,11 +296,14 @@ export const CourseProblemSelector = (props: CourseProblemSelectorProps) => {
         return <>
             <Grid container spacing={2} className="card-select">
                 {course.problems.map((i, j) => {
+                    const fullname = `/courses/${course.course}/${course.year}/${i.id}`;
                     const res = bestResults.results.flatMap(i => i).filter(j => j.problem == i.id);
+
                     return <Grid item xs={12} sm={6} lg={3} key={j} >
                         <Card elevation={3}>
+                            <div className="color-bar" style={randomColorCss(fullname)} />
                             <Button component={RouterLink}
-                                to={`/courses/${course.course}/${course.year}/${i.id}`}
+                                to={fullname}
                                 onClick={() => changeProblem(i)}>
                                 <div>
                                     <Typography gutterBottom variant="h5" component="h2">
@@ -305,17 +314,20 @@ export const CourseProblemSelector = (props: CourseProblemSelectorProps) => {
                             <Typography variant="body2" className="card-footer" color="textSecondary" component="small">
                                 {res.length > 0 &&
                                     <>
+
                                         <div className="result-status-bar">
                                             <span>Top 3 results: </span>
                                             {res.map(i => {
                                                 const status = getStatus(i.result.status);
                                                 const className = `button result-status result-status-${isStatusOk(status.value)}`;
-                                                return <a
-                                                    role="button"
-                                                    onClick={() => history.push(`/r/${i.objectId}`)}
-                                                    className={className}>
-                                                    {status.letter}
-                                                </a>
+                                                const score = i.result.scores.join(", ");
+                                                return <Tooltip title={`${status.name} (score: ${score})`}>
+                                                    <a role="button"
+                                                        onClick={() => history.push(`/r/${i.objectId}`)}
+                                                        className={className}>
+                                                        {status.letter}
+                                                    </a>
+                                                </Tooltip>
                                             })}
                                         </div>
                                     </>
@@ -325,7 +337,8 @@ export const CourseProblemSelector = (props: CourseProblemSelectorProps) => {
                                 }
                             </Typography>
                         </Card>
-                    </Grid>}
+                    </Grid>
+                }
                 )}
             </Grid>
         </>

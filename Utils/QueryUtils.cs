@@ -32,6 +32,7 @@ namespace CC.Net.Utils
 
         public static string Parse(TableRequestFilter filter, params ParseUtilType[] extras)
         {
+            var filterId = filter.id.ToLower();
             if (filter.value == "all" || filter.value == "")
             {
                 return null;
@@ -69,20 +70,39 @@ namespace CC.Net.Utils
                 return $"_id: {{\"$gt\": ObjectId(\"{minId}\")}}";
             }
 
-            if (filter.id == nameof(CcData.Language))
+            if (filterId == nameof(CcData.Language).ToLower())
             {
                 return $"language: \"{filter.value}\"";
             }
 
-            if (filter.id == nameof(CcData.ReviewRequest))
+            if (filterId == nameof(CcData.ReviewRequest).ToLower())
             {
                 if (filter.value == "yes")
                 {
                     return $"reviewRequest: {{ $ne: null }}";
                 }
-                else
+                else if (filter.value == "no")
                 {
                     return $"reviewRequest: {{ $eq: null }}";
+                }
+            }
+            if (filterId == nameof(CcData.Comments).ToLower())
+            {
+                if (filter.value == "yes")
+                {
+                    return $"comments: {{ $ne: [] }}";
+                }
+                else if (filter.value == "no")
+                {
+                    return $"comments: {{ $eq: [] }}";
+                }
+                else if (filter.value == "1")
+                {
+                    return $"comments: {{ $size: 1 }}";
+                }
+                else if (filter.value == "2")
+                {
+                    return $"comments: {{ $size: 2 }}";
                 }
             }
 

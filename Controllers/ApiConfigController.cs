@@ -117,7 +117,10 @@ namespace CC.Net.Controllers
             var currentUser = _userService.CurrentUser.Id;
             var problems = yearConfig.Problems.Select(i => i.Id).ToList();
             var results = _dbService.Data
-                .Find(i => i.User == currentUser && problems.Contains(i.Problem))
+                .Find(i => i.User == currentUser
+                    && i.CourseName == course.Name
+                    && i.CourseYear == yearConfig.Year
+                    && problems.Contains(i.Problem))
                 .ToList()
                 .OrderByDescending(i => i.Result.Score)
                     .ThenByDescending(i => i.Attempt)

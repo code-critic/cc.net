@@ -26,6 +26,12 @@
 		Imaginary = 3,
 		Modified = 4
 	}
+	export enum CcEventType {
+		Unknown = 0,
+		NewComment = 1,
+		NewGrade = 2,
+		NewCodeReview = 3
+	}
 	export class ProcessStatusStatic {
 		public static InQueue: IProcessStatus = {
                 code: ProcessStatusCodes.InQueue,

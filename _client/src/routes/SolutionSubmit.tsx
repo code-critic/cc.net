@@ -33,6 +33,7 @@ import HomeIcon from '@material-ui/icons/Home';
 import ExtensionIcon from '@material-ui/icons/Extension';
 import SchoolIcon from '@material-ui/icons/School';
 import "../third_party/mathjax";
+import { ShowAssets } from "../components/ShowAssets";
 
 interface SolutionSubmitProps extends RouteComponentProps<ICourseYearProblem> {
 }
@@ -117,11 +118,11 @@ export const SolutionSubmit2 = (props) => {
         ] as Promise<any>[];
 
         Promise.all(promises)
-        .then((data: any) => {
-            setCourses(data[0]);
-            setLanguages(data[1]);
-            setIsLoading(false);
-        });
+            .then((data: any) => {
+                setCourses(data[0]);
+                setLanguages(data[1]);
+                setIsLoading(false);
+            });
     }, []);
 
     useEffect(() => {
@@ -144,7 +145,7 @@ export const SolutionSubmit = (props) => {
     const [liveResult, setLiveResult] = React.useState<ICcData>();
     const [forcedResultId, setForcedResultId] = React.useState("");
     const [problem, setProblem] = React.useState<ICourseProblem>();
-    const [user, setUser] = React.useState(getUser());
+    const [userState, setUser] = React.useState(getUser());
     const [files, setFiles] = React.useState<IFile[]>([]);
     const [language, setLanguage] = React.useState<ILanguage>();
     const [params, setParams] = React.useState<any>();
@@ -161,7 +162,16 @@ export const SolutionSubmit = (props) => {
         }
     });
 
+    useEffect(() => {
+        appDispatcher.register(payload => {
+            if (payload.actionType === "userChanged") {
+                setUser({ ...getUser() });
+            }
+        });
+    }, []);
 
+
+    const user = getUser();
     const { course: urlCourse, year: urlYear, problem: urlProblem } = match.params;
     const activeProblem = problem;
     const coursesFlatten = courses.flatMap(flattenCourse);
@@ -171,15 +181,8 @@ export const SolutionSubmit = (props) => {
     apiLanguages.loadState(setLanguages);
 
 
-    appDispatcher.register((payload: any) => {
-        if (payload.actionType == "userChanged") {
-            setUser(getUser());
-        }
-    });
-
     history.listen((location, action) => {
         setProblem(undefined);
-        // setParams(match.params);
     });
 
 
@@ -187,12 +190,10 @@ export const SolutionSubmit = (props) => {
         setLiveResult(item);
     });
 
+
     if (!user.role || !apiCourses.isLoaded || !apiLanguages.isLoaded) {
         return <SimpleLoader />
     }
-
-
-
 
     if (!problem || !activeProblem) {
         return <Container>
@@ -208,6 +209,7 @@ export const SolutionSubmit = (props) => {
     const defaultLanguage = activeProblem.unittest
         ? languages.find(i => i.id === activeProblem.reference.lang)
         : languages[0];
+    const hasAssets = !!problem.assets && problem.assets.length > 0;
 
 
     return <Container>
@@ -228,6 +230,12 @@ export const SolutionSubmit = (props) => {
 
             {/* col 1 */}
             <Grid item xs={12} sm={12} lg={6}>
+                {/* assets */ }
+                {hasAssets &&
+                    < ShowAssets
+                        urlPrefix={`/static-files/serve/${activeCourse.course}/${activeCourse.year}/${activeProblem.id}`}
+                        assets={problem.assets} />
+                }
                 {/* description */}
                 <div className="description" dangerouslySetInnerHTML={{ __html: problem.description }}>
                 </div>

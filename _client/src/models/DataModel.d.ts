@@ -80,6 +80,12 @@
 		problems: ICourseProblem[];
 		year: string;
 	}
+	export const enum CcEventType {
+		Unknown = 0,
+		NewComment = 1,
+		NewGrade = 2,
+		NewCodeReview = 3
+	}
 	interface ICcData {
 		action: string;
 		attempt: number;
@@ -121,6 +127,18 @@
 		score: number;
 		scores: number[];
 		status: number;
+	}
+	interface ICcEvent {
+		content: string;
+		id: IObjectId;
+		isNew: boolean;
+		objectId: string;
+		reciever: string;
+		resultId: IObjectId;
+		resultObjectId: string;
+		sender: string;
+		subject: string;
+		type: CcEventType;
 	}
 	interface IObjectId {
 		creationTime: Date;

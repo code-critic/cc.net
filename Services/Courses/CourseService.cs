@@ -73,7 +73,7 @@ namespace CC.Net.Services.Courses
 
         public Course this[string key]
         {
-            get => Courses.First(i => i.Name.ToLower() == key.ToLower());
+            get => Courses.FirstOrDefault(i => i.Name.ToLower() == key.ToLower());
         }
     }
 }

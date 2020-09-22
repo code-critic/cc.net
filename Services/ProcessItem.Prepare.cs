@@ -219,14 +219,20 @@ namespace CC.Net.Services
                 }
             }
 
-            // 5) copy all assets to the tmpdir assets dir
+            // 5) copy shared scripts
+            if (Directory.Exists(Context.ProblemDir.ScriptsDir))
+            {
+                DirectoryUtils.Copy(Context.ProblemDir.ScriptsDir, Context.TmpDir.AssetsDir);
+            }
+
+            // 6) copy all assets to the tmpdir assets dir
             //      note: we cannot create assets since copying requires dir to not exists
             if (Directory.Exists(Context.ProblemDir.AssetsDir))
             {
                 DirectoryUtils.Copy(Context.ProblemDir.AssetsDir, Context.TmpDir.AssetsDir);
             }
 
-            // 6) copy all manual assets
+            // 7) copy all manual assets
             if (Context.CourseProblem.Assets.Any())
             {
                 Context.CourseProblem.Assets

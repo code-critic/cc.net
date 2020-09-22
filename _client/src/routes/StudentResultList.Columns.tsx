@@ -148,6 +148,20 @@ export function getColumns(model: StudentResultListModel, courses: ICourse[]) {
                 </select>
         },
         {
+            Header: "Comments",
+            accessor: nameof<ICcData>(i => i.comments),
+            Cell: (cellInfo: CellInfo) => (cellInfo.value && cellInfo.value.length) ? "yes" : "",
+            Filter: (params: { column: Column, filter: any, onChange: ReactTableFunction, key?: string }) =>
+                <select onChange={event => params.onChange(event.target.value)} style={{ width: "100%" }}
+                    value={params.filter ? params.filter.value : "all"}>
+                    <option value="all">Show All</option>
+                    <option value="yes">Yes</option>
+                    <option value="no">No</option>
+                    <option value="1">exactly 1 comment</option>
+                    <option value="2">exactly 2 comments</option>
+                </select>
+        },
+        {
             Header: "Score",
             accessor: nameof<ICcData>(i => i.result),
             Cell: statusRenderer,

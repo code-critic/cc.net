@@ -55,6 +55,7 @@ namespace CC.Net
                         .For<Language>()
                         .For<Course>()
                         .For<CcData>()
+                        .For<CcEvent>()
                         .For<CcDataAgg>()
                         .For<MarkSolutionItem>()
                         .For<TableRequest>()
@@ -79,6 +80,7 @@ namespace CC.Net
                             .For<ProcessStatusCodes>()
                             .For<ChangeType>()
                             .For<ProcessStatus>()
+                            .For<CcEventType>()
 
                             .WithModuleNameFormatter((moduleName) => "")
                             .WithMemberFormatter((identifier) =>

@@ -149,13 +149,13 @@ export class StudentResultItem extends React.Component<StudentResultItemProps, a
         httpClient
             .fetch(`reviewrequest/${item.objectId}`)
             .then(data => {
-                const { status, updated } = data;
+                const { status, updated, msg } = data;
                 if (status === "ok") {
                     NotificationManager.success(`Ok, Teacher(s) have been notified`);
                     this.props.item.reviewRequest = new Date();
                     this.setState({ reviewRequest: new Date() });
                 } else {
-                    NotificationManager.error(`Failed notify Teacher(s) comments`);
+                    NotificationManager.error(`Failed notify Teacher(s) comments, ${msg}`);
                 }
             });
     }
