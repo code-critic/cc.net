@@ -11,6 +11,15 @@ export class ApiResource<T> {
     public isLoaded: boolean = false;
 
 
+    public static load<T>(path: string): Promise<T> {
+        return new Promise<T>((resolve, reject) => {
+            new ApiResource<T>(path, false).load()
+            .then(data => {
+                resolve(data as any);
+            })
+            .catch(reject);
+        });
+    }
     constructor(public path: string, autoload = true) {
         if (autoload) {
             this.load();

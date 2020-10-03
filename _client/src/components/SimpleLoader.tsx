@@ -1,11 +1,16 @@
-import { PropagateLoader } from "react-spinners";
+import { BarLoader } from "react-spinners";
 import React from "react";
 import "../styles/spinners.css"
 
-export class SimpleLoader extends React.Component {
+interface SimpleLoaderProps {
+    title?: string;
+}
+
+export class SimpleLoader extends React.Component<SimpleLoaderProps, any, any> {
     render() {
+        const { title } = this.props;
         return <div className="simple-loader">
-            <PropagateLoader loading/>
+            <BarLoader loading />{title && <span>{title}</span>}
         </div>
     }
 }
