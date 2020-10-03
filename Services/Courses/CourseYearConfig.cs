@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -18,6 +19,17 @@ namespace CC.Net.Services.Courses
         {
             _course = course;
             Problems.ForEach(i => i.SetCourse(_course, this));
+        }
+
+        public IEnumerable<CourseProblem> GetAllowedProblemForUser(AppUser user)
+        {
+            foreach(var problem in Problems)
+            {
+                if(user.isRoot || problem.IsActive)
+                {
+                    yield return problem;
+                }
+            }
         }
 
         public CourseProblem this[string key]

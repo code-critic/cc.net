@@ -36,17 +36,18 @@
 	interface ICourseProblem {
 		allTests: ICourseProblemCase[];
 		assets: string[];
-		avail: string;
+		avail: Date;
 		cat: string;
 		description: string;
 		export: string[];
 		id: string;
 		include: string[];
+		isActive: boolean;
 		item: ICourseProblemCase;
 		libname: string;
 		name: string;
 		reference: ICourseReference;
-		since: string;
+		since: Date;
 		tests: ICourseProblemCase[];
 		timeout: number;
 		unittest: boolean;

@@ -14,6 +14,8 @@ import Link from "@material-ui/core/Link";
 import NavigateNextIcon from '@material-ui/icons/NavigateNext';
 import { getStatus, isStatusOk } from "../utils/StatusUtils";
 import Tooltip from '@material-ui/core/Tooltip';
+import { groupBy } from "../utils/arrayUtils";
+import { getUser } from "../init";
 
 interface CourseProblemSelectorProps {
     courses: ICourse[];
@@ -119,7 +121,6 @@ export const CourseProblemSelector2 = (props: CourseProblemSelectorProps) => {
     if (isLoading) {
         return <SimpleLoader />
     }
-
 
     if (!course) {
         return <>
@@ -251,31 +252,42 @@ export const CourseProblemSelector = (props: CourseProblemSelectorProps) => {
         }
     }
 
+    const renderCourseCard = (sc: ISingleCourse, index: any) => {
+        const fullname = `/courses/${sc.course}/${sc.year}`;
+        return <Grid item xs={12} sm={6} lg={3} key={index}>
+            <Card elevation={3}>
+                <div className="color-bar" style={randomColorCss(fullname)} />
+                <Button component={RouterLink}
+                    to={fullname}
+                    onClick={() => changeCourse(sc)}>
+                    <div>
+                        <Typography gutterBottom variant="h5" component="h2">
+                            {sc.course} ({sc.year})
+                                    </Typography>
+                        <Typography variant="body2" color="textSecondary" component="p">
+                            {sc.problems.length} problem{sc.problems.length == 1 ? "" : "s"} available
+                                    </Typography>
+                    </div>
+                </Button>
+            </Card>
+        </Grid>
+    }
+
     if (!course) {
+        const groupByYears = groupBy(coursesFlatten.sort((b, a) => Number(a.year) - Number(b.year)), i => i.year);
+        let results: JSX.Element[] = [];
+        groupByYears.forEach((items, year) => {
+            results.push(<h1 className="my-4" key={year}>{year}</h1>);
+            results = [...results, 
+                <Grid key={`${year}-grp`} container spacing={2} className="card-select">
+                    {items.map((i, j) => renderCourseCard(i, `${year}-${j}`))}
+                </Grid>
+            ];
+        });
+
         return <>
             <Grid container spacing={2} className="card-select">
-                {coursesFlatten.map((i, j) => {
-                    const fullname = `/courses/${i.course}/${i.year}`;
-
-                    return <Grid item xs={12} sm={6} lg={3} key={j}>
-                        <Card elevation={3}>
-                            <div className="color-bar" style={randomColorCss(fullname)} />
-                            <Button component={RouterLink}
-                                to={fullname}
-                                onClick={() => changeCourse(i)}>
-                                <div>
-                                    <Typography gutterBottom variant="h5" component="h2">
-                                        {i.course} ({i.year})
-                                    </Typography>
-                                    <Typography variant="body2" color="textSecondary" component="p">
-                                        {i.problems.length} problem{i.problems.length == 1 ? "" : "s"} available
-                                    </Typography>
-                                </div>
-                            </Button>
-                        </Card>
-                    </Grid>
-                }
-                )}
+                {results}
             </Grid>
         </>
     }
@@ -293,13 +305,20 @@ export const CourseProblemSelector = (props: CourseProblemSelectorProps) => {
     }
 
     if (!problem) {
+        const user = getUser();
         return <>
             <Grid container spacing={2} className="card-select">
                 {course.problems.map((i, j) => {
                     const fullname = `/courses/${course.course}/${course.year}/${i.id}`;
                     const res = bestResults.results.flatMap(i => i).filter(j => j.problem == i.id);
+                    
+                    const extraClass = i.isActive
+                        ? "item-active"
+                        : user.role == "root" || user.role == "teacher"
+                            ? "item-semi"
+                            : "item-hidden";
 
-                    return <Grid item xs={12} sm={6} lg={3} key={j} >
+                    return <Grid item xs={12} sm={6} lg={3} key={j} className={extraClass}>
                         <Card elevation={3}>
                             <div className="color-bar" style={randomColorCss(fullname)} />
                             <Button component={RouterLink}

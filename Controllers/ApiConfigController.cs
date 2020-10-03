@@ -50,15 +50,15 @@ namespace CC.Net.Controllers
         }
 
         [HttpGet("courses")]
-        public List<Course> Courses()
+        public IEnumerable<Course> Courses()
         {
-            return _courseService.Courses;
+            return _courseService.GetAllowedCoursesForUser(_userService.CurrentUser);
         }
         
         [HttpGet("courses-full/{courseName}/{courseYear}")]
         public List<CourseProblem> CourseFull(string courseName, string courseYear)
         {
-            var course = _courseService[courseName];
+            var course = _courseService.GetCourseForUser(_userService.CurrentUser, courseName);
             var yearConfig = course[courseYear];
 
             var singleCourse = new SingleCourse
@@ -93,17 +93,20 @@ namespace CC.Net.Controllers
                 .FirstOrDefault();
         }
 
-        [HttpGet("course/{courseId}")]
-        public Course Course(string courseId)
+        [HttpGet("course/{courseName}")]
+        public Course Course(string courseName)
         {
-            return _courseService[courseId];
+            return _courseService.GetCourseForUser(_userService.CurrentUser, courseName);
         }
 
-        [HttpGet("course/{courseId}/{year}")]
-        public CourseYearConfig CourseYearConfig(string courseId, string year)
+        [HttpGet("course/{courseName}/{year}")]
+        public CourseYearConfig CourseYearConfig(string courseName, string year)
         {
-            var course = _courseService[courseId];
+            var course = _courseService.GetCourseForUser(_userService.CurrentUser, courseName);
             var yearConfig = course[year];
+            var visibleProblems = yearConfig
+                .GetAllowedProblemForUser(_userService.CurrentUser)
+                .ToList();
 
             var singleCourse = new SingleCourse
             {
@@ -111,11 +114,11 @@ namespace CC.Net.Controllers
                 Course = course.Name,
                 Year = yearConfig.Year,
                 CourseConfig = course.CourseConfig,
-                Problems = yearConfig.Problems,
+                Problems = visibleProblems,
             };
 
             var currentUser = _userService.CurrentUser.Id;
-            var problems = yearConfig.Problems.Select(i => i.Id).ToList();
+            var problems = visibleProblems.Select(i => i.Id).ToList();
             var results = _dbService.Data
                 .Find(i => i.User == currentUser
                     && i.CourseName == course.Name
@@ -127,7 +130,8 @@ namespace CC.Net.Controllers
                 .GroupBy(i => i.Problem)
                 .Select(i => i.Take(3).ToList())
                 .ToList();
-            var cfg = _courseService[courseId][year];
+
+            var cfg = _courseService[courseName][year];
             cfg.Results = results;
             cfg.Problems = cfg.Problems
                 .Select(i => i.AddDescription(_problemDescriptionService, singleCourse))
@@ -135,17 +139,17 @@ namespace CC.Net.Controllers
             return cfg;
         }
 
-        [HttpGet("course/{courseId}/{year}/{problemId}")]
-        public CourseProblem CourseProblem(string courseId, string year, string problemId)
+        [HttpGet("course/{courseName}/{year}/{problemId}")]
+        public CourseProblem CourseProblem(string courseName, string year, string problemId)
         {
-            var problem = _courseService[courseId][year][problemId];
+            var problem = _courseService[courseName][year][problemId];
             return problem;
         }
 
-        [HttpGet("course/{courseId}/{year}/{problemId}/{caseId}")]
-        public CourseProblemCase CourseProblemCase(string courseId, string year, string problemId, string caseId)
+        [HttpGet("course/{courseName}/{year}/{problemId}/{caseId}")]
+        public CourseProblemCase CourseProblemCase(string courseName, string year, string problemId, string caseId)
         {
-            return _courseService[courseId][year][problemId][caseId];
+            return _courseService[courseName][year][problemId][caseId];
         }
 
 

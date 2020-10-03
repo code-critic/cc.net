@@ -29,10 +29,12 @@ namespace CC.Net.Services.Courses
         public double Timeout { get; set; }
 
         [YamlMember(Alias = "avail")]
-        public string Avail { get; set; }
+        public DateTime Avail { get; set; } = DateTime.MaxValue;
 
         [YamlMember(Alias = "since")]
-        public string Since { get; set; }
+        public DateTime Since { get; set; } = DateTime.MinValue;
+
+        public bool IsActive => DateTime.Now > Since && DateTime.Now <= Avail;
 
 
         [YamlMember(Alias = "include")]

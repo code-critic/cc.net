@@ -13,7 +13,7 @@ export const ShowAssets = (props: ShowAssetsProps) => {
     const { assets, urlPrefix } = props;
 
     return (<>
-        <p>
+        <div className="my-2">
             <Typography>Available assets:</Typography>
             <ButtonGroup>
                 {assets.map(i => {
@@ -23,6 +23,6 @@ export const ShowAssets = (props: ShowAssetsProps) => {
                     </Button>
                 })}
             </ButtonGroup>
-        </p>
+        </div>
     </>)
 }

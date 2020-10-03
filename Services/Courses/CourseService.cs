@@ -22,6 +22,37 @@ namespace CC.Net.Services.Courses
             Courses = Parse();
         }
 
+        public IEnumerable<Course> GetAllowedCoursesForUser(AppUser user)
+        {
+            foreach (var course in Courses)
+            {
+                var access = course.CourseConfig.Access;
+                if (access == "everyone" || access == "public" || user.isRoot)
+                {
+                    yield return course;
+                }
+
+                else if (access == "private")
+                {
+                    var allowedIds = course.CourseConfig.Students.Select(i => i.id)
+                        .Concat(course.CourseConfig.Teachers.Select(i => i.id))
+                        .ToList();
+
+                    if (allowedIds.Contains(user.Id))
+                    {
+                        yield return course;
+                    }
+                }
+            }
+        }
+
+        public Course GetCourseForUser(AppUser user, string courseName)
+        {
+            var courses = GetAllowedCoursesForUser(user);
+            var course = courses.First(i => i.CourseConfig.Name.ToLower() == courseName.ToLower());
+            return course;
+        }
+
         private List<Course> Parse()
         {
             var result = new List<Course>();

@@ -631,3 +631,14 @@ div.MuiMenu-paper {
     }
   }
 }
+
+
+.card-select {
+  .item-active {}
+  .item-hidden {
+    display: none;
+  }
+  .item-semi {
+    opacity: 0.5;
+  }
+}

@@ -20,10 +20,10 @@ namespace CC.Net.Services.Courses
         public string Access { get; set; }
 
         [YamlMember(Alias = "teachers")]
-        public List<User> Teachers { get; set; }
+        public List<User> Teachers { get; set; } = new List<User>();
 
         [YamlMember(Alias = "students")]
-        public List<User> Students { get; set; }
+        public List<User> Students { get; set; } = new List<User>();
 
         [YamlMember(Alias = "tags")]
         public List<CourseTag> Tags { get; set; }
