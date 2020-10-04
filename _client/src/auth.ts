@@ -17,7 +17,7 @@ export const auth = () => {
                     console.log('auth error', (window as any).currentUser);
                     debugger;
                     (window as any).location.href = "https://flowdb.nti.tul.cz/auth/";
-                    reject()
+                    reject();
                 }
             })
     });

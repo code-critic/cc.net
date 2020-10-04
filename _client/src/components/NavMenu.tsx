@@ -4,13 +4,14 @@ import { Navbar, Container, NavbarBrand, Collapse, NavItem } from 'react-bootstr
 import { NavLink, Link } from 'react-router-dom';
 import './NavMenu.css';
 import { pageLinks } from '../pageLinks';
-import { getUser, appDispatcher, commentService, updateUser } from '../init';
+import { getUser, appDispatcher, commentService, updateUser, httpClient } from '../init';
 import { AppBar, Toolbar, IconButton, Typography, Button, Menu, MenuItem, Badge } from '@material-ui/core';
 import CodeIcon from '@material-ui/icons/Code';
 import AccountCircleIcon from '@material-ui/icons/AccountCircle';
 import NotificationsIcon from '@material-ui/icons/Notifications';
 import CancelIcon from '@material-ui/icons/Cancel';
 import SupervisorAccountIcon from '@material-ui/icons/SupervisorAccount';
+import FormatSizeIcon from '@material-ui/icons/FormatSize';
 import { SimpleLoader } from './SimpleLoader';
 import { ICcEvent } from '../models/DataModel';
 import { CcEventType } from '../models/Enums';
@@ -130,6 +131,21 @@ export const NavMenu = (props: NavMenuProps) => {
             handleMenuClose();
           }}>
             <SupervisorAccountIcon />Switch to role student
+        </MenuItem>
+        }
+        {isRoot &&
+          <MenuItem onClick={() => {
+            const newName = prompt("Enter new name", "foo.bar") || user.id;
+            httpClient.fetch(`rename/${newName}`)
+              .then(data => {
+                user.id = newName;
+                user.username = newName;
+                setUser(user);
+                updateUser(user);
+                handleMenuClose();
+              });
+          }}>
+          <FormatSizeIcon />Rename current user
         </MenuItem>
         }
         {!isRoot && canBeRoot &&

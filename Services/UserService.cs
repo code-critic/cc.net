@@ -3,6 +3,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Http;
 using System.Security.Claims;
 using CC.Net.Config;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication;
 
 namespace CC.Net.Services
 {
@@ -17,6 +20,22 @@ namespace CC.Net.Services
         {
             _serviceProvider = serviceProvider;
             _appOptions = appOptions;
+        }
+
+        public async Task SignInAsync(HttpContext HttpContext, AppUser user)
+        {
+            var claims = new List<Claim>
+                {
+                    new Claim(ClaimTypes.Name, user.Username),
+                    new Claim(ClaimTypes.NameIdentifier, user.Id),
+                    new Claim(ClaimTypes.Email, user.Email),
+                    new Claim(nameof(user.Affiliation), user.Affiliation),
+                    new Claim(nameof(user.Eppn), user.Eppn),
+                };
+
+            var identity = new ClaimsIdentity(claims, "TUL Identity");
+            var userPrincipal = new ClaimsPrincipal(new[] { identity });
+            await HttpContext.SignInAsync(userPrincipal);
         }
 
         public AppUser FromPrincipal(ClaimsPrincipal principal)

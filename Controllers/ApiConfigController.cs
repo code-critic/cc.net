@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Security.Claims;
+using System.Threading.Tasks;
 using CC.Net.Collections;
 using CC.Net.Config;
 using CC.Net.Db;
@@ -25,19 +26,20 @@ namespace CC.Net.Controllers
     [ApiController]
     [Route("api")]
     [Authorize]
-    public class ApiConfigController
+    public class ApiConfigController: ControllerBase
     {
         private readonly CourseService _courseService;
         private readonly LanguageService _languageService;
         private readonly DbService _dbService;
         private readonly ProblemDescriptionService _problemDescriptionService;
+        private readonly AppOptions _appOptions;
         private readonly CompareService _compareService;
         private readonly UserService _userService;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
         public ApiConfigController(
             CourseService courseService, LanguageService languageService, DbService dbService,
-            ProblemDescriptionService problemDescriptionService,
+            ProblemDescriptionService problemDescriptionService, AppOptions appOptions,
             CompareService compareService, IHttpContextAccessor httpContextAccessor, UserService userService
             )
         {
@@ -45,6 +47,7 @@ namespace CC.Net.Controllers
             _languageService = languageService;
             _dbService = dbService;
             _problemDescriptionService = problemDescriptionService;
+            _appOptions = appOptions;
             _compareService = compareService;
             _userService = userService;
         }
@@ -54,7 +57,7 @@ namespace CC.Net.Controllers
         {
             return _courseService.GetAllowedCoursesForUser(_userService.CurrentUser);
         }
-        
+
         [HttpGet("courses-full/{courseName}/{courseYear}")]
         public List<CourseProblem> CourseFull(string courseName, string courseYear)
         {
@@ -192,7 +195,7 @@ namespace CC.Net.Controllers
                 throw new Exception("Access denied");
             }
 
-            var directory = dirName == "reference" 
+            var directory = dirName == "reference"
                 ? context.ProblemDir.OutputDir
                 : data.Action != "solve"
                     ? context.ProblemDir.RootFile(dirName)
@@ -212,6 +215,35 @@ namespace CC.Net.Controllers
                 Filename = i.Name,
                 Content = i.FullName.ReadAllText()
             });
+        }
+
+        [HttpGet("rename/{id}")]
+        public async Task<object> ChangeUser(string id)
+        {
+            var user = _userService.CurrentUser;
+            if (_appOptions.Admins.Contains(user.Id) || user.isRoot)
+            {
+                var newuser = user.Copy();
+                newuser.Eppn = $"{id}@tul.cz";
+                newuser.Elevate();
+                await _userService.SignInAsync(HttpContext, newuser);
+
+                return new
+                {
+                    code = 200,
+                    status = "ok",
+                    message = "user changed",
+                };
+            }
+            else
+            {
+                return new
+                {
+                    code = 401,
+                    status = "error",
+                    message = "access denied",
+                };
+            }
         }
     }
 }

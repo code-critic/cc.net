@@ -97,18 +97,7 @@ namespace cc.net.Controllers
 
             if (user != null)
             {
-                var claims = new List<Claim>
-                {
-                    new Claim(ClaimTypes.Name, user.Username),
-                    new Claim(ClaimTypes.NameIdentifier, user.Id),
-                    new Claim(ClaimTypes.Email, user.Email),
-                    new Claim(nameof(user.Affiliation), user.Affiliation),
-                    new Claim(nameof(user.Eppn), user.Eppn),
-                };
-                
-                var identity = new ClaimsIdentity(claims, "TUL Identity");
-                var userPrincipal = new ClaimsPrincipal(new[] { identity });
-                await HttpContext.SignInAsync(userPrincipal);
+                await _userService.SignInAsync(HttpContext, user);
                 return Redirect("/");
             }
 

@@ -24,11 +24,10 @@ namespace CC.Net.Services
         [JsonProperty("datetime")]
         public string Datetime { get; set; }
 
-        public string Id => Eppn.Split('@').First();
-
         public string Role { get; set; } = "student";
 
-        public bool isRoot => Role == "root";
+        public string Id => Eppn.Split('@').First();
+        public bool isRoot => Roles.Contains("root");
 
         public string Username => string.Join(' ',
             Id
@@ -52,6 +51,16 @@ namespace CC.Net.Services
 
         public string Email => Eppn.Split('@').Skip(1).FirstOrDefault();
         public List<string> Roles => Affiliation.Split(";").Select(i => i.Split('@').First()).ToList();
+
+        public AppUser Copy()
+        {
+            return new AppUser{
+                Eppn = Eppn,
+                Affiliation = Affiliation,
+                Datetime = Datetime,
+                Role = Role,
+            };
+        }
     }
 
     public class CryptoService
