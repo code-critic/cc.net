@@ -189,7 +189,7 @@ export class StudentResultList extends React.Component<any, StudentResultListSta
                         // TrComponent={AComponentWrapper((e) => this.onDetailIdChanged(e))}
                         defaultSorted={[
                             {
-                                id: "attempt",
+                                id: "id.timestamp",
                                 desc: true
                             }
                         ]}

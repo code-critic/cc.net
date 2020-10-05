@@ -86,6 +86,7 @@ namespace CC.Net.Utils
                     return $"reviewRequest: {{ $eq: null }}";
                 }
             }
+            
             if (filterId == nameof(CcData.Comments).ToLower())
             {
                 if (filter.value == "yes")
