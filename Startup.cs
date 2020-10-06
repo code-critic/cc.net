@@ -49,6 +49,7 @@ namespace CC.Net
             services.AddScoped<CryptoService>();
             services.AddScoped<UserService>();
             services.AddHostedService<ProcessService>();
+            services.AddHostedService<NotificationService>();
             services.AddHttpContextAccessor();
 
             services.AddAuthentication("CookieAuth")

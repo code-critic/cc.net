@@ -1,7 +1,7 @@
 import { ICommentServiceItem, IAppUser, ICcEvent } from "./models/DataModel";
 import { observable } from "mobx";
 import { Dispatcher } from 'flux';
-import { HubConnectionBuilder } from '@aspnet/signalr';
+import { HubConnectionBuilder, LogLevel } from '@aspnet/signalr';
 import { NotificationManager } from 'react-notifications';
 import { auth } from './auth';
 
@@ -64,10 +64,10 @@ class HttpClient {
 class CommentService {
 
     public markAsRead(event: ICcEvent) {
-      httpClient.fetch(`notification/mark-as-read/${event.objectId}`)
-        .then(i => {
-            console.log(i);
-        });
+        httpClient.fetch(`notification/mark-as-read/${event.objectId}`)
+            .then(i => {
+                console.log(i);
+            });
     }
 
     @observable
@@ -161,7 +161,7 @@ window.addEventListener("keypress", event => {
 });
 
 
-export type DispatcherActionType = 'userChanged' | 'commentServiceChanged' | 'newNotification';
+export type DispatcherActionType = 'userChanged' | 'commentServiceChanged' | 'newNotification' | 'serverStateChanged';
 export interface IDispatcher {
     actionType: DispatcherActionType;
     data?: any;
@@ -169,12 +169,71 @@ export interface IDispatcher {
 
 
 export const commentService = new CommentService();
-
 export const appDispatcher = new Dispatcher<IDispatcher>();
-
 export const liveConnection = new HubConnectionBuilder()
     .withUrl("/live")
+    .configureLogging(LogLevel.None)
     .build();
+
+const startWS = () => {
+    appDispatcher.dispatch({
+        actionType: "serverStateChanged",
+        data: "connecting",
+    });
+    liveConnection.start()
+        .then(() => {
+            appDispatcher.dispatch({
+                actionType: "serverStateChanged",
+                data: "connected",
+            });
+            console.log("Connected to the hub");
+            (window as any).foo = liveConnection;
+            liveConnection.invoke("RegisterUser", _currentUser.id);
+
+            liveConnection.on("newNotification", payload => {
+                appDispatcher.dispatch({
+                    actionType: "newNotification",
+                    data: payload
+                })
+            });
+
+            liveConnection.on("OnMessage", (message: string, level: NotificationLevel) => {
+                switch (level) {
+                    case "info":
+                        NotificationManager.info(message.toString());
+                        break;
+                    case "success":
+                        NotificationManager.success(message.toString());
+                        break;
+                    case "warning":
+                        NotificationManager.warning(message.toString());
+                        break;
+                    case "error":
+                        NotificationManager.error(message.toString());
+                        break;
+                }
+            });
+        })
+        .catch(error => {
+            appDispatcher.dispatch({
+                actionType: "serverStateChanged",
+                data: "closed",
+            });
+            setTimeout(() => {
+                startWS();
+            }, 5000);
+        })
+
+    liveConnection.onclose(error => {
+        appDispatcher.dispatch({
+            actionType: "serverStateChanged",
+            data: "closed",
+        });
+        setTimeout(() => {
+            startWS();
+        }, 5000);
+    });
+}
 
 
 type NotificationLevel = "info" | "success" | "warning" | "error";
@@ -183,35 +242,5 @@ auth()
     .then(i => {
         _currentUser = (window as any).currentUser as IAppUser;
         appDispatcher.dispatch({ actionType: "userChanged" });
-        liveConnection.start()
-            .then(() => {
-                console.log("Connected to the hub");
-                (window as any).foo = liveConnection;
-                liveConnection.invoke("RegisterUser", _currentUser.id);
-
-                liveConnection.on("newNotification", payload => {
-                    appDispatcher.dispatch({
-                        actionType: "newNotification",
-                        data: payload
-                    })
-                });
-
-
-                liveConnection.on("OnMessage", (message: string, level: NotificationLevel) => {
-                    switch (level) {
-                        case "info":
-                            NotificationManager.info(message.toString());
-                            break;
-                        case "success":
-                            NotificationManager.success(message.toString());
-                            break;
-                        case "warning":
-                            NotificationManager.warning(message.toString());
-                            break;
-                        case "error":
-                            NotificationManager.error(message.toString());
-                            break;
-                    }
-                });
-            });
+        startWS();
     });

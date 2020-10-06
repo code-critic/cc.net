@@ -16,6 +16,7 @@ import { SimpleLoader } from './SimpleLoader';
 import { ICcEvent } from '../models/DataModel';
 import { CcEventType } from '../models/Enums';
 import Moment from 'react-moment';
+import { withStyles } from "@material-ui/core/styles";
 
 interface NavMenuProps {
 
@@ -60,6 +61,7 @@ export const NavMenu = (props: NavMenuProps) => {
   const [menuId, setMenuId] = useState<string>();
   const [user, setUser] = useState(getUser());
   const [notifications, setNotifications] = useState<ICcEvent[]>([]);
+  const [serverState, setServerState] = useState<string>("connected");
 
   useEffect(() => {
     appDispatcher.register(payload => {
@@ -72,6 +74,15 @@ export const NavMenu = (props: NavMenuProps) => {
           if (user.role) {
             const data = payload.data as ICcEvent[];
             setNotifications(data.filter(i => i.reciever == user.id));
+          }
+          break;
+        case "serverStateChanged":
+          setServerState(payload.data as string);
+          switch (payload.data as string) {
+            case "connected":
+              break;
+            case "closed":
+              break;
           }
           break;
       }
@@ -111,6 +122,7 @@ export const NavMenu = (props: NavMenuProps) => {
 
   const accountMenuId = 'primary-search-account-menu';
   const notificationsMenuId = 'primary-search-notifications-menu';
+  
   const renderMenu = (
     <>
       <Menu
@@ -196,9 +208,13 @@ export const NavMenu = (props: NavMenuProps) => {
         <IconButton edge="start" color="inherit" component={Link} to="/">
           <CodeIcon />
         </IconButton>
-        <Typography variant="h6">Code Critic</Typography>
+        <Badge badgeContent={1} variant="dot" color="secondary" 
+          anchorOrigin={{vertical: 'top', horizontal: 'left'}}
+          classes={{ badge: `small state-${serverState}` }}>
+          <Typography variant="h6">Code Critic</Typography>
+        </Badge>
 
-        <div style={{ flexGrow: 1 }} />
+        <div style={{ flexGrow: 1 }} /> 
 
 
         {availLinks.map(i =>
