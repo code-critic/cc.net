@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using CC.Net.Collections;
 using CC.Net.Db;
@@ -59,6 +60,29 @@ namespace CC.Net.Controllers
                 }
             }
             return result;
+        }
+
+        [HttpGet("fix-notifications")]
+        public async Task<object> FixNotifications()
+        {
+            var notifications = await _dbService.Events
+                .AsQueryable()
+                .ToListAsync();
+
+            notifications = notifications
+                .Where(i => i.Reciever == "jan.hybs")
+                .ToList();
+
+            foreach (var n in notifications)
+            {
+                switch(n.Type)
+                {
+                    case CcEventType.NewComment:
+                        return "cascsa";
+                        break;
+                }
+            }
+            return "ascascas";
         }
     }
 }
