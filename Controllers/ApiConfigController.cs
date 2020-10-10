@@ -35,12 +35,14 @@ namespace CC.Net.Controllers
         private readonly AppOptions _appOptions;
         private readonly CompareService _compareService;
         private readonly UserService _userService;
+        private readonly UtilService _utilService;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
         public ApiConfigController(
             CourseService courseService, LanguageService languageService, DbService dbService,
             ProblemDescriptionService problemDescriptionService, AppOptions appOptions,
-            CompareService compareService, IHttpContextAccessor httpContextAccessor, UserService userService
+            CompareService compareService, IHttpContextAccessor httpContextAccessor, UserService userService,
+            UtilService utilService
             )
         {
             _courseService = courseService;
@@ -50,6 +52,7 @@ namespace CC.Net.Controllers
             _appOptions = appOptions;
             _compareService = compareService;
             _userService = userService;
+            _utilService = utilService;
         }
 
         [HttpGet("courses")]
@@ -88,12 +91,17 @@ namespace CC.Net.Controllers
         }
 
         [HttpGet("result/{objectId}")]
-        public CcData GetResult(string objectId)
+        public async Task<CcData> GetResult(string objectId)
         {
+            var user = _userService.CurrentUser.Id;
+            await _utilService.MarkNotificationAsReadAsync(new ObjectId(objectId), user);
+
             var id = new ObjectId(objectId);
-            return _dbService.Data
+            var item = _dbService.Data
                 .Find(i => i.Id == id)
                 .FirstOrDefault();
+
+            return _utilService.ConvertToExtended(item);
         }
 
         [HttpGet("course/{courseName}")]

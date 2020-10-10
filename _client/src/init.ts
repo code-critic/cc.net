@@ -62,7 +62,6 @@ class HttpClient {
 
 
 class CommentService {
-
     public markAsRead(event: ICcEvent) {
         httpClient.fetch(`notification/mark-as-read/${event.objectId}`)
             .then(i => {

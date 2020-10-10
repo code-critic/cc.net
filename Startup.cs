@@ -48,6 +48,7 @@ namespace CC.Net
             services.AddScoped<CompareService>();
             services.AddScoped<CryptoService>();
             services.AddScoped<UserService>();
+            services.AddScoped<UtilService>();
             services.AddHostedService<ProcessService>();
             services.AddHostedService<NotificationService>();
             services.AddHttpContextAccessor();

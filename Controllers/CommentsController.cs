@@ -20,24 +20,28 @@ namespace CC.Net.Controllers
         private readonly DbService _dbService;
         private readonly UserService _userService;
         private readonly CourseService _courseService;
+        private readonly UtilService _utilService;
 
-        public CommentsController(DbService dbService, UserService userService, CourseService courseService)
+        public CommentsController(DbService dbService, UserService userService, CourseService courseService, UtilService utilService)
         {
             _dbService = dbService;
             _userService = userService;
             _courseService = courseService;
+            _utilService = utilService;
         }
 
         [HttpGet("notification/mark-as-read/{objectId}")]
         public async Task<object> MarkAsRead(string objectId)
         {
+            var user = _userService.CurrentUser.Id;
             var oid = new ObjectId(objectId);
-            var result = await _dbService.Events.DeleteOneAsync(i => i.Id == oid);
+            var ccEvent = (await _dbService.Events.FindAsync(i => i.Id == oid)).FirstOrDefault();
+            var deletedCount = await _utilService.MarkNotificationAsReadAsync(ccEvent) + await _utilService.MarkNotificationAsReadAsync(ccEvent?.ResultId, user);
 
             return new
             {
-                status = result.DeletedCount == 1 ? "ok" : "error",
-                updated = result.DeletedCount
+                status = deletedCount >= 1 ? "ok" : "error",
+                updated = deletedCount
             };
         }
 
@@ -105,16 +109,15 @@ namespace CC.Net.Controllers
             var updated = 0;
             if (items.Any())
             {
+                var data = (CcData) null;
                 foreach (var item in items)
                 {
                     var objectId = new ObjectId(item.objectId);
-                    var data = await _dbService.DataSingleOrDefaultAsync(objectId);
+                    data = await _dbService.DataSingleOrDefaultAsync(objectId);
                     data.Comments.Add(item.comment);
 
                     var result = await _dbService.Data.ReplaceOneAsync(i => i.Id == objectId, data);
                     updated += (int)result.ModifiedCount;
-
-
                 }
 
                 var oid = new ObjectId(items.First().objectId);
@@ -123,20 +126,27 @@ namespace CC.Net.Controllers
                 // generate notifications
                 var teachers = _courseService[ccData?.CourseName]?.CourseConfig?.Teachers
                     ?? new List<Entities.User>();
-                
-                foreach (var teacher in teachers)
+
+                var recipients = new List<string> { data.User };
+                recipients.AddRange(teachers.Select(i => i.id));
+                recipients.AddRange(data?.Comments?.Select(i => i.User) ?? new List<string>());
+                recipients = recipients.Distinct().ToList();
+
+                foreach (var recipient in recipients)
                 {
                     var sender = _userService.CurrentUser.Id;
-                    var reciever = teacher.id;
-                    await _dbService.Events.InsertOneAsync(new CcEvent
+                    if (sender != recipient)
                     {
-                        Id = ObjectId.GenerateNewId(),
-                        ResultId = oid,
-                        Type = CcEventType.NewComment,
-                        IsNew = true,
-                        Sender = sender,
-                        Reciever = reciever,
-                    });
+                        await _dbService.Events.InsertOneAsync(new CcEvent
+                        {
+                            Id = ObjectId.GenerateNewId(),
+                            ResultId = oid,
+                            Type = CcEventType.NewComment,
+                            IsNew = true,
+                            Sender = sender,
+                            Reciever = recipient,
+                        });
+                    }
                 }
             }
 

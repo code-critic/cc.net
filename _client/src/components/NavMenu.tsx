@@ -17,6 +17,7 @@ import { ICcEvent } from '../models/DataModel';
 import { CcEventType } from '../models/Enums';
 import Moment from 'react-moment';
 import { withStyles } from "@material-ui/core/styles";
+import { groupBy } from '../utils/arrayUtils';
 
 interface NavMenuProps {
 
@@ -24,10 +25,11 @@ interface NavMenuProps {
 
 interface EventNotificationProps {
   event: ICcEvent;
+  groupCount?: number;
 }
 
 const EventNotification = (props: EventNotificationProps) => {
-  const { event } = props;
+  const { event, groupCount } = props;
   let subject = event.subject;
 
   if (!subject) {
@@ -44,15 +46,16 @@ const EventNotification = (props: EventNotificationProps) => {
     }
   }
 
-  return <div>
+  return <>
     <div>
       {subject}
     </div>
 
-    <Typography variant="body2" color="textSecondary" component="div" style={{textAlign: "right"}}>
-      <Moment date={new Date(event.id.creationTime)} fromNow/>
+    <Typography variant="body2" color="textSecondary" component="div" style={{ textAlign: "right" }}>
+      <Moment date={new Date(event.id.creationTime)} fromNow />
+      {(groupCount && groupCount > 1) && <span> ({groupCount} notifications)</span>}
     </Typography>
-  </div>
+  </>
 }
 
 
@@ -67,13 +70,13 @@ export const NavMenu = (props: NavMenuProps) => {
     appDispatcher.register(payload => {
       switch (payload.actionType) {
         case "userChanged":
-          setUser({...getUser()});
+          setUser({ ...getUser() });
           break;
         case "newNotification":
           const user = getUser();
           if (user.role) {
             const data = payload.data as ICcEvent[];
-            setNotifications(data.filter(i => i.reciever == user.id));
+            setNotifications(data);
           }
           break;
         case "serverStateChanged":
@@ -122,7 +125,7 @@ export const NavMenu = (props: NavMenuProps) => {
 
   const accountMenuId = 'primary-search-account-menu';
   const notificationsMenuId = 'primary-search-notifications-menu';
-  
+  const notifByData = groupBy(notifications, i => i.resultObjectId);
   const renderMenu = (
     <>
       <Menu
@@ -157,7 +160,7 @@ export const NavMenu = (props: NavMenuProps) => {
                 handleMenuClose();
               });
           }}>
-          <FormatSizeIcon />Rename current user
+            <FormatSizeIcon />Rename current user
         </MenuItem>
         }
         {!isRoot && canBeRoot &&
@@ -189,12 +192,16 @@ export const NavMenu = (props: NavMenuProps) => {
         open={menuId === notificationsMenuId}
         onClose={handleMenuClose}
       >
-        {notifications.map(i => <MenuItem key={i.objectId}
-          onClick={() => handleNotificationClose(i)}
-          component={Link}
-          to={`/r/${i.resultObjectId}`}>
-          <EventNotification event={i} />
-        </MenuItem>)}
+        {[...notifByData.entries()].map(entry => {
+          const [objectId, items] = entry;
+          const i = items[0];
+          return <MenuItem className="notification-item" key={i.objectId}
+            onClick={() => handleNotificationClose(i)}
+            component={Link}
+            to={`/r/${i.resultObjectId}`}>
+              <EventNotification event={i} groupCount={items.length} />
+          </MenuItem>;
+        })}
       </Menu>
     </>
   );
@@ -208,13 +215,13 @@ export const NavMenu = (props: NavMenuProps) => {
         <IconButton edge="start" color="inherit" component={Link} to="/">
           <CodeIcon />
         </IconButton>
-        <Badge badgeContent={1} variant="dot" color="secondary" 
-          anchorOrigin={{vertical: 'top', horizontal: 'left'}}
+        <Badge badgeContent={1} variant="dot" color="secondary"
+          anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
           classes={{ badge: `small state-${serverState}` }}>
           <Typography variant="h6">Code Critic</Typography>
         </Badge>
 
-        <div style={{ flexGrow: 1 }} /> 
+        <div style={{ flexGrow: 1 }} />
 
 
         {availLinks.map(i =>
@@ -227,7 +234,7 @@ export const NavMenu = (props: NavMenuProps) => {
           aria-haspopup="true"
           aria-controls={notificationsMenuId}
           onClick={handleProfileMenuOpen}>
-          <Badge badgeContent={notifications.length} color="secondary">
+          <Badge badgeContent={notifByData.size} color="secondary">
             <NotificationsIcon />
           </Badge>
         </IconButton>

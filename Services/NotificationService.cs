@@ -67,12 +67,6 @@ namespace CC.Net.Services
                     var notifications = notificationGroup.ToList();
                     await channels.NewNotification(notifications);
                 }
-
-                await hub.Clients.All.NewNotification(allNotifications);
-
-                var cursor = await dbService.Data
-                    .FindAsync(i => i.Result.Status == ProcessStatus.InQueue.Value);
-
             }
         }
     }
