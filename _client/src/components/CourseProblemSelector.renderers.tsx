@@ -25,7 +25,7 @@ export const AlertStatusMessage = (props: StatusMessageProps) => {
     if (statusCode == ProblemStatus.Active) {
         return <Alert severity="success" icon={<ThumbUpAltIcon />}>
             Submission is open.
-            It'll be closed <Moment date={problem.deadline} fromNow/>.
+            It'll be closed <Moment date={problem.avail} fromNow/>.
         </Alert>
     }
 
@@ -60,7 +60,7 @@ export const StatusMessage = (props: StatusMessageProps) => {
         return <span>
             <ThumbUpAltIcon style={{ color: "#969696" }} fontSize="small" />
             &nbsp;Submission is open.
-            It'll be closed <Moment date={problem.deadline} fromNow/>.
+            It'll be closed <Moment date={problem.avail} fromNow/>.
         </span>
     }
 
