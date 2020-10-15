@@ -185,6 +185,8 @@ namespace CC.Net.Controllers
             doc.Points = item.points;
             doc.GradeComment = item.comment;
 
+            await _utilService.MarkNotificationAsReadAsync(objectId, sender);
+
             var result = await _dbService.Data.UpdateDocumentAsync(doc);
             if(result.IsAcknowledged)
             {
