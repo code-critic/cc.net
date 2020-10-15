@@ -105,7 +105,6 @@ namespace CC.Net.Controllers
         [HttpPost("comments")]
         public async Task<object> PostComments(IEnumerable<CommentServiceItem> items)
         {
-
             var updated = 0;
             if (items.Any())
             {

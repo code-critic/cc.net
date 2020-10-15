@@ -32,6 +32,7 @@ namespace CC.Net.Services
             var course = _courseService[item.CourseName];
             var courseYearConfig = course[item.CourseYear];
             var problem = courseYearConfig[item.Problem];
+            item.IsActive = problem.IsActive;
 
             item.Solutions = item.Solutions
                 .Where(i => !i.Hidden || _userService.CurrentUser?.Role == "root")
@@ -94,7 +95,7 @@ namespace CC.Net.Services
         {
             if (resultId.HasValue)
             {
-                var result = await _dbService.Events.DeleteOneAsync(i => i.Reciever == user && i.ResultId == resultId.Value);
+                var result = await _dbService.Events.DeleteManyAsync(i => i.Reciever == user && i.ResultId == resultId.Value);
                 return result.DeletedCount;
             }
 

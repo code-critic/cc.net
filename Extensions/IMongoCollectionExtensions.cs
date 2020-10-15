@@ -14,8 +14,7 @@ namespace cc.net.Extensions
         public static Task<ReplaceOneResult> UpdateDocumentAsync<T>(this IMongoCollection<T> collection, T document)
             where T: IObjectId
         {
-            var filter = Builders<T>.Filter.Eq("id", document.Id);
-            return collection.ReplaceOneAsync(filter, document);
+            return collection.ReplaceOneAsync(i => i.Id == document.Id, document);
         }
     }
 }

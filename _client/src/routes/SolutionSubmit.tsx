@@ -9,7 +9,7 @@ import { CourseProblemSelectModel } from "../components/CourseProblemSelect.Mode
 import { SimpleLoader } from "../components/SimpleLoader";
 import { ILanguage, ICcData, ICourse, ICourseProblem, ISingleCourse, IAppUser } from "../models/DataModel";
 import { ApiResource } from "../utils/ApiResource";
-import { Grid, Button, ButtonGroup, Container, Breadcrumbs, Typography } from '@material-ui/core';
+import { Grid, Button, ButtonGroup, Container, Breadcrumbs, Typography, Box } from '@material-ui/core';
 
 
 import SendIcon from '@material-ui/icons/Send';
@@ -34,6 +34,8 @@ import ExtensionIcon from '@material-ui/icons/Extension';
 import SchoolIcon from '@material-ui/icons/School';
 import "../third_party/mathjax";
 import { ShowAssets } from "../components/ShowAssets";
+import { StatusMessage, AlertStatusMessage } from "../components/CourseProblemSelector.renderers";
+
 
 interface SolutionSubmitProps extends RouteComponentProps<ICourseYearProblem> {
 }
@@ -214,6 +216,7 @@ export const SolutionSubmit = (props) => {
 
     return <Container>
         <RenderBreadcrumbs activeCourse={activeCourse} activeProblem={activeProblem} />
+        <AlertStatusMessage problem={activeProblem} />
 
         <Grid container spacing={2}>
             {/* live result */}
@@ -271,9 +274,11 @@ export const SolutionSubmit = (props) => {
                 {/* submit/results */}
                 <Grid item xs={12} container className="button bar my-2" justify="space-between">
                     <Button size="large" variant="outlined" color="secondary" endIcon={<BubbleChartIcon />}
-                        onClick={openResults}>View Results</Button>
-                    <Button size="large" variant="contained" color="primary" endIcon={<SendIcon />}
-                        onClick={() => submitSolution(user, activeCourse, activeProblem, language || defaultLanguage, files)}>Submit Solution</Button>
+                        onClick={openResults}>View Results
+                    </Button>
+                    <Button size="large" variant="contained" color="primary" endIcon={<SendIcon />} disabled={!activeProblem.isActive}
+                        onClick={() => submitSolution(user, activeCourse, activeProblem, language || defaultLanguage, files)}>Submit Solution
+                    </Button>
                 </Grid>
             </Grid>
         </Grid>

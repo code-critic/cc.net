@@ -1,6 +1,6 @@
 import React from "react";
 import { ApiResource } from "../utils/ApiResource";
-import { ICcData, ILanguage, ICcDataResult, ICcDataCaseResult } from "../models/DataModel";
+import { ICcData, ILanguage, ICcDataResult, ICcDataCaseResult, ICourseProblem } from "../models/DataModel";
 import { observable } from "mobx";
 import { observer } from "mobx-react";
 import Moment from "react-moment";
@@ -24,7 +24,6 @@ import { httpClient } from "../init";
 interface StudentResultItemProps {
     item: ICcData;
     languages: ILanguage[];
-
     onClick?: () => void;
     forceOpen?: boolean;
 }
@@ -45,7 +44,6 @@ export class StudentResultItem extends React.Component<StudentResultItemProps, a
         super(props);
         this.sourceCode = this.props.forceOpen ? true : false;
         this.showMessages = this.resultStatus.code == ProcessStatusCodes.ErrorWhileRunning;
-
     }
 
     public getIcon(status: number, size = 24) {
@@ -193,14 +191,13 @@ export class StudentResultItem extends React.Component<StudentResultItemProps, a
                 </Grid>
             </ListItem>
 
-
             {sourceCode &&
                 <Dialog open={sourceCode} fullWidth maxWidth="lg"
                     onClose={() => this.sourceCode = false}>
                     <DialogTitle className="text-right">
                         <Box className="dialog-title">
                             <div>
-                                <ButtonGroup variant="contained" color="primary">
+                                <ButtonGroup variant="contained" color="primary" disabled={!item.isActive}>
                                     <Button
                                         disabled={!!item.reviewRequest}
                                         onClick={() => this.requestCodeReview()}>

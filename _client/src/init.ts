@@ -101,12 +101,11 @@ class CommentService {
                     NotificationManager.error(`Failed to save ${recovery.length} comments`);
                 }
 
+                this.items = [];
+                appDispatcher.dispatch({
+                    actionType: "commentServiceChanged"
+                });
             });
-
-        this.items = [];
-        appDispatcher.dispatch({
-            actionType: "commentServiceChanged"
-        });
     }
 }
 

@@ -25,10 +25,7 @@ namespace CC.Net.Services.Courses
         {
             foreach(var problem in Problems)
             {
-                if(user.isRoot || problem.IsActive)
-                {
-                    yield return problem;
-                }
+                yield return problem;
             }
         }
 

@@ -17,6 +17,12 @@
 		unittest: string[];
 		version: string;
 	}
+	export const enum ProblemStatus {
+		BeforeStart = 0,
+		Active = 1,
+		ActiveLate = 2,
+		AfterDeadline = 3
+	}
 	interface ICourse {
 		courseConfig: ICourseConfig;
 		courseDir: string;
@@ -38,6 +44,7 @@
 		assets: string[];
 		avail: Date;
 		cat: string;
+		deadline: Date;
 		description: string;
 		export: string[];
 		id: string;
@@ -48,6 +55,8 @@
 		name: string;
 		reference: ICourseReference;
 		since: Date;
+		status: string;
+		statusCode: ProblemStatus;
 		tests: ICourseProblemCase[];
 		timeout: number;
 		unittest: boolean;
@@ -94,7 +103,9 @@
 		courseName: string;
 		courseYear: string;
 		docker: boolean;
+		gradeComment: string;
 		id: IObjectId;
+		isActive: boolean;
 		language: string;
 		objectId: string;
 		points: number;
@@ -188,6 +199,7 @@
 		type: DiffResultLineType;
 	}
 	interface IMarkSolutionItem {
+		comment: string;
 		objectId: string;
 		points: number;
 	}

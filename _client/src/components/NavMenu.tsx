@@ -18,6 +18,7 @@ import { CcEventType } from '../models/Enums';
 import Moment from 'react-moment';
 import { withStyles } from "@material-ui/core/styles";
 import { groupBy } from '../utils/arrayUtils';
+import * as Showdown from "showdown";
 
 interface NavMenuProps {
 
@@ -28,6 +29,13 @@ interface EventNotificationProps {
   groupCount?: number;
 }
 
+const converter = new Showdown.Converter({
+  tables: true,
+  simplifiedAutoLink: true,
+  strikethrough: true,
+  tasklists: true
+});
+
 const EventNotification = (props: EventNotificationProps) => {
   const { event, groupCount } = props;
   let subject = event.subject;
@@ -35,21 +43,19 @@ const EventNotification = (props: EventNotificationProps) => {
   if (!subject) {
     switch (event.type as number) {
       case CcEventType.NewCodeReview:
-        subject = `Code Review Request from ${event.sender}`;
+        subject = `\`Code Review\` request from \`${event.sender}\``;
         break;
       case CcEventType.NewComment:
-        subject = `New comment from ${event.sender}`;
+        subject = `\`New comment\` from \`${event.sender}\``;
         break;
       case CcEventType.NewGrade:
-        subject = `Grade recieved from ${event.sender}`;
+        subject = `\`New Grade\` recieved from \`${event.sender}\``;
         break;
     }
   }
 
   return <>
-    <div>
-      {subject}
-    </div>
+    <div className="notification-body" dangerouslySetInnerHTML={{ __html: converter.makeHtml(subject)}} />
 
     <Typography variant="body2" color="textSecondary" component="div" style={{ textAlign: "right" }}>
       <Moment date={new Date(event.id.creationTime)} fromNow />

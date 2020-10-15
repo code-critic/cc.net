@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using cc.net.Extensions;
 using CC.Net.Collections;
 using CC.Net.Config;
 using CC.Net.Db;
@@ -173,6 +174,37 @@ namespace CC.Net.Controllers
                 .UpdateOne(filter, update);
         }
 
+        [HttpPost("save-grade")]
+        public async Task<object> SaveGrade(MarkSolutionItem item)
+        {
+            var objectId = new ObjectId(item.objectId);
+            var doc = _dbService.Data.Find(i => i.Id == objectId).Single();
+            var sender = _userService.CurrentUser.Id;
+            var recipient = doc.User;
+
+            doc.Points = item.points;
+            doc.GradeComment = item.comment;
+
+            var result = await _dbService.Data.UpdateDocumentAsync(doc);
+            if(result.IsAcknowledged)
+            {
+                await _dbService.Events.InsertOneAsync(new CcEvent
+                {
+                    Id = ObjectId.GenerateNewId(),
+                    ResultId = objectId,
+                    Type = CcEventType.NewGrade,
+                    Subject = $"`[{doc.CourseName}]`: Recieved `{item.points}%` in problem `{doc.Problem}`",
+                    IsNew = true,
+                    Sender = sender,
+                    Reciever = recipient,
+                });
+            }
+            return new
+            {
+                status = result.IsAcknowledged ? "ok" : "error"
+            };
+        }
+
         [HttpGet("diff/{objectId}/{caseId}")]
         public DiffResultComposite ViewDiff(string objectId, string caseId)
         {
@@ -193,7 +225,6 @@ namespace CC.Net.Controllers
             var data = _dbService.Data
                 .Find(i => i.Id == new ObjectId(objectId))
                 .First();
-
 
             var context = new CourseContext(_courseService, _languageService, data);
             var dirName = dir.ToLower();

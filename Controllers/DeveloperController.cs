@@ -73,16 +73,19 @@ namespace CC.Net.Controllers
                 .Where(i => i.Reciever == "jan.hybs")
                 .ToList();
 
-            foreach (var n in notifications)
-            {
-                switch(n.Type)
+            var total = 0;
+            notifications
+                .ForEach(i =>
                 {
-                    case CcEventType.NewComment:
-                        return "cascsa";
-                        break;
-                }
-            }
-            return "ascascas";
+                    var course = _dbService.Data.Find(j => j.Id == i.ResultId).ToList().FirstOrDefault()?.CourseName;
+                    if (course?.ToUpper() != "ALD")
+                    {
+                        _dbService.Events.DeleteOne(j => j.Id == i.Id);
+                        total++;
+                    }
+                });
+
+            return $"Deleted {total} notifications";
         }
     }
 }

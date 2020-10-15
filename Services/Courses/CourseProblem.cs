@@ -7,6 +7,13 @@ using YamlDotNet.Serialization;
 
 namespace CC.Net.Services.Courses
 {
+    public enum ProblemStatus
+    {
+        BeforeStart = 0,
+        Active = 1,
+        ActiveLate = 2,
+        AfterDeadline = 3,
+    }
 
     public class CourseProblem
     {
@@ -30,11 +37,25 @@ namespace CC.Net.Services.Courses
 
         [YamlMember(Alias = "avail")]
         public DateTime Avail { get; set; } = DateTime.MaxValue;
-
+        
         [YamlMember(Alias = "since")]
         public DateTime Since { get; set; } = DateTime.MinValue;
 
-        public bool IsActive => DateTime.Now > Since && DateTime.Now <= Avail;
+        [YamlMember(Alias = "deadline")]
+        public DateTime Deadline { get; set; } = DateTime.MaxValue;
+
+        public ProblemStatus StatusCode =>
+            DateTime.Now < Since
+                ? ProblemStatus.BeforeStart 
+                : DateTime.Now >= Since && DateTime.Now < Avail
+                    ? ProblemStatus.Active
+                    : DateTime.Now >= Avail && DateTime.Now < Deadline
+                        ? ProblemStatus.ActiveLate
+                        : ProblemStatus.AfterDeadline;
+
+        public string Status => StatusCode.ToString();
+
+        public bool IsActive => StatusCode != ProblemStatus.AfterDeadline;
 
 
         [YamlMember(Alias = "include")]

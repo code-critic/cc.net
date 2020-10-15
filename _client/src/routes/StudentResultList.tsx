@@ -5,7 +5,7 @@ import { Form } from "react-bootstrap";
 import { Column, RowInfo } from "react-table";
 import "react-table/react-table.css";
 import { throttle } from 'throttle-debounce';
-import { ICcData } from "../models/DataModel";
+import { ICcData, IMarkSolutionItem } from "../models/DataModel";
 import "../styles/detail.css";
 import "../styles/list.css";
 import { CondenseButton } from "../utils/CondenseButton";
@@ -14,14 +14,117 @@ import { ReactTableWithSelect } from "../utils/ReactTableWithSelect";
 import { getColumns, getStatus } from "./StudentResultList.Columns";
 import { StudentResultListModel } from "./StudentResultList.Model";
 import { StudentResultDetail } from "../components/StudentResultDetail";
-import { Dialog, DialogTitle, DialogContent, Button, Box, AppBar, Grid } from "@material-ui/core";
-import { appDispatcher, commentService } from "../init";
-
+import { Dialog, DialogTitle, DialogContent, Button, Box, AppBar, Grid, Slider, Typography, TextField } from "@material-ui/core";
+import { appDispatcher, commentService, httpClient } from "../init";
+import { NotificationManager } from 'react-notifications';
+import NotificationsIcon from '@material-ui/icons/Notifications';
 
 
 interface StudentResultListState {
     model?: StudentResultListModel;
     columnsToCopy: any;
+}
+
+const marks = [
+    {
+        value: (i: number) => i >= 0 && i < 50,
+        label: 'Unacceptable',
+    },
+    {
+        value: (i: number) => i >= 50 && i < 60,
+        label: 'Barely acceptable',
+    },
+    {
+        value: (i: number) => i >= 60 && i < 70,
+        label: 'Satisfactory',
+    },
+    {
+        value: (i: number) => i >= 70 && i < 80,
+        label: 'Good',
+    },
+    {
+        value: (i: number) => i >= 80 && i < 90,
+        label: 'Excellent',
+    },
+    {
+        value: (i: number) => i >= 90 && i < 100,
+        label: 'Exceptional',
+    },
+    {
+        value: (i: number) => i == 100,
+        label: 'Perfect',
+    },
+];
+
+const marks2 = [
+    {
+        value: 0,
+        label: '0 %',
+    },
+    {
+        value: 100,
+        label: '100 %',
+    }
+];
+
+interface GradeSystemProps {
+    item: ICcData;
+    onChange: () => void;
+}
+
+export const GradeSystem = (props: GradeSystemProps) => {
+    const { item, onChange } = props;
+    const [points, setPoints] = React.useState(item.points);
+    const [comment, setComment] = React.useState(item.gradeComment || "");
+
+    const mark = marks.find(i => i.value(points));
+    const saveGrade = () => {
+        httpClient.fetch(`save-grade`, {
+            objectId: item.objectId,
+            points: points,
+            comment: comment
+        } as IMarkSolutionItem)
+            .then(i => {
+                console.log(i);
+                onChange();
+                if (i.status === "ok") {
+                    NotificationManager.success(`Ok, saved`);
+                } else {
+                    NotificationManager.error(`Error while saving`);
+                }
+            })
+    }
+
+    return <Box display="flex" flexDirection="row" alignItems="start">
+        <Box display="flex" flexDirection="column" alignItems="center" flexGrow="1">
+            <Slider marks={marks2} className="mb-0"
+                onChange={(_, i) => setPoints(i as number)}
+                value={points}
+                step={1}
+                min={0}
+                max={100}
+                valueLabelDisplay="auto" />
+            <Typography component="small" className="pl-2">
+                Grade: <strong>{mark?.label}</strong> ({points} %)
+        </Typography>
+
+            <TextField fullWidth value={comment}
+                placeholder="Add comment"
+                variant="outlined"
+                rows={2}
+                rowsMax={4}
+                size="small"
+                onChange={e => setComment(e.target.value)}
+                multiline />
+        </Box>
+        <div style={{ width: 30 }}>&nbsp;</div>
+        <Box display="flex" flexDirection="column" alignItems="center">
+            <Button color="primary" size="large" variant="contained" onClick={saveGrade}>Save Grade</Button>
+            <Typography component="small" className="tiny" style={{ maxWidth: 120 }}>
+                <NotificationsIcon className="tiny" />Student will get a notification about the grade
+            </Typography>
+        </Box>
+    </Box>
 }
 
 @observer
@@ -61,6 +164,7 @@ export class StudentResultList extends React.Component<any, StudentResultListSta
         appDispatcher.register((payload: any) => {
             if (payload.actionType == "commentServiceChanged") {
                 this.forceUpdateField++;
+                this.refresh();
             }
         });
     }
@@ -91,6 +195,10 @@ export class StudentResultList extends React.Component<any, StudentResultListSta
         return this.model.data.map(d => nestGet(d, key));
     }
 
+    public refresh() {
+        this.onFetchData(this.lastState);
+    }
+
     public columns(): Column[] {
         return getColumns(
             this.model,
@@ -109,12 +217,50 @@ export class StudentResultList extends React.Component<any, StudentResultListSta
         this.detailResult = result;
     }
 
+    private closeDetail() {
+        this.detailIsOpened = false;
+    }
+
     changeCourse(e: any) {
         const dataset = e.target.selectedOptions[0].dataset;
         this.courseName = dataset.name;
         this.courseYear = dataset.year;
         this.course = e.target.value;
         this.onFetchData(this.lastState);
+    }
+
+    handleKeyPress(e: React.KeyboardEvent<HTMLDivElement>) {
+        
+        if (e.ctrlKey && this.detailIsOpened) {
+            const index = this.model.data.findIndex(i => i.objectId == this.detailResult?.objectId);
+            const total = this.model.data.length;
+            if (index >= 0) {
+                switch (e.keyCode) {
+                    case 37: // left
+                    case 40: // down
+                        if (index == 0) {
+                            NotificationManager.info("That's all on this page");
+                            this.closeDetail();
+                        } else {
+                            this.openDetail(this.model.data[index - 1]);
+                            NotificationManager.success(`Item ${index} of ${total}`);
+                        }
+                        break;
+                    case 39: // right
+                    case 49: // up
+                        if (index == this.model.data.length-1) {
+                            NotificationManager.info("That's all on this page");
+                            this.closeDetail();
+                        } else {
+                            this.openDetail(this.model.data[index + 1]);
+                            NotificationManager.success(`Item ${index + 2} of ${total}`)
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
     }
 
     render() {
@@ -126,13 +272,13 @@ export class StudentResultList extends React.Component<any, StudentResultListSta
             return <div>loading</div>
         }
 
-        console.log(commentService.items);
-
-
         return <div>
             {detailResult && detailIsOpened &&
-                <Dialog open={detailIsOpened} fullWidth maxWidth="lg" className={commentService.items.length > 0 ? "unsaved" : ""}
-                    onClose={() => this.detailIsOpened = !detailIsOpened}>
+                <Dialog open={detailIsOpened} fullWidth maxWidth="lg"
+                    className={commentService.items.length > 0 ? "unsaved" : ""}
+                    onClose={() => this.detailIsOpened = !detailIsOpened}
+                    onKeyDown={e => this.handleKeyPress(e)}
+                >
                     <DialogTitle>
                         <Box padding={2}>
                             <Grid container justify="space-between">
@@ -141,10 +287,13 @@ export class StudentResultList extends React.Component<any, StudentResultListSta
                                 </Grid>
                                 {commentService.items.length > 0 && <Grid item>
                                     <Button onClick={() => commentService.postComments()}
-                                            variant="contained" color="secondary">
+                                        variant="contained" color="secondary">
                                         Add {commentService.items.length} comment{commentService.items.length > 1 ? "s" : ""}
                                     </Button>
                                 </Grid>}
+                                <Grid item style={{ minWidth: 500 }}>
+                                    <GradeSystem item={detailResult} onChange={() => this.refresh()} />
+                                </Grid>
                             </Grid>
                         </Box>
                     </DialogTitle>

@@ -82,7 +82,7 @@ export const MultiFileEditor = (props: MultiFileEditorProps) => {
         <AppBar position="static" color="primary" className="tab-file-editor" elevation={2}>
             <Tabs value={value} onChange={handleChange} onMouseDown={handleTabsClick}>
                 {files.map((file, index) => <Tab key={file.path} label={file.name} onMouseDown={e => handleTabClick(e, index)} />)}
-                <Tab label="* Add New File" className="font-italic" />
+                <Tab label="* Add New File" className="font-italic opa5" />
             </Tabs>
         </AppBar>
         <FileEditor

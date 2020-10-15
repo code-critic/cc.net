@@ -186,7 +186,7 @@ export const SolutionSubmitForm = (props: SolutionSubmitFormProps) => {
                 <span>Required File: <code>{activeProblem.libname}</code></span>
             </Box>
         </Grid>}
-        <Grid item xs={12}>
+        <Grid item xs={12} className="my-3">
             <FormControl variant="outlined" fullWidth
                 className={`form-control-editor ${isFullScreen ? "fullscreen" : ""}`}>
                 <MultiFileEditor

@@ -4,15 +4,7 @@ import { ICcData, ILanguage, ICcDataResult } from "../models/DataModel";
 import { SimpleLoader } from "./SimpleLoader";
 import { observable } from "mobx";
 import { observer } from "mobx-react";
-import Moment from "react-moment";
-import { ListItem, ListItemText, ListItemIcon, Dialog, Chip, Tooltip, DialogContent, Button, DialogTitle } from "@material-ui/core";
-
-import CheckIcon from '@material-ui/icons/CheckCircle';
-import CancelIcon from '@material-ui/icons/Cancel';
-import { StudentResultDetail } from "./StudentResultDetail";
 import { StudentResultItem } from "./StudentResults.Item";
-import { isStatusOk, getStatus } from "../utils/StatusUtils";
-import { ProcessStatusCodes } from "../models/Enums";
 
 interface StudentResultsProps {
     course: string;

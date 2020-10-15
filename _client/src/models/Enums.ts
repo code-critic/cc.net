@@ -32,6 +32,12 @@
 		NewGrade = 2,
 		NewCodeReview = 3
 	}
+	export enum ProblemStatus {
+		BeforeStart = 0,
+		Active = 1,
+		ActiveLate = 2,
+		AfterDeadline = 3
+	}
 	export class ProcessStatusStatic {
 		public static InQueue: IProcessStatus = {
                 code: ProcessStatusCodes.InQueue,

@@ -14,7 +14,6 @@ import { nestGet } from "../utils/NestGetter";
 import { ReactTableWithSelect } from "../utils/ReactTableWithSelect";
 import { StudentResultDetail2 } from "./StudentResultDetail2";
 import { getStatus } from "./StudentResultList.Columns";
-import { StudentResultDetail } from "../components/StudentResultDetail";
 
 
 interface ProblemStudentMatrixListState {

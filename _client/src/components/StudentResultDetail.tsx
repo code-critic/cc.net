@@ -9,15 +9,35 @@ import { httpClient } from "../init";
 import { SimpleLoader } from "./SimpleLoader";
 import { RenderSolution } from "../utils/renderers";
 
+
+
 interface StudentResultDetailProps {
     objectId?: string;
-
-    result?: ICcData
 }
 
-@observer
-export class StudentResultDetail extends React.Component<StudentResultDetailProps, any, any> {
+export const StudentResultDetail = (props: StudentResultDetailProps) => {
+    const { objectId } = props;
+    const [data, setData] = React.useState<ICcData>();
+    React.useEffect(() => {
+        if (!data || data.objectId !== objectId) {
+            httpClient.fetch(`student-result-list/${objectId}`)
+                .then((data: ICcData) => {
+                    setData(data);
+                });
+        }
+    }, [objectId]);
 
+    if (!data) {
+        return <SimpleLoader />
+    }
+
+    return <div>
+        <RenderSolution result={data} />
+    </div>
+}
+
+/*@observer
+export class StudentResultDetail extends React.Component<StudentResultDetailProps, any, any> {
 
     @observable
     isLoading: boolean = false;
@@ -36,6 +56,8 @@ export class StudentResultDetail extends React.Component<StudentResultDetailProp
 
     constructor(props: StudentResultDetailProps) {
         super(props);
+        console.log("ctor");
+
         if (props.objectId) {
             this.load();
         } else {
@@ -46,7 +68,7 @@ export class StudentResultDetail extends React.Component<StudentResultDetailProp
 
     render() {
         const { isLoading, data } = this;
-        
+
         if (isLoading || !data) {
             return <SimpleLoader />
         }
@@ -55,4 +77,4 @@ export class StudentResultDetail extends React.Component<StudentResultDetailProp
             <RenderSolution result={data} />
         </div>
     }
-}
+}*/

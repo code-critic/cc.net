@@ -16,6 +16,8 @@ import { getStatus, isStatusOk } from "../utils/StatusUtils";
 import Tooltip from '@material-ui/core/Tooltip';
 import { groupBy } from "../utils/arrayUtils";
 import { getUser } from "../init";
+import { ProblemStatus } from "../models/Enums";
+import { StatusMessage } from "./CourseProblemSelector.renderers";
 
 interface CourseProblemSelectorProps {
     courses: ICourse[];
@@ -312,15 +314,14 @@ export const CourseProblemSelector = (props: CourseProblemSelectorProps) => {
                     const fullname = `/courses/${course.course}/${course.year}/${i.id}`;
                     const res = bestResults.results.flatMap(i => i).filter(j => j.problem == i.id);
                     
-                    const extraClass = i.isActive
-                        ? "item-active"
-                        : user.role == "root" || user.role == "teacher"
-                            ? "item-semi"
-                            : "item-hidden";
+                    const extraClass = `item-${i.status}`;
 
                     return <Grid item xs={12} sm={6} lg={3} key={j} className={extraClass}>
                         <Card elevation={3}>
                             <div className="color-bar" style={randomColorCss(fullname)} />
+                            <Typography variant="body2" className="card-footer" color="textSecondary" component="small">
+                                <StatusMessage problem={i} />
+                            </Typography>
                             <Button component={RouterLink}
                                 to={fullname}
                                 onClick={() => changeProblem(i)}>
@@ -333,7 +334,6 @@ export const CourseProblemSelector = (props: CourseProblemSelectorProps) => {
                             <Typography variant="body2" className="card-footer" color="textSecondary" component="small">
                                 {res.length > 0 &&
                                     <>
-
                                         <div className="result-status-bar">
                                             <span>Top 3 results: </span>
                                             {res.map(i => {

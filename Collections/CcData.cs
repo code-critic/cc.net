@@ -2,16 +2,15 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text.Json.Serialization;
+using cc.net.Collections;
 using CC.Net.Services;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
-using TypeLite;
 
 namespace CC.Net.Collections
 {
     [BsonIgnoreExtraElements]
-    public class CcData
+    public class CcData: IObjectId
     {
         [BsonId]
         [BsonElement("_id")]
@@ -19,17 +18,17 @@ namespace CC.Net.Collections
 
         override public string ToString()
         {
-            return $"{Id}/{Action}/{User, -10} {CourseName}/{CourseYear}/{Problem} [{Result?.Duration:0.000} sec] {ProcessStatus.Get(Result?.Status ?? -1).Name}";
-        }       
+            return $"{Id}/{Action}/{User,-10} {CourseName}/{CourseYear}/{Problem} [{Result?.Duration:0.000} sec] {ProcessStatus.Get(Result?.Status ?? -1).Name}";
+        }
 
         public string ToString(CcDataCaseResult result)
         {
-            return $"{Id}/{Action}/{User, -10} {CourseName}/{CourseYear}/{Problem}/{result.Case} [{result?.Duration:0.000} sec] {ProcessStatus.Get(result?.Status ?? -1).Name}";
+            return $"{Id}/{Action}/{User,-10} {CourseName}/{CourseYear}/{Problem}/{result.Case} [{result?.Duration:0.000} sec] {ProcessStatus.Get(result?.Status ?? -1).Name}";
         }
-        
+
         public string ToString(string caseId)
         {
-            return $"{Id}/{Action}/{User, -10} {CourseName}/{CourseYear}/{Problem}/{caseId} [{Result?.Duration:0.000} sec] {ProcessStatus.Get(Result?.Status ?? -1).Name}";
+            return $"{Id}/{Action}/{User,-10} {CourseName}/{CourseYear}/{Problem}/{caseId} [{Result?.Duration:0.000} sec] {ProcessStatus.Get(Result?.Status ?? -1).Name}";
         }
 
         public string ObjectId
@@ -39,6 +38,9 @@ namespace CC.Net.Collections
                 return Id.ToString();
             }
         }
+
+        [BsonIgnore]
+        public bool IsActive { get; set; }
 
         [BsonElement("user")]
         public string User { get; set; }
@@ -84,6 +86,9 @@ namespace CC.Net.Collections
 
         [BsonElement("points")]
         public float Points { get; set; }
+
+        [BsonElement("gradeComment")]
+        public string GradeComment { get; set; }
 
         [BsonElement("reviewRequest")]
         public DateTime? ReviewRequest { get; set; }

@@ -23,7 +23,7 @@ $diffs: (
   // unchanged: rgb(255, 255, 255),
   // deleted: rgb(255, 208, 208),
   // inserted: rgb(210, 255, 208),
-  // modified: rgb(255, 208, 253),,,,,,,,,,,,,,,,,,,,,
+  // modified: rgb(255, 208, 253),,,,,,,,,,,,,,,,,,,,,,
 );
 
 @media (min-width: 1600px) {
@@ -439,6 +439,14 @@ div.MuiMenu-paper {
   }
 }
 
+.opa5, .MuiTab-textColorInherit.opa5 {
+  opacity: 0.5;
+
+  &:hover {
+    opacity: 1;
+  }
+}
+
 .MuiFormControl-root.form-control-editor,
 .form-control-editor {
   padding: 4px;
@@ -517,8 +525,13 @@ div.MuiMenu-paper {
   flex-grow: 1;
 }
 
-.tiny {
-  font-size: 50%;
+.tiny,
+.MuiTypography-root.tiny {
+  font-size: 60%;
+
+  &.MuiSvgIcon-root {
+    font-size: 130%;
+  }
 }
 
 .MuiBox-root.dialog-title {
@@ -563,10 +576,11 @@ div.MuiMenu-paper {
 }
 
 .tab-file-editor.MuiAppBar-root {
-  background-color: #6cd3e5;
+  background-color: #f7f7f7;
   color: black;
-  // position: relative;
+  border-bottom: 4px solid white;
   z-index: 0;
+  box-shadow: none;
 
   .MuiTabs-root {
     min-height: 26px;
@@ -632,14 +646,16 @@ div.MuiMenu-paper {
   }
 }
 
-
 .card-select {
-  .item-active {}
-  .item-hidden {
-    display: none;
+  .item-BeforeStart {
   }
-  .item-semi {
-    opacity: 0.5;
+  .item-Active {
+  }
+  .item-ActiveLate {
+    opacity: 0.75;
+  }
+  .item-AfterDeadline {
+    opacity: 0.75;
   }
 }
 
@@ -647,7 +663,7 @@ div.MuiMenu-paper {
   &.small {
     height: 6px;
     min-width: 6px;
-    
+
     &.MuiBadge-anchorOriginTopLeftRectangle {
       top: 3px;
     }
@@ -672,4 +688,17 @@ a.notification-item {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
+}
+
+
+.notification-body {
+  p {
+    margin: 0;
+    padding: 0;
+  }
+  code {
+    font-weight: bold;
+    color: #3f51b5;
+    font-size: 100%;
+  }
 }

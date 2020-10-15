@@ -58,7 +58,9 @@ namespace CC.Net.Services
                 var hub = provider.GetService<IHubContext<LiveHub>>();
                 var idService = provider.GetService<IdService>();
 
-                var allNotifications = await dbService.Events.Find(i => true)
+                var allNotifications = await dbService.Events
+                    .Find(i => true)
+                    .SortByDescending(i => i.Id)
                     .ToListAsync();
                 
                 foreach (var notificationGroup in allNotifications.GroupBy(i => i.Reciever))
