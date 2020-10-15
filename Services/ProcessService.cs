@@ -40,11 +40,11 @@ namespace CC.Net.Services
             {
                 _logger.LogInformation("ProcessService is starting.");
 
-                /*var dockerPurge = ProcessUtils
+                var dockerPurge = ProcessUtils
                     .Popen($"docker rm -f {ContainerName}");
                     
                 var dockerStart = ProcessUtils
-                    .Popen($"docker run -di --name {ContainerName} {_appOptions.DockerOptions.Args} {_appOptions.DockerOptions.Image}");*/
+                    .Popen($"docker run -di --name {ContainerName} {_appOptions.DockerOptions.Args} {_appOptions.DockerOptions.Image}");
 
                 // TODO: configurable period
                 while (stoppingToken.IsCancellationRequested == false)
