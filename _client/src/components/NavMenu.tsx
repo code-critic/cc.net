@@ -4,8 +4,8 @@ import { Navbar, Container, NavbarBrand, Collapse, NavItem } from 'react-bootstr
 import { NavLink, Link } from 'react-router-dom';
 import './NavMenu.css';
 import { pageLinks } from '../pageLinks';
-import { getUser, appDispatcher, commentService, updateUser, httpClient } from '../init';
-import { AppBar, Toolbar, IconButton, Typography, Button, Menu, MenuItem, Badge } from '@material-ui/core';
+import { getUser, appDispatcher, commentService, updateUser, httpClient, userIsRoot, userCanBeRoot } from '../init';
+import { AppBar, Toolbar, IconButton, Typography, Button, Menu, MenuItem, Badge, Tooltip } from '@material-ui/core';
 import CodeIcon from '@material-ui/icons/Code';
 import AccountCircleIcon from '@material-ui/icons/AccountCircle';
 import NotificationsIcon from '@material-ui/icons/Notifications';
@@ -19,6 +19,7 @@ import Moment from 'react-moment';
 import { withStyles } from "@material-ui/core/styles";
 import { groupBy } from '../utils/arrayUtils';
 import * as Showdown from "showdown";
+import SecurityIcon from '@material-ui/icons/Security';
 
 interface NavMenuProps {
 
@@ -126,8 +127,8 @@ export const NavMenu = (props: NavMenuProps) => {
     setMenuId(event.currentTarget.attributes["aria-controls"].value);
   };
 
-  const isRoot = user.role === "root";
-  const canBeRoot = !!~user.roles.indexOf("root");
+  const isRoot = userIsRoot();
+  const canBeRoot = userCanBeRoot();
 
   const accountMenuId = 'primary-search-account-menu';
   const notificationsMenuId = 'primary-search-notifications-menu';
@@ -216,7 +217,7 @@ export const NavMenu = (props: NavMenuProps) => {
     .filter(i => !i.rootOnly || (i.rootOnly && user.role === "root"));
 
   return <>
-    <AppBar position="static" className="mb-2">
+    <AppBar position="static" className={`mb-2 ${isRoot ? "is-root" : "is-student"}`}>
       <Toolbar className="container">
         <IconButton edge="start" color="inherit" component={Link} to="/">
           <CodeIcon />
@@ -224,6 +225,9 @@ export const NavMenu = (props: NavMenuProps) => {
         <Badge badgeContent={1} variant="dot" color="secondary"
           anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
           classes={{ badge: `small state-${serverState}` }}>
+          {isRoot && <Tooltip title="You are root, student may see things differently">
+            <SecurityIcon />
+          </Tooltip>}
           <Typography variant="h6">Code Critic</Typography>
         </Badge>
 

@@ -17,7 +17,7 @@ import BubbleChartIcon from '@material-ui/icons/BubbleChart';
 import AddCircleOutlineOutlinedIcon from '@material-ui/icons/AddCircleOutlineOutlined';
 import CheckCircleOutlinedIcon from '@material-ui/icons/CheckCircleOutlined';
 
-import { getUser, liveConnection, appDispatcher } from "../init";
+import { getUser, liveConnection, appDispatcher, userIsRoot } from "../init";
 import { StudentResultItem } from "../components/StudentResults.Item";
 import { StudentResultsDialog } from "../components/StudentResultsDialog";
 import { SolutionSubmitForm } from "./SolutionSubmit.Form";
@@ -263,7 +263,7 @@ export const SolutionSubmit = (props) => {
                     <Button size="large" variant="outlined" color="secondary" endIcon={<BubbleChartIcon />}
                         onClick={openResults}>View Results
                     </Button>
-                    <Button size="large" variant="contained" color="primary" endIcon={<SendIcon />} disabled={!activeProblem.isActive}
+                    <Button size="large" variant="contained" color="primary" endIcon={<SendIcon />} disabled={!activeProblem.isActive && !userIsRoot()}
                         onClick={() => submitSolution(user, activeCourse, activeProblem, language || defaultLanguage, files)}>Submit Solution
                     </Button>
                 </Grid>

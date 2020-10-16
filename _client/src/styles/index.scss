@@ -702,3 +702,12 @@ a.notification-item {
     font-size: 100%;
   }
 }
+
+
+.MuiAppBar-root.is-student {
+  background: linear-gradient(90deg, #3f51b5 0%, #293a9c 100%);
+}
+
+.MuiAppBar-root.is-root {
+  background: linear-gradient(90deg, #9c2626 0%, #8c1c1c 100%);
+}

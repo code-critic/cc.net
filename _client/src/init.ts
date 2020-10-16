@@ -142,6 +142,9 @@ let _currentUser: IAppUser = {
     username: "guest",
 }
 export const getUser = () => _currentUser;
+export const userIsRoot = () => _currentUser.role === "root";
+
+export const userCanBeRoot = () => _currentUser.roles.indexOf("root") !== -1;
 
 export const updateUser = (user: IAppUser) => {
     _currentUser = user;
