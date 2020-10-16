@@ -55,7 +55,7 @@ namespace CC.Net.Services.Courses
 
         public string Status => StatusCode.ToString();
 
-        public bool IsActive => StatusCode != ProblemStatus.AfterDeadline;
+        public bool IsActive => StatusCode == ProblemStatus.Active || StatusCode == ProblemStatus.ActiveLate;
 
 
         [YamlMember(Alias = "include")]

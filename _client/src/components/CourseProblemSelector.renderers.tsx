@@ -19,7 +19,7 @@ export const AlertStatusMessage = (props: StatusMessageProps) => {
     if (statusCode == ProblemStatus.BeforeStart) {
         return <Alert severity="info" icon={<TimerIcon />}>
             &nbsp;Submission is not yet open.
-            It will be in <Moment date={problem.since} fromNow />
+            It will be <Moment date={problem.since} fromNow />
         </Alert>
     }
     if (statusCode == ProblemStatus.Active) {
@@ -53,7 +53,7 @@ export const StatusMessage = (props: StatusMessageProps) => {
         return <span>
             <TimerIcon style={{ color: "#3f51b5" }} fontSize="small" />
             &nbsp;Submission is not yet open.
-            It will be in <Moment date={problem.since} fromNow/>
+            It will be <Moment date={problem.since} fromNow/>
         </span>
     }
     if (statusCode == ProblemStatus.Active) {

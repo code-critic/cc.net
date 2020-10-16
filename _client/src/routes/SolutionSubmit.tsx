@@ -70,10 +70,29 @@ const submitSolution = (user: IAppUser, activeCourse: ISingleCourse,
     liveConnection.invoke("SubmitSolutions", ...message);
 }
 
+type ioType = "input" | "output";
+const generateInputOutput = (type: ioType, user: IAppUser, activeCourse: ISingleCourse, activeProblem: ICourseProblem) => {
+    const method = `Generate${type[0].toUpperCase()}${type.substr(1)}`;
+    // signature:
+    //      GenerateInput(string userId, string courseName, string courseYear, string problemId)
+    //      GenerateOutput(string userId, string courseName, string courseYear, string problemId)
+    var message: any[] = [
+        user.id,
+        activeCourse.course,
+        activeCourse.year,
+        activeProblem.id,
+    ]
+
+    liveConnection.invoke(method, ...message);
+    
+    
+}
+
 interface RenderBreadcrumbsProps {
     activeCourse?: ISingleCourse;
     activeProblem?: ICourseProblem;
 }
+
 const RenderBreadcrumbs = (props: RenderBreadcrumbsProps) => {
     const { activeCourse, activeProblem } = props;
 
@@ -104,38 +123,6 @@ const RenderBreadcrumbs = (props: RenderBreadcrumbsProps) => {
             return <Link key={j} to={i.to} component={RouterLink} className="display-flex">{i.title}</Link>
         })}
     </Breadcrumbs>
-}
-export const SolutionSubmit2 = (props) => {
-    const [course, setCourse] = React.useState<ICourse>();
-    const [isLoading, setIsLoading] = React.useState(false);
-
-    const [courses, setCourses] = React.useState<ICourse[]>([]);
-    const [languages, setLanguages] = React.useState<ILanguage[]>([]);
-
-    useEffect(() => {
-        setIsLoading(true);
-        var promises = [
-            new ApiResource<ICourse>("courses", false).load(),
-            new ApiResource<ILanguage>("languages", false).load()
-        ] as Promise<any>[];
-
-        Promise.all(promises)
-            .then((data: any) => {
-                setCourses(data[0]);
-                setLanguages(data[1]);
-                setIsLoading(false);
-            });
-    }, []);
-
-    useEffect(() => {
-        console.log("effect course");
-    }, [course]);
-
-    if (isLoading || !courses || !languages) {
-        return <SimpleLoader />
-    }
-
-    return <Button onClick={() => setCourse({} as any)}>ok</Button>
 }
 
 export const SolutionSubmit = (props) => {
@@ -218,7 +205,7 @@ export const SolutionSubmit = (props) => {
         <RenderBreadcrumbs activeCourse={activeCourse} activeProblem={activeProblem} />
         <AlertStatusMessage problem={activeProblem} />
 
-        <Grid container spacing={2}>
+        <Grid container spacing={2} className="mt-2">
             {/* live result */}
             {liveResult && <Grid item xs={12} sm={12} lg={12}>
                 <StudentResultItem
@@ -251,10 +238,10 @@ export const SolutionSubmit = (props) => {
                 {user.role === "root" && problem.unittest === false &&
                     <ButtonGroup size="large" fullWidth>
                         <Button startIcon={<AddCircleOutlineOutlinedIcon />} onClick={() => {
-                            // this.generateInput()
+                            generateInputOutput("input", user, activeCourse, activeProblem)
                         }}>Generate Input</Button>
                         <Button endIcon={<CheckCircleOutlinedIcon />} onClick={() => {
-                            // this.generateOutput()
+                            generateInputOutput("output", user, activeCourse, activeProblem)
                         }}>Generate Output</Button>
                     </ButtonGroup>
                 }

@@ -340,7 +340,7 @@ export const CourseProblemSelector = (props: CourseProblemSelectorProps) => {
                                                 const status = getStatus(i.result.status);
                                                 const className = `button result-status result-status-${isStatusOk(status.value)}`;
                                                 const score = i.result.scores.join(", ");
-                                                return <Tooltip title={`${status.name} (score: ${score})`}>
+                                                return <Tooltip title={`${status.name} (score: ${score})`} key={i.objectId}>
                                                     <a role="button"
                                                         onClick={() => history.push(`/r/${i.objectId}`)}
                                                         className={className}>
