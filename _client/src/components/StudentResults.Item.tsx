@@ -93,7 +93,7 @@ export class StudentResultItem extends React.Component<StudentResultItemProps, a
 
     renderRow() {
         const { resultStatus, resultLanguage, showMessages } = this;
-        const { item: { id, attempt, result, results } } = this.props;
+        const { item: { id, attempt, result, results, points, gradeComment, reviewRequest } } = this.props;
 
         const scores = result ? result.scores : [0];
         const messages = !result.messages ? [] : result.messages;
@@ -112,7 +112,10 @@ export class StudentResultItem extends React.Component<StudentResultItemProps, a
                     </>}
                 />
                 <ListItemText
-                    primary={resultStatus.description}
+                    primary={<>
+                        {resultStatus.description}
+                        {gradeComment && <div>Comment: <strong>{gradeComment}</strong></div>}
+                    </>}
                 />
                 <Grid item style={{ display: "flex", flexDirection: "column" }} className="right-side">
                     <Grid item>
@@ -121,6 +124,9 @@ export class StudentResultItem extends React.Component<StudentResultItemProps, a
                         </span>
 
                         <Chip className={`chip-${resultStatus.name}`} size="small" label={scores.join("-")} />
+                        {reviewRequest &&
+                            <Chip className={`chip-${resultStatus.name} ml-1`} size="small" label={<strong>{points}%</strong>} />
+                        }
                     </Grid>
                     <Grid item>
                         <Typography variant="body2" color="textSecondary" className="font-code">
@@ -167,7 +173,7 @@ export class StudentResultItem extends React.Component<StudentResultItemProps, a
                 if (status === "ok") {
                     NotificationManager.success(`Ok, review request cancelled`);
                     this.props.item.reviewRequest = null as any;
-                    this.setState({ reviewRequest: undefined});
+                    this.setState({ reviewRequest: undefined });
                 } else {
                     NotificationManager.error(`Could not cancel the operation`);
                 }
@@ -203,9 +209,9 @@ export class StudentResultItem extends React.Component<StudentResultItemProps, a
                                         onClick={() => this.requestCodeReview()}>
                                         Request Code Review
                                     </Button>
-                                {item.reviewRequest &&
-                                    <Button onClick={() => this.cancelCodeReview()}><CloseIcon /></Button>
-                                }
+                                    {item.reviewRequest &&
+                                        <Button onClick={() => this.cancelCodeReview()}><CloseIcon /></Button>
+                                    }
                                 </ButtonGroup>
                                 {item.reviewRequest &&
                                     <Tiny>
@@ -213,7 +219,11 @@ export class StudentResultItem extends React.Component<StudentResultItemProps, a
                                     </Tiny>
                                 }
                             </div>
-                            <Grow />
+                            {item.reviewRequest && <div className="mx-3 text-left final-grade" style={{ lineHeight: "1em" }}>
+                                <div>Grade: <strong>{item.points}%</strong></div>
+                                {item.gradeComment && <div><small>Comment: <>{item.gradeComment}</></small></div>}
+                            </div>}
+                            {!item.reviewRequest && <Grow />}
                             <Button onClick={() => this.sourceCode = false}><CloseIcon /></Button>
                         </Box>
                     </DialogTitle>

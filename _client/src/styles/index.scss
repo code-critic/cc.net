@@ -711,3 +711,10 @@ a.notification-item {
 .MuiAppBar-root.is-root {
   background: linear-gradient(90deg, #9c2626 0%, #8c1c1c 100%);
 }
+
+.final-grade {
+  padding: 0.5rem 1rem;
+  flex-grow: 1;
+  background: linear-gradient(90deg, #e0e0e063 0%, #00000000 100%);
+  border-radius: 4px;
+}
