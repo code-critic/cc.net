@@ -262,7 +262,7 @@ export const NavMenu = (props: NavMenuProps) => {
           aria-haspopup="true"
           aria-controls={notificationsMenuId}
           onClick={handleProfileMenuOpen}>
-          <Badge badgeContent={notifByData.size + 5} color={badgeColor}>
+          <Badge badgeContent={notifByData.size} color={badgeColor}>
             <NotificationsIcon />
           </Badge>
         </IconButton>
