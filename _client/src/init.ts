@@ -173,7 +173,7 @@ window.addEventListener("keypress", event => {
 });
 
 
-export type DispatcherActionType = 'userChanged' | 'commentServiceChanged' | 'newNotification' | 'serverStateChanged';
+export type DispatcherActionType = 'userChanged' | 'commentServiceChanged' | 'newNotification' | 'serverStateChanged' | 'queueStatus'
 export interface IDispatcher {
     actionType: DispatcherActionType;
     data?: any;
@@ -205,6 +205,13 @@ const startWS = () => {
             liveConnection.on("newNotification", payload => {
                 appDispatcher.dispatch({
                     actionType: "newNotification",
+                    data: payload
+                })
+            });
+
+            liveConnection.on("queueStatus", payload => {
+                appDispatcher.dispatch({
+                    actionType: "queueStatus",
                     data: payload
                 })
             });

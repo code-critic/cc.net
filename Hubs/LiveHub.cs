@@ -249,11 +249,24 @@ namespace CC.Net.Hubs
             }
         }
 
-        public static Task NewNotification(this IClientProxy clients, Object data)
+        public static Task NewNotification(this IClientProxy clients, object data)
         {
             try
             {
                 return clients.SendAsync("newNotification", data);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.StackTrace);
+                return Task.CompletedTask;
+            }
+        }
+
+        public static Task QueueStatus(this IClientProxy clients, object data)
+        {
+            try
+            {
+                return clients.SendAsync("queueStatus", data);
             }
             catch (Exception e)
             {

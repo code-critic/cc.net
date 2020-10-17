@@ -56,7 +56,7 @@ namespace CC.Net.Services
         public static readonly ProcessStatus GlobalTimeout = new ProcessStatus(
             ProcessStatusCodes.GlobalTimeout,
             "global-timeout",
-            "Program had to be terminated since ii did not end within designated time period",
+            "Program had to be terminated since it did not end within designated time period",
             "TO"
         );
 

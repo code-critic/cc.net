@@ -20,6 +20,8 @@ import { withStyles } from "@material-ui/core/styles";
 import { groupBy } from '../utils/arrayUtils';
 import * as Showdown from "showdown";
 import SecurityIcon from '@material-ui/icons/Security';
+import { CircleLoader } from 'react-spinners';
+import PlayArrowIcon from '@material-ui/icons/PlayArrow';
 
 interface NavMenuProps {
 
@@ -71,6 +73,7 @@ export const NavMenu = (props: NavMenuProps) => {
   const [menuId, setMenuId] = useState<string>();
   const [user, setUser] = useState(getUser());
   const [notifications, setNotifications] = useState<ICcEvent[]>([]);
+  const [queue, setQueue] = useState<any[]>([]);
   const [serverState, setServerState] = useState<string>("connected");
 
   useEffect(() => {
@@ -95,6 +98,9 @@ export const NavMenu = (props: NavMenuProps) => {
               break;
           }
           break;
+        case "queueStatus":
+          setQueue(payload.data)
+          break
       }
     });
   }, []);
@@ -200,7 +206,7 @@ export const NavMenu = (props: NavMenuProps) => {
         onClose={handleMenuClose}
       >
         {[...notifByData.entries()].map(entry => {
-          const [objectId, items] = entry;
+          const [_, items] = entry;
           const i = items[0];
           return <MenuItem className="notification-item" key={i.objectId}
             onClick={() => handleNotificationClose(i)}
@@ -237,6 +243,17 @@ export const NavMenu = (props: NavMenuProps) => {
         {availLinks.map(i =>
           <MenuItem key={i.path} component={Link} to={i.to}>{i.title}</MenuItem>
         )}
+
+        {/* queue status */}
+        {queue.length > 0 && <Tooltip title={`Server is running. Currently ${queue.length} item${(queue.length == 1 ? "" : "s")} in queue.`}>
+          <IconButton>
+            <Badge badgeContent={<PlayArrowIcon />} color="secondary" className="queue-badge">
+                <CircleLoader size={24} color="#fff" />
+            </Badge>
+          </IconButton>
+        </Tooltip>}
+
+        {/* notifications */}
         <IconButton
           disabled={notifications.length === 0}
           edge="end"
@@ -244,11 +261,12 @@ export const NavMenu = (props: NavMenuProps) => {
           aria-haspopup="true"
           aria-controls={notificationsMenuId}
           onClick={handleProfileMenuOpen}>
-          <Badge badgeContent={notifByData.size} color="secondary">
+          <Badge badgeContent={notifByData.size + 5} color="secondary">
             <NotificationsIcon />
           </Badge>
         </IconButton>
 
+        {/* user menu */}
         <IconButton
           color="inherit"
           aria-haspopup="true"
