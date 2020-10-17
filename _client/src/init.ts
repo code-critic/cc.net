@@ -232,7 +232,7 @@ const startWS = () => {
                         if (title === "Server shutting down") {
                             setTimeout(() => {
                                 window.location.reload();
-                            }, timeOut);
+                            }, timeOut + 1000);
                         }
                         break;
                 }
