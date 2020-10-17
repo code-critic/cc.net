@@ -74,6 +74,11 @@ namespace CC.Net.Utils
             {
                 return $"language: \"{filter.value}\"";
             }
+            
+            if (filterId == nameof(CcData.Points).ToLower())
+            {
+                return $"points: {filter.value}";
+            }
 
             if (filterId == nameof(CcData.ReviewRequest).ToLower())
             {

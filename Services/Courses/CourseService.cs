@@ -27,7 +27,7 @@ namespace CC.Net.Services.Courses
             foreach (var course in Courses)
             {
                 var access = course.CourseConfig.Access;
-                if (access == "everyone" || access == "public" || user.isRoot)
+                if (access == "everyone" || access == "public" || user.IsRoot)
                 {
                     yield return course;
                 }

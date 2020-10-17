@@ -11,6 +11,7 @@ $statuses: (
   compilation-failed: #f5d0d0,
   in-queue: #dadada,
   skipped: #dadada,
+  no-solution: #dadada,
 );
 
 $diffs: (
@@ -23,7 +24,7 @@ $diffs: (
   // unchanged: rgb(255, 255, 255),
   // deleted: rgb(255, 208, 208),
   // inserted: rgb(210, 255, 208),
-  // modified: rgb(255, 208, 253),,,,,,,,,,,,,,,,,,,,,,
+  // modified: rgb(255, 208, 253),,,,,,,,,,,,,,,,,,,,,,,
 );
 
 @media (min-width: 1600px) {
@@ -439,7 +440,8 @@ div.MuiMenu-paper {
   }
 }
 
-.opa5, .MuiTab-textColorInherit.opa5 {
+.opa5,
+.MuiTab-textColorInherit.opa5 {
   opacity: 0.5;
 
   &:hover {
@@ -690,7 +692,6 @@ a.notification-item {
   align-items: flex-start;
 }
 
-
 .notification-body {
   p {
     margin: 0;
@@ -702,7 +703,6 @@ a.notification-item {
     font-size: 100%;
   }
 }
-
 
 .MuiAppBar-root.is-student {
   background: linear-gradient(90deg, #3f51b5 0%, #293a9c 100%);
@@ -717,4 +717,21 @@ a.notification-item {
   flex-grow: 1;
   background: linear-gradient(90deg, #e0e0e063 0%, #00000000 100%);
   border-radius: 4px;
+}
+
+.styled {
+  .MuiToggleButton-root {
+    color: rgb(0, 0, 0);
+    border: 1px solid #00000052;
+  }
+  &.color-a {
+    .Mui-selected {
+      background-color: #2b3c9e26;
+    }
+  }
+  &.color-b {
+    .Mui-selected {
+      background-color: #9e2b6126;
+    }
+  }
 }

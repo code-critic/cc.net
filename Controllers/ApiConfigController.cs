@@ -4,7 +4,9 @@ using System.IO;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using cc.net.Dto;
 using cc.net.Extensions;
+using CC.Net.Attributes;
 using CC.Net.Collections;
 using CC.Net.Config;
 using CC.Net.Db;
@@ -111,6 +113,46 @@ namespace CC.Net.Controllers
             return _courseService.GetCourseForUser(_userService.CurrentUser, courseName);
         }
 
+        [HttpGet("grade-stats/{courseName}/{year}/{problemId}")]
+        [RequireRole(AppUserRoles.Root)]
+        public List<GradeDto> GetProblemStats(string courseName, string year, string problemId)
+        {
+            var course = _courseService.GetCourseForUser(_userService.CurrentUser, courseName);
+            var yearConfig = course[year];
+            var visibleProblems = yearConfig.GetAllowedProblemForUser(_userService.CurrentUser);
+            var problem = visibleProblems.FirstOrDefault(i => i.Id == problemId);
+
+            if(problem == null)
+            {
+                return new List<GradeDto>();
+            }
+
+            var students = course.CourseConfig.Students;
+            var ids = students.Select(i => i.id).ToList();
+            var items = _dbService.Data
+                .Find(i => ids.Contains(i.User)
+                    && i.CourseName == course.Name
+                    && i.CourseYear == yearConfig.Year
+                    && i.Problem == problem.Id
+                    && i.ReviewRequest != null)
+                .ToList()
+                .OrderByDescending(i => i.Points)
+                    .ThenByDescending(i => i.Result.Score)
+                .ToList();
+
+            var bestResults = new List<GradeDto>();
+            foreach(var student in students)
+            {
+                var best = items.FirstOrDefault(i => i.User == student.id);
+                bestResults.Add(new GradeDto
+                {
+                    Result = best ?? GradeDto.EmptyResult(course, yearConfig, problem, student),
+                    User = student
+                });
+            }
+            return bestResults;
+        }
+
         [HttpGet("course/{courseName}/{year}")]
         public CourseYearConfig CourseYearConfig(string courseName, string year)
         {
@@ -166,6 +208,7 @@ namespace CC.Net.Controllers
 
 
         [HttpGet("mark-solution")]
+        [RequireRole(AppUserRoles.Root)]
         public UpdateResult MarkSolution([FromBody] MarkSolutionItem item)
         {
             var filter = Builders<CcData>.Filter.Eq("id", new ObjectId(item.objectId));
@@ -175,6 +218,7 @@ namespace CC.Net.Controllers
         }
 
         [HttpPost("save-grade")]
+        [RequireRole(AppUserRoles.Root)]
         public async Task<object> SaveGrade(MarkSolutionItem item)
         {
             var objectId = new ObjectId(item.objectId);
@@ -259,10 +303,11 @@ namespace CC.Net.Controllers
         }
 
         [HttpGet("rename/{id}")]
+        [RequireRole(AppUserRoles.Root)]
         public async Task<object> ChangeUser(string id)
         {
             var user = _userService.CurrentUser;
-            if (_appOptions.Admins.Contains(user.Id) || user.isRoot)
+            if (_appOptions.Admins.Contains(user.Id) || user.IsRoot)
             {
                 var newuser = user.Copy();
                 newuser.Eppn = $"{id}@tul.cz";

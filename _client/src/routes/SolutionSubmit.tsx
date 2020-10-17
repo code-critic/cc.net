@@ -35,6 +35,7 @@ import SchoolIcon from '@material-ui/icons/School';
 import "../third_party/mathjax";
 import { ShowAssets } from "../components/ShowAssets";
 import { StatusMessage, AlertStatusMessage } from "../components/CourseProblemSelector.renderers";
+import { hubException } from "../utils/utils";
 
 
 interface SolutionSubmitProps extends RouteComponentProps<ICourseYearProblem> {
@@ -67,7 +68,9 @@ const submitSolution = (user: IAppUser, activeCourse: ISingleCourse,
         })
     ];
 
-    liveConnection.invoke("SubmitSolutions", ...message);
+    liveConnection
+        .invoke("SubmitSolutions", ...message)
+        .catch(hubException);
 }
 
 type ioType = "input" | "output";
@@ -83,7 +86,9 @@ const generateInputOutput = (type: ioType, user: IAppUser, activeCourse: ISingle
         activeProblem.id,
     ]
 
-    liveConnection.invoke(method, ...message);
+    liveConnection
+        .invoke(method, ...message)
+        .catch(hubException);
     
     
 }

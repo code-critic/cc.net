@@ -73,6 +73,20 @@ namespace CC.Net.Services
             }
         }
 
+        public bool HasRole(string role)
+        {
+            return CurrentUser.Roles.Contains(role);
+        }
+
+        public void RequireRole<T>(string role) 
+            where T: Exception, new()
+        {
+            if (!HasRole(role)) {
+                var exception = (T)Activator.CreateInstance(typeof(T), new object[] { "Access denied" });
+                throw exception;
+            }
+        }
+
         public AppUser CurrentUser => FromPrincipal(CurrentPrincipal);
     }
 }

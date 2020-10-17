@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using CC.Net.Attributes;
 using CC.Net.Collections;
 using CC.Net.Db;
 using CC.Net.Extensions;
@@ -52,6 +53,7 @@ namespace CC.Net.Controllers
 
         [HttpGet]
         [Route("student-result-list/{courseName}/{courseYear}/{problem}/{user}")]
+        [RequireRole(AppUserRoles.Root)]
         public IEnumerable<CcData> StudentResultDetail(string courseName, string courseYear, string problem, string user)
         {
             var results = _dbService.Data
@@ -73,6 +75,7 @@ namespace CC.Net.Controllers
 
         [HttpGet]
         [Route("student-result-list/{id}")]
+        [RequireRole(AppUserRoles.Root)]
         public CcData ResultDetail(string id)
         {
             var objectId = new ObjectId(id);
@@ -84,6 +87,7 @@ namespace CC.Net.Controllers
 
         [HttpPost]
         [Route("student-result-list")]
+        [RequireRole(AppUserRoles.Root)]
         public TableResponse Post([FromBody] TableRequest request)
         {
             var options = new FindOptions<CcData>();

@@ -27,7 +27,7 @@ namespace CC.Net.Services
         public string Role { get; set; } = "student";
 
         public string Id => Eppn.Split('@').First();
-        public bool isRoot => Roles.Contains("root");
+        public bool IsRoot => Roles.Contains("root");
 
         public string Username => string.Join(' ',
             Id
@@ -61,6 +61,21 @@ namespace CC.Net.Services
                 Role = Role,
             };
         }
+
+        public override string ToString()
+        {
+            return $"<AppUser {Id} => [{string.Join(", ", Roles)}>]";
+        }
+    }
+
+    public static class AppUserRoles
+    {
+        public const string Root = "root";
+        public const string Member = "member";
+        public const string Faculty = "faculty";
+        public const string Employee = "employee";
+        public const string Student = "student";
+        public const string Teacher = "teacher";
     }
 
     public class CryptoService

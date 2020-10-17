@@ -58,8 +58,8 @@ function statusRenderer(cellInfo: CellInfo) {
     </span>);
 }
 
-export function getColumns(model: StudentResultListModel, courses: ICourse[]) {
-    return [
+export function getColumns(model: StudentResultListModel, courses: ICourse[], showFilters: boolean = true) {
+    var cols = [
         {
             Header: () => "#",
             accessor: nameof<ICcData>(i => i.attempt),
@@ -172,7 +172,7 @@ export function getColumns(model: StudentResultListModel, courses: ICourse[]) {
         {
             Header: "Points",
             accessor: nameof<ICcData>(i => i.points),
-            filterable: false,
+            filterable: true,
             maxWidth: 100,
         },
         {
@@ -191,13 +191,17 @@ export function getColumns(model: StudentResultListModel, courses: ICourse[]) {
         },
         {
             Header: () => <i className="fa fa-clock-o" />,
-        },
-        {
-            Header: () => <i className="fa fa-clock-o" />,
             Cell: (cellInfo: CellInfo) => <span>{Number(cellInfo.value).toFixed(2)}</span>,
             accessor: nameof<ICcData>(i => i.result.duration),
             filterable: false,
             maxWidth: 70
         },
     ];
+    if (showFilters === false) {
+        cols.forEach(i => {
+            i.filterable = false;
+            i.Filter = undefined;
+        });
+    }
+    return cols;
 }

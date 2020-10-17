@@ -232,7 +232,8 @@
 		AnswerWrong = 200,
 		AnswerWrongTimeout = 201,
 		CompilationFailed = 400,
-		ErrorWhileRunning = 500
+		ErrorWhileRunning = 500,
+		NoSolution = 666
 	}
 	interface IAppUser {
 		affiliation: string;
@@ -256,6 +257,10 @@
 	interface ICommentServiceItem {
 		comment: ILineComment;
 		objectId: string;
+	}
+	interface IGradeDto {
+		result: ICcData;
+		user: IUser;
 	}
 	export const enum ChangeType {
 		Unchanged = 0,

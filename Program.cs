@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using cc.net.Dto;
 using CC.Net.Collections;
 using CC.Net.Controllers;
 using CC.Net.Dto;
@@ -63,6 +64,7 @@ namespace CC.Net
                         .For<SingleCourse>()
                         .For<ProcessStatus>()
                         .For<CommentServiceItem>()
+                        .For<GradeDto>()
 
                         .For<DiffResult>()
                         .For<AppUser>()

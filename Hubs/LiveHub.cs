@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using CC.Net.Attributes;
 using CC.Net.Collections;
 using CC.Net.Db;
 using CC.Net.Dto;
@@ -24,13 +25,15 @@ namespace CC.Net.Hubs
         private readonly IdService _idService;
         private readonly LanguageService _languageService;
         private readonly CourseService _courseService;
+        private readonly UserService _userService;
 
-        public LiveHub(DbService dBService, IdService idService, LanguageService languageService, CourseService courseService)
+        public LiveHub(DbService dBService, IdService idService, LanguageService languageService, CourseService courseService, UserService userService)
         {
             _dbService = dBService;
             _idService = idService;
             _languageService = languageService;
             _courseService = courseService;
+            _userService = userService;
         }
 
         public override Task OnDisconnectedAsync(Exception exception)
@@ -47,11 +50,13 @@ namespace CC.Net.Hubs
 
         public async Task GenerateInput(string userId, string courseName, string courseYear, string problemId)
         {
+            _userService.RequireRole<HubException>(AppUserRoles.Root);
             await Generate(userId, courseName, courseYear, problemId, "input");
         }
 
         public async Task GenerateOutput(string userId, string courseName, string courseYear, string problemId)
         {
+            _userService.RequireRole<HubException>(AppUserRoles.Root);
             await Generate(userId, courseName, courseYear, problemId, "output");
         }
 

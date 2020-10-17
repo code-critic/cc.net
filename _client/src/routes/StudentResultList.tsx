@@ -15,7 +15,7 @@ import { getColumns, getStatus } from "./StudentResultList.Columns";
 import { StudentResultListModel } from "./StudentResultList.Model";
 import { StudentResultDetail } from "../components/StudentResultDetail";
 import { Dialog, DialogTitle, DialogContent, Button, Box, AppBar, Grid, Slider, Typography, TextField } from "@material-ui/core";
-import { appDispatcher, commentService, httpClient } from "../init";
+import { appDispatcher, commentService, httpClient, userIsRoot } from "../init";
 import { NotificationManager } from 'react-notifications';
 import NotificationsIcon from '@material-ui/icons/Notifications';
 
@@ -230,7 +230,6 @@ export class StudentResultList extends React.Component<any, StudentResultListSta
     }
 
     handleKeyPress(e: React.KeyboardEvent<HTMLDivElement>) {
-        
         if (e.ctrlKey && this.detailIsOpened) {
             const index = this.model.data.findIndex(i => i.objectId == this.detailResult?.objectId);
             const total = this.model.data.length;
@@ -271,6 +270,12 @@ export class StudentResultList extends React.Component<any, StudentResultListSta
         if (model.apiIsLoading) {
             return <div>loading</div>
         }
+
+        if (!userIsRoot())
+        {
+            throw new Error("Access denied");
+        }
+
 
         return <div>
             {detailResult && detailIsOpened &&

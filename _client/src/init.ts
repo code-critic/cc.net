@@ -4,6 +4,7 @@ import { Dispatcher } from 'flux';
 import { HubConnectionBuilder, LogLevel } from '@aspnet/signalr';
 import { NotificationManager } from 'react-notifications';
 import { auth } from './auth';
+import { sleep } from "./utils/utils";
 
 // console.log('init auth');
 // await auth();
@@ -32,6 +33,16 @@ class HttpClient {
                 .catch(reason => reject(reason))
                 .then(data => resolve(data))
                 .catch(reason => reject(reason))
+        });
+    }
+
+    public fetchSlow(url: string, data: any = null, method: methodType = "auto", timeout=1000): Promise<object | any> {
+        return new Promise((resolve, reject) => {
+            this.fetch(url, data, method)
+                .then(async d => {
+                    await sleep(timeout);
+                    resolve(d);
+                });
         });
     }
 

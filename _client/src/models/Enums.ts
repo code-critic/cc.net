@@ -10,7 +10,8 @@
 		AnswerWrong = 200,
 		AnswerWrongTimeout = 201,
 		CompilationFailed = 400,
-		ErrorWhileRunning = 500
+		ErrorWhileRunning = 500,
+		NoSolution = 666
 	}
 	interface IProcessStatus {
 		code: ProcessStatusCodes;
@@ -135,6 +136,14 @@
                 letter: "??",
             };
 
+		public static NoSolution: IProcessStatus = {
+                code: ProcessStatusCodes.NoSolution,
+                value: 666,
+                name: "no-solution",
+                description: "No solution recieved",
+                letter: "XX",
+            };
+
 		public static All: IProcessStatus[] = [{
                 code: ProcessStatusCodes.InQueue,
                 value: 1,
@@ -211,5 +220,12 @@
                 name: "error-while-running",
                 description: "Program ended with an error",
                 letter: "ER",
+            }, 
+{
+                code: ProcessStatusCodes.NoSolution,
+                value: 666,
+                name: "no-solution",
+                description: "No solution recieved",
+                letter: "XX",
             }]
 	} // end of ProcessStatusStatic

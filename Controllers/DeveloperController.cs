@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using CC.Net.Attributes;
 using CC.Net.Collections;
 using CC.Net.Db;
 using CC.Net.Services;
@@ -20,6 +21,7 @@ namespace CC.Net.Controllers
     [ApiController]
     [Route("dev")]
     [Authorize]
+    
     public class DeveloperController
     {
         private readonly CourseService _courseService;
@@ -42,6 +44,7 @@ namespace CC.Net.Controllers
         }
 
         [HttpGet("fix-scores")]
+        [RequireRole(AppUserRoles.Root)]
         public async Task<object> FixScores()
         {
             var result = new List<string>();
@@ -63,6 +66,7 @@ namespace CC.Net.Controllers
         }
 
         [HttpGet("fix-notifications")]
+        [RequireRole(AppUserRoles.Root)]
         public async Task<object> FixNotifications()
         {
             var notifications = await _dbService.Events

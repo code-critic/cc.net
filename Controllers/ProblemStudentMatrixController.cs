@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using CC.Net.Attributes;
 using CC.Net.Collections;
 using CC.Net.Db;
 using CC.Net.Extensions;
+using CC.Net.Services;
 using CC.Net.Services.Courses;
 using CC.Net.Utils;
 using Microsoft.AspNetCore.Authorization;
@@ -24,7 +26,7 @@ namespace CC.Net.Controllers
     public class ProblemStudentMatrixController : ControllerBase
     {
 
-        private string _aggregate_pipeline = @"{""pipeline"":
+        /*private string _aggregate_pipeline = @"{""pipeline"":
         [
             {
                 ""$match"": {
@@ -68,6 +70,7 @@ namespace CC.Net.Controllers
 
         [HttpGet]
         [Route("problem-student-matrix/{id}/{year}")]
+        [RequireRole(AppUserRoles.Root)]
         public IEnumerable<CcDataAgg> Get(string id, string year)
         {
             var course = _courseService[id];
@@ -88,8 +91,7 @@ namespace CC.Net.Controllers
                     (users.Contains(i.id.user) && problems.Contains(i.id.problem))
                 );
                 
-
             return data;
-        }
+        }*/
     }
 }

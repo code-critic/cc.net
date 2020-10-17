@@ -6,10 +6,9 @@ export function nestGet(o: object, s: string) : string {
         var k = a[i];
         if (k in o) {
             o = o[k];
-        }
-        else {
+        } else {
             return "";
         }
     }
-    return o ? o.toString() : "";
+    return o !== undefined ? o.toString() : "";
 }

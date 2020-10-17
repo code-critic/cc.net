@@ -15,6 +15,7 @@ namespace CC.Net.Services
         AnswerWrongTimeout = 201,
         CompilationFailed = 400,
         ErrorWhileRunning = 500,
+        NoSolution = 666,
     }
 
     public interface IJson
@@ -108,6 +109,13 @@ namespace CC.Net.Services
             "??"
         );
 
+        public static readonly ProcessStatus NoSolution = new ProcessStatus(
+            ProcessStatusCodes.NoSolution,
+            "no-solution",
+            "No solution recieved",
+            "XX"
+        );
+
         public static readonly List<ProcessStatus> All = new List<ProcessStatus>{
             InQueue,
             Running,
@@ -120,6 +128,7 @@ namespace CC.Net.Services
             AnswerWrongTimeout,
             CompilationFailed,
             ErrorWhileRunning,
+            NoSolution,
         };
 
     }

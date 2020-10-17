@@ -3,7 +3,7 @@ import { Dialog, DialogTitle, Box, Grid, Button, DialogContent, ButtonGroup, Pap
 import { commentService, appDispatcher, getUser } from "../init";
 import CloseIcon from '@material-ui/icons/Close';
 import StudentResults from "./StudentResults";
-import { ISingleCourse, ILanguage, ICourseProblem } from "../models/DataModel";
+import { ISingleCourse, ILanguage, ICourseProblem, ICcData } from "../models/DataModel";
 import { ToggleButton } from "./ToggleButton";
 
 import CommentIcon from '@material-ui/icons/Comment';
@@ -11,6 +11,8 @@ import FeedbackIcon from '@material-ui/icons/Feedback';
 import DeleteForeverOutlinedIcon from '@material-ui/icons/DeleteForeverOutlined';
 import { AlertDialog } from "./AlertDialog";
 import { SimpleLoader } from "./SimpleLoader";
+import { GradeSystem } from "../routes/StudentResultList";
+import { StudentResultDetail } from "./StudentResultDetail";
 
 
 interface StudentResultsDialogProps {
@@ -19,6 +21,45 @@ interface StudentResultsDialogProps {
     activeProblem: ICourseProblem;
     languages: ILanguage[];
     forcedResultId: string;
+}
+
+interface StudentResultsDialogForTeacherProps {
+    onClose: () => void;
+    onRefresh?: () => void;
+    result: ICcData;
+}
+
+export const StudentResultsDialogForTeacher = (props: StudentResultsDialogForTeacherProps) => {
+    const { result, onClose, onRefresh } = props;
+
+    return <Dialog open={true} fullWidth maxWidth="lg"
+        className={commentService.items.length > 0 ? "unsaved" : ""}
+        onClose={onClose}
+    >
+        <DialogTitle>
+            <Box padding={2}>
+                <Grid container justify="space-between">
+                    <Grid item>
+                        {result.user}
+                    </Grid>
+                    {commentService.items.length > 0 && <Grid item>
+                        <Button onClick={() => commentService.postComments()}
+                            variant="contained" color="secondary">
+                            Add {commentService.items.length} comment{commentService.items.length > 1 ? "s" : ""}
+                        </Button>
+                    </Grid>}
+                    <Grid item style={{ minWidth: 500 }}>
+                        <GradeSystem item={result} onChange={() => onRefresh ? onRefresh() : null} />
+                    </Grid>
+                </Grid>
+            </Box>
+        </DialogTitle>
+        <DialogContent>
+            <StudentResultDetail
+                objectId={result.objectId}
+            />
+        </DialogContent>
+    </Dialog>
 }
 
 export const StudentResultsDialog = (props: StudentResultsDialogProps) => {

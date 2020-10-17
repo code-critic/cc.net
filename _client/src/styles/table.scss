@@ -8,12 +8,13 @@ $statuses: (
   answer-wrong-timeout: #f5d0d0,
   global-timeout: #f5d0d0,
   error-while-running: #f5d0d0,
-  compilation-failed : #f5d0d0,
+  compilation-failed: #f5d0d0,
+  no-solution: #f5d0d0,
 );
 
 .ReactTable {
   .rt-tbody .rt-td {
-    font-size: .8rem;
+    font-size: 0.8rem;
     font-weight: 400;
   }
 
@@ -23,19 +24,18 @@ $statuses: (
       text-decoration: none;
     }
   }
-  
+
   &.condensed {
     .rt-tbody .rt-td {
-      font-size: .7rem;
+      font-size: 0.7rem;
       font-weight: 300;
     }
   }
 
   &.tight {
     .rt-tbody .rt-td {
-      font-size: .6rem;
+      font-size: 0.6rem;
       font-weight: 400;
-      
     }
   }
 }
@@ -56,8 +56,11 @@ $statuses: (
         }
       }
     }
+    &.status-no-solution {
+      text-decoration: rgba(241, 68, 68, 0.842) line-through;
+    }
   }
-  
+
   .rt-td {
     @each $status, $color in $statuses {
       &.status-#{$status} {
@@ -90,9 +93,8 @@ $statuses: (
   text-align: left !important;
 }
 
-
 .container.wide {
-  max-width: calc( 100% - 30px );
+  max-width: calc(100% - 30px);
 }
 
 .cell.cell-points {
