@@ -173,7 +173,7 @@ window.addEventListener("keypress", event => {
 });
 
 
-export type DispatcherActionType = 'userChanged' | 'commentServiceChanged' | 'newNotification' | 'serverStateChanged' | 'queueStatus'
+export type DispatcherActionType = 'userChanged' | 'commentServiceChanged' | 'newNotification' | 'serverStateChanged' | 'queueStatus';
 export interface IDispatcher {
     actionType: DispatcherActionType;
     data?: any;
@@ -216,19 +216,24 @@ const startWS = () => {
                 })
             });
 
-            liveConnection.on("OnMessage", (message: string, level: NotificationLevel) => {
+            liveConnection.on("serverMessage", (level: NotificationLevel, message: string, title:string = "", timeOut: number = 400) => {
                 switch (level) {
                     case "info":
-                        NotificationManager.info(message.toString());
+                        NotificationManager.info(message.toString(), title, timeOut);
                         break;
                     case "success":
-                        NotificationManager.success(message.toString());
+                        NotificationManager.success(message.toString(), title, timeOut);
                         break;
                     case "warning":
-                        NotificationManager.warning(message.toString());
+                        NotificationManager.warning(message.toString(), title, timeOut);
                         break;
                     case "error":
-                        NotificationManager.error(message.toString());
+                        NotificationManager.error(message.toString(), title, timeOut);
+                        if (title === "Server shutting down") {
+                            setTimeout(() => {
+                                window.location.reload();
+                            }, timeOut);
+                        }
                         break;
                 }
             });

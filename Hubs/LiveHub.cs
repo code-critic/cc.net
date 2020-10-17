@@ -99,7 +99,7 @@ namespace CC.Net.Hubs
             };
 
             _idService.RemeberClient(Clients.Caller, id);
-            await Clients.Clients(_idService[ccData.User]).NotifyClient($"Job submitted");
+            await Clients.Clients(_idService[ccData.User]).ServerMessageToClient("info", "Job submitted");
             await _dbService.Data.InsertOneAsync(ccData);
 
             var itemsCount = await _dbService.Data.CountDocumentsAsync(i => i.Result.Status == ProcessStatus.InQueue.Value);
@@ -159,7 +159,7 @@ namespace CC.Net.Hubs
             };
 
             _idService.RemeberClient(Clients.Caller, attemptId);
-            await Clients.Clients(_idService[ccData.User]).NotifyClient($"Attempt {attemptNo} inserted into queue");
+            await Clients.Clients(_idService[ccData.User]).ServerMessageToClient("info", $"Attempt {attemptNo} inserted into queue");
             await _dbService.Data.InsertOneAsync(ccData);
 
             var itemsCount = await _dbService.Data.CountDocumentsAsync(i => i.Result.Status == ProcessStatus.InQueue.Value);
@@ -222,7 +222,7 @@ namespace CC.Net.Hubs
             };
 
             _idService.RemeberClient(Clients.Caller, attemptId);
-            await Clients.Clients(_idService[ccData.User]).NotifyClient($"Attempt {attemptNo} inserted into queue");
+            await Clients.Clients(_idService[ccData.User]).ServerMessageToClient("info", $"Attempt {attemptNo} inserted into queue");
             await _dbService.Data.InsertOneAsync(ccData);
 
             var itemsCount = await _dbService.Data.CountDocumentsAsync(i => i.Result.Status == ProcessStatus.InQueue.Value);
@@ -232,11 +232,11 @@ namespace CC.Net.Hubs
 
     public static class LiveHubExtensions
     {
-        public static Task NotifyClient(this IClientProxy clients, string message, string level = "info")
+        public static Task ServerMessageToClient(this IClientProxy clients, string level, string message, string title = "", int timeOut = 400)
         {
             try
             {
-                return clients.SendAsync("OnMessage", message, level);
+                return clients.SendAsync("serverMessage", level, message, title, timeOut);
             }
             catch (Exception e)
             {

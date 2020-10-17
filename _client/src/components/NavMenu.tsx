@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 // import { Collapse, Container, Navbar, NavbarBrand, NavbarToggler, NavItem, NavLink } from 'reactstrap';
-import { Navbar, Container, NavbarBrand, Collapse, NavItem } from 'react-bootstrap';
 import { NavLink, Link } from 'react-router-dom';
 import './NavMenu.css';
 import { pageLinks } from '../pageLinks';
@@ -16,12 +15,10 @@ import { SimpleLoader } from './SimpleLoader';
 import { ICcEvent } from '../models/DataModel';
 import { CcEventType } from '../models/Enums';
 import Moment from 'react-moment';
-import { withStyles } from "@material-ui/core/styles";
 import { groupBy } from '../utils/arrayUtils';
 import * as Showdown from "showdown";
 import SecurityIcon from '@material-ui/icons/Security';
 import { CircleLoader } from 'react-spinners';
-import PlayArrowIcon from '@material-ui/icons/PlayArrow';
 
 interface NavMenuProps {
 
@@ -99,8 +96,8 @@ export const NavMenu = (props: NavMenuProps) => {
           }
           break;
         case "queueStatus":
-          setQueue(payload.data)
-          break
+          setQueue(payload.data);
+          break;
       }
     });
   }, []);
@@ -248,7 +245,7 @@ export const NavMenu = (props: NavMenuProps) => {
         {/* queue status */}
         {queue.length > 0 && <Tooltip title={`Server is running. Currently ${queue.length} item${(queue.length == 1 ? "" : "s")} in queue.`}>
           <IconButton>
-            <Badge badgeContent={<PlayArrowIcon />} color={badgeColor} className="queue-badge">
+            <Badge badgeContent={<>{queue.length}&nbsp;▶</>} color={badgeColor} className="queue-badge">
                 <CircleLoader size={24} color="#fff" />
             </Badge>
           </IconButton>

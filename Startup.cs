@@ -70,11 +70,36 @@ namespace CC.Net
             });
         }
 
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IServiceProvider serviceProvider)
+        private void WaitForKey (ConsoleKey key)
+        {
+            while (true)
+            {
+                if (Console.ReadKey(true).Key == key)
+                {
+                    break;
+                }
+            }
+        }
+
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IServiceProvider serviceProvider, IHostApplicationLifetime applicationLifetime)
         {
             ServiceProvider = serviceProvider;
             var db = serviceProvider.GetService<DbService>();
             var id = serviceProvider.GetService<IdService>();
+            var logger = serviceProvider.GetService<ILogger<Startup>>();
+            var hub = serviceProvider.GetService<IHubContext<LiveHub>>();
+
+            new Thread (async () =>
+            {
+                WaitForKey(ConsoleKey.Escape);
+                logger.LogWarning("Press escape again to shutdown the server");
+                WaitForKey(ConsoleKey.Escape);
+                
+                logger.LogWarning("Application is stopping...");
+                var clients = hub.Clients;
+                await hub.Clients.All.ServerMessageToClient("error", $"Server will be updated soon.", "Server shutting down", 60_000*1); // restart server in 1 min
+                applicationLifetime.StopApplication();
+            }).Start();
 
             if (env.IsDevelopment())
             {
