@@ -101,6 +101,9 @@ namespace CC.Net.Hubs
             _idService.RemeberClient(Clients.Caller, id);
             await Clients.Clients(_idService[ccData.User]).NotifyClient($"Job submitted");
             await _dbService.Data.InsertOneAsync(ccData);
+
+            var itemsCount = await _dbService.Data.CountDocumentsAsync(i => i.Result.Status == ProcessStatus.InQueue.Value);
+            await Clients.All.QueueStatus(new string[itemsCount]);
         }
 
         public async Task SubmitSolutions(string userId, string courseName, string courseYear, string problemId, string langId, IList<SimpleFile> files)
@@ -158,6 +161,9 @@ namespace CC.Net.Hubs
             _idService.RemeberClient(Clients.Caller, attemptId);
             await Clients.Clients(_idService[ccData.User]).NotifyClient($"Attempt {attemptNo} inserted into queue");
             await _dbService.Data.InsertOneAsync(ccData);
+
+            var itemsCount = await _dbService.Data.CountDocumentsAsync(i => i.Result.Status == ProcessStatus.InQueue.Value);
+            await Clients.All.QueueStatus(new string[itemsCount]);
         }
 
         public async Task SubmitSolution(string userId, string courseName, string courseYear, string problemId, string solution, string langId, bool useDocker)
@@ -218,6 +224,9 @@ namespace CC.Net.Hubs
             _idService.RemeberClient(Clients.Caller, attemptId);
             await Clients.Clients(_idService[ccData.User]).NotifyClient($"Attempt {attemptNo} inserted into queue");
             await _dbService.Data.InsertOneAsync(ccData);
+
+            var itemsCount = await _dbService.Data.CountDocumentsAsync(i => i.Result.Status == ProcessStatus.InQueue.Value);
+            await Clients.All.QueueStatus(new string[itemsCount]);
         }
     }
 

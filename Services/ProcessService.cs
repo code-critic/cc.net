@@ -70,9 +70,6 @@ namespace CC.Net.Services
                 var items = await cursor
                     .ToListAsync();
 
-                var hub = provider.GetService<IHubContext<LiveHub>>();
-                await hub.Clients.All.QueueStatus(items.Select(i => i.Problem));
-
                 _logger.LogInformation($"Found {items.Count} items to process");
 
                 foreach (var item in items)

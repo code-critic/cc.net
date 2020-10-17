@@ -69,6 +69,9 @@ namespace CC.Net.Services
                     var notifications = notificationGroup.ToList();
                     await channels.NewNotification(notifications);
                 }
+
+                var itemsCount = await dbService.Data.CountDocumentsAsync(i => i.Result.Status == ProcessStatus.InQueue.Value);
+                await hub.Clients.All.QueueStatus(new string[itemsCount]);
             }
         }
     }
