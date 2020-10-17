@@ -135,6 +135,7 @@ export const NavMenu = (props: NavMenuProps) => {
 
   const isRoot = userIsRoot();
   const canBeRoot = userCanBeRoot();
+  const badgeColor = isRoot ? "primary" : "secondary";
 
   const accountMenuId = 'primary-search-account-menu';
   const notificationsMenuId = 'primary-search-notifications-menu';
@@ -228,7 +229,7 @@ export const NavMenu = (props: NavMenuProps) => {
         <IconButton edge="start" color="inherit" component={Link} to="/">
           <CodeIcon />
         </IconButton>
-        <Badge badgeContent={1} variant="dot" color="secondary"
+        <Badge badgeContent={1} variant="dot" color={badgeColor}
           anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
           classes={{ badge: `small state-${serverState}` }}>
           {isRoot && <Tooltip title="You are root, student may see things differently">
@@ -247,7 +248,7 @@ export const NavMenu = (props: NavMenuProps) => {
         {/* queue status */}
         {queue.length > 0 && <Tooltip title={`Server is running. Currently ${queue.length} item${(queue.length == 1 ? "" : "s")} in queue.`}>
           <IconButton>
-            <Badge badgeContent={<PlayArrowIcon />} color="secondary" className="queue-badge">
+            <Badge badgeContent={<PlayArrowIcon />} color={badgeColor} className="queue-badge">
                 <CircleLoader size={24} color="#fff" />
             </Badge>
           </IconButton>
@@ -261,7 +262,7 @@ export const NavMenu = (props: NavMenuProps) => {
           aria-haspopup="true"
           aria-controls={notificationsMenuId}
           onClick={handleProfileMenuOpen}>
-          <Badge badgeContent={notifByData.size + 5} color="secondary">
+          <Badge badgeContent={notifByData.size + 5} color={badgeColor}>
             <NotificationsIcon />
           </Badge>
         </IconButton>
