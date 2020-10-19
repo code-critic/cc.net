@@ -53,7 +53,6 @@ namespace CC.Net.Controllers
 
         [HttpGet]
         [Route("student-result-list/{courseName}/{courseYear}/{problem}/{user}")]
-        [RequireRole(AppUserRoles.Root)]
         public IEnumerable<CcData> StudentResultDetail(string courseName, string courseYear, string problem, string user)
         {
             var results = _dbService.Data
@@ -75,13 +74,13 @@ namespace CC.Net.Controllers
 
         [HttpGet]
         [Route("student-result-list/{id}")]
-        [RequireRole(AppUserRoles.Root)]
         public CcData ResultDetail(string id)
         {
             var objectId = new ObjectId(id);
             var result = _dbService.Data
                 .Find(i => i.Id == objectId)
                 .First();
+
             return ConvertToExtended(result);
         }
 
