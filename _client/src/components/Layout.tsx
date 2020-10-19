@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Container } from 'reactstrap';
 import { NavMenu } from './NavMenu';
 import { layoutUtils } from '../init';
+import { CcFooter } from './CCFooter';
 
 interface LayoutState {
   extraStyle: string;
@@ -21,14 +22,14 @@ export class Layout extends Component<any, LayoutState, any> {
       this.setState({extraStyle: style});
     }
   }
-
   render() {
     return (
       <div>
         <NavMenu />
-        <Container className={`${this.state.extraStyle} wide`}>
+        <Container className={`${this.state.extraStyle} wide main-container`}>
           {this.props.children}
         </Container>
+        <CcFooter />
       </div>
     );
   }

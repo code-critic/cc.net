@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using System;
 
 namespace CC.Net.Attributes
@@ -22,6 +23,10 @@ namespace CC.Net.Attributes
             Role = role;
         }
 
+        private ILogger<RequireRoleAttribute> _logger =>
+            LoggerFactory.Create(builder => builder.AddConsole())
+                .CreateLogger<RequireRoleAttribute>();
+
         public void OnAuthorization(AuthorizationFilterContext context)
         {
             var http = context.HttpContext as DefaultHttpContext;
@@ -30,6 +35,7 @@ namespace CC.Net.Attributes
                 var userService = scope.ServiceProvider.GetService<UserService>();
                 if (!userService.HasRole(Role))
                 {
+                    _logger.LogError($"Access denied: [{context.HttpContext.Request.Method}]: {context.HttpContext.Request.Path.Value}");
                     context.Result = new StatusCodeResult((int)System.Net.HttpStatusCode.Forbidden);
                     return;
                 }
