@@ -5,6 +5,8 @@ using System.IO;
 using Microsoft.Extensions.Logging;
 using Markdig.Renderers;
 using Markdig.Parsers;
+using System;
+using System.Text.RegularExpressions;
 
 namespace CC.Net.Services
 {
@@ -53,7 +55,9 @@ namespace CC.Net.Services
 
             var content = File.Exists(readmePath)
                 ? File.ReadAllText(readmePath)
-                : "no description provided";
+                : "*no description provided*";
+
+            content = FixMathEQ(content);
 
             var document = MarkdownParser.Parse(content, pipeline);
             renderer.Render(document);
@@ -62,9 +66,21 @@ namespace CC.Net.Services
             return writer.ToString();
         }
 
-        private string linkRewriter(string arg)
+        private string FixMathEQ(string content)
         {
-            return arg+arg;
+            const string MATH_FENCE_START = @"```math";
+            const string MATH_FENCE_END = @"```";
+
+            if (content.Contains(MATH_FENCE_START))
+            {
+                content = Regex.Replace(content, @$"({MATH_FENCE_START})(.*)({MATH_FENCE_END})", (Match match) =>
+                {
+                    return match.Groups[2].Value.Trim().Replace(@"\", @"\\");
+                }
+                , RegexOptions.IgnoreCase | RegexOptions.Singleline);
+            }
+
+            return content;
         }
     }
 }
