@@ -55,7 +55,7 @@ const EventNotification = (props: EventNotificationProps) => {
   }
 
   return <>
-    <div className="notification-body" dangerouslySetInnerHTML={{ __html: converter.makeHtml(subject)}} />
+    <div className="notification-body" dangerouslySetInnerHTML={{ __html: converter.makeHtml(subject) }} />
 
     <Typography variant="body2" color="textSecondary" component="div" style={{ textAlign: "right" }}>
       <Moment date={new Date(event.id.creationTime)} fromNow />
@@ -136,6 +136,7 @@ export const NavMenu = (props: NavMenuProps) => {
 
   const accountMenuId = 'primary-search-account-menu';
   const notificationsMenuId = 'primary-search-notifications-menu';
+  const onlineUserMenuId = 'online-user-menu';
   const notifByData = groupBy(notifications, i => i.resultObjectId);
   const renderMenu = (
     <>
@@ -210,9 +211,19 @@ export const NavMenu = (props: NavMenuProps) => {
             onClick={() => handleNotificationClose(i)}
             component={Link}
             to={`/r/${i.resultObjectId}`}>
-              <EventNotification event={i} groupCount={items.length} />
+            <EventNotification event={i} groupCount={items.length} />
           </MenuItem>;
         })}
+      </Menu>
+
+      <Menu
+        anchorEl={anchorEl}
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+        id={onlineUserMenuId}
+        open={menuId === onlineUserMenuId}
+        keepMounted
+        onClose={handleMenuClose}>
+
       </Menu>
     </>
   );
@@ -242,11 +253,19 @@ export const NavMenu = (props: NavMenuProps) => {
           <MenuItem key={i.path} component={Link} to={i.to}>{i.title}</MenuItem>
         )}
 
+        {/* online users */}
+        {/* {isRoot && <IconButton
+          aria-haspopup="true"
+          aria-controls={onlineUserMenuId}
+          onClick={handleProfileMenuOpen}>
+
+        </IconButton>} */}
+
         {/* queue status */}
         {queue.length > 0 && <Tooltip title={`Server is running. Currently ${queue.length} item${(queue.length == 1 ? "" : "s")} in queue.`}>
           <IconButton>
             <Badge badgeContent={<>{queue.length}&nbsp;▶</>} color={badgeColor} className="queue-badge">
-                <CircleLoader size={24} color="#fff" />
+              <CircleLoader size={24} color="#fff" />
             </Badge>
           </IconButton>
         </Tooltip>}

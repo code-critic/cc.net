@@ -85,8 +85,6 @@ namespace cc.net.Controllers
         [Route("login/{*path}")]
         public async Task<IActionResult> LoginRequestAsync()
         {
-            // https://localhost:5001/Home/Login?key=foobar
-            // https://localhost:5001/Home/Login/WjJygGq:fyOO1XYHWukJVdIAjLqGMiBWjwS9UrewUhflE:ElbeSJlbwOjx7jI:z3lZhZJk6vUtw:d8UtwpXV3xJhXpOn8fOZrGRHT3Fldj9tYusl3kWQYnhIjdQAo0a4GUY95gWg9Ti::H6kobr9xCYyVYvK9:IDqvhgLj5YF1+50POfqy8V9va7QU1s2p5R
             var data = Request.RouteValues["path"].ToString();
             var user = _cryptoService.Decrypt(data);
 

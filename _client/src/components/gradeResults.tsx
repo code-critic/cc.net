@@ -1,22 +1,28 @@
-import React, { useState, useEffect } from 'react'
-import { ISingleCourse, ICourseProblem, ICourseYearConfig, ICourse, ICcData, IGradeDto } from '../models/DataModel';
-import { httpClient, userIsRoot, userCanBeRoot } from '../init';
-import { SimpleLoader } from './SimpleLoader';
+import React, { useEffect, useState } from 'react';
+import { Box, Dialog, Typography } from '@material-ui/core';
 import Button from '@material-ui/core/Button';
-import { flattenCourse } from '../utils/DataUtils';
-import { Card, Grid, Paper, Typography, Box, ButtonGroup } from '@material-ui/core';
+import ArrowForwardIosIcon from '@material-ui/icons/ArrowForwardIos';
+import GridOnIcon from '@material-ui/icons/GridOn';
+import Alert from '@material-ui/lab/Alert';
 import ToggleButton from '@material-ui/lab/ToggleButton';
 import ToggleButtonGroup from '@material-ui/lab/ToggleButtonGroup';
-import ArrowForwardIosIcon from '@material-ui/icons/ArrowForwardIos';
-import { ReactTableWithSelect } from '../utils/ReactTableWithSelect';
+import { NotificationManager } from 'react-notifications';
+import Spreadsheet from "react-spreadsheet";
+import { RowInfo } from 'react-table';
+import { httpClient, userCanBeRoot } from '../init';
+import { ICcData, ICourse, ICourseProblem, IGradeDto, ISingleCourse } from '../models/DataModel';
+import { ProcessStatusCodes, ProcessStatusStatic } from '../models/Enums';
 import { getColumns, getStatus } from '../routes/StudentResultList.Columns';
 import { StudentResultListModel } from '../routes/StudentResultList.Model';
-import { RowInfo } from 'react-table';
+import { flattenCourse } from '../utils/DataUtils';
 import { nestGet } from '../utils/NestGetter';
-import { ProcessStatusCodes } from '../models/Enums';
-import Alert from '@material-ui/lab/Alert';
+import { ReactTableWithSelect } from '../utils/ReactTableWithSelect';
+import { SimpleLoader } from './SimpleLoader';
 import { StudentResultsDialogForTeacher } from './StudentResultsDialog';
-import { NotificationManager } from 'react-notifications';
+import moment from 'moment';
+import XLSX from 'xlsx';
+import { DropDownMenu } from './DropDownMenu';
+
 
 interface SelectCourseAndProblem {
     setCourse: (item: ISingleCourse) => void;
@@ -61,11 +67,9 @@ export const SimpleCard = (props: SimpleCardProps) => {
 }
 
 export const SelectCourseAndProblem = (props: SelectCourseAndProblem) => {
-    // console.log("SelectCourseAndProblem", props);
     const { course, problem, setCourse, setProblem, stats } = props;
     const courses = useResource<ICourse[]>("courses");
     const coursesFlatten = courses ? courses.flatMap(flattenCourse) : [];
-    // const problems = useResource<ICourseYearConfig>(course ? `course/${course.course}/${course.year}` : undefined);
     const problems = course ? course.problems : undefined;
 
     const handerCourseSelected = (i: ISingleCourse) => {
@@ -119,7 +123,6 @@ export const SelectCourseAndProblem = (props: SelectCourseAndProblem) => {
             {stats.filter(i => i.result.result.status == ProcessStatusCodes.NoSolution).length}
                 / {stats.length} did not send any solution
         </Alert>}
-
     </>)
 }
 
@@ -128,6 +131,7 @@ export const Graderesults = (props) => {
     const [problem, setProblem] = React.useState<ICourseProblem>();
     const [result, setResult] = React.useState<ICcData>();
     const [rng, setRng] = React.useState(Math.random());
+    const [exportData, setExportData] = useState<any>();
 
     const stats = useResource<IGradeDto[]>(!course || !problem
         ? undefined
@@ -153,8 +157,7 @@ export const Graderesults = (props) => {
         const onFetchData = (state) => { }
 
         const openDetail = (result: ICcData) => {
-            if (result.result.status == ProcessStatusCodes.NoSolution)
-            {
+            if (result.result.status == ProcessStatusCodes.NoSolution) {
                 NotificationManager.warning(
                     `Result only exists virtually, student ${result.user} did not send any solution`,
                     "Cannot open the result");
@@ -207,13 +210,87 @@ export const Graderesults = (props) => {
             stats={stats}
         />
 
-        {!needsSelect &&
-            <>{renderTable()}</>
+        {!needsSelect && <>
+            {renderTable()}
+            <div>
+                <Button endIcon={<GridOnIcon />} onClick={() => setExportData(stats)}>Generate Excel Sheet</Button>
+            </div>
+        </>
         }
-        {result && <StudentResultsDialogForTeacher
-            result={result}
-            onClose={() => setResult(undefined)}
-            onRefresh={() => setRng(Math.random())}
-        />}
+
+        {result && <>
+            <StudentResultsDialogForTeacher
+                result={result}
+                onClose={() => setResult(undefined)}
+                onRefresh={() => setRng(Math.random())} />
+        </>}
+
+
+        {exportData && stats != undefined && <Dialog open onClose={() => setExportData(null)} fullWidth maxWidth="lg">
+            <GenerateSheet name={problem?.id ?? "report"} stats={stats} />
+        </Dialog>}
     </>)
+}
+
+interface DefaultCellValue {
+    value: string | number | boolean | null,
+}
+type Matrix<T> = Array<Array<T | typeof undefined>>;
+interface GenerateSheetProps {
+    stats: IGradeDto[];
+    name: string;
+}
+
+let exportData: Matrix<DefaultCellValue> = [];
+export const GenerateSheet = (props: GenerateSheetProps) => {
+    const { stats, name } = props;
+    const sorted = stats.sort((a, b) => a.user.id.localeCompare(b.user.id));
+    const header: DefaultCellValue[] = [{ value: "Date" }, { value: "User" }, { value: "Points" }, { value: "Status" }, { value: "Comment" }];
+    const data: Matrix<DefaultCellValue> = [
+        header,
+        ...(sorted.map(i => {
+            return [
+                { value: moment(i.result.id.creationTime).format("YYYY/MM/DD hh:mm:ss") },
+                { value: i.user.id },
+                { value: i.result.points },
+                { value: ProcessStatusStatic.All.find(j => j.value == i.result.result.status)?.name ?? null },
+                { value: i.result.gradeComment },
+            ];
+        })),
+        []
+    ];
+
+    exportData = data;
+    const handleChange = (newData: Matrix<DefaultCellValue>) => {
+        exportData = newData;
+    }
+
+    const download = (bookType: any) => {
+        // const cols = exportData[0].map((i, j) => { return { name: i?.value, key: j } } );
+        // const aoa: any = { cols: cols, data: data };
+        // const table = document.getElementsByClassName("Spreadsheet__table")[0];
+        // const wb = XLSX.utils.table_to_book(table, { sheetRows: 5 });
+
+        const data = exportData.slice(1).map(i => i.map(j => j?.value));
+        const ws = XLSX.utils.aoa_to_sheet(data);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, name);
+        XLSX.writeFile(wb, `${name}.${bookType}`, { bookType: bookType });
+    }
+
+    // 'xlsx' | 'xlsm' | 'xlsb' | 'xls' | 'xla' | 'biff8' | 'biff5' | 'biff2' | 'xlml' |
+    // 'ods' | 'fods' | 'csv' | 'txt' | 'sylk' | 'html' | 'dif' | 'rtf' | 'prn' | 'eth';
+    const options = ["xlsx", "xls", "ods", "html", "csv", "txt"];
+
+    return <div className="data-export">
+            <div>
+                <DropDownMenu title="Download as..."
+                    getLabel={i => i}
+                    onChange={i => download(i)}
+                    options={options} />
+            </div>
+            <div>
+                <Spreadsheet onChange={handleChange} data={data} />
+            </div>
+        </div>
 }

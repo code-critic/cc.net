@@ -791,3 +791,23 @@ a.MuiButtonBase-root
   display: flex;
   align-items: center;
 }
+
+.data-export .Spreadsheet__cell, 
+.data-export .Spreadsheet__header {
+    min-height: 24px;
+    height: 24px;
+    max-height: 24px;
+    padding: 2px;
+    font-size: 14px;
+}
+
+.data-export .Spreadsheet__data-editor,
+.data-export .Spreadsheet__data-editor input {
+    width: 98%;
+    height: 98%;
+    font-size: 14px;
+}
+
+.data-export .Spreadsheet__active-cell {
+  padding: 2px;
+}
