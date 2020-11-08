@@ -134,7 +134,8 @@ namespace CC.Net.Services
             args = output == null ? args : $"{args} ---o {output}";
             args = error == null ? args : $"{args} ---e {error}";
             var execCmd = $"docker exec --user jan-hybs {ProcessService.ContainerName} python3 /bin/run.py {args} {command}";
-
+            _logger.LogInformation("python3 /bin/run.py {args} {command}", args, command);
+            
             var sw = new Stopwatch();
             sw.Start();
             var res = ProcessUtils.Popen(execCmd);

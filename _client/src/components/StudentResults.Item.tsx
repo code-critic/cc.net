@@ -43,7 +43,8 @@ export class StudentResultItem extends React.Component<StudentResultItemProps, a
     constructor(props: StudentResultItemProps) {
         super(props);
         this.sourceCode = this.props.forceOpen ? true : false;
-        this.showMessages = this.resultStatus.code == ProcessStatusCodes.ErrorWhileRunning;
+        this.showMessages = this.resultStatus.code == ProcessStatusCodes.ErrorWhileRunning
+            || this.resultStatus.code  == ProcessStatusCodes.CompilationFailed;
     }
 
     public getIcon(status: number, size = 24) {
@@ -142,7 +143,7 @@ export class StudentResultItem extends React.Component<StudentResultItemProps, a
                 </Grid>
             </Grid>
             <Grid item style={{ paddingLeft: 72 }} container direction="column"
-                className={showMessages ? "expand-content expanded" : "expand-content collapsed"}>
+                className={(showMessages || hasMessages) ? "expand-content expanded" : "expand-content collapsed"}>
                 <pre>{renderCode(messages.join("\n"))}</pre>
             </Grid>
         </>

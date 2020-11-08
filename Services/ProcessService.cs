@@ -42,7 +42,7 @@ namespace CC.Net.Services
 
                 var dockerPurge = ProcessUtils
                     .Popen($"docker rm -f {ContainerName}");
-                    
+
                 var dockerStart = ProcessUtils
                     .Popen($"docker run -di --name {ContainerName} {_appOptions.DockerOptions.Args} {_appOptions.DockerOptions.Image}");
 
@@ -57,8 +57,8 @@ namespace CC.Net.Services
 
         private async Task DoWork()
         {
-            
-            _logger.LogInformation("checking db");
+
+            _logger.LogDebug("checking db");
             using (var scope = _serviceProvider.CreateScope())
             {
                 var provider = scope.ServiceProvider;
@@ -70,7 +70,14 @@ namespace CC.Net.Services
                 var items = await cursor
                     .ToListAsync();
 
-                _logger.LogInformation($"Found {items.Count} items to process");
+                if (items.Any())
+                {
+                    _logger.LogInformation($"Found {items.Count} items to process");
+                }
+                else
+                {
+                    _logger.LogDebug($"Found {items.Count} items to process");
+                }
 
                 foreach (var item in items)
                 {

@@ -50,7 +50,6 @@ namespace CC.Net.Services
 
         private async Task DoWork()
         {
-            _logger.LogInformation("checking db");
             using (var scope = _serviceProvider.CreateScope())
             {
                 var provider = scope.ServiceProvider;

@@ -90,7 +90,7 @@ namespace CC.Net.Services
                 if (compilationResult != null && compilationResult.IsBroken)
                 {
                     _logger.LogError("Failed to compile");
-                    CopyFromDocker(Context.TmpDir.CompilationFile);
+                    CopyFromDocker(CourseContext.CompilationFileName);
                     var compileError = Context.TmpDir.CompilationFile.ReadAllText();
                     compilationCase.Status = ProcessStatus.CompilationFailed.Value;
                     compilationCase.Message = ProcessStatus.CompilationFailed.Description;
