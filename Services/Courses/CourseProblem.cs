@@ -80,7 +80,7 @@ namespace CC.Net.Services.Courses
 
         public CourseProblemCase this[string key]
         {
-            get => AllTests.First(i => i.Id.ToLower() == key.ToLower());
+            get => AllTests.FirstOrDefault(i => i.Id.ToLower() == key.ToLower());
         }
 
         public string Description { get; set; }

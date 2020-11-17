@@ -31,7 +31,7 @@ namespace CC.Net.Services.Courses
 
         public CourseProblem this[string key]
         {
-            get => Problems.First(i => i.Id.ToLower() == key.ToLower());
+            get => Problems.FirstOrDefault(i => i.Id.ToLower() == key.ToLower());
         }
     }
 }

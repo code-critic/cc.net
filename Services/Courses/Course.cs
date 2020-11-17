@@ -13,7 +13,7 @@ namespace CC.Net.Services.Courses
 
         public CourseYearConfig this[string key]
         {
-            get => CourseYears.First(i => i.Year.ToLower() == key.ToLower());
+            get => CourseYears.FirstOrDefault(i => i.Year.ToLower() == key.ToLower());
         }
     }
 }

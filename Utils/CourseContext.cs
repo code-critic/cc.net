@@ -52,9 +52,14 @@ namespace CC.Net.Utils
         public string MainFileName => $"main.{Language.Extension}";
         public static string CompilationFileName = "compilation.log";
 
-        public Course Course => CourseService[Item.CourseName];
-        public CourseYearConfig CourseYear => Course[Item.CourseYear];
-        public CourseProblem CourseProblem => CourseYear[Item.Problem];
+        public Course Course => CourseService[Item.CourseName]
+            ?? throw new Exception($"Could not find course {Item.CourseName}");
+
+        public CourseYearConfig CourseYear => Course[Item.CourseYear]
+            ?? throw new Exception($"Could not find course year {Item.CourseYear}");
+
+        public CourseProblem CourseProblem => CourseYear[Item.Problem]
+            ?? throw new Exception($"Could not find problem {Item.Problem}");
 
 
 

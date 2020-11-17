@@ -82,41 +82,48 @@ namespace CC.Net.Services
                 foreach (var item in items)
                 {
 
-                    var processItem = new ProcessItem(
-                        provider.GetService<ILogger<ProcessItem>>(),
-                        provider.GetService<CourseService>(),
-                        provider.GetService<LanguageService>(),
-                        provider.GetService<IdService>(),
-                        provider.GetService<AppOptions>(),
-                        provider.GetService<IHubContext<LiveHub>>(),
-                        provider.GetService<CompareService>(),
-                        item
-                    );
-
-                    if (item.Action == "solve")
+                    try
                     {
-                        _logger.LogInformation("Executing: {Item}", item);
-                        var itemResult = await processItem.Solve();
+                        var processItem = new ProcessItem(
+                            provider.GetService<ILogger<ProcessItem>>(),
+                            provider.GetService<CourseService>(),
+                            provider.GetService<LanguageService>(),
+                            provider.GetService<IdService>(),
+                            provider.GetService<AppOptions>(),
+                            provider.GetService<IHubContext<LiveHub>>(),
+                            provider.GetService<CompareService>(),
+                            item
+                        );
 
-                        _logger.LogInformation("Item Done: {Item}", item);
-                        await ResultsUtils.SaveItemAsync(dbService, item);
+                        if (item.Action == "solve")
+                        {
+                            _logger.LogInformation("Executing: {Item}", item);
+                            var itemResult = await processItem.Solve();
+
+                            _logger.LogInformation("Item Done: {Item}", item);
+                            await ResultsUtils.SaveItemAsync(dbService, item);
+                        }
+
+                        else if (item.Action == "input")
+                        {
+                            _logger.LogInformation("Executing: {Item}", item);
+                            var itemResult = await processItem.GenerateInput();
+
+                            _logger.LogInformation("Item Done: {Item}", item);
+                            await ResultsUtils.SaveItemAsync(dbService, item);
+                        }
+                        else if (item.Action == "output")
+                        {
+                            _logger.LogInformation("Executing: {Item}", item);
+                            var itemResult = await processItem.GenerateOutput();
+
+                            _logger.LogInformation("Item Done: {Item}", item);
+                        }
                     }
-
-                    else if (item.Action == "input")
+                    catch (Exception ex)
                     {
-                        _logger.LogInformation("Executing: {Item}", item);
-                        var itemResult = await processItem.GenerateInput();
-
-                        _logger.LogInformation("Item Done: {Item}", item);
-                        await ResultsUtils.SaveItemAsync(dbService, item);
-                    }
-                    else if (item.Action == "output")
-                    {
-                        _logger.LogInformation("Executing: {Item}", item);
-                        var itemResult = await processItem.GenerateOutput();
-
-                        _logger.LogInformation("Item Done: {Item}", item);
-                        await ResultsUtils.SaveItemAsync(dbService, item);
+                        _logger.LogError(ex, "Error while processing solution {item}", item.ToString());
+                        continue;
                     }
                 }
             }
