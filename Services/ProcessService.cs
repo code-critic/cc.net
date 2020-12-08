@@ -118,6 +118,7 @@ namespace CC.Net.Services
                             var itemResult = await processItem.GenerateOutput();
 
                             _logger.LogInformation("Item Done: {Item}", item);
+                            await ResultsUtils.SaveItemAsync(dbService, item);
                         }
                     }
                     catch (Exception ex)
