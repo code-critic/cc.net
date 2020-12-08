@@ -38,3 +38,35 @@ export const mapByExtension = (extension: string) => {
             return "text";
     }
 }
+
+export const mapByExtensionPrism = (extension: string) => {
+    const ext = extension || "";
+
+    switch(ext.toLowerCase()) {
+        case "c":
+        case "cc":
+        case "cpp":
+        case "h":
+        case "hh":
+        case "hpp":
+            return "clike";
+
+        case "py":
+            return "python";
+
+        case "cs":
+            return "csharp";
+
+        case "m":
+            return "matlab";
+
+        case "json":
+            return "javascript";
+
+        case "java":
+            return "java";
+
+        default:
+            return "text";
+    }
+}

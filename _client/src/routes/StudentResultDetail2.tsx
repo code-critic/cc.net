@@ -1,4 +1,6 @@
 import "code-prettify/src/prettify.css";
+import "code-prettify/src/prettify.js";
+import "code-prettify/src/lang-matlab.js";
 import { action, observable } from "mobx";
 import { observer } from "mobx-react";
 import React from "react";
@@ -9,7 +11,6 @@ import { httpClient } from "../init";
 import { ICcData, IMarkSolutionItem } from "../models/DataModel";
 // import hljs from 'highlight.js';
 import "../styles/detail.css";
-import "../third_party/prettify.js";
 import { getPoints } from "../utils/DataUtils";
 import { RenderSolution } from "../utils/renderers";
 

@@ -5,7 +5,18 @@ import { observer } from "mobx-react";
 
 import ReactMde from "react-mde";
 import * as Showdown from "showdown";
+
 import "react-mde/lib/styles/css/react-mde-all.css";
+// import "prismjs/plugins/line-numbers/prism-line-numbers.css"
+// import "prismjs/prism.js"
+// import "prismjs/plugins/line-numbers/prism-line-numbers"
+// import "prismjs/themes/prism.css"
+// import "prismjs/components/prism-java"
+// import "prismjs/components/prism-matlab"
+// import "prismjs/components/prism-csharp"
+// import "prismjs/components/prism-javascript"
+// import "prismjs/components/prism-python"
+
 import { ICcData, ILineComment, ICcDataSolution, ICommentServiceItem } from "../models/DataModel";
 import { ListItem, ListItemText, ListItemIcon, Button, Tabs, Tab } from "@material-ui/core";
 import Moment from "react-moment";
@@ -14,6 +25,8 @@ import { DynamicFolder } from "../components/DynamicFolder";
 import FolderIcon from '@material-ui/icons/Folder';
 import VisibilityIcon from '@material-ui/icons/Visibility';
 import Tooltip from '@material-ui/core/Tooltip';
+import { mapByExtensionPrism } from "./LanguageMap";
+
 
 const converter = new Showdown.Converter({
     tables: true,
@@ -91,7 +104,7 @@ export class CodeLine extends React.Component<CodeLineProps, any, any> {
         const complexLayout = hasComments || editorOpen;
 
         let order = 0;
-        return <tr key={lineNo}>
+        return <tr key={lineNo} data-component="CodeLine">
             <td className="blob-num" data-line-number={lineNo}
                 onClick={() => this.editorOpen = !this.editorOpen}>
             </td>
@@ -216,7 +229,7 @@ export class RenderSolution extends React.Component<RenderSolutionProps, any, an
         const solutions: ICcDataSolution[] = result.solutions
             .filter(i => !i.hidden || user?.role === "root");
 
-        return <div style={{ flexGrow: 1, display: "flex", minHeight: 480 }}>
+        return <div style={{ flexGrow: 1, display: "flex", minHeight: 480 }} data-component="RenderSolution">
             <Tabs
                 className="file-explorer"
                 value={this.tabIndex}
@@ -250,7 +263,21 @@ export class RenderSolution extends React.Component<RenderSolutionProps, any, an
                                 style={{ maxWidth: "calc(100% - 200px)", height: "auto" }} />
                     }
 
-                    const html = window.PR.prettyPrintOne(solution.content.replace(/</g, "&lt;"), result.language, true);
+                    const extension = solution.filename.split(".").reverse()[0];
+                    const syntax = mapByExtensionPrism(extension);
+                    /*if(solution.content) {
+                        return <pre key={j} className="line-numbers" data-start="1" onClick={(e) => {
+                            const isLN = (e.target as any).className === "";
+                            if(isLN) {
+                                const ln = 1 + [...(e.target as any).parentElement.children].indexOf(e.target);
+                            }
+                        }}>
+                            <PrismCode className={`language-${syntax}`}>{solution.content}</PrismCode>
+                        </pre>
+                    }*/
+                    
+                    debugger;
+                    const html = window.PR.prettyPrintOne(solution.content.replace(/</g, "&lt;"), syntax, true);
                     const parsed = parse(html) as any;
                     let children = (parsed.props.children || []) as React.ElementType<HTMLDataListElement>[];
 
