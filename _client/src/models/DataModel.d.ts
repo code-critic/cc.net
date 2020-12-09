@@ -23,6 +23,12 @@
 		ActiveLate = 2,
 		AfterDeadline = 3
 	}
+	export const enum SubmissionStatus {
+		Unkown = 0,
+		Intime = 1,
+		Late = 2,
+		None = 3
+	}
 	interface ICourse {
 		courseConfig: ICourseConfig;
 		courseDir: string;
@@ -115,6 +121,7 @@
 		results: ICcDataCaseResult[];
 		reviewRequest: Date;
 		solutions: ICcDataSolution[];
+		submissionStatus: SubmissionStatus;
 		user: string;
 	}
 	interface ICcDataAgg {

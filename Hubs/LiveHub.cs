@@ -95,7 +95,13 @@ namespace CC.Net.Hubs
                     Message = null,
                     Score = 0,
                     Scores = new[] { 0, 0, 0 },
-                }
+                },
+                SubmissionStatus = 
+                    DateTime.Now <= problem.Avail
+                        ? SubmissionStatus.Intime
+                        : DateTime.Now <= problem.Deadline
+                            ? SubmissionStatus.Late
+                            : SubmissionStatus.None,
             };
 
             _idService.RemeberClient(Clients.Caller, id);
@@ -155,7 +161,13 @@ namespace CC.Net.Hubs
                     Message = null,
                     Score = 0,
                     Scores = new[] { 0, 0, 0 },
-                }
+                },
+                SubmissionStatus = 
+                    DateTime.Now <= problem.Avail
+                        ? SubmissionStatus.Intime
+                        : DateTime.Now <= problem.Deadline
+                            ? SubmissionStatus.Late
+                            : SubmissionStatus.None,
             };
 
             _idService.RemeberClient(Clients.Caller, attemptId);

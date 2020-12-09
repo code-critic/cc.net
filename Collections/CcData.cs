@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using cc.net.Collections;
 using CC.Net.Services;
+using CC.Net.Services.Courses;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
@@ -74,6 +75,9 @@ namespace CC.Net.Collections
 
         [BsonElement("solutions")]
         public List<CcDataSolution> Solutions { get; set; } = new List<CcDataSolution>();
+
+        [BsonElement("submissionStatus")]
+        public SubmissionStatus SubmissionStatus { get; set; }
 
         public string ResultDir(string courseDir) => 
             Path.Combine(

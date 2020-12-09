@@ -12,6 +12,7 @@ using CC.Net.Utils;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using MongoDB.Driver;
 
 namespace CC.Net.Controllers
@@ -29,11 +30,13 @@ namespace CC.Net.Controllers
         private readonly DbService _dbService;
         private readonly ProblemDescriptionService _problemDescriptionService;
         private readonly CompareService _compareService;
+        private readonly ILogger<DeveloperController> _logger;
 
         public DeveloperController(
             CourseService courseService, LanguageService languageService, DbService dbService,
             ProblemDescriptionService problemDescriptionService,
-            CompareService compareService, IHttpContextAccessor httpContextAccessor
+            CompareService compareService, IHttpContextAccessor httpContextAccessor,
+            ILogger<DeveloperController> logger
             )
         {
             _courseService = courseService;
@@ -41,6 +44,38 @@ namespace CC.Net.Controllers
             _dbService = dbService;
             _problemDescriptionService = problemDescriptionService;
             _compareService = compareService;
+            _logger = logger;
+        }
+
+        [HttpGet("submission-status")]
+        [RequireRole(AppUserRoles.Root)]
+        public async Task<object> FixSubmissionStatus()
+        {
+            foreach(var item in _dbService.Data.AsQueryable())
+            {
+                _logger.LogWarning(item.ToString());
+                try
+                {
+                    var course = _courseService[item.CourseName];
+                    var courseYearConfig = course[item.CourseYear];
+                    var problem = courseYearConfig[item.Problem];
+
+                    var dt = item.Id.CreationTime;
+                    item.SubmissionStatus = 
+                        dt <= problem.Avail
+                            ? SubmissionStatus.Intime
+                            : dt <= problem.Deadline
+                                ? SubmissionStatus.Late
+                                : SubmissionStatus.None;
+
+                    await ResultsUtils.SaveItemAsync(_dbService, item);
+                    
+                }catch(Exception ex) {
+                    _logger.LogError(ex, "Error");
+                }
+            }
+
+            return "ok";
         }
 
         [HttpGet("fix-scores")]

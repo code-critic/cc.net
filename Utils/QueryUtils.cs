@@ -58,6 +58,11 @@ namespace CC.Net.Utils
                 return $"action: \"{filter.value}\"";
             }
 
+            if (filter.id == "submissionStatus")
+            {
+                return $"submissionStatus: {filter.value}";
+            }
+
             var extra = extras.FirstOrDefault(i => i.Id == filter.id);
             if (extra != null)
             {
@@ -149,6 +154,11 @@ namespace CC.Net.Utils
             if (sort.id == "result")
             {
                 return sort.desc ? @"""result.score"": -1" : @"""result.score"": 1";
+            }
+
+            if (sort.id == "submissionStatus")
+            {
+                return sort.desc ? "submissionStatus: -1" : "submissionStatus: 1";
             }
 
             return sort.desc ? $"\"{sort.id}\": -1" : $"\"{sort.id}\": 1";

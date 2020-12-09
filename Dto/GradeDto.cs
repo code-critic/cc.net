@@ -35,7 +35,8 @@ namespace cc.net.Dto
                     Status = (int)ProcessStatusCodes.NoSolution,
                     Duration = 0.0,
                     Message = "No result",
-                }
+                },
+                SubmissionStatus = SubmissionStatus.None,
             };
         }
     }

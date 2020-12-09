@@ -39,6 +39,12 @@
 		ActiveLate = 2,
 		AfterDeadline = 3
 	}
+	export enum SubmissionStatus {
+		Unkown = 0,
+		Intime = 1,
+		Late = 2,
+		None = 3
+	}
 	export class ProcessStatusStatic {
 		public static InQueue: IProcessStatus = {
                 code: ProcessStatusCodes.InQueue,
@@ -76,7 +82,7 @@
                 code: ProcessStatusCodes.GlobalTimeout,
                 value: 12,
                 name: "global-timeout",
-                description: "Program had to be terminated since ii did not end within designated time period",
+                description: "Program had to be terminated since it did not end within designated time period",
                 letter: "TO",
             };
 
@@ -176,7 +182,7 @@
                 code: ProcessStatusCodes.GlobalTimeout,
                 value: 12,
                 name: "global-timeout",
-                description: "Program had to be terminated since ii did not end within designated time period",
+                description: "Program had to be terminated since it did not end within designated time period",
                 letter: "TO",
             }, 
 {

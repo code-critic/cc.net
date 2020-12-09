@@ -84,6 +84,7 @@ namespace CC.Net
                             .For<ProcessStatus>()
                             .For<CcEventType>()
                             .For<ProblemStatus>()
+                            .For<SubmissionStatus>()
 
                             .WithModuleNameFormatter((moduleName) => "")
                             .WithMemberFormatter((identifier) =>

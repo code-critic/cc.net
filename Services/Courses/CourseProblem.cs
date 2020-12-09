@@ -15,6 +15,13 @@ namespace CC.Net.Services.Courses
         AfterDeadline = 3,
     }
 
+    public enum SubmissionStatus {
+        Unkown = 0,
+        Intime = 1,
+        Late = 2,
+        None = 3,
+    }
+
     public class CourseProblem
     {
         [YamlMember(Alias = "unittest")]

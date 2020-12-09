@@ -6,7 +6,7 @@ import "react-table/react-table.css";
 import { nameof } from "ts-simple-nameof";
 import { ICcData, ICcDataResult, ICourse } from "../models/DataModel";
 import { StudentResultListModel } from "./StudentResultList.Model";
-import { ProcessStatusCodes, ProcessStatusStatic } from "../models/Enums";
+import { ProcessStatusCodes, ProcessStatusStatic, SubmissionStatus } from "../models/Enums";
 
 
 export function getStatusOrDefault(result: ICcDataResult) {
@@ -90,6 +90,26 @@ export function getColumns(model: StudentResultListModel, courses: ICourse[], sh
                     <option value="all">Show All</option>
                     {dateRanges.map(l => <option key={l.value} value={l.value}>{l.name}</option>)}
                 </select>
+        },
+        {
+            Header: "Late submission",
+            accessor: "submissionStatus",
+            Filter: (params: { column: Column, filter: any, onChange: ReactTableFunction, key?: string }) =>
+                <select onChange={event => params.onChange(event.target.value)} style={{ width: "100%" }}
+                    value={params.filter ? params.filter.value : "all"}>
+                    <option value="all">Show All</option>
+                    <option value={SubmissionStatus.Intime}>IN(time)</option>
+                    <option value={SubmissionStatus.Late}>AF(ter)</option>
+                    <option value={SubmissionStatus.None}>NO(ne)</option>
+                </select>,
+            Cell: (cellInfo: CellInfo) =>
+                cellInfo.value == SubmissionStatus.Intime
+                    ? "IN"
+                    : cellInfo.value == SubmissionStatus.Late
+                        ? "AF"
+                        : cellInfo.value == SubmissionStatus.None
+                            ? "NO"
+                            : ""
         },
         {
             Header: "User",

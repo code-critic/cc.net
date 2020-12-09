@@ -27,6 +27,14 @@ namespace CC.Net.Services
             _courseService = courseService;
         }
 
+        public CcData ConvertToExtendedSimple(CcData item) {
+            var course = _courseService[item.CourseName];
+            var courseYearConfig = course[item.CourseYear];
+            var problem = courseYearConfig[item.Problem];
+            item.IsActive = problem.IsActive;
+            return item;
+        }
+
         public CcData ConvertToExtended(CcData item)
         {
             var course = _courseService[item.CourseName];
