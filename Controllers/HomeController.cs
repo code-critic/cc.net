@@ -47,7 +47,6 @@ namespace cc.net.Controllers
             var user = _userService.CurrentUser;
             if(user == null)
             {
-                Console.Error.WriteLine(LoginUrl);
                 Response.Redirect(LoginUrl);
                 throw new Exception("Not authorized");
             }
@@ -88,10 +87,7 @@ namespace cc.net.Controllers
             var data = Request.RouteValues["path"].ToString();
             var user = _cryptoService.Decrypt(data);
 
-            Console.WriteLine(data);
-            Console.WriteLine(user);
-            Console.WriteLine(user.Eppn);
-            Console.WriteLine(user.Affiliation);
+            _logger.LogInformation("New login {}", user);
 
             if (user != null)
             {

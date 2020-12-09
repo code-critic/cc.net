@@ -26,7 +26,6 @@ namespace CC.Net.Utils
                 .ToList();
 
             var doc = string.Join(",\n", result);
-            Console.WriteLine(doc);
             return BsonDocument.Parse($"{{{doc}}}");
         }
 
@@ -139,7 +138,6 @@ namespace CC.Net.Utils
                 .Where(s => !string.IsNullOrEmpty(s));
 
             var doc = string.Join(",\n", result);
-            Console.WriteLine(doc);
             return BsonDocument.Parse($"{{{doc}}}");
         }
 

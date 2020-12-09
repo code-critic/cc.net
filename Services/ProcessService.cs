@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using CC.Net.Collections;
@@ -40,17 +41,24 @@ namespace CC.Net.Services
             {
                 _logger.LogInformation("ProcessService is starting.");
 
-                var dockerPurge = ProcessUtils
-                    .Popen($"docker rm -f {ContainerName}");
-
-                var dockerStart = ProcessUtils
-                    .Popen($"docker run -di --name {ContainerName} {_appOptions.DockerOptions.Args} {_appOptions.DockerOptions.Image}");
-
-                // TODO: configurable period
-                while (stoppingToken.IsCancellationRequested == false)
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 {
-                    await DoWork();
-                    await Task.Delay(5 * 1000, stoppingToken);
+                    _logger.LogWarning("Current OS cannot be used as a worker for now.");
+                }
+                else
+                {
+                    var dockerPurge = ProcessUtils
+                        .Popen($"docker rm -f {ContainerName}");
+
+                    var dockerStart = ProcessUtils
+                        .Popen($"docker run -di --name {ContainerName} {_appOptions.DockerOptions.Args} {_appOptions.DockerOptions.Image}");
+
+                    // TODO: configurable period
+                    while (stoppingToken.IsCancellationRequested == false)
+                    {
+                        await DoWork();
+                        await Task.Delay(5 * 1000, stoppingToken);
+                    }
                 }
             });
         }

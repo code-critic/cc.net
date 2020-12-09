@@ -25,27 +25,6 @@ namespace CC.Net
     {
         public static void Main(string[] args)
         {
-            /*var generatedLines = new string[] { "a", "b", "c" }.Select(i => i).ToList();
-            var referenceLines = new string[] { "a", "b", "c", "d" }.Select(i => i).ToList();
-            var lines = generatedLines.Zip(referenceLines);
-
-            var lineId = 0;
-            foreach(var line in lines)
-            {
-                Console.WriteLine(line.First);
-                Console.WriteLine(line.Second);
-                Console.WriteLine();
-                lineId++;
-            }
-
-            var generatedRemainder = generatedLines.Skip(lineId).Where(i => !string.IsNullOrWhiteSpace(i)).ToList();
-            var referenceRemainder = referenceLines.Skip(lineId).Where(i => !string.IsNullOrWhiteSpace(i)).ToList();
-            foreach (var a in referenceLines.Skip(lineId))
-            {
-                Console.WriteLine(a);
-            }
-
-            return;*/
             if (args.Length > 0 && args[0] == "--generate")
             {
                 Directory.CreateDirectory("_client/src/models/");

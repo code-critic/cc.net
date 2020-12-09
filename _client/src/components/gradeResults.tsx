@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Box, Dialog, Typography } from '@material-ui/core';
 import Button from '@material-ui/core/Button';
 import ArrowForwardIosIcon from '@material-ui/icons/ArrowForwardIos';
@@ -9,7 +9,7 @@ import ToggleButtonGroup from '@material-ui/lab/ToggleButtonGroup';
 import { NotificationManager } from 'react-notifications';
 import Spreadsheet from "react-spreadsheet";
 import { RowInfo } from 'react-table';
-import { httpClient, userCanBeRoot } from '../init';
+import { userCanBeRoot } from '../init';
 import { ICcData, ICourse, ICourseProblem, IGradeDto, ISingleCourse } from '../models/DataModel';
 import { ProcessStatusCodes, ProcessStatusStatic } from '../models/Enums';
 import { getColumns, getStatus } from '../routes/StudentResultList.Columns';
@@ -22,6 +22,7 @@ import { StudentResultsDialogForTeacher } from './StudentResultsDialog';
 import moment from 'moment';
 import XLSX from 'xlsx';
 import { DropDownMenu } from './DropDownMenu';
+import { useResource } from './useResource';
 
 
 interface SelectCourseAndProblem {
@@ -35,20 +36,6 @@ interface SelectCourseAndProblem {
 interface Graderesults {
 }
 
-
-export function useResource<T>(url?: string) {
-    const [resource, serResource] = useState<T>();
-    useEffect(() => {
-        if (url) {
-            serResource(undefined);
-            httpClient.fetch(url, undefined, "auto")
-                .then(serResource)
-                .catch(e => serResource(undefined));
-        }
-    }, [url]);
-
-    return resource;
-}
 
 interface SimpleCardProps {
     title: string;

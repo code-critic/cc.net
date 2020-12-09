@@ -13,6 +13,7 @@ using CC.Net.Services.Courses;
 using CC.Net.Services.Languages;
 using CC.Net.Utils;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using static CC.Net.Collections.CcData;
@@ -26,14 +27,16 @@ namespace CC.Net.Hubs
         private readonly LanguageService _languageService;
         private readonly CourseService _courseService;
         private readonly UserService _userService;
+        private readonly ILogger<LiveHub> _logger;
 
-        public LiveHub(DbService dBService, IdService idService, LanguageService languageService, CourseService courseService, UserService userService)
+        public LiveHub(DbService dBService, IdService idService, LanguageService languageService, CourseService courseService, UserService userService, ILogger<LiveHub> logger)
         {
             _dbService = dBService;
             _idService = idService;
             _languageService = languageService;
             _courseService = courseService;
             _userService = userService;
+            _logger = logger;
         }
 
         public override Task OnDisconnectedAsync(Exception exception)
@@ -44,8 +47,8 @@ namespace CC.Net.Hubs
 
         public async Task RegisterUser(string username)
         {
+            _logger.LogInformation("Hub register user: {}", username);
             _idService.SaveUser(username, Context.ConnectionId);
-            Console.WriteLine(username);
         }
 
         public async Task GenerateInput(string userId, string courseName, string courseYear, string problemId)

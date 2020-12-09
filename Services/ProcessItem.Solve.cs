@@ -135,7 +135,6 @@ namespace CC.Net.Services
                             : (int) ProcessStatusCodes.AnswerWrong
                     })
                 );
-                Console.WriteLine(report);
             }
 
 
