@@ -227,7 +227,7 @@ export const SolutionSubmit = (props) => {
             <Grid item xs={12} sm={12} lg={6}>
                 {/* assets */ }
                 {hasAssets &&
-                    < ShowAssets
+                    <ShowAssets
                         urlPrefix={`/static-files/serve/${activeCourse.course}/${activeCourse.year}/${activeProblem.id}`}
                         assets={problem.assets} />
                 }

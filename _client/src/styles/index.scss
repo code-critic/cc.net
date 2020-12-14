@@ -811,3 +811,35 @@ a.MuiButtonBase-root
 .data-export .Spreadsheet__active-cell {
   padding: 2px;
 }
+
+.button-drig {
+  // display: flex;
+  // flex-wrap: wrap;
+
+  // & > * {
+  //   flex: 0 0 minmax(130px, 1fr);
+  //   margin: 2px !important;
+  // }
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 4px;
+}
+
+.MuiButtonBase-root.small {
+  font-size: 0.7rem;
+  
+  .MuiSvgIcon-root {
+    font-size: 1.0rem;
+  }
+}
+
+ .MuiButton-outlinedPrimary.green {
+   color: inherit;
+   background-color: #ecffec;
+   border-color: #70af70;
+   
+   &:hover {
+     background-color: #d3f0d3;
+     border-color: #62a562;
+   }
+ }
