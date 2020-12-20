@@ -61,11 +61,13 @@ namespace CC.Net.Services.Courses
                 var config = Path.Combine(dir, "config.yaml");
                 if (File.Exists(config))
                 {
+                    var content = File.ReadAllText(config);
                     var course = new Course
                     {
-                        CourseConfig = YamlRead.Read<CourseConfig>(config),
+                        CourseConfig = YamlRead.ReadFromString<CourseConfig>(content),
                         CourseYears = ParseCourse(dir),
-                        CourseDir = dir
+                        CourseDir = dir,
+                        Yaml = content,
                     };
 
                     course.CourseYears.ForEach(i => i.SetCourse(course));
@@ -90,11 +92,13 @@ namespace CC.Net.Services.Courses
                 var yearConfig = Path.Combine(yearDir, "config.yaml");
                 if (File.Exists(yearConfig))
                 {
+                    var content = File.ReadAllText(yearConfig);
                     result.Add(
                         new CourseYearConfig
                         {
                             Year = Path.GetFileName(yearDir),
-                            Problems = YamlRead.Read<List<CourseProblem>>(yearConfig),
+                            Problems = YamlRead.ReadFromString<List<CourseProblem>>(content),
+                            Yaml = content,
                         }
                     );
                 }

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.Json.Serialization;
 using CC.Net.Collections;
 using CC.Net.Utils;
 using YamlDotNet.Serialization;
@@ -13,6 +14,9 @@ namespace CC.Net.Services.Courses
         public string Year { get; set; }
         public List<List<CcData>> Results { get; set; } = new List<List<CcData>>();
         public List<CourseProblem> Problems { get; set; }
+
+        [JsonIgnore]
+        public string Yaml { get; set; }
 
         private Course _course;
         public void SetCourse(Course course)

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json.Serialization;
 
 namespace CC.Net.Services.Courses
 {
@@ -15,5 +16,8 @@ namespace CC.Net.Services.Courses
         {
             get => CourseYears.FirstOrDefault(i => i.Year.ToLower() == key.ToLower());
         }
+
+        [JsonIgnore]
+        public string Yaml { get; set; }
     }
 }

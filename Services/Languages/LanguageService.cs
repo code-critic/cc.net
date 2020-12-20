@@ -23,7 +23,7 @@ namespace CC.Net.Services.Languages
         private List<Language> Parse()
         {
             var file = $"{_appOptions.ConfigDir}/langs.yaml";
-            return YamlRead.Read<List<Language>>(file);
+            return YamlRead.ReadFromFile<List<Language>>(file);
         }
 
         public Language this[string key]

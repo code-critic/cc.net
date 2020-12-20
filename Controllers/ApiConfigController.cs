@@ -63,6 +63,14 @@ namespace CC.Net.Controllers
         {
             return _courseService.GetAllowedCoursesForUser(_userService.CurrentUser);
         }
+        
+        [HttpGet("test-config/{courseName}/{courseYear}")]
+        public object GetTestYaml(string courseName, string courseYear)
+        {
+            var course = _courseService.GetCourseForUser(_userService.CurrentUser, courseName);
+            var yearConfig = course[courseYear];
+            return new { data = yearConfig.Yaml };
+        }
 
         [HttpGet("courses-full/{courseName}/{courseYear}")]
         public List<CourseProblem> CourseFull(string courseName, string courseYear)

@@ -3,6 +3,7 @@ import { StudentResultList } from "./routes/StudentResultList";
 import { CourseProblemSelector } from "./components/CourseProblemSelector";
 import { Graderesults } from "./components/gradeResults";
 import { GlobalStats } from "./components/GlobalStats";
+import { ConfigEditor } from "./editors/ConfigEditor";
 
 export interface IPageLink<T> {
     title: string;
@@ -10,7 +11,6 @@ export interface IPageLink<T> {
     path: string;
     exact: boolean;
     component: React.ComponentType<T>;
-
     rootOnly: boolean;
 }
 
@@ -22,6 +22,14 @@ export const pageLinks: IPageLink<any>[] = [
         exact: true,
         component: SolutionSubmit,
         rootOnly: false,
+    },
+    {
+        title: "Test",
+        to: "/test",
+        path: "/test",
+        exact: true,
+        component: ConfigEditor,
+        rootOnly: true,
     },
     {
         title: "Stats",
