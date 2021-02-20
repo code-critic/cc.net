@@ -65,13 +65,12 @@ namespace CC.Net.Services.Courses
                     var course = new Course
                     {
                         CourseConfig = YamlRead.ReadFromString<CourseConfig>(content),
-                        CourseYears = ParseCourse(dir),
                         CourseDir = dir,
                         Yaml = content,
+                        CourseYears = ParseCourse(dir),
                     };
 
-                    course.CourseYears.ForEach(i => i.SetCourse(course));
-                    if(!course.CourseConfig.Disabled)
+                    if (!course.CourseConfig.Disabled)
                     {
                         result.Add(course);
                     }
@@ -81,7 +80,28 @@ namespace CC.Net.Services.Courses
                     }
                 }
             }
+
+            // propagate references
+            result.ForEach(i => UpdateRefs(i));
+
             return result;
+        }
+
+        private void UpdateRefs(Course course)
+        {
+            course.CourseYears.ForEach(i => i.UpdateRefs(course));
+        }
+
+        private SettingsConfig ParseSettingConfigOrDefault(string settingsConfig)
+        {
+            // parse settings.yaml
+            if (File.Exists(settingsConfig))
+            {
+                var content = File.ReadAllText(settingsConfig);
+                return YamlRead.ReadFromString<SettingsConfig>(content);
+            }
+
+            return null;
         }
 
         private List<CourseYearConfig> ParseCourse(string dir)
@@ -90,18 +110,24 @@ namespace CC.Net.Services.Courses
             foreach (var yearDir in Directory.GetDirectories(dir))
             {
                 var yearConfig = Path.Combine(yearDir, "config.yaml");
+                var settingsConfig = Path.Combine(yearDir, "settings.yaml");
                 if (File.Exists(yearConfig))
                 {
+                    // parse config.yaml
                     var content = File.ReadAllText(yearConfig);
-                    result.Add(
-                        new CourseYearConfig
-                        {
-                            Year = Path.GetFileName(yearDir),
-                            Problems = YamlRead.ReadFromString<List<CourseProblem>>(content),
-                            Yaml = content,
-                        }
-                    );
+                    var courseYearConfig = new CourseYearConfig
+                    {
+                        Year = Path.GetFileName(yearDir),
+                        Problems = YamlRead.ReadFromString<List<CourseProblem>>(content),
+                        Yaml = content,
+                    };
+
+                    courseYearConfig.SettingsConfig = ParseSettingConfigOrDefault(settingsConfig);
+
+                    result.Add(courseYearConfig);
                 }
+
+                
             }
             return result;
         }

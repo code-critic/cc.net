@@ -5,6 +5,6 @@ namespace CC.Net.Entities
     public class User
     {
         public string id { get; set; }
-        public List<string> tags { get; set; }
+        public List<string> Tags { get; set; } = new List<string>();
     }
 }

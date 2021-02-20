@@ -17,7 +17,7 @@ import CloseIcon from '@material-ui/icons/Close';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import ExpandLessIcon from '@material-ui/icons/ExpandLess';
 import { NotificationManager } from 'react-notifications';
-import { httpClient } from "../init";
+import { httpClient, getUser } from "../init";
 
 
 
@@ -204,7 +204,7 @@ export class StudentResultItem extends React.Component<StudentResultItemProps, a
                     <DialogTitle className="text-right">
                         <Box className="dialog-title">
                             <div>
-                                <ButtonGroup variant="contained" color="primary" disabled={!item.isActive}>
+                                <ButtonGroup variant="contained" color="primary" disabled={!item.isActive && getUser().role !== 'root'}>
                                     <Button
                                         disabled={!!item.reviewRequest}
                                         onClick={() => this.requestCodeReview()}>

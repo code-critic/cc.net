@@ -33,6 +33,11 @@
 		NewGrade = 2,
 		NewCodeReview = 3
 	}
+	export enum CcUserGroupStatus {
+		NotConfirmed = 0,
+		Confirmed = 1,
+		Rejected = 2
+	}
 	export enum ProblemStatus {
 		BeforeStart = 0,
 		Active = 1,

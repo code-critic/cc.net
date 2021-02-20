@@ -83,7 +83,7 @@ namespace CC.Net.Services
 
         private async Task UpdateStatus()
         {
-            var channel = _liveHub.Clients.Clients(_idService[Item.User]);
+            var channel = _liveHub.Clients.Clients(_idService[Item.UserOrGroupUsers]);
             
             var scores = new int[]
             {

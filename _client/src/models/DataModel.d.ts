@@ -35,6 +35,7 @@
 		courseYears: ICourseYearConfig[];
 		item: ICourseYearConfig;
 		name: string;
+		yaml: string;
 	}
 	interface ICourseConfig {
 		access: string;
@@ -50,9 +51,12 @@
 		assets: string[];
 		avail: Date;
 		cat: string;
+		collaboration: ICourseProblemCollaborationConfig;
+		courseYearConfig: ICourseYearConfig;
 		deadline: Date;
 		description: string;
 		export: string[];
+		groupsAllowed: boolean;
 		id: string;
 		include: string[];
 		isActive: boolean;
@@ -84,10 +88,24 @@
 		values: string[];
 	}
 	interface ICourseYearConfig {
+		course: ICourse;
 		item: ICourseProblem;
 		problems: ICourseProblem[];
 		results: ICcData[][];
+		settingsConfig: ISettingsConfig;
+		yaml: string;
 		year: string;
+	}
+	interface ISettingsConfig {
+		allStudents: IUser[];
+		teachers: ISettingsConfigTeacher[];
+		yaml: string;
+	}
+	interface ISettingsConfigTeacher {
+		id: string;
+		problems: string[];
+		students: IUser[];
+		tags: string[];
 	}
 	interface ISingleCourse {
 		course: string;
@@ -102,6 +120,11 @@
 		NewGrade = 2,
 		NewCodeReview = 3
 	}
+	export const enum CcUserGroupStatus {
+		NotConfirmed = 0,
+		Confirmed = 1,
+		Rejected = 2
+	}
 	interface ICcData {
 		action: string;
 		attempt: number;
@@ -110,19 +133,22 @@
 		courseYear: string;
 		docker: boolean;
 		gradeComment: string;
+		group: string;
 		id: IObjectId;
 		isActive: boolean;
+		isGroup: boolean;
 		language: string;
 		objectId: string;
 		points: number;
 		problem: string;
-		resu: string;
 		result: ICcDataResult;
+		resultDirname: string;
 		results: ICcDataCaseResult[];
 		reviewRequest: Date;
 		solutions: ICcDataSolution[];
 		submissionStatus: SubmissionStatus;
 		user: string;
+		users: string[];
 	}
 	interface ICcDataAgg {
 		id: ICcDataAggId;
@@ -159,6 +185,20 @@
 		subject: string;
 		type: CcEventType;
 	}
+	interface ICcGroup {
+		id: IObjectId;
+		isLocked: boolean;
+		name: string;
+		objectId: string;
+		oid: string;
+		owner: string;
+		status: CcUserGroupStatus;
+		users: ICcUserGroup[];
+	}
+	interface ICcUserGroup {
+		name: string;
+		status: CcUserGroupStatus;
+	}
 	interface IObjectId {
 		creationTime: Date;
 		empty: IObjectId;
@@ -182,6 +222,11 @@
 		text: string;
 		time: number;
 		user: string;
+	}
+	interface ICourseProblemCollaborationConfig {
+		enabled: boolean;
+		maxSize: number;
+		minSize: number;
 	}
 	export const enum DiffResultLineType {
 		Correct = 1,
@@ -247,6 +292,7 @@
 		datetime: string;
 		email: string;
 		eppn: string;
+		groups: ICcGroup[];
 		id: string;
 		isRoot: boolean;
 		lastFirstName: string;
@@ -264,6 +310,17 @@
 	interface ICommentServiceItem {
 		comment: ILineComment;
 		objectId: string;
+	}
+	interface IStudentScoreboardCourse {
+		courseName: string;
+		courseProblem: ICourseProblem;
+		courseYear: string;
+		objectId: string;
+		problem: string;
+		resultCount: number;
+		results: ICcData[];
+		score: number;
+		since: Date;
 	}
 	interface IGradeDto {
 		result: ICcData;

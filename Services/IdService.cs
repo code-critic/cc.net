@@ -14,13 +14,32 @@ namespace CC.Net.Services
             UserMap.Add(id, client);
         }
 
-        public IReadOnlyList<string> this[string username] {
-        get {
+        public IReadOnlyList<string> this[string username] 
+        {
+            get 
+            {
                 if (_clients.ContainsKey(username))
                 {
                     return _clients[username].AsReadOnly() as IReadOnlyList<string>;
                 }
                 return new List<string>().AsReadOnly() as IReadOnlyList<string>;
+            }
+        }
+
+        public IReadOnlyList<string> this[List<string> usernames]
+        {
+            get
+            {
+                var result = new List<string>();
+                usernames.ForEach(username =>
+                {
+                    if (_clients.ContainsKey(username))
+                    {
+                        result.AddRange(_clients[username]);
+                    }
+                });
+
+                return result.AsReadOnly();
             }
         }
 

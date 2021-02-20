@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using CC.Net.Collections;
 using CC.Net.Config;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -51,6 +52,7 @@ namespace CC.Net.Services
 
         public string Email => Eppn.Split('@').Skip(1).FirstOrDefault();
         public List<string> Roles => Affiliation.Split(";").Select(i => i.Split('@').First()).ToList();
+        public List<CcGroup> Groups { get; set; } = new List<CcGroup>();
 
         public AppUser Copy()
         {

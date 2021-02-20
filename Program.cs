@@ -44,6 +44,8 @@ namespace CC.Net
                         .For<ProcessStatus>()
                         .For<CommentServiceItem>()
                         .For<GradeDto>()
+                        .For<StudentScoreboardCourse>()
+                        .For<CcGroup>()
 
                         .For<DiffResult>()
                         .For<AppUser>()
@@ -64,6 +66,7 @@ namespace CC.Net
                             .For<CcEventType>()
                             .For<ProblemStatus>()
                             .For<SubmissionStatus>()
+                            .For<CcUserGroupStatus>()
 
                             .WithModuleNameFormatter((moduleName) => "")
                             .WithMemberFormatter((identifier) =>

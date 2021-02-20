@@ -148,7 +148,7 @@ const SectionRenderer = (name: string, value: any, onChange: (value) => void, mo
     </Typography>
 
 
-type SchemaType = StringType
+export type SchemaType = StringType
     | IntType
     | DoubleType
     | BooleanType
@@ -285,7 +285,7 @@ interface ArrayEditorProps {
 
 const filterEmptyItems = (items: any[], complex: boolean = false) => {
     return complex
-        ? items.filter(i => i !== undefined && Object.values(i).some(j => j !== undefined))
+        ? items.filter(i => i !== undefined && Object.values(i).some(j => j != undefined))
         : items.filter(i => i !== undefined);
 }
 
@@ -403,7 +403,7 @@ export const ObjectEditor = (props: ObjectEditorProps) => {
 }
 
 
-export const ConfigYamlSchema = () => Schema.ObjectType({
+/*export const ConfigYamlSchema = () => Schema.ObjectType({
     foobar: Schema.SectionType("Main Props"),
     id: Schema.StringType({ xs: 3 }),
     name: Schema.StringType({ xs: 3 }),
@@ -440,4 +440,4 @@ export const ConfigYamlSchema = () => Schema.ObjectType({
             timeout: Schema.DoubleType({ width: 120 }),
         })
     ),
-});
+});*/

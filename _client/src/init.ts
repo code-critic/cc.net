@@ -151,6 +151,7 @@ let _currentUser: IAppUser = {
     role: null as any,
     roles: [],
     username: "guest",
+    groups: [],
 }
 export const getUser = () => _currentUser;
 export const userIsRoot = () => _currentUser.role === "root";

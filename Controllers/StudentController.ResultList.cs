@@ -17,35 +17,11 @@ using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using Newtonsoft.Json;
-using static CC.Net.Collections.CcData;
 
 namespace CC.Net.Controllers
 {
-    [ApiController]
-    [Route("api")]
-    [Authorize]
-    public class StudentResultListController : ControllerBase
+    public partial class StudentController
     {
-
-        private readonly ILogger<StudentResultListController> _logger;
-        private readonly DbService _dbService;
-        private readonly CourseService _courseService;
-        private readonly LanguageService _languageService;
-        private readonly UserService _userService;
-        private readonly UtilService _utilService;
-
-        public StudentResultListController(ILogger<StudentResultListController> logger, 
-        DbService dbService, CourseService courseService, LanguageService languageService,
-        UserService userService, UtilService utilService)
-        {
-            _logger = logger;
-            _dbService = dbService;
-            _courseService = courseService;
-            _languageService = languageService;
-            _userService = userService;
-            _utilService = utilService;
-        }
-
         public CcData ConvertToExtended(CcData item)
         {
             return _utilService.ConvertToExtended(item);
@@ -59,8 +35,8 @@ namespace CC.Net.Controllers
                 .Find(i => i.CourseName == courseName
                      && i.CourseYear == courseYear
                      && i.Problem == problem
-                     && i.User == user
-                    //  && i.Action == "solve"
+                     && (i.User == user || i.GroupUsers.Contains(user))
+                     //  && i.Action == "solve"
                      )
                 .SortByDescending(i => i.Id)
                 .Limit(25)

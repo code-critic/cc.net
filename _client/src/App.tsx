@@ -4,6 +4,7 @@ import { Layout } from './components/Layout';
 import { SingleResult } from './components/SingleResult';
 import { pageLinks } from './pageLinks';
 import { NotificationContainer } from 'react-notifications';
+import { GroupManager } from './comp/GroupManager';
 
 
 export default class App extends Component {
@@ -13,6 +14,7 @@ export default class App extends Component {
     return (
       <Layout>
         <Route component={SingleResult} path="/r/:objectId" exact />
+        <Route component={GroupManager} path="/manage-groups" exact />
 
         {pageLinks.map(i =>
           <Route key={i.path} component={i.component} path={i.path} exact={i.exact}/>
