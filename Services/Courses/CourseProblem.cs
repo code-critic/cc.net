@@ -124,10 +124,10 @@ namespace CC.Net.Services.Courses
             [YamlMember(Alias = "enabled")]
             public bool Enabled { get; set; } = true;
             
-            [YamlMember(Alias = "minSize")]
+            [YamlMember(Alias = "min-size")]
             public int MinSize { get; set; } = 1;
             
-            [YamlMember(Alias = "maxSize")]
+            [YamlMember(Alias = "max-size")]
             public int MaxSize { get; set; } = 3;
         }
     }
