@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.Json.Serialization;
 using CC.Net.Utils;
 using YamlDotNet.Serialization;
 
@@ -22,7 +23,7 @@ namespace CC.Net.Services.Courses
         None = 3,
     }
 
-    public class CourseProblem
+    public class CourseProblem: IUpdateRefs<CourseYearConfig>
     {
         [YamlMember(Alias = "unittest")]
         public bool Unittest { get; set; }
@@ -82,6 +83,11 @@ namespace CC.Net.Services.Courses
         [YamlMember(Alias = "tests")]
         public List<CourseProblemCase> Tests { get; set; }
 
+        [YamlMember(Alias = "collaboration")]
+        public CourseProblemCollaborationConfig Collaboration { get; set; }
+
+        public bool GroupsAllowed => Collaboration?.Enabled == true;
+
         public IEnumerable<CourseProblemCase> AllTests =>
             Tests.SelectMany(i => i.Enumerate());
 
@@ -100,17 +106,29 @@ namespace CC.Net.Services.Courses
 
         public FileTree ProblemDir()
         {
-            return new FileTree(Path.Combine(_course.CourseDir, _yearConfig.Year, "problems", Id));
+            return new FileTree(Path.Combine(CourseYearConfig.Course.CourseDir, CourseYearConfig.Year, "problems", Id));
+        }
+
+        [JsonIgnore]
+        [YamlIgnore]
+        public CourseYearConfig CourseYearConfig { get; set; }
+
+        public void UpdateRefs(CourseYearConfig instance)
+        {
+            CourseYearConfig = instance;
         }
 
 
-
-        private Course _course;
-        private CourseYearConfig _yearConfig;
-        public void SetCourse(Course course, CourseYearConfig yearConfig)
+        public class CourseProblemCollaborationConfig
         {
-            _course = course;
-            _yearConfig = yearConfig;
+            [YamlMember(Alias = "enabled")]
+            public bool Enabled { get; set; } = true;
+            
+            [YamlMember(Alias = "minSize")]
+            public int MinSize { get; set; } = 1;
+            
+            [YamlMember(Alias = "maxSize")]
+            public int MaxSize { get; set; } = 3;
         }
     }
 }

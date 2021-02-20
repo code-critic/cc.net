@@ -2,17 +2,20 @@
 using System.Buffers.Text;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using CC.Net.Config;
+using CC.Net.Db;
 using CC.Net.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using MongoDB.Driver;
 
 // For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -26,13 +29,15 @@ namespace cc.net.Controllers
         private UserService _userService;
         private AppOptions _appOptions;
         private readonly ILogger<HomeController> _logger;
+        private readonly DbService _dbService;
 
-        public HomeController(CryptoService cryptoService, UserService userService, AppOptions appOptions, ILogger<HomeController> logger)
+        public HomeController(CryptoService cryptoService, UserService userService, AppOptions appOptions, ILogger<HomeController> logger, DbService dbService)
         {
             _cryptoService = cryptoService;
             _userService = userService;
             _appOptions = appOptions;
             _logger = logger;
+            _dbService = dbService;
         }
 
         private string LoginUrl =>
@@ -42,14 +47,19 @@ namespace cc.net.Controllers
 
         [HttpGet("whoami")]
         [AllowAnonymous]
-        public AppUser Whoami()
+        public async Task<AppUser> Whoami()
         {
             var user = _userService.CurrentUser;
-            if(user == null)
+
+            if (user == null)
             {
                 Response.Redirect(LoginUrl);
                 throw new Exception("Not authorized");
             }
+
+            user.Groups = await _dbService.Groups
+                .Find(i => i.Users.Any(j => j.Name == user.Id))
+                .ToListAsync();
 
             return user;
         }

@@ -24,8 +24,10 @@ $diffs: (
   // unchanged: rgb(255, 255, 255),
   // deleted: rgb(255, 208, 208),
   // inserted: rgb(210, 255, 208),
-  // modified: rgb(255, 208, 253),,,,,,,,,,,,,,,,,,,,,,,,
+  // modified: rgb(255, 208, 253),,,,,,,,,,,,,,,,,,,,,,,,,,
 );
+
+@import url('https://fonts.googleapis.com/css2?family=Dosis:wght@300;500;700&display=swap');
 
 @media (min-width: 1600px) {
   .container {
@@ -775,8 +777,7 @@ a.notification-item {
   transition: fill 250ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-a.MuiButtonBase-root
-{
+a.MuiButtonBase-root {
   transition: color 250ms cubic-bezier(0.4, 0, 0.2, 1);
   &:hover {
     .slack-icon {
@@ -785,27 +786,27 @@ a.MuiButtonBase-root
   }
 }
 .MuiButton-endIcon.MuiButton-iconSizeSmall {
- margin-left: 2px;
+  margin-left: 2px;
 }
 .icon-holder {
   display: flex;
   align-items: center;
 }
 
-.data-export .Spreadsheet__cell, 
+.data-export .Spreadsheet__cell,
 .data-export .Spreadsheet__header {
-    min-height: 24px;
-    height: 24px;
-    max-height: 24px;
-    padding: 2px;
-    font-size: 14px;
+  min-height: 24px;
+  height: 24px;
+  max-height: 24px;
+  padding: 2px;
+  font-size: 14px;
 }
 
 .data-export .Spreadsheet__data-editor,
 .data-export .Spreadsheet__data-editor input {
-    width: 98%;
-    height: 98%;
-    font-size: 14px;
+  width: 98%;
+  height: 98%;
+  font-size: 14px;
 }
 
 .data-export .Spreadsheet__active-cell {
@@ -827,19 +828,151 @@ a.MuiButtonBase-root
 
 .MuiButtonBase-root.small {
   font-size: 0.7rem;
-  
+
   .MuiSvgIcon-root {
-    font-size: 1.0rem;
+    font-size: 1rem;
   }
 }
 
- .MuiButton-outlinedPrimary.green {
-   color: inherit;
-   background-color: #ecffec;
-   border-color: #70af70;
-   
-   &:hover {
-     background-color: #d3f0d3;
-     border-color: #62a562;
-   }
- }
+.MuiButton-outlinedPrimary.green {
+  color: inherit;
+  background-color: #ecffec;
+  border-color: #70af70;
+
+  &:hover {
+    background-color: #d3f0d3;
+    border-color: #62a562;
+  }
+}
+
+.scoreboard-container {
+  .course {
+    font-family: 'Dosis', sans-serif;
+    font-weight: 300;
+    text-decoration: none;
+    color: #333;
+  }
+}
+
+
+.legend {
+  table.scoreboard.code-review {
+    .MuiTableBody-root .MuiTableCell-body {
+      text-align: left;
+      font-weight: 500;
+
+      &.legend-icon {
+        text-align: center;
+        width: 50px;
+        min-width: 50px;
+        padding: 8px;
+      }
+    }
+  }
+}
+table.scoreboard.code-review {
+  width: auto;
+  margin-bottom: 24px;
+
+  .MuiSvgIcon-root {
+    font-size: 1.7rem;
+  }
+
+  .MuiTableHead-root {
+    .MuiTableCell-head {
+      padding: 0;
+      border: none;
+      background-color: #ececec;
+    }
+  }
+  .MuiTableBody-root {
+    .MuiTableCell-body {
+      text-align: center;
+      border: none;
+      font-family: 'Dosis', sans-serif;
+      font-weight: 700;
+      font-size: 1.3rem;
+      padding: 8px;
+      min-width: 100px;
+      opacity: 0.7;
+      transition: opacity 100ms;
+
+      &:hover {
+        opacity: 1;
+      }
+
+      a {
+        font-size: 1.3rem;
+        font-family: 'Dosis', sans-serif;
+        font-weight: 500;
+        text-decoration: none;
+      }
+
+      &.forgot-code-review {
+        background-color: #ffeffd;
+        font-size: 0.9rem;
+        color: #c500c6;
+        a {
+          font-size: 0.9rem;
+          color: #c500c6;
+        }
+      }
+
+      &.no-code-review {
+        background-color: #fff2f2;
+        font-size: 0.9rem;
+        color: #b90000;
+        a {
+          font-size: 0.9rem;
+          color: #b90000;
+        }
+      }
+
+      &.pending-code-review {
+        background-color: #fffae2;
+        color: #735f00;
+        a {
+          color: #735f00;
+        }
+      }
+
+      &.ok-code-review {
+        background-color: #ebffe6;
+        color: #007700;
+        a {
+          color: #007700;
+        }
+      }
+    }
+  }
+}
+
+
+.group-user-status {
+  font-weight: 700;
+  font-size: 1.3em;
+  font-family: 'Dosis', sans-serif;
+  padding: 2px 8px;
+  border-radius: 4px;
+  border: 1px solid black;
+  margin-right: 6px;
+  font-variant: small-caps;
+
+  &.group-user-status-0 {
+    box-shadow: #dfd39e99  0 0 5px 2px;
+    border-color: #aa901d;
+    color: #aa901d;
+  }
+
+  &.group-user-status-1 {
+    box-shadow: #94db9499  0 0 5px 2px;
+    border-color: #088f08;
+    color: #088f08;
+  }
+
+  &.group-user-status-2 {
+    box-shadow: #ebb4b499  0 0 5px 2px;
+    border-color: #8f0808;
+    color: #8f0808;
+  }
+}

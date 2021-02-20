@@ -58,7 +58,7 @@ namespace CC.Net.Services
         {
             var course = _courseService[Item.CourseName][Item.CourseYear];
             var problem = course[Item.Problem];
-            var channel = _liveHub.Clients.Clients(_idService[Item.User]);
+            var channel = _liveHub.Clients.Clients(_idService[Item.UserOrGroupUsers]);
 
             Item.Result.Status = ProcessStatus.Running.Value;
             Item.Results = new List<CcDataCaseResult>();

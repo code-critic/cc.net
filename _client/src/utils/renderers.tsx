@@ -276,7 +276,6 @@ export class RenderSolution extends React.Component<RenderSolutionProps, any, an
                         </pre>
                     }*/
                     
-                    debugger;
                     const html = window.PR.prettyPrintOne(solution.content.replace(/</g, "&lt;"), syntax, true);
                     const parsed = parse(html) as any;
                     let children = (parsed.props.children || []) as React.ElementType<HTMLDataListElement>[];

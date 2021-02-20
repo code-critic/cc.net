@@ -63,6 +63,14 @@ namespace CC.Net.Controllers
         {
             return _courseService.GetAllowedCoursesForUser(_userService.CurrentUser);
         }
+        
+        [HttpGet("test-config/{courseName}/{courseYear}")]
+        public object GetTestYaml(string courseName, string courseYear)
+        {
+            var course = _courseService.GetCourseForUser(_userService.CurrentUser, courseName);
+            var yearConfig = course[courseYear];
+            return new { data = yearConfig.Yaml };
+        }
 
         [HttpGet("courses-full/{courseName}/{courseYear}")]
         public List<CourseProblem> CourseFull(string courseName, string courseYear)
@@ -113,6 +121,7 @@ namespace CC.Net.Controllers
             return _courseService.GetCourseForUser(_userService.CurrentUser, courseName);
         }
 
+
         [HttpGet("grade-stats/{courseName}/{year}/{problemId}")]
         [RequireRole(AppUserRoles.Root)]
         public List<GradeDto> GetProblemStats(string courseName, string year, string problemId)
@@ -122,7 +131,7 @@ namespace CC.Net.Controllers
             var visibleProblems = yearConfig.GetAllowedProblemForUser(_userService.CurrentUser);
             var problem = visibleProblems.FirstOrDefault(i => i.Id == problemId);
 
-            if(problem == null)
+            if (problem == null)
             {
                 return new List<GradeDto>();
             }
@@ -130,7 +139,7 @@ namespace CC.Net.Controllers
             var students = course.CourseConfig.Students;
             var ids = students.Select(i => i.id).ToList();
             var items = _dbService.Data
-                .Find(i => ids.Contains(i.User)
+                .Find(i => (ids.Contains(i.User) || ids.Any(j => i.GroupUsers.Contains(i.User)))
                     && i.CourseName == course.Name
                     && i.CourseYear == yearConfig.Year
                     && i.Problem == problem.Id
@@ -143,7 +152,27 @@ namespace CC.Net.Controllers
             var bestResults = new List<GradeDto>();
             foreach(var student in students)
             {
-                var best = items.FirstOrDefault(i => i.User == student.id);
+                var best = items.FirstOrDefault(i => i.User == student.id || i.GroupUsers.Contains(student.id));
+                if(best == null)
+                {
+                    var userItems = _dbService.Data
+                        .Find(i => (ids.Contains(i.User) || ids.Any(j => i.GroupUsers.Contains(i.User)))
+                            && i.CourseName == course.Name
+                            && i.CourseYear == yearConfig.Year
+                            && i.Problem == problem.Id
+                            && i.ReviewRequest == null
+                            && (i.User == student.id || i.GroupUsers.Contains(student.id))
+                            && (i.Result.Status == (int)ProcessStatusCodes.AnswerCorrect 
+                                || i.Result.Status == (int)ProcessStatusCodes.AnswerCorrectTimeout
+                                || i.Result.Status == (int)ProcessStatusCodes.AnswerWrong
+                                || i.Result.Status == (int)ProcessStatusCodes.AnswerWrongTimeout
+                            ))
+                        .ToList()
+                        .OrderByDescending(i => i.Points)
+                            .ThenByDescending(i => i.Result.Score)
+                        .ToList();
+                    best = userItems.FirstOrDefault();
+                }
                 bestResults.Add(new GradeDto
                 {
                     Result = best ?? GradeDto.EmptyResult(course, yearConfig, problem, student),
@@ -174,7 +203,7 @@ namespace CC.Net.Controllers
             var currentUser = _userService.CurrentUser.Id;
             var problems = visibleProblems.Select(i => i.Id).ToList();
             var results = _dbService.Data
-                .Find(i => i.User == currentUser
+                .Find(i => (i.User == currentUser || i.GroupUsers.Contains(currentUser))
                     && i.CourseName == course.Name
                     && i.CourseYear == yearConfig.Year
                     && problems.Contains(i.Problem))
@@ -224,7 +253,7 @@ namespace CC.Net.Controllers
             var objectId = new ObjectId(item.objectId);
             var doc = _dbService.Data.Find(i => i.Id == objectId).Single();
             var sender = _userService.CurrentUser.Id;
-            var recipient = doc.User;
+            var recipients = doc.UserOrGroupUsers;
 
             doc.Points = item.points;
             doc.GradeComment = item.comment;
@@ -234,15 +263,18 @@ namespace CC.Net.Controllers
             var result = await _dbService.Data.UpdateDocumentAsync(doc);
             if(result.IsAcknowledged)
             {
-                await _dbService.Events.InsertOneAsync(new CcEvent
+                recipients.ForEach(async recipient =>
                 {
-                    Id = ObjectId.GenerateNewId(),
-                    ResultId = objectId,
-                    Type = CcEventType.NewGrade,
-                    Subject = $"`[{doc.CourseName}]`: Recieved `{item.points}%` in problem `{doc.Problem}`",
-                    IsNew = true,
-                    Sender = sender,
-                    Reciever = recipient,
+                    await _dbService.Events.InsertOneAsync(new CcEvent
+                    {
+                        Id = ObjectId.GenerateNewId(),
+                        ResultId = objectId,
+                        Type = CcEventType.NewGrade,
+                        Subject = $"`[{doc.CourseName}]`: Recieved `{item.points}%` in problem `{doc.Problem}`",
+                        IsNew = true,
+                        Sender = sender,
+                        Reciever = recipient,
+                    });
                 });
             }
             return new

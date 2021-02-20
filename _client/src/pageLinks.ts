@@ -1,8 +1,8 @@
 import { SolutionSubmit } from "./routes/SolutionSubmit";
 import { StudentResultList } from "./routes/StudentResultList";
-import { CourseProblemSelector } from "./components/CourseProblemSelector";
 import { Graderesults } from "./components/gradeResults";
 import { GlobalStats } from "./components/GlobalStats";
+import { StudentScoreboard } from "./comp/StudentScoreboard";
 
 export interface IPageLink<T> {
     title: string;
@@ -10,7 +10,6 @@ export interface IPageLink<T> {
     path: string;
     exact: boolean;
     component: React.ComponentType<T>;
-
     rootOnly: boolean;
 }
 
@@ -24,6 +23,14 @@ export const pageLinks: IPageLink<any>[] = [
         rootOnly: false,
     },
     {
+        title: "Results",
+        to: "/results",
+        path: "/results",
+        exact: true,
+        component: StudentScoreboard,
+        rootOnly: false,
+    },
+    {
         title: "Stats",
         to: "/stats",
         path: "/stats",
@@ -31,14 +38,6 @@ export const pageLinks: IPageLink<any>[] = [
         component: GlobalStats,
         rootOnly: false,
     },
-    // {
-    //     title: "Problem-Student Matrix",
-    //     to: "/problem-student-matrix",
-    //     path: "/problem-student-matrix/:course?/:year?",
-    //     exact: false,
-    //     component: ProblemStudentMatrixList,
-    //     rootOnly: true,
-    // },
     {
         title: "View Results",
         to: "/view-results",

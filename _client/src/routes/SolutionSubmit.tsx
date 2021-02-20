@@ -1,41 +1,38 @@
-import React, { Suspense, useEffect } from "react";
-
-import { observable, computed } from "mobx";
-import { observer } from "mobx-react";
-import { reactLocalStorage } from 'reactjs-localstorage';
-import { debounce } from 'throttle-debounce';
-import { CourseProblemSelect, ICourseYearProblem, RouteComponentProps } from "../components/CourseProblemSelect";
-import { CourseProblemSelectModel } from "../components/CourseProblemSelect.Model";
-import { SimpleLoader } from "../components/SimpleLoader";
-import { ILanguage, ICcData, ICourse, ICourseProblem, ISingleCourse, IAppUser } from "../models/DataModel";
-import { ApiResource } from "../utils/ApiResource";
-import { Grid, Button, ButtonGroup, Container, Breadcrumbs, Typography, Box } from '@material-ui/core';
-
-
-import SendIcon from '@material-ui/icons/Send';
-import BubbleChartIcon from '@material-ui/icons/BubbleChart';
+import { Breadcrumbs, Button, ButtonGroup, Container, Grid, Typography } from '@material-ui/core';
+import Link from "@material-ui/core/Link";
 import AddCircleOutlineOutlinedIcon from '@material-ui/icons/AddCircleOutlineOutlined';
+import BubbleChartIcon from '@material-ui/icons/BubbleChart';
 import CheckCircleOutlinedIcon from '@material-ui/icons/CheckCircleOutlined';
-
-import { getUser, liveConnection, appDispatcher, userIsRoot } from "../init";
+import ExtensionIcon from '@material-ui/icons/Extension';
+import HomeIcon from '@material-ui/icons/Home';
+import NavigateNextIcon from '@material-ui/icons/NavigateNext';
+import SchoolIcon from '@material-ui/icons/School';
+import SendIcon from '@material-ui/icons/Send';
+import GroupIcon from '@material-ui/icons/Group';
+import React, { useEffect } from "react";
+import { Link as RouterLink } from "react-router-dom";
+import { ICourseYearProblem, RouteComponentProps } from "../components/CourseProblemSelect";
+import { CourseProblemSelector } from "../components/CourseProblemSelector";
+import { AlertStatusMessage } from "../components/CourseProblemSelector.renderers";
+import { DropDownMenu } from "../components/DropDownMenu";
+import { IFile } from "../components/FileChooser";
+import { ShowAssets } from "../components/ShowAssets";
+import { SimpleLoader } from "../components/SimpleLoader";
 import { StudentResultItem } from "../components/StudentResults.Item";
 import { StudentResultsDialog } from "../components/StudentResultsDialog";
-import { SolutionSubmitForm } from "./SolutionSubmit.Form";
-import { NotificationManager } from 'react-notifications';
-import { IFile } from "../components/FileChooser";
-import { CourseProblemSelector } from "../components/CourseProblemSelector";
+import { appDispatcher, getUser, liveConnection, userIsRoot } from "../init";
+import { IAppUser, ICcData, ICcGroup, ICourse, ICourseProblem, ILanguage, ISingleCourse } from "../models/DataModel";
+import "../third_party/mathjax";
+import { ApiResource } from "../utils/ApiResource";
 import { flattenCourse } from "../utils/DataUtils";
 import { openCloseState } from "../utils/StateUtils";
-import { Link as RouterLink } from "react-router-dom";
-import Link from "@material-ui/core/Link";
-import NavigateNextIcon from '@material-ui/icons/NavigateNext';
-import HomeIcon from '@material-ui/icons/Home';
-import ExtensionIcon from '@material-ui/icons/Extension';
-import SchoolIcon from '@material-ui/icons/School';
-import "../third_party/mathjax";
-import { ShowAssets } from "../components/ShowAssets";
-import { StatusMessage, AlertStatusMessage } from "../components/CourseProblemSelector.renderers";
 import { hubException } from "../utils/utils";
+import { SolutionSubmitForm } from "./SolutionSubmit.Form";
+import Alert from '@material-ui/lab/Alert';
+
+
+
+
 
 
 interface SolutionSubmitProps extends RouteComponentProps<ICourseYearProblem> {
@@ -49,10 +46,10 @@ interface LocalStorateCodeSnippet {
     language: string;
 }
 
-const submitSolution = (user: IAppUser, activeCourse: ISingleCourse,
+const submitSolutionStudent = (user: IAppUser, activeCourse: ISingleCourse,
     activeProblem: ICourseProblem, language: ILanguage | undefined, files: IFile[]) => {
 
-    // SubmitSolutions(string userId, string courseName, string courseYear, string problemId, string langId, IList<SimpleFile> files)
+    // SubmitSolutionStudent(string userId, string courseName, string courseYear, string problemId, string langId, IList<SimpleFile> files)
     var message: any[] = [
         user.id,
         activeCourse.course,
@@ -69,7 +66,31 @@ const submitSolution = (user: IAppUser, activeCourse: ISingleCourse,
     ];
 
     liveConnection
-        .invoke("SubmitSolutions", ...message)
+        .invoke("SubmitSolutionStudent", ...message)
+        .catch(hubException);
+}
+
+const submitSolutionGroup = (group: ICcGroup, activeCourse: ISingleCourse,
+    activeProblem: ICourseProblem, language: ILanguage | undefined, files: IFile[]) => {
+
+    // SubmitSolutionGroup(string groupId, string courseName, string courseYear, string problemId, string langId, IList < SimpleFile > files)
+    var message: any[] = [
+        group.objectId,
+        activeCourse.course,
+        activeCourse.year,
+        activeProblem.id,
+        language?.id,
+        files.map(f => {
+            return {
+                name: f.name,
+                path: f.path,
+                content: f.content
+            }
+        })
+    ];
+
+    liveConnection
+        .invoke("SubmitSolutionGroup", ...message)
         .catch(hubException);
 }
 
@@ -89,8 +110,8 @@ const generateInputOutput = (type: ioType, user: IAppUser, activeCourse: ISingle
     liveConnection
         .invoke(method, ...message)
         .catch(hubException);
-    
-    
+
+
 }
 
 interface RenderBreadcrumbsProps {
@@ -203,8 +224,20 @@ export const SolutionSubmit = (props) => {
     const defaultLanguage = activeProblem.unittest
         ? languages.find(i => i.id === activeProblem.reference.lang)
         : languages[0];
-    const hasAssets = !!problem.assets && problem.assets.length > 0;
 
+    const hasAssets = !!problem.assets && problem.assets.length > 0;
+    const { minSize, maxSize } = activeProblem?.collaboration;
+
+    const meGroup = { objectId: "me", name: "me", users: [{ name: user.id}] } as any as ICcGroup;
+    const validGroups = [...user.groups, meGroup]
+        .map(i => {
+            return {
+                name: i.name,
+                objectId: i.objectId,
+                users: i.users,
+                valid: i.users.length >= minSize && i.users.length <= maxSize
+            }
+        });
 
     return <Container>
         <RenderBreadcrumbs activeCourse={activeCourse} activeProblem={activeProblem} />
@@ -225,7 +258,7 @@ export const SolutionSubmit = (props) => {
 
             {/* col 1 */}
             <Grid item xs={12} sm={12} lg={6}>
-                {/* assets */ }
+                {/* assets */}
                 {hasAssets &&
                     <ShowAssets
                         urlPrefix={`/static-files/serve/${activeCourse.course}/${activeCourse.year}/${activeProblem.id}`}
@@ -239,6 +272,26 @@ export const SolutionSubmit = (props) => {
             {/* col 2 */}
             <Grid item xs={12} sm={12} lg={6}>
 
+                {/* group info */}
+                {activeProblem.groupsAllowed &&
+                    <>
+                    <Alert severity="info" icon={<GroupIcon />} style={{marginBottom: 10}}>
+                        <strong>For this problem, you can work in a group.</strong>&nbsp;
+                        {(activeProblem.collaboration.minSize != activeProblem.collaboration.maxSize) &&
+                            <p style={{ padding: 0, margin: 0 }}>
+                                Group must have at least <strong>{activeProblem.collaboration.minSize}</strong>
+                                &nbsp;and at most <strong>{activeProblem.collaboration.maxSize}</strong> students.
+                            </p>
+                        }
+                        {(activeProblem.collaboration.minSize == activeProblem.collaboration.maxSize) &&
+                            <p style={{ padding: 0, margin: 0 }}>
+                                Group must have exactly <strong>{activeProblem.collaboration.maxSize}</strong> students
+                            </p>
+                        }
+                    </Alert>
+                    </>
+                }
+
                 {/* generate i/o */}
                 {user.role === "root" && problem.unittest === false &&
                     <ButtonGroup size="large" fullWidth>
@@ -250,6 +303,7 @@ export const SolutionSubmit = (props) => {
                         }}>Generate Output</Button>
                     </ButtonGroup>
                 }
+
                 {/* form */}
                 <Grid container spacing={3}>
                     <Grid item xs={12}>
@@ -268,9 +322,37 @@ export const SolutionSubmit = (props) => {
                     <Button size="large" variant="outlined" color="secondary" endIcon={<BubbleChartIcon />}
                         onClick={openResults}>View Results
                     </Button>
-                    <Button size="large" variant="contained" color="primary" endIcon={<SendIcon />} disabled={!activeProblem.isActive && !userIsRoot()}
-                        onClick={() => submitSolution(user, activeCourse, activeProblem, language || defaultLanguage, files)}>Submit Solution
-                    </Button>
+                    {activeProblem.groupsAllowed &&
+                        <DropDownMenu
+                            buttonProps={{
+                                color: "primary",
+                                variant: "contained",
+                                size: "large",
+                                disabled: (!activeProblem.isActive && !userIsRoot()) || validGroups.length == 0,
+                                endIcon: <SendIcon />,
+                            }}
+                            title={validGroups.length == 0 ? "No group found" : "Submit As ..."}
+                            options={validGroups}
+                            getIsDisabled={i => !i.valid}
+                            getLabel={i => i.objectId === "me"
+                                ? <span><i>{i.name}</i> (only {(i.users.map(j => j.name).join(", "))})</span>
+                                : <span>group <strong>{i.name}</strong> ({(i.users.map(j => j.name).join(", "))})</span>
+                            }
+                            onChange={i => {
+                                if (i.objectId === "me") {
+                                    submitSolutionStudent(user, activeCourse, activeProblem, language || defaultLanguage, files)
+                                } else {
+                                    submitSolutionGroup(i as any as ICcGroup, activeCourse, activeProblem, language || defaultLanguage, files)
+                                }
+                            }}
+                        />
+                    }
+                    {!activeProblem.groupsAllowed &&
+                        <Button size="large" variant="contained" color="primary" endIcon={<SendIcon />} disabled={!activeProblem.isActive && !userIsRoot()}
+                            onClick={() => submitSolutionStudent(user, activeCourse, activeProblem, language || defaultLanguage, files)}>Submit Solution
+                        </Button>
+                    }
+
                 </Grid>
             </Grid>
         </Grid>

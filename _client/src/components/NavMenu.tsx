@@ -9,7 +9,6 @@ import CodeIcon from '@material-ui/icons/Code';
 import AccountCircleIcon from '@material-ui/icons/AccountCircle';
 import NotificationsIcon from '@material-ui/icons/Notifications';
 import CancelIcon from '@material-ui/icons/Cancel';
-import SupervisorAccountIcon from '@material-ui/icons/SupervisorAccount';
 import FormatSizeIcon from '@material-ui/icons/FormatSize';
 import { SimpleLoader } from './SimpleLoader';
 import { ICcEvent } from '../models/DataModel';
@@ -19,6 +18,7 @@ import { groupBy } from '../utils/arrayUtils';
 import * as Showdown from "showdown";
 import SecurityIcon from '@material-ui/icons/Security';
 import { CircleLoader } from 'react-spinners';
+import GroupIcon from '@material-ui/icons/Group';
 
 interface NavMenuProps {
 
@@ -157,7 +157,7 @@ export const NavMenu = (props: NavMenuProps) => {
             updateUser(user);
             handleMenuClose();
           }}>
-            <SupervisorAccountIcon />Switch to role student
+          <SecurityIcon />Switch to role student
         </MenuItem>
         }
         {isRoot &&
@@ -182,9 +182,12 @@ export const NavMenu = (props: NavMenuProps) => {
             updateUser(user);
             handleMenuClose();
           }}>
-            <SupervisorAccountIcon />Switch back to root
+          <SecurityIcon />Switch back to root
         </MenuItem>
         }
+        <MenuItem component={Link} to={"/manage-groups"} onClick={handleMenuClose}>
+          <GroupIcon /> Manage Groups
+        </MenuItem>
         <MenuItem onClick={() => {
           fetch("home/logout")
             .then(data => {

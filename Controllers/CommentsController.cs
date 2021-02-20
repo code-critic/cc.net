@@ -126,7 +126,7 @@ namespace CC.Net.Controllers
                 var teachers = _courseService[ccData?.CourseName]?.CourseConfig?.Teachers
                     ?? new List<Entities.User>();
 
-                var recipients = new List<string> { data.User };
+                var recipients = data.UserOrGroupUsers;
                 recipients.AddRange(teachers.Select(i => i.id));
                 recipients.AddRange(data?.Comments?.Select(i => i.User) ?? new List<string>());
                 recipients = recipients.Distinct().ToList();

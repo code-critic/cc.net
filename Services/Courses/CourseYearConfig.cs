@@ -1,25 +1,28 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
+using System.Text.Json.Serialization;
 using CC.Net.Collections;
-using CC.Net.Utils;
 using YamlDotNet.Serialization;
 
 namespace CC.Net.Services.Courses
 {
-    public class CourseYearConfig
+    public class CourseYearConfig: IUpdateRefs<Course>
     {
         public string Year { get; set; }
         public List<List<CcData>> Results { get; set; } = new List<List<CcData>>();
-        public List<CourseProblem> Problems { get; set; }
+        public List<CourseProblem> Problems { get; set; } = new List<CourseProblem>();
+        public SettingsConfig SettingsConfig { get; set; }
 
-        private Course _course;
-        public void SetCourse(Course course)
-        {
-            _course = course;
-            Problems.ForEach(i => i.SetCourse(_course, this));
-        }
+        [JsonIgnore]
+        [YamlIgnore]
+        public string Yaml { get; set; }
+
+
+        [JsonIgnore]
+        [YamlIgnore]
+        public Course Course { get; set; }
+
 
         public IEnumerable<CourseProblem> GetAllowedProblemForUser(AppUser user)
         {
@@ -27,6 +30,34 @@ namespace CC.Net.Services.Courses
             {
                 yield return problem;
             }
+        }
+
+        public void UpdateRefs(Course instance)
+        {
+            Course = instance;
+            Problems.ForEach(i => i.UpdateRefs(this));
+
+            if (SettingsConfig == null)
+            {
+                SettingsConfig = CreateDummySettingsConfig(this);
+            }
+        }
+
+        public static SettingsConfig CreateDummySettingsConfig(CourseYearConfig courseYearConfig)
+        {
+            var dummy = new SettingsConfig();
+            var course = courseYearConfig.Course;
+            dummy.Teachers = course.CourseConfig.Teachers
+                .Select(i =>
+                new SettingsConfigTeacher
+                {
+                    Id = i.id,
+                    Tags = i.Tags,
+                    Students = course.CourseConfig.Students,
+                    Problems = courseYearConfig.Problems.Select(j => j.Id).ToList(),
+                }).ToList();
+
+            return dummy;
         }
 
         public CourseProblem this[string key]

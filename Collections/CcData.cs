@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using cc.net.Collections;
+using CC.Net.Extensions;
 using CC.Net.Services;
 using CC.Net.Services.Courses;
 using MongoDB.Bson;
@@ -10,8 +11,44 @@ using MongoDB.Bson.Serialization.Attributes;
 
 namespace CC.Net.Collections
 {
+
     [BsonIgnoreExtraElements]
-    public class CcData: IObjectId
+    public class CcDataSimple : IObjectId
+    {
+        [BsonId]
+        [BsonElement("_id")]
+        public ObjectId Id { get; set; }
+
+        [BsonElement("attempt")]
+        public int Attempt { get; set; }
+
+        [BsonElement("points")]
+        public float Points { get; set; }
+
+        [BsonElement("gradeComment")]
+        public string GradeComment { get; set; }
+
+        [BsonElement("reviewRequest")]
+        public DateTime? ReviewRequest { get; set; }
+
+        [BsonElement("user")]
+        public string User { get; set; }
+
+        [BsonElement("action")]
+        public string Action { get; set; }
+
+        [BsonElement("courseName")]
+        public string CourseName { get; set; }
+
+        [BsonElement("courseYear")]
+        public string CourseYear { get; set; }
+
+        [BsonElement("problem")]
+        public string Problem { get; set; }
+    }
+
+    [BsonIgnoreExtraElements]
+    public class CcData : IObjectId
     {
         [BsonId]
         [BsonElement("_id")]
@@ -19,17 +56,17 @@ namespace CC.Net.Collections
 
         override public string ToString()
         {
-            return $"{Id}/{Action}/{User,-10} {CourseName}/{CourseYear}/{Problem} [{Result?.Duration:0.000} sec] {ProcessStatus.Get(Result?.Status ?? -1).Name}";
+            return $"{Id}/{Action}/{ResultDirname,-10} {CourseName}/{CourseYear}/{Problem} [{Result?.Duration:0.000} sec] {ProcessStatus.Get(Result?.Status ?? -1).Name}";
         }
 
         public string ToString(CcDataCaseResult result)
         {
-            return $"{Id}/{Action}/{User,-10} {CourseName}/{CourseYear}/{Problem}/{result.Case} [{result?.Duration:0.000} sec] {ProcessStatus.Get(result?.Status ?? -1).Name}";
+            return $"{Id}/{Action}/{ResultDirname,-10} {CourseName}/{CourseYear}/{Problem}/{result.Case} [{result?.Duration:0.000} sec] {ProcessStatus.Get(result?.Status ?? -1).Name}";
         }
 
         public string ToString(string caseId)
         {
-            return $"{Id}/{Action}/{User,-10} {CourseName}/{CourseYear}/{Problem}/{caseId} [{Result?.Duration:0.000} sec] {ProcessStatus.Get(Result?.Status ?? -1).Name}";
+            return $"{Id}/{Action}/{ResultDirname,-10} {CourseName}/{CourseYear}/{Problem}/{caseId} [{Result?.Duration:0.000} sec] {ProcessStatus.Get(Result?.Status ?? -1).Name}";
         }
 
         public string ObjectId
@@ -46,8 +83,28 @@ namespace CC.Net.Collections
         [BsonElement("user")]
         public string User { get; set; }
 
+        [BsonElement("groupName")]
+        public string GroupName { get; set; }
+        
+        [BsonElement("groupId")]
+        public ObjectId GroupId { get; set; }
+
+        [BsonElement("groupUsers")]
+        public List<string> GroupUsers { get; set; } = new List<string>();
+
         [BsonIgnore]
-        public string Resu => string.Join('.', User.Split('.').Reverse());
+        public string ResultDirname => IsGroup
+            ? string.Join("", GroupUsers.Select(i => i.Lastname())).ValidFileName()
+            : User.ReverseName().ValidFileName();
+
+        [BsonIgnore]
+        public bool IsGroup => !string.IsNullOrEmpty(GroupName);
+
+        [BsonIgnore]
+        public List<string> UserOrGroupUsers => IsGroup
+            ? GroupUsers
+            : new List<string> { };
+
 
         [BsonElement("courseName")]
         public string CourseName { get; set; }
@@ -81,7 +138,7 @@ namespace CC.Net.Collections
 
         public string ResultDir(string courseDir) => 
             Path.Combine(
-                courseDir, CourseYear, "results", Resu, Problem,
+                courseDir, CourseYear, "results", ResultDirname, Problem,
                 $"{Attempt:D2}-{ProcessStatus.Get(Result.Status).Letter}-{ProcessStatus.Get(Result.Status).Name}"
             );
 

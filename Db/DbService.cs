@@ -12,9 +12,10 @@ namespace CC.Net.Db
         private readonly MongoDBConfig _dBConfig;
         private readonly MongoClient _client;
         private readonly IMongoDatabase _dB;
+
         public readonly IMongoCollection<CcData> Data;
         public readonly IMongoCollection<CcEvent> Events;
-
+        public readonly IMongoCollection<CcGroup> Groups;
         public DbService(MongoDBConfig dBConfig)
         {
             _dBConfig = dBConfig;
@@ -33,6 +34,7 @@ namespace CC.Net.Db
 
             Data = _dB.GetCollection<CcData>(_dBConfig.CollectionData);
             Events = _dB.GetCollection<CcEvent>(_dBConfig.CollectionEvents);
+            Groups  = _dB.GetCollection<CcGroup>(_dBConfig.CollectionGroups);
         }
 
         public Task<CcData> DataSingleOrDefaultAsync(ObjectId objectId)
