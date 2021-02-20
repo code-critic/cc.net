@@ -37,7 +37,8 @@ namespace CC.Net.Controllers
 
             var courses = _courseService.Courses
                 .SelectMany(i => i.CourseYears)
-                .Where(i => i.SettingsConfig.AllStudents.Any(s => s.id == user)).ToList();
+                .Where(i => i.SettingsConfig.AllStudents.Any(s => s.id == user))
+                .ToList();
 
             return courses
                 .SelectMany(i => i.Problems)

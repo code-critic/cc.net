@@ -10,6 +10,8 @@ namespace CC.Net.Services
 
         private readonly Dictionary<string, List<string>> _clients = new Dictionary<string, List<string>>();
 
+        public List<string> All => _clients.Keys.ToList();
+
         public void RemeberClient(IClientProxy client, ObjectId id) {
             UserMap.Add(id, client);
         }

@@ -12,12 +12,22 @@ namespace CC.Net.Services.Courses
         [YamlMember(Alias = "teachers")]
         public List<SettingsConfigTeacher> Teachers { get; set; } = new List<SettingsConfigTeacher>();
 
-
-        public IEnumerable<User> AllStudents => Teachers
+        public List<User> AllStudents => Teachers
             .SelectMany(i => i.Students)
             .GroupBy(i => i.id)
-            .Select(i => i.First());
+            .Select(i => i.First())
+            .ToList();
 
+        public List<User> StudentsFor(string teacher) => Teachers
+            .Where(i => i.Id == teacher)
+            .SelectMany(i => i.Students)
+            .GroupBy(i => i.id)
+            .Select(i => i.First())
+            .ToList();
+
+        public List<SettingsConfigTeacher> TeachersFor(string student) => Teachers
+            .Where(i => i.Students.Any(j => j.id == student))
+            .ToList();
 
         [JsonIgnore]
         public string Yaml { get; set; }

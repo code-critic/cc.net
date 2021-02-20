@@ -61,12 +61,23 @@ namespace CC.Net.Services
                     .Find(i => true)
                     .SortByDescending(i => i.Id)
                     .ToListAsync();
-                
+
+                var remaining = idService.All;
                 foreach (var notificationGroup in allNotifications.GroupBy(i => i.Reciever))
                 {
-                    var channels = hub.Clients.Clients(idService[notificationGroup.Key]);
+                    var ids = idService[notificationGroup.Key];
+                    remaining.RemoveAll(i => i == notificationGroup.Key);
+
+                    var channels = hub.Clients.Clients(ids);
                     var notifications = notificationGroup.ToList();
                     await channels.NewNotification(notifications);
+                }
+
+                foreach(var id in remaining)
+                {
+                    var ids = idService[id];
+                    var channels = hub.Clients.Clients(ids);
+                    await channels.NewNotification(new List<CcEvent>{ });
                 }
 
                 var itemsCount = await dbService.Data.CountDocumentsAsync(i => i.Result.Status == ProcessStatus.InQueue.Value);

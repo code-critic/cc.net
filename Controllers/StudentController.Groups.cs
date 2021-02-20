@@ -131,9 +131,9 @@ namespace CC.Net.Controllers
                 .Find(i => i.Users.Any(j => j.Name == student))
                 .ToListAsync();
 
-            groups.ForEach(async i =>
-            {
-                i.IsLocked = await _dbService.Data.CountDocumentsAsync(j => j.GroupName == i.Name) > 0;
+            await groups.ForEachAsync(async i => {
+                var count = await _dbService.Data.CountDocumentsAsync(j => j.GroupId == i.Id);
+                i.IsLocked = count > 0;
             });
             return groups;
         }

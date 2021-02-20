@@ -23,6 +23,7 @@ import moment from 'moment';
 import XLSX from 'xlsx';
 import { DropDownMenu } from './DropDownMenu';
 import { useResource } from './useResource';
+import { nameof } from 'ts-simple-nameof';
 
 
 interface SelectCourseAndProblem {
@@ -139,6 +140,13 @@ export const Graderesults = (props) => {
         const data = (stats as any).map(i => i.result);
         const columns = getColumns(model, [], showFilters)
             .filter(i => i.Header != "Problem");
+        
+        if (problem?.groupsAllowed) {
+            columns.push({
+                Header: "Group",
+                accessor: nameof<ICcData>(i => i.groupName),
+            });
+        }
         const isLoading = false;
 
         const onFetchData = (state) => { }

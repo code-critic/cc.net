@@ -126,7 +126,8 @@ namespace CC.Net.Controllers
         [RequireRole(AppUserRoles.Root)]
         public List<GradeDto> GetProblemStats(string courseName, string year, string problemId)
         {
-            var course = _courseService.GetCourseForUser(_userService.CurrentUser, courseName);
+            var user = _userService.CurrentUser;
+            var course = _courseService.GetCourseForUser(user, courseName);
             var yearConfig = course[year];
             var visibleProblems = yearConfig.GetAllowedProblemForUser(_userService.CurrentUser);
             var problem = visibleProblems.FirstOrDefault(i => i.Id == problemId);
@@ -136,7 +137,7 @@ namespace CC.Net.Controllers
                 return new List<GradeDto>();
             }
 
-            var students = course.CourseConfig.Students;
+            var students = problem.CourseYearConfig.SettingsConfig.StudentsFor(user.Id);
             var ids = students.Select(i => i.id).ToList();
             var items = _dbService.Data
                 .Find(i => (ids.Contains(i.User) || ids.Any(j => i.GroupUsers.Contains(i.User)))

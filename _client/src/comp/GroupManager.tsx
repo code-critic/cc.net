@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useResource } from '../components/useResource'
 import { SimpleLoader } from '../components/SimpleLoader';
-import { Schema, ObjectEditor, ArrayEditor, SchemaType } from '../components/ObjectEditor';
 import { ICcGroup, ICcUserGroup } from '../models/DataModel';
 import { Table, TableCell, TableHead, TableBody, TableRow, Button, Dialog, DialogTitle, DialogContent, Input, TextField, DialogActions, RadioGroup, FormControlLabel, Radio, Container } from '@material-ui/core';
 import { openCloseState, useOpenClose } from '../utils/StateUtils';
@@ -10,16 +9,16 @@ import { CcUserGroupStatus } from '../models/Enums';
 import { groupBy } from '../utils/arrayUtils';
 
 
-const model = Schema.ObjectType({
-    name: Schema.StringType(),
-    status: Schema.EnumType({ values: ['NotConfirmed', 'Confirmed', 'Rejected'] }),
-    users: Schema.ArrayType(
-        Schema.ObjectType({
-            name: Schema.StringType(),
-            status: Schema.EnumType({ values: ['NotConfirmed', 'Confirmed', 'Rejected'] }),
-        })
-    )
-});
+// const model = Schema.ObjectType({
+//     name: Schema.StringType(),
+//     status: Schema.EnumType({ values: ['NotConfirmed', 'Confirmed', 'Rejected'] }),
+//     users: Schema.ArrayType(
+//         Schema.ObjectType({
+//             name: Schema.StringType(),
+//             status: Schema.EnumType({ values: ['NotConfirmed', 'Confirmed', 'Rejected'] }),
+//         })
+//     )
+// });
 
 
 interface UserElementProps {

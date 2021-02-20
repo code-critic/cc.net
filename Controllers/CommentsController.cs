@@ -105,12 +105,14 @@ namespace CC.Net.Controllers
         [HttpPost("comments")]
         public async Task<object> PostComments(IEnumerable<CommentServiceItem> items)
         {
+            var sender = _userService.CurrentUser.Id;
             var updated = 0;
             if (items.Any())
             {
                 var data = (CcData) null;
                 foreach (var item in items)
                 {
+                    item.comment.User = sender;
                     var objectId = new ObjectId(item.objectId);
                     data = await _dbService.DataSingleOrDefaultAsync(objectId);
                     data.Comments.Add(item.comment);
@@ -122,18 +124,27 @@ namespace CC.Net.Controllers
                 var oid = new ObjectId(items.First().objectId);
                 var ccData = await _dbService.DataSingleOrDefaultAsync(oid);
 
-                // generate notifications
-                var teachers = _courseService[ccData?.CourseName]?.CourseConfig?.Teachers
-                    ?? new List<Entities.User>();
+                var settingsConfig = _courseService[ccData.CourseName][ccData.CourseYear][ccData.Problem].CourseYearConfig.SettingsConfig;
 
-                var recipients = data.UserOrGroupUsers;
-                recipients.AddRange(teachers.Select(i => i.id));
+                var students = data.UserOrGroupUsers;
+
+                // all teachers for given users
+                var teachers = students
+                    .SelectMany(i => settingsConfig.TeachersFor(i))
+                    .Select(i => i.Id)
+                    .Distinct()
+                    .ToList();
+
+                var recipients = new List<string>();
+                recipients.AddRange(students);
+                recipients.AddRange(teachers);
                 recipients.AddRange(data?.Comments?.Select(i => i.User) ?? new List<string>());
-                recipients = recipients.Distinct().ToList();
+                recipients = recipients
+                    .Distinct()
+                    .ToList();
 
                 foreach (var recipient in recipients)
                 {
-                    var sender = _userService.CurrentUser.Id;
                     if (sender != recipient)
                     {
                         await _dbService.Events.InsertOneAsync(new CcEvent

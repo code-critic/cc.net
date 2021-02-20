@@ -31,6 +31,13 @@ interface StudentResultsDialogForTeacherProps {
 
 export const StudentResultsDialogForTeacher = (props: StudentResultsDialogForTeacherProps) => {
     const { result, onClose, onRefresh } = props;
+    const [items, setItems] = React.useState(commentService.items);
+
+    appDispatcher.register((payload: any) => {
+        if (payload.actionType == "commentServiceChanged") {
+            setItems([...commentService.items]);
+        }
+    });
 
     return <Dialog open={true} fullWidth maxWidth="lg"
         className={commentService.items.length > 0 ? "unsaved" : ""}
@@ -42,10 +49,10 @@ export const StudentResultsDialogForTeacher = (props: StudentResultsDialogForTea
                     <Grid item>
                         {result.user}
                     </Grid>
-                    {commentService.items.length > 0 && <Grid item>
+                    {items.length > 0 && <Grid item>
                         <Button onClick={() => commentService.postComments()}
                             variant="contained" color="secondary">
-                            Add {commentService.items.length} comment{commentService.items.length > 1 ? "s" : ""}
+                            Add {items.length} comment{items.length > 1 ? "s" : ""}
                         </Button>
                     </Grid>}
                     <Grid item style={{ minWidth: 500 }}>
@@ -64,20 +71,20 @@ export const StudentResultsDialogForTeacher = (props: StudentResultsDialogForTea
 
 export const StudentResultsDialog = (props: StudentResultsDialogProps) => {
     const { onClose, activeCourse, activeProblem, languages, forcedResultId } = props;
-    
+
     const [items, setItems] = React.useState(commentService.items);
     const [filters, setFilters] = React.useState({ comments: false, review: false });
     const [discardDialog, setDiscardDialog] = React.useState(false);
     const [user, setUser] = React.useState(getUser());
 
     appDispatcher.register((payload: any) => {
-      if (payload.actionType == "userChanged") {
-        setUser(getUser());
-      }
+        if (payload.actionType == "userChanged") {
+            setUser(getUser());
+        }
     });
-  
+
     if (!user.role) {
-      return <SimpleLoader />
+        return <SimpleLoader />
     }
 
     appDispatcher.register((payload: any) => {

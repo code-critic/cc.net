@@ -133,7 +133,9 @@
 		courseYear: string;
 		docker: boolean;
 		gradeComment: string;
-		group: string;
+		groupId: IObjectId;
+		groupName: string;
+		groupUsers: string[];
 		id: IObjectId;
 		isActive: boolean;
 		isGroup: boolean;
@@ -148,7 +150,7 @@
 		solutions: ICcDataSolution[];
 		submissionStatus: SubmissionStatus;
 		user: string;
-		users: string[];
+		userOrGroupUsers: string[];
 	}
 	interface ICcDataAgg {
 		id: ICcDataAggId;
