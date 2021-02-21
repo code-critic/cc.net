@@ -226,7 +226,7 @@ export const SolutionSubmit = (props) => {
         : languages[0];
 
     const hasAssets = !!problem.assets && problem.assets.length > 0;
-    const { minSize, maxSize } = activeProblem?.collaboration;
+    const { minSize, maxSize } = activeProblem?.collaboration ?? { };
 
     const meGroup = { objectId: "me", name: "me", users: [{ name: user.id}] } as any as ICcGroup;
     const validGroups = [...user.groups, meGroup]
