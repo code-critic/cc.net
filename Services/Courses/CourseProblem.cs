@@ -118,7 +118,6 @@ namespace CC.Net.Services.Courses
             CourseYearConfig = instance;
         }
 
-
         public class CourseProblemCollaborationConfig
         {
             [YamlMember(Alias = "enabled")]

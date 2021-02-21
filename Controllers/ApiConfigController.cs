@@ -251,33 +251,38 @@ namespace CC.Net.Controllers
         [RequireRole(AppUserRoles.Root)]
         public async Task<object> SaveGrade(MarkSolutionItem item)
         {
-            var objectId = new ObjectId(item.objectId);
-            var doc = _dbService.Data.Find(i => i.Id == objectId).Single();
+            var oid = new ObjectId(item.objectId);
+            var ccData = await _dbService.DataSingleOrDefaultAsync(oid);
             var sender = _userService.CurrentUser.Id;
-            var recipients = doc.UserOrGroupUsers;
+            var recipients = await _utilService.GetUsersRelatedToResult(ccData);
 
-            doc.Points = item.points;
-            doc.GradeComment = item.comment;
+            ccData.Points = item.points;
+            ccData.GradeComment = item.comment;
 
-            await _utilService.MarkNotificationAsReadAsync(objectId, sender);
+            await _utilService.MarkNotificationAsReadAsync(oid, sender);
 
-            var result = await _dbService.Data.UpdateDocumentAsync(doc);
-            if(result.IsAcknowledged)
+            var result = await _dbService.Data.UpdateDocumentAsync(ccData);
+
+            if (result.IsAcknowledged)
             {
                 recipients.ForEach(async recipient =>
                 {
-                    await _dbService.Events.InsertOneAsync(new CcEvent
+                    if (sender != recipient)
                     {
-                        Id = ObjectId.GenerateNewId(),
-                        ResultId = objectId,
-                        Type = CcEventType.NewGrade,
-                        Subject = $"`[{doc.CourseName}]`: Recieved `{item.points}%` in problem `{doc.Problem}`",
-                        IsNew = true,
-                        Sender = sender,
-                        Reciever = recipient,
-                    });
+                        await _dbService.Events.InsertOneAsync(new CcEvent
+                        {
+                            Id = ObjectId.GenerateNewId(),
+                            ResultId = oid,
+                            Type = CcEventType.NewGrade,
+                            Subject = $"`[{ccData.CourseName}]`: Recieved `{item.points}%` in problem `{ccData.Problem}`",
+                            IsNew = true,
+                            Sender = sender,
+                            Reciever = recipient,
+                        });
+                    }
                 });
             }
+
             return new
             {
                 status = result.IsAcknowledged ? "ok" : "error"

@@ -53,26 +53,7 @@ namespace CC.Net.Controllers
 
             // generate notifications
             var ccData = await _dbService.DataSingleOrDefaultAsync(oid);
-
-            var settingsConfig = _courseService[ccData.CourseName][ccData.CourseYear][ccData.Problem]
-                .CourseYearConfig.SettingsConfig;
-
-            var students = ccData.UserOrGroupUsers;
-
-            // all teachers for given users
-            var teachers = students
-                .SelectMany(i => settingsConfig.TeachersFor(i))
-                .Select(i => i.Id)
-                .Distinct()
-                .ToList();
-
-            var recipients = new List<string>();
-            recipients.AddRange(students);
-            recipients.AddRange(teachers);
-            recipients.AddRange(ccData?.Comments?.Select(i => i.User) ?? new List<string>());
-            recipients = recipients
-                .Distinct()
-                .ToList();
+            var recipients = await _utilService.GetUsersRelatedToResult(ccData);
 
             foreach (var recipient in recipients)
             {
@@ -141,26 +122,7 @@ namespace CC.Net.Controllers
 
                 var oid = new ObjectId(items.First().objectId);
                 var ccData = await _dbService.DataSingleOrDefaultAsync(oid);
-
-                var settingsConfig = _courseService[ccData.CourseName][ccData.CourseYear][ccData.Problem]
-                    .CourseYearConfig.SettingsConfig;
-
-                var students = data.UserOrGroupUsers;
-
-                // all teachers for given users
-                var teachers = students
-                    .SelectMany(i => settingsConfig.TeachersFor(i))
-                    .Select(i => i.Id)
-                    .Distinct()
-                    .ToList();
-
-                var recipients = new List<string>();
-                recipients.AddRange(students);
-                recipients.AddRange(teachers);
-                recipients.AddRange(data?.Comments?.Select(i => i.User) ?? new List<string>());
-                recipients = recipients
-                    .Distinct()
-                    .ToList();
+                var recipients = await _utilService.GetUsersRelatedToResult(ccData);
 
                 foreach (var recipient in recipients)
                 {

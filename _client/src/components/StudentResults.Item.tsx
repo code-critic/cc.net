@@ -1,23 +1,21 @@
-import React from "react";
-import { ApiResource } from "../utils/ApiResource";
-import { ICcData, ILanguage, ICcDataResult, ICcDataCaseResult, ICourseProblem } from "../models/DataModel";
+import { Box, Button, ButtonGroup, Chip, CircularProgress, Dialog, DialogContent, DialogTitle, Grid, ListItem, ListItemIcon, ListItemText, Tooltip, Typography } from "@material-ui/core";
+import CancelIcon from '@material-ui/icons/Cancel';
+import CheckIcon from '@material-ui/icons/CheckCircle';
+import CloseIcon from '@material-ui/icons/Close';
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { observable } from "mobx";
 import { observer } from "mobx-react";
+import React from "react";
 import Moment from "react-moment";
-import { ListItem, ListItemText, ListItemIcon, Dialog, Chip, Tooltip, DialogContent, Button, DialogTitle, CircularProgress, Grid, Typography, Box, ButtonGroup } from "@material-ui/core";
-
-import CheckIcon from '@material-ui/icons/CheckCircle';
-import CancelIcon from '@material-ui/icons/Cancel';
-import { DiffView } from "./DiffView";
-import { RenderSolution, renderCode, Grow, Tiny } from "../utils/renderers";
-import { isStatusOk, getStatus } from "../utils/StatusUtils";
-import { ProcessStatusCodes } from "../models/Enums";
-import CloseIcon from '@material-ui/icons/Close';
-
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-import ExpandLessIcon from '@material-ui/icons/ExpandLess';
 import { NotificationManager } from 'react-notifications';
-import { httpClient, getUser } from "../init";
+import { getUser, httpClient } from "../init";
+import { ICcData, ICcDataCaseResult, ILanguage } from "../models/DataModel";
+import { ProcessStatusCodes } from "../models/Enums";
+import { Grow, renderCode, RenderSolution, Tiny } from "../utils/renderers";
+import { getStatus, isStatusOk } from "../utils/StatusUtils";
+import { DiffView } from "./DiffView";
+
+
 
 
 

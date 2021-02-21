@@ -109,5 +109,39 @@ namespace CC.Net.Services
 
             return 0L;
         }
+
+        public async Task<List<string>> GetUsersRelatedToResult(string objectId)
+        {
+            var oid = new ObjectId(objectId);
+            var ccData = await _dbService.DataSingleOrDefaultAsync(oid);
+            return await GetUsersRelatedToResult(ccData);
+        }
+
+        public async Task<List<string>> GetUsersRelatedToResult(CcData ccData)
+        {
+            var sender = _userService.CurrentUser.Id;
+
+            var settingsConfig = _courseService[ccData.CourseName][ccData.CourseYear][ccData.Problem]
+                .CourseYearConfig.SettingsConfig;
+
+            var students = ccData.UserOrGroupUsers;
+
+            // all teachers for given users
+            var teachers = students
+                .SelectMany(i => settingsConfig.TeachersFor(i))
+                .Select(i => i.Id)
+                .Distinct()
+                .ToList();
+
+            var recipients = new List<string>() { sender };
+            recipients.AddRange(students);
+            recipients.AddRange(teachers);
+            recipients.AddRange(ccData?.Comments?.Select(i => i.User) ?? new List<string>());
+            recipients = recipients
+                .Distinct()
+                .ToList();
+
+            return recipients;
+        }
     }
 }

@@ -7,6 +7,7 @@ using System.Security.Cryptography;
 using System.Text;
 using CC.Net.Collections;
 using CC.Net.Config;
+using CC.Net.Utils;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
@@ -46,7 +47,7 @@ namespace CC.Net.Services
             if (!Affiliation.Contains("root"))
             {
                 Role = "root";
-                Affiliation = $"{Affiliation};root@tul.cz";
+                Affiliation = $"root@tul.cz;{Affiliation}";
             }
         }
 
@@ -62,6 +63,18 @@ namespace CC.Net.Services
                 Datetime = Datetime,
                 Role = Role,
             };
+        }
+
+        public void SortRoles()
+        {
+            if (Roles?.Count == 0)
+            {
+                return;
+            }
+
+            var newRoles = Roles.OrderBy(i => i == "root" ? -1 : 1).ToList();
+            Affiliation = newRoles.ToAffiliation();
+            Role = Roles.First();
         }
 
         public override string ToString()

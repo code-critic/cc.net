@@ -40,7 +40,7 @@ namespace CC.Net.Services
 
         public AppUser FromPrincipal(ClaimsPrincipal principal)
         {
-            if(principal == null || principal.Claims == null || string.IsNullOrEmpty(principal.FindFirstValue(nameof(AppUser.Eppn)))) {
+            if (principal == null || principal.Claims == null || string.IsNullOrEmpty(principal.FindFirstValue(nameof(AppUser.Eppn)))) {
                 return Guest;
             }
 
@@ -49,10 +49,12 @@ namespace CC.Net.Services
                 Affiliation = principal.FindFirstValue(nameof(AppUser.Affiliation)),
             };
 
-            if(_appOptions.Admins.Contains(user.Id))
+            if (_appOptions.Admins.Contains(user.Id))
             {
                 user.Elevate();
             }
+
+            user.SortRoles();
             return user;
         }
 
