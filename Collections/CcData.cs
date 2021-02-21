@@ -103,7 +103,7 @@ namespace CC.Net.Collections
         [BsonIgnore]
         public List<string> UserOrGroupUsers => IsGroup
             ? GroupUsers
-            : new List<string> { };
+            : new List<string> { User };
 
 
         [BsonElement("courseName")]
