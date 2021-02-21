@@ -49,31 +49,49 @@ namespace CC.Net.Controllers
         public async Task<object> RequestCodeReview(string objectId)
         {
             var oid = new ObjectId(objectId);
+            var sender = _userService.CurrentUser.Id;
 
             // generate notifications
             var ccData = await _dbService.DataSingleOrDefaultAsync(oid);
-            var teachers = _courseService[ccData?.CourseName]?.CourseConfig?.Teachers ?? new List<Entities.User>();
-            foreach (var teacher in teachers)
+
+            var settingsConfig = _courseService[ccData.CourseName][ccData.CourseYear][ccData.Problem]
+                .CourseYearConfig.SettingsConfig;
+
+            var students = ccData.UserOrGroupUsers;
+
+            // all teachers for given users
+            var teachers = students
+                .SelectMany(i => settingsConfig.TeachersFor(i))
+                .Select(i => i.Id)
+                .Distinct()
+                .ToList();
+
+            var recipients = new List<string>();
+            recipients.AddRange(students);
+            recipients.AddRange(teachers);
+            recipients.AddRange(ccData?.Comments?.Select(i => i.User) ?? new List<string>());
+            recipients = recipients
+                .Distinct()
+                .ToList();
+
+            foreach (var recipient in recipients)
             {
-                var sender = _userService.CurrentUser.Id;
-                var reciever = teacher.id;
-                await _dbService.Events.InsertOneAsync(new CcEvent
+                if (sender != recipient)
                 {
-                    Id = ObjectId.GenerateNewId(),
-                    ResultId = ObjectId.Parse(objectId),
-                    Type = CcEventType.NewCodeReview,
-                    IsNew = true,
-                    Sender = sender,
-                    Reciever = reciever,
-                });
+                    await _dbService.Events.InsertOneAsync(new CcEvent
+                    {
+                        Id = ObjectId.GenerateNewId(),
+                        ResultId = oid,
+                        Type = CcEventType.NewComment,
+                        IsNew = true,
+                        Sender = sender,
+                        Reciever = recipient,
+                    });
+                }
             }
 
-            var data = _dbService.Data
-                .Find(i => i.Id == oid)
-                .First();
-
-            data.ReviewRequest = System.DateTime.Now;
-            var result = await _dbService.Data.ReplaceOneAsync(i => i.Id == oid, data);
+            ccData.ReviewRequest = System.DateTime.Now;
+            var result = await _dbService.Data.ReplaceOneAsync(i => i.Id == oid, ccData);
             var updated = (int)result.ModifiedCount;
 
             return new
@@ -124,7 +142,8 @@ namespace CC.Net.Controllers
                 var oid = new ObjectId(items.First().objectId);
                 var ccData = await _dbService.DataSingleOrDefaultAsync(oid);
 
-                var settingsConfig = _courseService[ccData.CourseName][ccData.CourseYear][ccData.Problem].CourseYearConfig.SettingsConfig;
+                var settingsConfig = _courseService[ccData.CourseName][ccData.CourseYear][ccData.Problem]
+                    .CourseYearConfig.SettingsConfig;
 
                 var students = data.UserOrGroupUsers;
 
