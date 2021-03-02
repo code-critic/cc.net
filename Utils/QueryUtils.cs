@@ -37,21 +37,6 @@ namespace CC.Net.Utils
                 return null;
             }
 
-            if (filter.id == "course")
-            {
-                return $"course: \"{filter.value}\"";
-            }
-
-            if (filter.id == "courseName")
-            {
-                return $"courseName: \"{filter.value}\"";
-            }
-
-            if (filter.id == "courseYear")
-            {
-                return $"courseYear: \"{filter.value}\"";
-            }
-
             if (filter.id == "action")
             {
                 return $"action: \"{filter.value}\"";
@@ -123,7 +108,7 @@ namespace CC.Net.Utils
             }
 
             //default fallback
-            return $"\"{filter.id}\": /{filter.value}/";
+            return $"\"{filter.id}\": /{filter.value}/i";
         }
 
         public static BsonDocument Parse(TableRequestSort[] sorts)

@@ -4,7 +4,7 @@ import React from "react";
 import { Form } from "react-bootstrap";
 import { Column, RowInfo } from "react-table";
 import "react-table/react-table.css";
-import { throttle } from 'throttle-debounce';
+import { debounce } from 'throttle-debounce';
 import { ICcData, IMarkSolutionItem } from "../models/DataModel";
 import "../styles/detail.css";
 import "../styles/list.css";
@@ -169,7 +169,7 @@ export class StudentResultList extends React.Component<any, StudentResultListSta
         });
     }
 
-    private debounceFetch: (state: any) => void = throttle(300, false, (state: any) => {
+    private debounceFetch: (state: any) => void = debounce(300, false, (state: any) => {
         const { courseName, courseYear, model } = this;
         this.lastState = state;
 

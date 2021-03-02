@@ -132,6 +132,14 @@ export function getColumns(model: StudentResultListModel, courses: ICourse[], sh
                 </select>
         },
         {
+            Header: "Course",
+            accessor: nameof<ICcData>(i => i.courseName),
+        },
+        {
+            Header: "Year",
+            accessor: nameof<ICcData>(i => i.courseYear),
+        },
+        {
             Header: "Problem",
             accessor: nameof<ICcData>(i => i.problem),
             filterMethod: (filter: Filter, row: ICcData) => {
@@ -208,6 +216,10 @@ export function getColumns(model: StudentResultListModel, courses: ICourse[], sh
                     <option value="all">Show All</option>
                     {statuses.map(i => <option key={i.value} value={i.value}>{i.key}</option>)}
                 </select>
+        },
+        {
+            Header: "Group",
+            accessor: nameof<ICcData>(i => i.groupName),
         },
         {
             Header: () => <i className="fa fa-clock-o" />,

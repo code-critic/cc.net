@@ -120,6 +120,8 @@ export const Graderesults = (props) => {
     const [result, setResult] = React.useState<ICcData>();
     const [rng, setRng] = React.useState(Math.random());
     const [exportData, setExportData] = useState<any>();
+    const [pageSize, setPageSize] = useState(10);
+    const [page, setPage] = useState(0);
 
     const stats = useResource<IGradeDto[]>(!course || !problem
         ? undefined
@@ -141,12 +143,6 @@ export const Graderesults = (props) => {
         const columns = getColumns(model, [], showFilters)
             .filter(i => i.Header != "Problem");
         
-        if (problem?.groupsAllowed) {
-            columns.push({
-                Header: "Group",
-                accessor: nameof<ICcData>(i => i.groupName),
-            });
-        }
         const isLoading = false;
 
         const onFetchData = (state) => { }
@@ -168,6 +164,15 @@ export const Graderesults = (props) => {
             return data.map(d => nestGet(d, key));
         }
 
+        const onPageSizeChange = (newPageSize: number, newPage: number) => {
+            setPageSize(newPageSize);
+            onPageChange(newPage);
+        }
+
+        const onPageChange = (page: number) => {
+            setPage(page);
+        }
+
         return <ReactTableWithSelect
             extractData={(key: string) => extractData(key)}
             data={data}
@@ -175,7 +180,10 @@ export const Graderesults = (props) => {
             columns={columns}
             className={`-highlight`}
             onFetchData={(state: any, instance: any) => onFetchData(state)}
-            defaultPageSize={10}
+            onPageSizeChange={onPageSizeChange}
+            onPageChange={onPageChange}
+            defaultPageSize={pageSize}
+            page={page}
             showPagination={true}
             defaultSorted={[
                 {

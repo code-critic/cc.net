@@ -153,6 +153,18 @@ let _currentUser: IAppUser = {
     username: "guest",
     groups: [],
 }
+
+declare global {
+    interface PrettyCode {
+        prettyPrintOne: (sourceCodeHtml: string, opt_langExtension: string, opt_numberLines: boolean) => string;
+        prettyPrint: (opt_whenDone: Function, root: HTMLElement | HTMLDocument) => void;
+    }
+
+    interface Window {
+        PR: PrettyCode;
+    }
+}
+
 export const getUser = () => _currentUser;
 export const userIsRoot = () => _currentUser.role === "root";
 
