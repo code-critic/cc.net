@@ -57,6 +57,11 @@ namespace CC.Net.Extensions
             var pc = name.Split('.');
             return pc[pc.Length - 1];
         }
+        
+        public static string AsString(this IEnumerable<string> values, string separator = "\n")
+        {
+            return string.Join(separator, values);
+        }
     }
 
 }

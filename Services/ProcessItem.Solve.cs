@@ -85,9 +85,6 @@ namespace CC.Net.Services
             CopyInDocker($"assets/{caseId}/*");
 
 
-            // set permissions
-            ProcessUtils.Popen($"docker exec --user root {ProcessService.ContainerName} chmod -R 777 {Context.DockerTmpWorkdir}");
-            
             subcase.Status = ProcessStatus.Running.Value;
             var isUnitTest = Context.CourseProblem.Unittest;
             var filename = isUnitTest
@@ -98,21 +95,26 @@ namespace CC.Net.Services
                 ? language.Unittest
                 : language.Run;
 
-                        
+
+            ProcessResult result;
             if (Context.Language.Id.ToLower() == "matlab")
             {
-                await ProcessCaseMatlabAsync(@case, filename);
+                result = await ProcessCaseMatlabAsync(@case, filename);
+                await File.WriteAllTextAsync(Context.TmpDir.OutputFile(caseId), result.Output.AsString());
+                await File.WriteAllTextAsync(Context.TmpDir.ErrorFile(caseId), result.Error.AsString());
             }
-            throw new Exception("nope");
-
-            var result = RunPipeline(
-                $"{string.Join(" ", pipeline)}".ReplaceCommon(filename),
-                Context.DockerTmpWorkdir,
-                (int)Math.Ceiling(TimeRemaining),
-                isUnitTest ? null : $"input/{@case.Id}",
-                $"output/{@case.Id}",
-                $"error/{@case.Id}"
-            );
+            else
+            {
+                SetPermissions();
+                result = RunPipeline(
+                    $"{string.Join(" ", pipeline)}".ReplaceCommon(filename),
+                    Context.DockerTmpWorkdir,
+                    (int)Math.Ceiling(TimeRemaining),
+                    isUnitTest ? null : $"input/{@case.Id}",
+                    $"output/{@case.Id}",
+                    $"error/{@case.Id}"
+                );
+            }
 
             TimeRemaining -= result.Duration;
             subcase.Duration = result.Duration;
@@ -133,7 +135,7 @@ namespace CC.Net.Services
             {
                 var report = PythonReport.FromJson(reportJson.ReadAllText());
                 Item.Results.AddRange(
-                    report.Report.Tests.Select(i => new CcDataCaseResult()
+                    report.Report.Tests.Select(i => new CcDataCaseResult
                     {
                         Case = i.Name,
                         Duration = i.Duration,
@@ -156,9 +158,9 @@ namespace CC.Net.Services
                 {
                     subcase.Status = ProcessStatus.GlobalTimeout.Value;
                     subcase.Message = ProcessStatus.GlobalTimeout.Description;
-                    subcase.Messages = new string[] {
+                    subcase.Messages = new [] {
                         $"Available time: {TimeAvailable} sec",
-                        $"Time Remaning:  {TimeRemaining} sec",
+                        $"Time Remaining: {TimeRemaining} sec",
                     };
                 }
                 else
@@ -169,6 +171,12 @@ namespace CC.Net.Services
                 }
             }
             return result;
+        }
+
+        private void SetPermissions()
+        {
+            ProcessUtils.Popen(
+                $"docker exec --user root {ProcessService.ContainerName} chmod -R 777 {Context.DockerTmpWorkdir}");
         }
 
         private async Task SolveCaseAsync(CourseProblemCase @case)

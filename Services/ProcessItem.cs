@@ -11,6 +11,7 @@ using CC.Net.Extensions;
 using CC.Net.Hubs;
 using CC.Net.Services.Courses;
 using CC.Net.Services.Languages;
+using CC.Net.Services.Matlab;
 using CC.Net.Utils;
 using DiffPlex;
 using DiffPlex.DiffBuilder;

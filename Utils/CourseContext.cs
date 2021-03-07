@@ -65,16 +65,16 @@ namespace CC.Net.Utils
 
         public string DockerTmpWorkdir => $"/tmp/{Id}";
 
-        private IEnumerable<string> GetSolutionErrorMessageCandidtes(string caseId, string defaultValue = "Uknown error")
+        private IEnumerable<string> GetSolutionErrorMessageCandidates(string caseId, string defaultValue = "Unknown error")
         {
             yield return TmpDir.ErrorFile(caseId).ReadAllText();
             yield return TmpDir.OutputFile(caseId).ReadAllText();
             yield return defaultValue;
         }
 
-        public string GetTmpDirErrorMessage(string caseId, string defaultValue = "Uknown error")
+        public string GetTmpDirErrorMessage(string caseId, string defaultValue = "Unknown error")
         {
-            return GetSolutionErrorMessageCandidtes(caseId, defaultValue).First(i => i != null);
+            return GetSolutionErrorMessageCandidates(caseId, defaultValue).First(i => i != null);
         }
     }
 }

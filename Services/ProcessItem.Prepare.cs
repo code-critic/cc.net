@@ -170,6 +170,12 @@ namespace CC.Net.Services
             var cpCommand = $"docker cp \"{Context.TmpDir.Root}\" \"{ProcessService.ContainerName}:{Context.DockerTmpWorkdir}\"";
             ProcessUtils.Popen(cpCommand);
         }
+        
+        public void CopyToDocker(string filename)
+        {
+            var cpCommand = $"docker cp \"{Context.TmpDir.Root}/{filename}\" \"{ProcessService.ContainerName}:{Context.DockerTmpWorkdir}/{filename}\"";
+            ProcessUtils.Popen(cpCommand);
+        }
 
         public void CopyInDocker(string source, string dest="")
         {
