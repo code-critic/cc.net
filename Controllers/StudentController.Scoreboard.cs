@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using cc.net.Utils;
 using CC.Net.Attributes;
 using CC.Net.Collections;
 using CC.Net.Db;
@@ -26,7 +27,8 @@ namespace CC.Net.Controllers
 
         [HttpGet]
         [Route("student-scoreboard")]
-        public IEnumerable<StudentScoreboardCourse> GetStudentScoreboard()
+        [UseCache(timeToLiveSeconds: 10, perUser: true)]
+        public IActionResult GetStudentScoreboard()
         {
             var user = _userService.CurrentUser.Id;
 
@@ -40,7 +42,7 @@ namespace CC.Net.Controllers
                 .Where(i => i.SettingsConfig.AllStudents.Any(s => s.id == user))
                 .ToList();
 
-            return courses
+            var content = courses
                 .SelectMany(i => i.Problems)
                 .Select(i => new StudentScoreboardCourse
                 {
@@ -56,6 +58,8 @@ namespace CC.Net.Controllers
                     .ThenBy(i => i.CourseName)
                         .ThenBy(i => i.Since)
                             .ThenBy(i => i.Problem);
+
+            return Ok(content);
         }
     }
 

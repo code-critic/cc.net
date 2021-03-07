@@ -6,6 +6,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using cc.net.Dto;
 using cc.net.Extensions;
+using cc.net.Utils;
 using CC.Net.Attributes;
 using CC.Net.Collections;
 using CC.Net.Config;
@@ -39,7 +40,6 @@ namespace CC.Net.Controllers
         private readonly CompareService _compareService;
         private readonly UserService _userService;
         private readonly UtilService _utilService;
-        private readonly IHttpContextAccessor _httpContextAccessor;
 
         public ApiConfigController(
             CourseService courseService, LanguageService languageService, DbService dbService,
@@ -59,9 +59,10 @@ namespace CC.Net.Controllers
         }
 
         [HttpGet("courses")]
-        public IEnumerable<Course> Courses()
+        [UseCache(timeToLiveSeconds: 30, perUser: true)]
+        public IActionResult Courses()
         {
-            return _courseService.GetAllowedCoursesForUser(_userService.CurrentUser);
+            return Ok(_courseService.GetAllowedCoursesForUser(_userService.CurrentUser));
         }
         
         [HttpGet("test-config/{courseName}/{courseYear}")]
@@ -96,9 +97,10 @@ namespace CC.Net.Controllers
         }
 
         [HttpGet("languages")]
-        public List<Language> Languages()
+        [UseCache(timeToLiveSeconds:60 * 60)]
+        public IActionResult Languages()
         {
-            return _languageService.Languages;
+            return Ok(_languageService.Languages);
         }
 
         [HttpGet("result/{objectId}")]
@@ -116,9 +118,10 @@ namespace CC.Net.Controllers
         }
 
         [HttpGet("course/{courseName}")]
-        public Course Course(string courseName)
+        [UseCache(timeToLiveSeconds: 15, perUser: true)]
+        public IActionResult Course(string courseName)
         {
-            return _courseService.GetCourseForUser(_userService.CurrentUser, courseName);
+            return Ok(_courseService.GetCourseForUser(_userService.CurrentUser, courseName));
         }
 
 
@@ -184,7 +187,8 @@ namespace CC.Net.Controllers
         }
 
         [HttpGet("course/{courseName}/{year}")]
-        public CourseYearConfig CourseYearConfig(string courseName, string year)
+        [UseCache(timeToLiveSeconds: 15)]
+        public IActionResult CourseYearConfig(string courseName, string year)
         {
             var course = _courseService.GetCourseForUser(_userService.CurrentUser, courseName);
             var yearConfig = course[year];
@@ -220,20 +224,23 @@ namespace CC.Net.Controllers
             cfg.Problems = cfg.Problems
                 .Select(i => i.AddDescription(_problemDescriptionService, singleCourse))
                 .ToList();
-            return cfg;
+
+            return Ok(cfg);
         }
 
         [HttpGet("course/{courseName}/{year}/{problemId}")]
-        public CourseProblem CourseProblem(string courseName, string year, string problemId)
+        [UseCache(timeToLiveSeconds: 15)]
+        public IActionResult CourseProblem(string courseName, string year, string problemId)
         {
             var problem = _courseService[courseName][year][problemId];
-            return problem;
+            return Ok(problem);
         }
 
         [HttpGet("course/{courseName}/{year}/{problemId}/{caseId}")]
-        public CourseProblemCase CourseProblemCase(string courseName, string year, string problemId, string caseId)
+        [UseCache(timeToLiveSeconds: 15)]
+        public IActionResult CourseProblemCase(string courseName, string year, string problemId, string caseId)
         {
-            return _courseService[courseName][year][problemId][caseId];
+            return Ok(_courseService[courseName][year][problemId][caseId]);
         }
 
 
@@ -290,7 +297,8 @@ namespace CC.Net.Controllers
         }
 
         [HttpGet("diff/{objectId}/{caseId}")]
-        public DiffResultComposite ViewDiff(string objectId, string caseId)
+        [UseCache(timeToLiveSeconds: 60)]
+        public IActionResult ViewDiff(string objectId, string caseId)
         {
             var data = _dbService.Data
                 .Find(i => i.Id == new ObjectId(objectId))
@@ -299,11 +307,12 @@ namespace CC.Net.Controllers
             var context = new CourseContext(_courseService, _languageService, data);
             var generatedFile = context.StudentDir.OutputFile(caseId);
             var referenceFile = context.ProblemDir.OutputFile(caseId);
-            return _compareService.CompareFilesComposite(generatedFile, referenceFile);
+            return Ok(_compareService.CompareFilesComposite(generatedFile, referenceFile));
         }
 
         [HttpGet("browse-dir/{objectId}/{dir}")]
-        public IEnumerable<FileDto> BrowseDir(string objectId, string dir)
+        [UseCache(timeToLiveSeconds: 60)]
+        public IActionResult BrowseDir(string objectId, string dir)
         {
             var allowed = new string[] { "input", "output", "error", "reference" };
             var data = _dbService.Data
@@ -326,18 +335,18 @@ namespace CC.Net.Controllers
 
             if (!Directory.Exists(directory))
             {
-                return new FileDto[] { };
+                return Ok(new FileDto[] { });
             }
 
             var files = new DirectoryInfo(directory)
                 .GetFiles()
                 .OrderBy(i => i.Name);
 
-            return files.Select(i => new FileDto
+            return Ok(files.Select(i => new FileDto
             {
                 Filename = i.Name,
                 Content = i.FullName.ReadAllText()
-            });
+            }));
         }
 
         [HttpGet("rename/{id}")]

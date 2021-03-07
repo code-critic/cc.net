@@ -1,3 +1,4 @@
+using cc.net;
 using cc.net.Controllers;
 using CC.Net.Config;
 using CC.Net.Db;
@@ -7,6 +8,7 @@ using CC.Net.Services.Courses;
 using CC.Net.Services.Languages;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
 using Microsoft.Extensions.Configuration;
@@ -49,6 +51,7 @@ namespace CC.Net
             services.AddScoped<CryptoService>();
             services.AddScoped<UserService>();
             services.AddScoped<UtilService>();
+            services.AddSingleton<CacheContentService>();
             services.AddHostedService<ProcessService>();
             services.AddHostedService<NotificationService>();
             services.AddHttpContextAccessor();

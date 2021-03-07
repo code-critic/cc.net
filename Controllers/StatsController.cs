@@ -6,6 +6,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using cc.net.Dto;
 using cc.net.Extensions;
+using cc.net.Utils;
 using CC.Net.Attributes;
 using CC.Net.Collections;
 using CC.Net.Config;
@@ -31,7 +32,7 @@ namespace cc.net.Controllers
     [ApiController]
     [Route("api/stats")]
     [Authorize]
-    public class StatsController : ControllerBase
+    public class StatsController : ControllerBase                                     
     {
 
         private readonly CourseService _courseService;
@@ -49,8 +50,7 @@ namespace cc.net.Controllers
             CourseService courseService, LanguageService languageService, DbService dbService,
             ProblemDescriptionService problemDescriptionService, AppOptions appOptions,
             CompareService compareService, IHttpContextAccessor httpContextAccessor, UserService userService,
-            UtilService utilService, ILogger<StatsController> logger
-            )
+            UtilService utilService, ILogger<StatsController> logger)
         {
             _courseService = courseService;
             _languageService = languageService;
@@ -64,7 +64,8 @@ namespace cc.net.Controllers
         }
 
         [HttpGet("all-stats")]
-        public object AllStats()
+        [UseCache(timeToLiveSeconds: 10*60)]
+        public IActionResult AllStats()
         {
             var pipeline = new List<BsonDocument>();
             pipeline.Add(BsonDocument.Parse(@"
@@ -124,7 +125,7 @@ namespace cc.net.Controllers
             var histoChart = data.SelectMany(i => i.Duration);
             var max_97 = Percentile(histoChart.ToArray(), 0.98);
 
-            return new List<object> {
+            var content = new List<object> {
                 new {
                     title = new  { text = "Number of submission per Course" },
                     chart = new { type = "bar" },
@@ -183,6 +184,8 @@ namespace cc.net.Controllers
                     }
                 }
             };
+
+            return Ok(content);
         }
 
         public double Percentile(double[] sequence, double excelPercentile)
