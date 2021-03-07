@@ -63,7 +63,7 @@ namespace CC.Net.Services
         }
 
 
-        private ProcessResult SolveCaseBase(CourseProblemCase @case)
+        private async Task<ProcessResult> SolveCaseBaseAsync(CourseProblemCase @case)
         {
             var caseId = @case.Id;
             var subcase = Item.Results.First(i => i.Case == caseId);
@@ -81,9 +81,9 @@ namespace CC.Net.Services
                     ReturnCode = 666
                 };
             }
-
             // copy test assets
             CopyInDocker($"assets/{caseId}/*");
+
 
             // set permissions
             ProcessUtils.Popen($"docker exec --user root {ProcessService.ContainerName} chmod -R 777 {Context.DockerTmpWorkdir}");
@@ -97,6 +97,13 @@ namespace CC.Net.Services
             var pipeline = isUnitTest && language.Unittest.Any()
                 ? language.Unittest
                 : language.Run;
+
+                        
+            if (Context.Language.Id.ToLower() == "matlab")
+            {
+                await ProcessCaseMatlabAsync(@case, filename);
+            }
+            throw new Exception("nope");
 
             var result = RunPipeline(
                 $"{string.Join(" ", pipeline)}".ReplaceCommon(filename),
@@ -167,7 +174,7 @@ namespace CC.Net.Services
         private async Task SolveCaseAsync(CourseProblemCase @case)
         {
 
-            var result = SolveCaseBase(@case);
+            var result = await SolveCaseBaseAsync(@case);
             if (result.IsBroken)
             {
                 return;

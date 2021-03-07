@@ -26,6 +26,7 @@ namespace CC.Net.Services
         private readonly LanguageService _languageService;
         private readonly IHubContext<LiveHub> _liveHub;
         private readonly CompareService _compareService;
+        private readonly MatlabServer _matlabServer;
         private readonly IdService _idService;
         private readonly AppOptions _appOptions;
 
@@ -38,7 +39,8 @@ namespace CC.Net.Services
 
         public ProcessItem(
             ILogger<ProcessItem> logger, CourseService courseService, LanguageService languageService,
-            IdService idService, AppOptions appOptions, IHubContext<LiveHub> liveHub, CompareService compareService, CcData item)
+            IdService idService, AppOptions appOptions, IHubContext<LiveHub> liveHub, 
+            CompareService compareService, MatlabServer matlabServer, CcData item)
         {
             _logger = logger;
             _courseService = courseService;
@@ -47,7 +49,8 @@ namespace CC.Net.Services
             _idService = idService;
             _appOptions = appOptions;
             _compareService = compareService;
-
+            _matlabServer = matlabServer;
+            
             Item = item;
             Context = new CourseContext(
                 _courseService,
@@ -55,8 +58,10 @@ namespace CC.Net.Services
                 Item
             );
 
+            _matlabServer.Initialize(ProcessService.ContainerName);
+
             var timeout = Context.CourseProblem.Timeout;
-            TimeRemaining = (timeout < 1 ? 30 : timeout) * Context.Language.ScaleFactor;
+            TimeRemaining = 2;//(timeout < 1 ? 30 : timeout) * Context.Language.ScaleFactor;
             TimeAvailable = TimeRemaining;
         }
 

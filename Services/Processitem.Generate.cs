@@ -56,7 +56,7 @@ namespace CC.Net.Services
 
         private async Task GenerateOutputAction(CourseProblemCase @case)
         {
-            SolveCaseBase(@case);
+            await SolveCaseBaseAsync(@case);
         }
 
         private async Task GenerateInputAction(CourseProblemCase @case)

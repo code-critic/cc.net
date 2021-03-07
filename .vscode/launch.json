@@ -9,10 +9,13 @@
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
-            "program": "${workspaceFolder}/bin/Debug/netcoreapp3.0/cc.net.dll",
+            "program": "${workspaceFolder}/bin/Debug/netcoreapp3.01/cc.net.dll",
             "args": ["--urls", "http://0.0.0.0:5000"],
             "cwd": "${workspaceFolder}",
             "stopAtEntry": false,
+            "launchBrowser": {
+                "enabled": false
+            },
             "serverReadyAction": {
                 "action": "openExternally",
                 "pattern": "^\\s*Now listening on:\\s+(https?://\\S+)"

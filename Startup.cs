@@ -43,6 +43,7 @@ namespace CC.Net
             services.AddSingleton(MongoDBConfig);
             services.AddSingleton(AppOptions);
             services.AddSingleton<IdService>();
+            services.AddSingleton<MatlabServer>();
             services.AddScoped<LanguageService>();
             services.AddScoped<CourseService>();
             services.AddScoped<DbService>();

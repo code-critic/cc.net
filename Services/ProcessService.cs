@@ -100,6 +100,7 @@ namespace CC.Net.Services
                             provider.GetService<AppOptions>(),
                             provider.GetService<IHubContext<LiveHub>>(),
                             provider.GetService<CompareService>(),
+                            provider.GetService<MatlabServer>(),
                             item
                         );
 
