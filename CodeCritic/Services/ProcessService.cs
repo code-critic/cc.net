@@ -48,11 +48,11 @@ namespace CC.Net.Services
                 }
                 else
                 {
-                    // var dockerPurge = ProcessUtils
-                    //     .Popen($"docker rm -f {ContainerName}");
+                    var dockerPurge = ProcessUtils
+                        .Popen($"docker rm -f {ContainerName}");
 
-                    // var dockerStart = ProcessUtils
-                    //     .Popen($"docker run -di --name {ContainerName} {_appOptions.DockerOptions.Args} {_appOptions.DockerOptions.Image}");
+                    var dockerStart = ProcessUtils
+                        .Popen($"docker run -di --name {ContainerName} {_appOptions.DockerOptions.Args} {_appOptions.DockerOptions.Image}");
 
                     // TODO: configurable period
                     while (stoppingToken.IsCancellationRequested == false)

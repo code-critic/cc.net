@@ -94,20 +94,20 @@ namespace CC.Net
             var logger = serviceProvider.GetService<ILogger<Startup>>();
             var hub = serviceProvider.GetService<IHubContext<LiveHub>>();
 
-            var courses = serviceProvider.GetService<CourseService>();
-            var c2021 = courses["DPG"]["2021"];
+            // var courses = serviceProvider.GetService<CourseService>();
+            // var c2021 = courses["DPG"]["2021"];
 
-            // new Thread (async () =>
-            // {
-            //     WaitForKey(ConsoleKey.Escape);
-            //     logger.LogWarning("Press escape again to shutdown the server");
-            //     WaitForKey(ConsoleKey.Escape);
+            new Thread (async () =>
+            {
+                WaitForKey(ConsoleKey.Escape);
+                logger.LogWarning("Press escape again to shutdown the server");
+                WaitForKey(ConsoleKey.Escape);
                 
-            //     logger.LogWarning("Application is stopping...");
-            //     var clients = hub.Clients;
-            //     await hub.Clients.All.ServerMessageToClient("error", $"Server will be updated soon.", "Server shutting down", 60_000*1); // restart server in 1 min
-            //     applicationLifetime.StopApplication();
-            // }).Start();
+                logger.LogWarning("Application is stopping...");
+                var clients = hub.Clients;
+                await hub.Clients.All.ServerMessageToClient("error", $"Server will be updated soon.", "Server shutting down", 60_000*1); // restart server in 1 min
+                applicationLifetime.StopApplication();
+            }).Start();
 
             if (env.IsDevelopment())
             {
