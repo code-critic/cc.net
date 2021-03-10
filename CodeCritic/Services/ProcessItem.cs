@@ -62,7 +62,7 @@ namespace CC.Net.Services
             _matlabServer.Initialize(ProcessService.ContainerName);
 
             var timeout = Context.CourseProblem.Timeout;
-            TimeRemaining = 2;//(timeout < 1 ? 30 : timeout) * Context.Language.ScaleFactor;
+            TimeRemaining = (timeout < 1 ? 30 : timeout) * Context.Language.ScaleFactor;
             TimeAvailable = TimeRemaining;
         }
 
