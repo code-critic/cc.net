@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.Json.Serialization;
+using CC.Net.Attributes;
 using CC.Net.Utils;
 using YamlDotNet.Serialization;
 
@@ -43,10 +44,8 @@ namespace CC.Net.Services.Courses
         public IEnumerable<CourseProblemCase> AllTests =>
             Tests.SelectMany(i => i.Enumerate());
 
-        public CourseProblemCase this[string key]
-        {
-            get => AllTests.FirstOrDefault(i => i.Id.ToLower() == key.ToLower());
-        }
+        public CourseProblemCase this[string key] => 
+            AllTests.FirstOrDefault(i => i.Id.ToLower() == key.ToLower());
 
         public string Description { get; set; }
 
@@ -73,12 +72,15 @@ namespace CC.Net.Services.Courses
     
     public class CourseProblemCollaborationConfig
     {
+        [Doc("If enabled, teams can be used")]
         [YamlMember(Alias = "enabled")]
         public bool Enabled { get; set; } = true;
             
+        [Doc("Minimum size of the team, default `1`")]
         [YamlMember(Alias = "min-size")]
         public int MinSize { get; set; } = 1;
-            
+        
+        [Doc("Maximum size of the team, default `3`")]
         [YamlMember(Alias = "max-size")]
         public int MaxSize { get; set; } = 3;
     }

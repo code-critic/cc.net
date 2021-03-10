@@ -3,11 +3,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using CC.Net.Attributes;
-using cc.net.Dto;
+using Cc.Net.Dto;
 using CC.Net.Collections;
 using CC.Net.Controllers;
-using cc.net.Docs;
+using Cc.Net.Docs;
 using CC.Net.Dto;
 using CC.Net.Entities;
 using CC.Net.Extensions;
@@ -30,14 +29,18 @@ namespace CC.Net
         public static void Main(string[] args)
         {
 
-            if (args.Length > 0 && args[0] == "--docs" || true.Equals(true))
+            if (args.Length > 0 && args[0] == "--docs" || true.Equals(false))
             {
-                Directory.CreateDirectory("docs/");
+                var docs = "../docs/";
+                Directory.CreateDirectory(docs);
                 var sections = new List<string>
                 {
-                    DocGeneration.For<CourseProblem>()
+                    DocGeneration.For<CourseProblem>(),
+                    DocGeneration.For<CourseProblemCollaborationConfig>(),
+                    DocGeneration.For<CourseProblemCase>(),
+                    DocGeneration.For<CourseReference>(),
                 };
-                File.WriteAllText("docs/README.MD", sections.AsString("<br>\n"));
+                File.WriteAllText($"{docs}/README.md", sections.AsString("\n\n\n"));
                 return;
             }
             if (args.Length > 0 && args[0] == "--generate")

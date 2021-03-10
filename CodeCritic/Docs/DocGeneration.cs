@@ -8,7 +8,7 @@ using CC.Net.Attributes;
 using CC.Net.Extensions;
 using YamlDotNet.Serialization;
 
-namespace cc.net.Docs
+namespace Cc.Net.Docs
 {
     public class DocGeneration
     {
@@ -20,9 +20,9 @@ namespace cc.net.Docs
             var doc = new StringBuilder();
             var lst = "  - ";
             var pad = "    ";
-            var end = " <br>\n";
+            var end = "\n";
 
-            doc.Append($"## {type.Name}{end}");
+            doc.Append($"## {type.Name}\n\n");
             
             var properties = type.GetProperties()
                 .Where(i => i.IsDefined(typeof(YamlMemberAttribute)) && i.IsDefined(typeof(DocAttribute)))
@@ -68,16 +68,18 @@ namespace cc.net.Docs
                     return "`string`";
                 case var t when t == typeof(float) || t == typeof(double) || t == typeof(decimal):
                     return "`float`";
+                case var t when t == typeof(int):
+                    return "int";
                 case var t when t == typeof(bool):
                     return "`boolean`";
                 case var t when t.IsEnum:
                     return $"enum [{Enum.GetNames(p.PropertyType).AsMarkdown()}]";
                 case var ls when ls.GetInterfaces().Contains(typeof(IList)):
-                    var subtype = ls.GetGenericArguments().FirstOrDefault();
-                    return $"`{TypeToString(subtype)}[]`";
+                    var subtype = ls.GetGenericArguments().First();
+                    return $"{TypeToString(subtype)}`[]`";
             }
             var attrType = p.PropertyType.ToString().Split('.').Last();
-            return attrType;
+            return $"[`{attrType}`](#{attrType})";
         }
         
         private static string TypeToString(Type p)
@@ -87,7 +89,9 @@ namespace cc.net.Docs
                 case var t when t == typeof(string):
                     return "string";
                 case var t when t == typeof(float) || t == typeof(double) || t == typeof(decimal):
-                    return "decimal";
+                    return "float";
+                case var t when t == typeof(int):
+                    return "int";
                 case var t when t == typeof(bool):
                     return "boolean";
                 case var t when t.IsEnum:
@@ -98,7 +102,7 @@ namespace cc.net.Docs
                     
             }
             var attrType = p.ToString().Split('.').Last();
-            return attrType;
+            return $"[`{attrType}`](#{attrType})";
         }
     }
 }

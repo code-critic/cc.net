@@ -104,7 +104,6 @@ namespace CC.Net.Services.Courses
         [YamlMember(Alias = "export")]
         public List<string> Export { get; set; } = new List<string>();
 
-
         [Doc("A field configuring reference solution used for verifying solutions an/or generating input and outputs")]
         [YamlMember(Alias = "reference")]
         public CourseReference Reference { get; set; }

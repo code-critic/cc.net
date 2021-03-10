@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using CC.Net.Attributes;
 using CC.Net.Entities;
 using YamlDotNet.Serialization;
 
@@ -7,9 +8,15 @@ namespace CC.Net.Services.Courses
 {
     public class CourseProblemCase
     {
+        [Doc("Unique filesystem and URI safe identifier",
+            "`id: 01-COLLAB-TEST`")]
         [YamlMember(Alias = "id")]
         public string Id { get; set; }
 
+        [Doc("Size parameter, which will be passed to the reference script when generating input", 
+            "`id: foo`",
+            "`size: 123`",
+            "reference solution will be called with `python3 main.py -p 123`")]
         [YamlMember(Alias = "size")]
         public int Size { get; set; }
 
