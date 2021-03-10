@@ -96,25 +96,33 @@ namespace CC.Net.Services
                 : language.Run;
 
 
-            ProcessResult result;
-            if (Context.Language.Id.ToLower() == "matlab")
-            {
-                result = await ProcessCaseMatlabAsync(@case, filename);
-                await File.WriteAllTextAsync(Context.TmpDir.OutputFile(caseId), result.Output.AsString());
-                await File.WriteAllTextAsync(Context.TmpDir.ErrorFile(caseId), result.Error.AsString());
-            }
-            else
-            {
-                SetPermissions();
-                result = RunPipeline(
-                    $"{string.Join(" ", pipeline)}".ReplaceCommon(filename),
-                    Context.DockerTmpWorkdir,
-                    (int)Math.Ceiling(TimeRemaining),
-                    isUnitTest ? null : $"input/{@case.Id}",
-                    $"output/{@case.Id}",
-                    $"error/{@case.Id}"
-                );
-            }
+            SetPermissions();
+            var result = RunPipeline(
+                $"{string.Join(" ", pipeline)}".ReplaceCommon(filename),
+                Context.DockerTmpWorkdir,
+                (int)Math.Ceiling(TimeRemaining),
+                isUnitTest ? null : $"input/{@case.Id}",
+                $"output/{@case.Id}",
+                $"error/{@case.Id}"
+            );
+            // if (Context.Language.Id.ToLower() == "matlab")
+            // {
+            //     result = await ProcessCaseMatlabAsync(@case, filename);
+            //     await File.WriteAllTextAsync(Context.TmpDir.OutputFile(caseId), result.Output.AsString());
+            //     await File.WriteAllTextAsync(Context.TmpDir.ErrorFile(caseId), result.Error.AsString());
+            // }
+            // else
+            // {
+            //     SetPermissions();
+            //     result = RunPipeline(
+            //         $"{string.Join(" ", pipeline)}".ReplaceCommon(filename),
+            //         Context.DockerTmpWorkdir,
+            //         (int)Math.Ceiling(TimeRemaining),
+            //         isUnitTest ? null : $"input/{@case.Id}",
+            //         $"output/{@case.Id}",
+            //         $"error/{@case.Id}"
+            //     );
+            // }
 
             TimeRemaining -= result.Duration;
             subcase.Duration = result.Duration;
