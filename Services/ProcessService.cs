@@ -11,6 +11,7 @@ using CC.Net.Extensions;
 using CC.Net.Hubs;
 using CC.Net.Services.Courses;
 using CC.Net.Services.Languages;
+using CC.Net.Services.Matlab;
 using CC.Net.Utils;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.DependencyInjection;
@@ -47,11 +48,11 @@ namespace CC.Net.Services
                 }
                 else
                 {
-                    var dockerPurge = ProcessUtils
-                        .Popen($"docker rm -f {ContainerName}");
+                    // var dockerPurge = ProcessUtils
+                    //     .Popen($"docker rm -f {ContainerName}");
 
-                    var dockerStart = ProcessUtils
-                        .Popen($"docker run -di --name {ContainerName} {_appOptions.DockerOptions.Args} {_appOptions.DockerOptions.Image}");
+                    // var dockerStart = ProcessUtils
+                    //     .Popen($"docker run -di --name {ContainerName} {_appOptions.DockerOptions.Args} {_appOptions.DockerOptions.Image}");
 
                     // TODO: configurable period
                     while (stoppingToken.IsCancellationRequested == false)
@@ -65,7 +66,6 @@ namespace CC.Net.Services
 
         private async Task DoWork()
         {
-
             _logger.LogDebug("checking db");
             using (var scope = _serviceProvider.CreateScope())
             {

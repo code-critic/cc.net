@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using cc.net.Services.Yaml;
 
 namespace CC.Net.Utils
 {
@@ -7,14 +8,10 @@ namespace CC.Net.Utils
     {
         public static T ReadFromFile<T>(string path)
         {
-            var content = File.ReadAllText(path);
-            var deserializer = new YamlDotNet.Serialization.DeserializerBuilder()
-                .IgnoreUnmatchedProperties()
-                .Build();
-
             try
             {
-                return deserializer.Deserialize<T>(content);
+                var content = File.ReadAllText(path);
+                return ReadFromString<T>(content);
             }
             catch(Exception ex)
             {
@@ -27,6 +24,9 @@ namespace CC.Net.Utils
         {
             var deserializer = new YamlDotNet.Serialization.DeserializerBuilder()
                 .IgnoreUnmatchedProperties()
+                .WithTypeConverter(new YamlEnumConverter())
+                .WithTypeConverter(new YamlListStringConverter())
+                .WithTypeConverter(new YamlDateTimeConverter())
                 .Build();
 
             try

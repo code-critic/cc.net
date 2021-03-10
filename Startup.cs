@@ -4,6 +4,7 @@ using CC.Net.Config;
 using CC.Net.Db;
 using CC.Net.Hubs;
 using CC.Net.Services;
+using CC.Net.Services.Matlab;
 using CC.Net.Services.Courses;
 using CC.Net.Services.Languages;
 using Microsoft.AspNetCore.Builder;
@@ -93,17 +94,20 @@ namespace CC.Net
             var logger = serviceProvider.GetService<ILogger<Startup>>();
             var hub = serviceProvider.GetService<IHubContext<LiveHub>>();
 
-            new Thread (async () =>
-            {
-                WaitForKey(ConsoleKey.Escape);
-                logger.LogWarning("Press escape again to shutdown the server");
-                WaitForKey(ConsoleKey.Escape);
+            var courses = serviceProvider.GetService<CourseService>();
+            var c2021 = courses["DPG"]["2021"];
+
+            // new Thread (async () =>
+            // {
+            //     WaitForKey(ConsoleKey.Escape);
+            //     logger.LogWarning("Press escape again to shutdown the server");
+            //     WaitForKey(ConsoleKey.Escape);
                 
-                logger.LogWarning("Application is stopping...");
-                var clients = hub.Clients;
-                await hub.Clients.All.ServerMessageToClient("error", $"Server will be updated soon.", "Server shutting down", 60_000*1); // restart server in 1 min
-                applicationLifetime.StopApplication();
-            }).Start();
+            //     logger.LogWarning("Application is stopping...");
+            //     var clients = hub.Clients;
+            //     await hub.Clients.All.ServerMessageToClient("error", $"Server will be updated soon.", "Server shutting down", 60_000*1); // restart server in 1 min
+            //     applicationLifetime.StopApplication();
+            // }).Start();
 
             if (env.IsDevelopment())
             {

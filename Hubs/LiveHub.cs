@@ -136,7 +136,7 @@ namespace CC.Net.Hubs
 
 
             var solutions = new List<CcDataSolution>();
-            if (problem.Unittest)
+            if (problem.Type == ProblemType.Unittest)
             {
                 var refCode = problem.ProblemDir().RootFile(problem.Reference.Name).ReadAllText();
                 solutions.Add(CcDataSolution.Single(refCode, problem.Reference.Name, 2, false, problem.Reference.Hidden));
@@ -205,7 +205,7 @@ namespace CC.Net.Hubs
                 );
 
             var solutions = new List<CcDataSolution>();
-            if (problem.Unittest)
+            if (problem.Type == ProblemType.Unittest)
             {
                 var refCode = problem.ProblemDir().RootFile(problem.Reference.Name).ReadAllText();
                 solutions.Add(CcDataSolution.Single(refCode, problem.Reference.Name, 2, false, problem.Reference.Hidden));

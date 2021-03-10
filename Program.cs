@@ -3,11 +3,14 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using CC.Net.Attributes;
 using cc.net.Dto;
 using CC.Net.Collections;
 using CC.Net.Controllers;
+using cc.net.Docs;
 using CC.Net.Dto;
 using CC.Net.Entities;
+using CC.Net.Extensions;
 using CC.Net.Services;
 using CC.Net.Services.Courses;
 using CC.Net.Services.Languages;
@@ -18,6 +21,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using TypeLite;
 using TypeLite.TsModels;
+using YamlDotNet.Serialization;
 
 namespace CC.Net
 {
@@ -25,6 +29,17 @@ namespace CC.Net
     {
         public static void Main(string[] args)
         {
+
+            if (args.Length > 0 && args[0] == "--docs" || true.Equals(true))
+            {
+                Directory.CreateDirectory("docs/");
+                var sections = new List<string>
+                {
+                    DocGeneration.For<CourseProblem>()
+                };
+                File.WriteAllText("docs/README.MD", sections.AsString("<br>\n"));
+                return;
+            }
             if (args.Length > 0 && args[0] == "--generate")
             {
                 Directory.CreateDirectory("_client/src/models/");

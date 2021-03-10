@@ -54,7 +54,6 @@ export const MultiFileEditor = (props: MultiFileEditorProps) => {
             setValue(0);
             updateFile(index, null as any);
         }
-        console.log(event.button);
 
     }
     const addNewFile = () => {
@@ -65,7 +64,6 @@ export const MultiFileEditor = (props: MultiFileEditorProps) => {
     }
 
     const handleTabsClick = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-        console.log(event.button);
     }
 
     return (<>

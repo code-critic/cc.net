@@ -62,6 +62,11 @@ namespace CC.Net.Extensions
         {
             return string.Join(separator, values);
         }
+        
+        public static string AsMarkdown(this IEnumerable<string> values, string separator = ", ", string start = "`", string end= "`")
+        {
+            return string.Join(separator, values.Select(i => $"{start}{i}{end}"));
+        }
     }
 
 }

@@ -73,11 +73,11 @@ namespace CC.Net.Services
             item.Solutions.Add(CcDataSolution.Seperator("Browser Directories"));
 
             item.Solutions.AddRange(
-                new CcDataSolution[] {
-                    problem.Unittest ? null : CcDataSolution.Dynamic("Input", item.ObjectId),
+                new [] {
+                    problem.Type == ProblemType.Unittest ? null : CcDataSolution.Dynamic("Input", item.ObjectId),
                     CcDataSolution.Dynamic("Output", item.ObjectId),
                     CcDataSolution.Dynamic("Error", item.ObjectId),
-                    problem.Unittest ? null : CcDataSolution.Dynamic("Reference", item.ObjectId)
+                    problem.Type == ProblemType.Unittest ? null : CcDataSolution.Dynamic("Reference", item.ObjectId)
                 }
             );
 

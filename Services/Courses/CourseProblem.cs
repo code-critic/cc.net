@@ -23,35 +23,8 @@ namespace CC.Net.Services.Courses
         None = 3,
     }
 
-    public class CourseProblem: IUpdateRefs<CourseYearConfig>
+    public partial class CourseProblem: IUpdateRefs<CourseYearConfig>
     {
-        [YamlMember(Alias = "unittest")]
-        public bool Unittest { get; set; }
-
-        [YamlMember(Alias = "libname")]
-        public string Libname { get; set; }
-
-        [YamlMember(Alias = "id")]
-        public string Id { get; set; }
-
-        [YamlMember(Alias = "name")]
-        public string Name { get; set; }
-
-        [YamlMember(Alias = "cat")]
-        public string Cat { get; set; }
-
-        [YamlMember(Alias = "timeout")]
-        public double Timeout { get; set; }
-
-        [YamlMember(Alias = "avail")]
-        public DateTime Avail { get; set; } = DateTime.MaxValue;
-        
-        [YamlMember(Alias = "since")]
-        public DateTime Since { get; set; } = DateTime.MinValue;
-
-        [YamlMember(Alias = "deadline")]
-        public DateTime Deadline { get; set; } = DateTime.MaxValue;
-
         public ProblemStatus StatusCode =>
             DateTime.Now < Since
                 ? ProblemStatus.BeforeStart 
@@ -64,27 +37,6 @@ namespace CC.Net.Services.Courses
         public string Status => StatusCode.ToString();
 
         public bool IsActive => StatusCode == ProblemStatus.Active || StatusCode == ProblemStatus.ActiveLate;
-
-
-        [YamlMember(Alias = "include")]
-        public List<string> Include { get; set; } = new List<string>();
-
-        [YamlMember(Alias = "assets")]
-        public List<string> Assets { get; set; } = new List<string>();
-
-        [YamlMember(Alias = "export")]
-        public List<string> Export { get; set; } = new List<string>();
-
-
-
-        [YamlMember(Alias = "reference")]
-        public CourseReference Reference { get; set; }
-
-        [YamlMember(Alias = "tests")]
-        public List<CourseProblemCase> Tests { get; set; }
-
-        [YamlMember(Alias = "collaboration")]
-        public CourseProblemCollaborationConfig Collaboration { get; set; }
 
         public bool GroupsAllowed => Collaboration?.Enabled == true;
 
@@ -117,17 +69,17 @@ namespace CC.Net.Services.Courses
         {
             CourseYearConfig = instance;
         }
-
-        public class CourseProblemCollaborationConfig
-        {
-            [YamlMember(Alias = "enabled")]
-            public bool Enabled { get; set; } = true;
+    }
+    
+    public class CourseProblemCollaborationConfig
+    {
+        [YamlMember(Alias = "enabled")]
+        public bool Enabled { get; set; } = true;
             
-            [YamlMember(Alias = "min-size")]
-            public int MinSize { get; set; } = 1;
+        [YamlMember(Alias = "min-size")]
+        public int MinSize { get; set; } = 1;
             
-            [YamlMember(Alias = "max-size")]
-            public int MaxSize { get; set; } = 3;
-        }
+        [YamlMember(Alias = "max-size")]
+        public int MaxSize { get; set; } = 3;
     }
 }

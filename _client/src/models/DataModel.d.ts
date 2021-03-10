@@ -23,6 +23,13 @@
 		ActiveLate = 2,
 		AfterDeadline = 3
 	}
+	export const enum ProblemType {
+		LineByLine = 1,
+		Unittest = 1,
+		Program = 2,
+		Script = 2,
+		Application = 2
+	}
 	export const enum SubmissionStatus {
 		Unkown = 0,
 		Intime = 1,
@@ -47,6 +54,10 @@
 		teachers: IUser[];
 	}
 	interface ICourseProblem {
+		_files: string[];
+		_libname: string;
+		_type: ProblemType;
+		_unittest: boolean;
 		allTests: ICourseProblemCase[];
 		assets: string[];
 		avail: Date;
@@ -56,12 +67,11 @@
 		deadline: Date;
 		description: string;
 		export: string[];
+		files: string[];
 		groupsAllowed: boolean;
 		id: string;
-		include: string[];
 		isActive: boolean;
 		item: ICourseProblemCase;
-		libname: string;
 		name: string;
 		reference: ICourseReference;
 		since: Date;
@@ -69,6 +79,7 @@
 		statusCode: ProblemStatus;
 		tests: ICourseProblemCase[];
 		timeout: number;
+		type: ProblemType;
 		unittest: boolean;
 	}
 	interface ICourseProblemCase {

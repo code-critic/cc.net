@@ -25,12 +25,29 @@
     <Content Remove="$(SpaRoot)**" />
     <None Remove="$(SpaRoot)**" />
     <None Include="$(SpaRoot)**" Exclude="$(SpaRoot)node_modules\**" />
+    <None Remove="_client\**" />
+    <Content Remove="_client\**" />
   </ItemGroup>
 
   <ItemGroup>
     <Content Update="appsettings.secret.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="_client\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Remove="_client\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <_ContentIncludedByDefault Remove="_client\package-lock.json" />
+    <_ContentIncludedByDefault Remove="_client\package.json" />
+    <_ContentIncludedByDefault Remove="_client\public\manifest.json" />
+    <_ContentIncludedByDefault Remove="_client\tsconfig.json" />
   </ItemGroup>
 
   <Target Name="DebugEnsureNodeEnv" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('$(SpaRoot)node_modules') ">

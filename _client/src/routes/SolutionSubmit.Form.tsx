@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 
 import { ILanguage, ICourseProblem } from "../models/DataModel";
 import { FileChooser, IFile } from "../components/FileChooser";
@@ -43,43 +43,49 @@ export const SolutionSubmitForm = (props: SolutionSubmitFormProps) => {
     const [isFullScreen, setFullScreen] = React.useState(false);
     const [language, setLanguage] = React.useState(defaultLanguage);
 
+    useEffect(() => {
+        if(language.extension) {
+            updateFiles(files);
+        }
+    }, [language?.extension]);
+
     const extension = language ? language.extension : "py";
-    const unittest = activeProblem.unittest === true;
-    const libName = unittest ? activeProblem.libname : null;
-    const defaultName = libName || `main.${extension}`;
+    const requiredFiles = (activeProblem.files == null || !activeProblem.files.length ? ['main.{extension}'] : activeProblem.files )
+        .map(i => i.replace("{extension}", extension));
+    
 
-    const [files, setFiles] = React.useState<IFile[]>([{
-        name: defaultName,
-        path: defaultName,
-        content: "",
-    }]);
-
-    const removeEmptyFiles = (files: IFile[]) => {
-        return files.filter(i => !!i.content);
+    const toIFile = (name: string) => {
+        return { name, path: name, content: "" } as IFile;
     }
+
+    const getDefaultFiles = () => {
+        return requiredFiles.map(toIFile);
+    }
+
+    const updateFiles = (newFiles: IFile[]) => {
+        let result = (newFiles ?? []);
+        result = result
+            .filter(i => !!i.content || requiredFiles.includes(i.path));
+        requiredFiles.forEach(path => {
+            if (result.findIndex(i => i.path == path) === -1) {
+                result.push(toIFile(path));
+            }
+        });
+        setFiles([...result]);
+    }
+
+    const [files, setFiles] = React.useState<IFile[]>(getDefaultFiles());
 
     const handleLanguage = (id: string) => {
         const newLang = languages.find(i => i.id === id);
         if (newLang) {
             setLanguage(newLang)
             onLanguageChange(newLang);
-            const mainFile = `main.${newLang.extension}`;
-            if (!files.find(i => i.path === mainFile)) {
-                setFiles([
-                    ...removeEmptyFiles(files),
-                    { name: mainFile, path: mainFile, content: "" }
-                ]);
-            }
         }
     }
 
     const checkFilesAndConfirm = (files) => {
-        const reqIndex = files.map(i => i.path).indexOf(defaultName);
-        if (reqIndex === -1) {
-            setFiles([...files, { name: defaultName, path: defaultName, content: "" }]);
-        } else {
-            setFiles([...files]);
-        }
+        setFiles([...files]);
         onFileChange(files);
     }
 
@@ -98,14 +104,15 @@ export const SolutionSubmitForm = (props: SolutionSubmitFormProps) => {
         return allFiles;
     }
 
-    const handleFileUpdate = (index, newContent) => {
+    const handleFileUpdate = (index: number, newContent: string) => {
         if (index >= files.length) {
             const newName = newContent;
             setFiles([...files, { name: newName, path: newName, content: "" }]);
         } else {
 
+            // deleting file
             if (newContent === null) {
-                checkFilesAndConfirm(files.filter((i, j) => j != index));
+                checkFilesAndConfirm(files.filter((i, j) => j != index || requiredFiles.includes(i.path)));
             } else {
                 files[index].content = newContent;
                 checkFilesAndConfirm(files);
@@ -183,7 +190,7 @@ export const SolutionSubmitForm = (props: SolutionSubmitFormProps) => {
             </Typography>
             <Box display="flex" flexDirection="column" mx={3}>
                 <span>Required language: <code>{activeProblem.reference.lang}</code></span>
-                <span>Required File: <code>{activeProblem.libname}</code></span>
+                <span>Required File(s): <code>{activeProblem.files.join(", ")}</code></span>
             </Box>
         </Grid>}
         <Grid item xs={12} className="my-3">

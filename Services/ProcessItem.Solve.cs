@@ -86,7 +86,7 @@ namespace CC.Net.Services
 
 
             subcase.Status = ProcessStatus.Running.Value;
-            var isUnitTest = Context.CourseProblem.Unittest;
+            var isUnitTest = Context.CourseProblem.Type == ProblemType.Unittest;
             var filename = isUnitTest
                 ? Context.CourseProblem.Reference.Name
                 : Context.MainFileName;
@@ -194,7 +194,7 @@ namespace CC.Net.Services
             var scalledTimeout = language.ScalledTimeout(timeout);
 
 
-            if (Context.CourseProblem.Unittest)
+            if (Context.CourseProblem.Type == ProblemType.Unittest)
             {
                 var errorText = Context.TmpDir.ErrorFile(@case.Id).ReadAllText();
                 if(string.IsNullOrEmpty(errorText))
