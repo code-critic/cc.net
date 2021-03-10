@@ -82,7 +82,7 @@
 ## CourseProblemCase
 
   - `id`
-     - Unique filesystem and URI safe identifier
+     - Unique filesystem and URI safe identifier and also a name for the input and output file. Extension `.s` means input will not be generated and also keeps the file in the repository.
      - type: `string`
      - examples: 
         - `id: 01-COLLAB-TEST`
@@ -90,8 +90,15 @@
      - Size parameter, which will be passed to the reference script when generating input
      - type: int
      - examples: 
-        - size: 123
-        - reference solution will be called with python3 main.py -p 123
+        - `id: foo`
+        - `size: 123`
+        - reference solution will be called with `python3 main.py -p 123`
+  - `random`
+     - A number of random tests which will be generated
+     - type: int
+  - `timeout`
+     - Timeout in seconds
+     - type: `float`
 
 
 

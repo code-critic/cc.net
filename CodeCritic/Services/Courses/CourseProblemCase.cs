@@ -8,7 +8,8 @@ namespace CC.Net.Services.Courses
 {
     public class CourseProblemCase
     {
-        [Doc("Unique filesystem and URI safe identifier",
+        [Doc("Unique filesystem and URI safe identifier and also a name for the input and output file. " +
+             "Extension `.s` means input will not be generated and also keeps the file in the repository.",
             "`id: 01-COLLAB-TEST`")]
         [YamlMember(Alias = "id")]
         public string Id { get; set; }
@@ -20,12 +21,15 @@ namespace CC.Net.Services.Courses
         [YamlMember(Alias = "size")]
         public int Size { get; set; }
 
+        [Doc("A number of random tests which will be generated")]
         [YamlMember(Alias = "random")]
         public int Random { get; set; }
 
+        [Doc("Timeout in seconds")]
         [YamlMember(Alias = "timeout")]
         public double Timeout { get; set; }
 
+        
         [YamlMember(Alias = "test")]
         public string Test { get; set; }
 
