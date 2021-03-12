@@ -23,7 +23,7 @@ namespace cc.net
 
         private void CleanCache()
         {
-            foreach (var key in _cache.Where(i => !i.Value.IsValid).Select(i => i.Key).ToList())
+            foreach (var key in _cache.Where(i => !i.Value?.IsValid ?? true).Select(i => i.Key).ToList())
             {
                 _cache.Remove(key);
             }
