@@ -25,7 +25,14 @@ namespace cc.net
         {
             foreach (var key in _cache.Where(i => !i.Value?.IsValid ?? true).Select(i => i.Key).ToList())
             {
+                try
+                {
                 _cache.Remove(key);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine($"cache error: key={key}");
+                }
             }
             lastService = DateTime.Now;
         }
