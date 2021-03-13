@@ -10,10 +10,8 @@ namespace CC.Net.Services.Courses
     public enum ProblemType
     {
         LineByLine = 1,
-        Unittest = 1,
-        Program = 2,
-        Script = Program,
-        Application = Program,
+        Unittest = 2,
+        Program = 3,
     }
     public partial class CourseProblem
     {

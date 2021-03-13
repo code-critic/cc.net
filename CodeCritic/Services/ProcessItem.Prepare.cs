@@ -7,6 +7,7 @@ using CC.Net.Collections;
 using CC.Net.Extensions;
 using CC.Net.Hubs;
 using CC.Net.Services.Courses;
+using CC.Net.Services.Languages;
 using CC.Net.Utils;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
@@ -50,8 +51,20 @@ namespace CC.Net.Services
             }
             catch (Exception e)
             {
-                _logger.LogError(e, "Error while preparing solution files on item {item}", Item);
+                _logger.LogError(e, "Error while preparing solution files on item {Item}", Item);
+                throw;
             }
+        }
+        
+        private ProcessResult CompileReferenceForVerification()
+        {
+            var reference = Context.CourseProblem.Reference
+                ?? throw new ArgumentException("Reference file missing");
+            
+            var refLanguage = _languageService[reference.Lang];
+            var refName = reference.Name;
+
+            return CompileIfNeeded(refLanguage, refName, Context.DockerDir.VerificationDir);
         }
 
         private async Task<PrepareItemResult> PrepareItem()
@@ -65,7 +78,7 @@ namespace CC.Net.Services
 
             foreach (var subtest in problem.AllTests)
             {
-                Item.Results.Add(new CcDataCaseResult()
+                Item.Results.Add(new CcDataCaseResult
                 {
                     Case = subtest.Id,
                     Status = ProcessStatus.InQueue.Value,
@@ -73,7 +86,14 @@ namespace CC.Net.Services
             }
 
             await channel.ItemChanged(Item);
-            PrepareFiles();
+            try
+            {
+                PrepareFiles();
+            }
+            catch (Exception e)
+            {
+                return await TerminatePreparation(e, channel, problem, course);
+            }
 
             // compile if needed
             if (Context.Language.CompilationNeeded)
@@ -114,6 +134,16 @@ namespace CC.Net.Services
                 Item.Results.RemoveAt(0);
             }
 
+            if (Context.CourseProblem.Type == ProblemType.Program)
+            {
+                var compilation = CompileReferenceForVerification();
+                if (compilation != null && compilation.IsBroken)
+                {
+                    var e = new Exception("Reference compilation failed!");
+                    return await TerminatePreparation(e, channel, problem, course);
+                }
+            }
+
             return new PrepareItemResult
             {
                 Channel = channel,
@@ -122,17 +152,39 @@ namespace CC.Net.Services
             };
         }
 
+        private async Task<PrepareItemResult> TerminatePreparation(Exception e, IClientProxy channel, CourseProblem problem,
+            CourseYearConfig course)
+        {
+            Item.Results.ForEach(i => i.Status = ProcessStatus.Skipped.Value);
+            Item.Result.Status = ProcessStatus.Skipped.Value;
+            Item.Result.Message = e.Message;
+            await channel.ItemChanged(Item);
+
+            return new PrepareItemResult
+            {
+                Channel = channel,
+                Problem = problem,
+                Course = course,
+                Error = $"Failed to prepare environment, contact teacher: ${e.Message}",
+            };
+        }
+
 
         private ProcessResult CompileIfNeeded()
         {
-            if (!Context.Language.CompilationNeeded)
+            return CompileIfNeeded(Context.Language, Context.MainFileName, Context.DockerTmpWorkdir);
+        } 
+        
+        private static ProcessResult CompileIfNeeded(Language language, string filename, string dockerWorkDir)
+        {
+            if (!language.CompilationNeeded)
             {
                 return null;
             }
 
             return RunPipeline(
-                $"{string.Join(" ", Context.Language.Compile)}".ReplaceCommon(Context.MainFileName),
-                Context.DockerTmpWorkdir,
+                $"{string.Join(" ", language.Compile)}".ReplaceCommon(filename),
+                dockerWorkDir,
                 30, // fixed compilation timeout
                 null,
                 CourseContext.CompilationFileName,
@@ -150,6 +202,13 @@ namespace CC.Net.Services
         {
             var cpCommand = $"docker cp \"{ProcessService.ContainerName}:{Context.DockerTmpWorkdir}/error/{@case.Id}\" \"{Context.TmpDir.ErrorDir}\"";
             return ProcessUtils.Popen(cpCommand);
+        }    
+        public void CopyVerificationFromDocker(CourseProblemCase @case)
+        {
+            var dFile = Context.DockerDir.VerificationFile(@case.Id);
+            var tFile = Context.TmpDir.VerificationFile(@case.Id);
+            ProcessUtils.Popen($"docker cp \"{ProcessService.ContainerName}:{dFile}.o\" \"{tFile}.o\"");
+            ProcessUtils.Popen($"docker cp \"{ProcessService.ContainerName}:{dFile}.e\" \"{tFile}.e\"");
         }
 
         public ProcessResult CopyFromDocker(string file)
@@ -245,6 +304,18 @@ namespace CC.Net.Services
                     .Where(i => File.Exists(Context.ProblemDir.RootFile(i)))
                     .ToList()
                     .ForEach(i => File.Copy(Context.ProblemDir.RootFile(i), Context.TmpDir.RootFile(i), true));
+            }
+            
+            // 8) verification solution
+            if (Context.CourseProblem.Type == ProblemType.Program)
+            {
+                var reference = Context.CourseProblem.Reference
+                    ?? throw new ArgumentException("Reference section not specified");
+                
+                Directory.CreateDirectory(Context.TmpDir.VerificationDir);
+                File.Copy(
+                    Context.ProblemDir.RootFile(reference.Name),
+                    Context.TmpDir.VerificationFile(reference.Name));
             }
         }
     }

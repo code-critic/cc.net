@@ -9,11 +9,11 @@ namespace cc.net
     {
 
         private Dictionary<string, CacheEntry> _cache = new Dictionary<string, CacheEntry>();
-        private DateTime lastService = DateTime.Now;
+        private DateTime _lastService = DateTime.Now;
 
         public CacheEntry GetCache(string cacheKey)
         {
-            if (DateTime.Now - lastService > TimeSpan.FromMinutes(10))
+            if (DateTime.Now - _lastService > TimeSpan.FromMinutes(10))
             {
                 CleanCache();
             }
@@ -23,18 +23,11 @@ namespace cc.net
 
         private void CleanCache()
         {
-            foreach (var key in _cache.Where(i => !i.Value?.IsValid ?? true).Select(i => i.Key).ToList())
-            {
-                try
-                {
-                _cache.Remove(key);
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine($"cache error: key={key}");
-                }
-            }
-            lastService = DateTime.Now;
+            _cache = _cache
+                .Where(i => i.Key != null && i.Value != null && i.Value.IsValid)
+                .ToDictionary(i => i.Key, i => i.Value);
+                
+            _lastService = DateTime.Now;
         }
 
         public void SaveCache(string cacheKey, object result, TimeSpan timeToLive)

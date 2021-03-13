@@ -67,6 +67,11 @@ namespace CC.Net.Extensions
         {
             return string.Join(separator, values.Select(i => $"{start}{i}{end}"));
         }
+
+        public static string Dirname(this string path)
+        {
+            return path.Split('/').Last(i => !string.IsNullOrEmpty(i));
+        }
     }
 
 }

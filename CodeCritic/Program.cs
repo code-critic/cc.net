@@ -28,7 +28,6 @@ namespace CC.Net
     {
         public static void Main(string[] args)
         {
-
             if (args.Length > 0 && args[0] == "--docs" || true.Equals(false))
             {
                 var docs = "../docs/";

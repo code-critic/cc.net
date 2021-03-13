@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using CC.Net.Collections;
 using CC.Net.Config;
@@ -131,16 +132,16 @@ namespace CC.Net.Services
             }
         }
 
-        public ProcessResult RunPipeline(string command, string workdir, int timeout = 0, string input = null, string output = null, string error = null)
+        public static ProcessResult RunPipeline(string command, string workdir, int timeout = 0, string input = null, string output = null, string error = null)
         {
-            var args = "";
-            args = timeout == 0 ? args : $"{args} ---t {timeout}";
-            args = workdir == null ? args : $"{args} ---w {workdir}";
-            args = input == null ? args : $"{args} ---i {input}";
-            args = output == null ? args : $"{args} ---o {output}";
-            args = error == null ? args : $"{args} ---e {error}";
+            var args = new StringBuilder();
+            if (timeout > 0) args.Append($" ---t {timeout}");
+            if (workdir != null ) args.Append($" ---w {workdir}");
+            if (input != null ) args.Append($" ---i {input}");
+            if (output != null ) args.Append($" ---o {output}");
+            if (error != null ) args.Append($" ---e {error}");
+            
             var execCmd = $"docker exec --user jan-hybs {ProcessService.ContainerName} python3 /bin/run.py {args} {command}";
-            _logger.LogInformation("python3 /bin/run.py {args} {command}", args, command);
             
             var sw = new Stopwatch();
             sw.Start();

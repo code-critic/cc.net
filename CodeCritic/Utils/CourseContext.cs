@@ -23,6 +23,10 @@ namespace CC.Net.Utils
 
         private string _studentDir { get; set; }
         public readonly FileTree StudentDir;
+        
+        
+        private string _dockerDir { get; set; }
+        public readonly FileTree DockerDir;
 
         public string Id { get; set; }
         public readonly string CourseDir;
@@ -42,18 +46,22 @@ namespace CC.Net.Utils
             _tmpDir = Path.Combine(Path.GetTempPath(), "automatest", Id);
             _problemDir = Path.Combine(CourseDir, Item.CourseYear, "problems", Item.Problem);
             _studentDir = problemDir ? _problemDir : Item.ResultDir(CourseDir);
+            _dockerDir = $"/tmp/{Id}";
 
             ProblemDir = new FileTree(_problemDir);
             TmpDir = new FileTree(_tmpDir);
             StudentDir = new FileTree(_studentDir);
+            DockerDir = new FileTree(_dockerDir);
         }
+
+        
 
         public Language Language => LanguageService[Item.Language];
         public string MainFileName => $"main.{Language.Extension}";
         public static string CompilationFileName = "compilation.log";
 
         public Course Course => CourseService[Item.CourseName]
-            ?? throw new Exception($"Could not find course {Item.CourseName}");
+                                ?? throw new Exception($"Could not find course {Item.CourseName}");
 
         public CourseYearConfig CourseYear => Course[Item.CourseYear]
             ?? throw new Exception($"Could not find course year {Item.CourseYear}");
@@ -62,8 +70,7 @@ namespace CC.Net.Utils
             ?? throw new Exception($"Could not find problem {Item.Problem}");
 
 
-
-        public string DockerTmpWorkdir => $"/tmp/{Id}";
+        public string DockerTmpWorkdir => DockerDir.Root;
 
         private IEnumerable<string> GetSolutionErrorMessageCandidates(string caseId, string defaultValue = "Unknown error")
         {
