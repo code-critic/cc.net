@@ -40,7 +40,7 @@ namespace CC.Net.Services
 
         public AppUser FromPrincipal(ClaimsPrincipal principal)
         {
-            if (principal == null || principal.Claims == null || string.IsNullOrEmpty(principal.FindFirstValue(nameof(AppUser.Eppn)))) {
+            if (principal?.Claims == null || string.IsNullOrEmpty(principal.FindFirstValue(nameof(AppUser.Eppn)))) {
                 return Guest;
             }
 
@@ -84,7 +84,7 @@ namespace CC.Net.Services
             where T: Exception, new()
         {
             if (!HasRole(role)) {
-                var exception = (T)Activator.CreateInstance(typeof(T), new object[] { "Access denied" });
+                var exception = (T)Activator.CreateInstance(typeof(T), "Access denied");
                 throw exception;
             }
         }

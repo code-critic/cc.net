@@ -18,6 +18,8 @@ using DiffPlex.DiffBuilder.Model;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using Serilog;
 using TypeLite;
 using TypeLite.TsModels;
 using YamlDotNet.Serialization;
@@ -117,11 +119,11 @@ namespace CC.Net
                 var value = field.GetValue(null);
                 if(value is T)
                 {
-                    var isntance = value as T;
+                    var instance = value as T;
                     var row = $"public static {field.Name}: I{field.ReflectedType.Name}";
                     row += " = ";
                     Console.WriteLine(field);
-                    row += isntance.AsJson();
+                    row += instance.AsJson();
                     row += ";\n";
                     result += $"\t\t{row}\n";
                 }else if(value is IEnumerable<T>)
@@ -151,6 +153,28 @@ namespace CC.Net
 
             return WebHost.CreateDefaultBuilder(args)
                 .UseConfiguration(config)
+                .UseSerilog((builder, options) =>
+                {
+                    options.Enrich.FromLogContext();
+
+                    
+                    var logFormat = "{Timestamp:yyyy-MM-dd HH:mm:ss.fff} [{Level:u3}] [{UserName}] {Message:lj}{NewLine}{Exception}";
+                    options.WriteTo.Console(outputTemplate: logFormat)
+                        .MinimumLevel.Override("Default", Serilog.Events.LogEventLevel.Information)
+                        .MinimumLevel.Override("System", Serilog.Events.LogEventLevel.Warning)
+                        .MinimumLevel.Override("Microsoft", Serilog.Events.LogEventLevel.Warning)
+                        .MinimumLevel.Override("Serilog.AspNetCore.RequestLoggingMiddleware", Serilog.Events.LogEventLevel.Warning)
+                        .MinimumLevel.Override("Microsoft.AspNetCore.Mvc.Internal", Serilog.Events.LogEventLevel.Warning)
+                        .MinimumLevel.Override("Microsoft.AspNetCore.Authentication", Serilog.Events.LogEventLevel.Warning);
+
+                    options.WriteTo.File("app.log", outputTemplate: logFormat)
+                        .MinimumLevel.Override("Default", Serilog.Events.LogEventLevel.Information)
+                        .MinimumLevel.Override("System", Serilog.Events.LogEventLevel.Warning)
+                        .MinimumLevel.Override("Microsoft", Serilog.Events.LogEventLevel.Warning)
+                        .MinimumLevel.Override("Serilog.AspNetCore.RequestLoggingMiddleware", Serilog.Events.LogEventLevel.Warning)
+                        .MinimumLevel.Override("Microsoft.AspNetCore.Mvc.Internal", Serilog.Events.LogEventLevel.Warning)
+                        .MinimumLevel.Override("Microsoft.AspNetCore.Authentication", Serilog.Events.LogEventLevel.Warning);
+                })
                 .UseStartup<Startup>();
         }
     }

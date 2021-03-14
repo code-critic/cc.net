@@ -19,6 +19,8 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Cc.Net.Middlewares;
+using Serilog;
 
 namespace CC.Net
 {
@@ -89,14 +91,10 @@ namespace CC.Net
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IServiceProvider serviceProvider, IHostApplicationLifetime applicationLifetime)
         {
             ServiceProvider = serviceProvider;
-            var db = serviceProvider.GetService<DbService>();
-            var id = serviceProvider.GetService<IdService>();
+            app.UseSerilogRequestLogging();
             var logger = serviceProvider.GetService<ILogger<Startup>>();
             var hub = serviceProvider.GetService<IHubContext<LiveHub>>();
-
-            // var courses = serviceProvider.GetService<CourseService>();
-            // var c2021 = courses["DPG"]["2021"];
-
+            
             new Thread (async () =>
             {
                 WaitForKey(ConsoleKey.Escape);
@@ -104,8 +102,10 @@ namespace CC.Net
                 WaitForKey(ConsoleKey.Escape);
                 
                 logger.LogWarning("Application is stopping...");
-                var clients = hub.Clients;
-                await hub.Clients.All.ServerMessageToClient("error", $"Server will be updated soon.", "Server shutting down", 60_000*1); // restart server in 1 min
+                
+                // restart server in 1 min
+                await hub.Clients.All
+                    .ServerMessageToClient("error", $"Server will be updated soon.", "Server shutting down", 60_000*1);
                 applicationLifetime.StopApplication();
             }).Start();
 
@@ -127,6 +127,9 @@ namespace CC.Net
 
             // who are you
             app.UseAuthentication();
+            
+            // add to log
+            app.UseMiddleware<LogUserNameMiddleware>();
 
             // are you allowed
             app.UseAuthorization();

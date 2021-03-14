@@ -97,7 +97,7 @@ namespace cc.net.Controllers
             var data = Request.RouteValues["path"].ToString();
             var user = _cryptoService.Decrypt(data);
 
-            _logger.LogInformation("New login {}", user);
+            _logger.LogInformation("New login {User}", user);
 
             if (user != null)
             {

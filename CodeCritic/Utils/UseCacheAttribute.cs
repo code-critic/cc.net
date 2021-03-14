@@ -33,14 +33,16 @@ namespace cc.net.Utils
                 ? context.HttpContext.RequestServices.GetRequiredService<UserService>().CurrentUser.Id
                 : "";
 
-            var cacheKey = GenerateCacheKeyFromRequest(context.HttpContext.Request, user);
+            var httpRequest = context.HttpContext.Request;
+            var userMark = string.IsNullOrWhiteSpace(user) ? "" : "*";
+            var cacheKey = GenerateCacheKeyFromRequest(httpRequest, user);
             var logger = context.HttpContext.RequestServices.GetRequiredService<ILogger<UseCacheAttribute>>();
             var cacheService = context.HttpContext.RequestServices.GetRequiredService<CacheContentService>();
 
             var cacheContent = cacheService.GetCache(cacheKey);
             if (cacheContent != null)
             {
-                logger.LogInformation("Using cache for {url} in {time} ms", cacheKey, timer.ElapsedMilliseconds);
+                logger.LogInformation("🙂  for {Url}{UserMark} in {Time} ms", httpRequest.Path, userMark, timer.ElapsedMilliseconds);
                 context.Result = (IActionResult)cacheContent.Result;
                 return;
             }
@@ -50,7 +52,7 @@ namespace cc.net.Utils
             {
                 cacheService.SaveCache(cacheKey, result.Result, _duration);
             }
-            logger.LogInformation("Using live  for {url} in {time} ms", cacheKey, timer.ElapsedMilliseconds);
+            logger.LogInformation("⏲ ️for {Url}{UserMark} in {Time} ms", httpRequest.Path, userMark, timer.ElapsedMilliseconds);
         }
 
         private string GenerateCacheKeyFromRequest(HttpRequest httpRequest, string user = "")

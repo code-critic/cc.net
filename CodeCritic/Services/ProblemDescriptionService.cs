@@ -35,7 +35,7 @@ namespace CC.Net.Services
 
             if (!File.Exists(readmePath))
             {
-                _logger.LogWarning("Could not find README.md {}", readmePath);
+                _logger.LogWarning("Could not find README.md {path}", readmePath);
             }
 
             var pipeline = new MarkdownPipelineBuilder()

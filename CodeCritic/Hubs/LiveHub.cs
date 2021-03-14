@@ -47,7 +47,7 @@ namespace CC.Net.Hubs
 
         public async Task RegisterUser(string username)
         {
-            _logger.LogInformation("Hub register user: {}", username);
+            _logger.LogInformation("Hub register user: {Username}", username);
             _idService.SaveUser(username, Context.ConnectionId);
         }
 
