@@ -42,7 +42,7 @@ namespace cc.net.Utils
             var cacheContent = cacheService.GetCache(cacheKey);
             if (cacheContent != null)
             {
-                logger.LogInformation("🙂  for {Url}{UserMark} in {Time} ms", httpRequest.Path, userMark, timer.ElapsedMilliseconds);
+                logger.LogInformation("🙂 for {Url}{UserMark} in {Time} ms", httpRequest.Path, userMark, timer.ElapsedMilliseconds);
                 context.Result = (IActionResult)cacheContent.Result;
                 return;
             }
@@ -52,7 +52,7 @@ namespace cc.net.Utils
             {
                 cacheService.SaveCache(cacheKey, result.Result, _duration);
             }
-            logger.LogInformation("⏲ ️for {Url}{UserMark} in {Time} ms", httpRequest.Path, userMark, timer.ElapsedMilliseconds);
+            logger.LogInformation("🤬 ️for {Url}{UserMark} in {Time} ms", httpRequest.Path, userMark, timer.ElapsedMilliseconds);
         }
 
         private string GenerateCacheKeyFromRequest(HttpRequest httpRequest, string user = "")
