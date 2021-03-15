@@ -146,8 +146,9 @@ namespace CC.Net.Controllers
                     && i.Problem == problem.Id
                     && i.ReviewRequest != null)
                 .ToList()
-                .OrderByDescending(i => i.Points)
-                    .ThenByDescending(i => i.Result.Score)
+                .OrderByDescending(i => i.Id.CreationTime)
+                    .ThenByDescending(i => i.Points)
+                        .ThenByDescending(i => i.Result.Score)
                 .ToList();
 
             var bestResults = new List<GradeDto>();
