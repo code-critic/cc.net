@@ -28,12 +28,10 @@ namespace CC.Net.Services.Languages
         private List<Language> Parse()
         {
             var file = $"{_appOptions.ConfigDir}/langs.yaml";
-            return YamlRead.ReadFromFile<List<Language>>(file);
+            var (data, _) = YamlRead.ReadFromFile<List<Language>>(file);
+            return data;
         }
 
-        public Language this[string key]
-        {
-            get => Languages.First(i => i.Id.ToLower() == key.ToLower());
-        }
+        public Language this[string key] => Languages.First(i => i.Id.ToLower() == key.ToLower());
     }
 }

@@ -2,7 +2,7 @@
 
   - `type`
      - problem type, this affects how are solutions executed and graded, default value is `linebyline`
-     - type: enum [`LineByLine`, `Unittest`, `Program`, `Script`, `Application`]
+     - type: enum [`LineByLine`, `Unittest`, `Program`]
   - `files`
      - string or list of string of filenames, which will be required for each solution. <br>You can specify extension (such as `files: trial_1_lib.m` or placeholder which works with every language: <br>`files: trial_1_lib.{extension}`
      - type: `string`/`string[]`

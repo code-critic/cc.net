@@ -108,7 +108,7 @@ namespace CC.Net.Services.Courses
 
         [Doc("List of tests, which will be used for each solution")]
         [YamlMember(Alias = "tests")]
-        public List<CourseProblemCase> Tests { get; set; }
+        public List<CourseProblemCase> Tests { get; set; } = new List<CourseProblemCase>();
 
         [Doc("A collaboration field, which can enabled team work")]
         [YamlMember(Alias = "collaboration")]

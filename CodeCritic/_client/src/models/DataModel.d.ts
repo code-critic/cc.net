@@ -25,10 +25,8 @@
 	}
 	export const enum ProblemType {
 		LineByLine = 1,
-		Unittest = 1,
-		Program = 2,
-		Script = 2,
-		Application = 2
+		Unittest = 2,
+		Program = 3
 	}
 	export const enum SubmissionStatus {
 		Unkown = 0,
@@ -40,6 +38,7 @@
 		courseConfig: ICourseConfig;
 		courseDir: string;
 		courseYears: ICourseYearConfig[];
+		errors: string[];
 		item: ICourseYearConfig;
 		name: string;
 		yaml: string;
@@ -54,6 +53,8 @@
 		teachers: IUser[];
 	}
 	interface ICourseProblem {
+		_avail: IDateTimeOrDays;
+		_deadline: IDateTimeOrDays;
 		_files: string[];
 		_libname: string;
 		_type: ProblemType;
@@ -61,7 +62,7 @@
 		allTests: ICourseProblemCase[];
 		assets: string[];
 		avail: Date;
-		cat: string;
+		cat: string[];
 		collaboration: ICourseProblemCollaborationConfig;
 		courseYearConfig: ICourseYearConfig;
 		deadline: Date;
@@ -88,6 +89,11 @@
 		size: number;
 		test: string;
 		timeout: number;
+	}
+	interface ICourseProblemCollaborationConfig {
+		enabled: boolean;
+		maxSize: number;
+		minSize: number;
 	}
 	interface ICourseReference {
 		hidden: boolean;
@@ -236,10 +242,7 @@
 		time: number;
 		user: string;
 	}
-	interface ICourseProblemCollaborationConfig {
-		enabled: boolean;
-		maxSize: number;
-		minSize: number;
+	interface IDateTimeOrDays {
 	}
 	export const enum DiffResultLineType {
 		Correct = 1,

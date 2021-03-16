@@ -1,26 +1,23 @@
 using System;
 using System.IO;
+using System.Linq;
+using cc.net.Exceptions;
+using CC.Net.Extensions;
 using cc.net.Services.Yaml;
+using YamlDotNet.Core;
 
 namespace CC.Net.Utils
 {
     public static class YamlRead
     {
-        public static T ReadFromFile<T>(string path)
+        public static (T data, string content) ReadFromFile<T>(string path)
         {
-            try
-            {
-                var content = File.ReadAllText(path);
-                return ReadFromString<T>(content);
-            }
-            catch(Exception ex)
-            {
-                Console.Error.WriteLine($"Error reading file {path}");
-                throw ex;
-            }
+            var content = File.ReadAllText(path);
+            var data = ReadFromString<T>(content, path);
+            return (data, content);
         }
         
-        public static T ReadFromString<T>(string content)
+        public static T ReadFromString<T>(string content, string path)
         {
             var deserializer = new YamlDotNet.Serialization.DeserializerBuilder()
                 .IgnoreUnmatchedProperties()
@@ -33,10 +30,19 @@ namespace CC.Net.Utils
             {
                 return deserializer.Deserialize<T>(content);
             }
-            catch(Exception ex)
+            catch(YamlException ex)
             {
-                Console.Error.WriteLine($"Error while parsing {ex}");
-                throw ex;
+                Console.Error.WriteLine($"Error while parsing {ex} {path}");
+                var lines = content.SplitLines();
+                var exStart = Math.Max(ex.Start?.Line - 5 ?? 0, 0);
+                var highlighted = lines
+                    .Skip(exStart)
+                    .Take(10)
+                    .Select((i, j) => $"{(exStart + j + 1):000}| {i}")
+                    .Prepend("\n")
+                    .Prepend(ex.Message);
+                
+                throw new DetailedException($"Yaml error in {path}", highlighted.ToArray());
             }
         }
     }

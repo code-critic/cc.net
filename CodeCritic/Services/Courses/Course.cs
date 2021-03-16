@@ -19,5 +19,7 @@ namespace CC.Net.Services.Courses
 
         [JsonIgnore]
         public string Yaml { get; set; }
+
+        public List<string> Errors { get; set; } = new List<string>();
     }
 }

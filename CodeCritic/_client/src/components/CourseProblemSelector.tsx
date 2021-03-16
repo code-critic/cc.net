@@ -40,170 +40,6 @@ const courseFromUrl = (params: any, courses: ICourse[]) => {
 }
 
 
-export const CourseProblemSelector2 = (props: CourseProblemSelectorProps) => {
-    console.log("start");
-
-    const { courses, history, match, onProblemChange, params } = props;
-
-    const [course, setCourse] = React.useState<ISingleCourse>();
-    const [problem, setProblem] = React.useState<ICourseProblem>();
-    const [courseYear, setCourseYear] = React.useState<ICourseYearConfig>();
-    const [isLoading, setIsLoading] = React.useState(false);
-
-    const coursesFlatten = courses.flatMap(flattenCourse);
-
-    useEffect(() => {
-        // history.listen((location, action) => {
-        //     console.log("change");
-        //     // debugger;
-
-        //     // if(course) {
-        //     //     const urlCourse = courseFromUrl(match.params, courses);
-        //     //     if(!urlCourse || course.course != urlCourse.course || course.year != urlCourse.year) {
-        //     //         debugger;
-        //     //         setCourse(urlCourse);
-        //     //         setProblem(undefined);
-        //     //         setCourseYear(undefined);
-        //     //         onProblemChange(undefined);
-        //     //     }
-
-        //     //     if(problem && courseYear) {
-        //     //         const urlProblem = problemFromUrl(match.params, courseYear.problems);
-        //     //         debugger;
-        //     //         if(!urlProblem || urlProblem.id != problem.id) {
-        //     //             setProblem(undefined);
-        //     //             setCourseYear(undefined);
-        //     //             onProblemChange(undefined);
-        //     //         }
-        //     //     }
-        //     // }
-
-        //     // // setProblem(undefined);
-        //     // // setCourse(undefined);
-        //     // // setIsLoading(true);
-        // });
-    }, []);
-
-    useEffect(() => {
-        if (!course) {
-            return;
-        }
-        console.log("loading year course");
-
-        setIsLoading(true);
-        new ApiResource<ICourseYearConfig>(`course/${course.course}/${course.year}`, false)
-            .load()
-            .then(data => {
-                setCourseYear(data as any as ICourseYearConfig);
-                setIsLoading(false);
-            });
-    }, [course]);
-
-
-    console.log(params);
-    const urlCourse = courseFromUrl(match.params, courses);
-    if (urlCourse) {
-        if (!course || course.course != urlCourse.course || course.year != urlCourse.year) {
-            console.log("setting course from url");
-            setCourse(urlCourse);
-        }
-    }
-
-    if (course && courseYear) {
-        const urlProblem = problemFromUrl(match.params, courseYear.problems);
-        if (urlProblem) {
-            if (!problem || problem.id != urlProblem.id) {
-                console.log("setting problem from url");
-                setProblem(urlProblem);
-                onProblemChange(urlProblem);
-            }
-        }
-    }
-
-    if (isLoading) {
-        return <SimpleLoader />
-    }
-
-    if (!course) {
-        return <>
-            <Grid container spacing={2} className="card-select">
-                {coursesFlatten.map((i, j) =>
-                    <Grid item xs={12} sm={6} lg={3} key={j}>
-                        <Card elevation={3}>
-                            <Button component={RouterLink}
-                                to={`/courses/${i.course}/${i.year}`}
-                                onClick={() => setCourse(i)}>
-                                <div>
-                                    <Typography gutterBottom variant="h5" component="h2">
-                                        {i.course} ({i.year})
-                                    </Typography>
-                                    <Typography variant="body2" color="textSecondary" component="p">
-                                        {i.problems.length} problem{i.problems.length == 1 ? "" : "s"} available
-                                    </Typography>
-                                </div>
-                            </Button>
-                        </Card>
-                    </Grid>
-                )}
-            </Grid>
-        </>
-    }
-
-    if (!courseYear) {
-        return <span>waiting on course year</span>
-    }
-
-    if (!problem) {
-        return <>
-            <Grid container spacing={2} className="card-select">
-                {courseYear.problems.map((i, j) => {
-                    const res = courseYear.results.flatMap(i => i).filter(j => j.problem == i.id);
-                    return <Grid item xs={12} sm={6} lg={3} key={j} >
-                        <Card elevation={3}>
-                            <Button component={RouterLink}
-                                to={`/courses/${course.course}/${course.year}/${i.id}`}
-                                onClick={() => {
-                                    setProblem(i)
-                                    onProblemChange(i);
-                                }}>
-                                <div>
-                                    <Typography gutterBottom variant="h5" component="h2">
-                                        {i.name}
-                                    </Typography>
-                                </div>
-                            </Button>
-                            <Typography variant="body2" className="card-footer" color="textSecondary" component="small">
-                                {res.length > 0 &&
-                                    <>
-                                        <div className="result-status-bar">
-                                            <span>Top 3 results: </span>
-                                            {res.map(i => {
-                                                const status = getStatus(i.result.status);
-                                                const className = `button result-status result-status-${isStatusOk(status.value)}`;
-                                                return <a
-                                                    role="button"
-                                                    onClick={() => history.push(`/r/${i.objectId}`)}
-                                                    className={className}>
-                                                    {status.letter}
-                                                </a>
-                                            })}
-                                        </div>
-                                    </>
-                                }
-                                {res.length == 0 &&
-                                    <span className="h-30">No results submitted</span>
-                                }
-                            </Typography>
-                        </Card>
-                    </Grid>
-                }
-                )}
-            </Grid>
-        </>
-    }
-
-    return <span>ok</span>
-}
 
 export const CourseProblemSelector = (props: CourseProblemSelectorProps) => {
     const [course, setCourse] = React.useState<ISingleCourse>();
@@ -216,6 +52,7 @@ export const CourseProblemSelector = (props: CourseProblemSelectorProps) => {
     const { course: urlCourse, year: urlYear, problem: urlProblem } = match.params;
     const coursesFlatten = courses.flatMap(flattenCourse);
     const courseHint = coursesFlatten.find(i => i.course == urlCourse && i.year == urlYear);
+    const user = getUser();
 
 
     useEffect(() => {
@@ -287,8 +124,28 @@ export const CourseProblemSelector = (props: CourseProblemSelectorProps) => {
             ];
         });
 
+        const invalidCourses = courses
+            .filter(i => i.errors.length > 0 && user.role == "root");
+
         return <>
             <Grid container spacing={2} className="card-select">
+                {invalidCourses.length > 0 &&
+                    invalidCourses.map(i => {
+                        return (<>
+                            <Grid key={i.name} item xs={12} sm={12} lg={12}>
+                                <Card elevation={3} style={{padding: 10, border: "2px solid red"}}>
+                                    <h3>{i.name}</h3>
+                                    <small>
+                                        <ul>
+                                            {i.errors.map((j, k) => <li><code>{j}</code></li>)}
+                                        </ul>
+                                    </small>
+                                </Card>
+                                <div className="text-right"><small><em>Visible to admins only</em></small></div>
+                                <hr />
+                            </Grid>
+                        </>);
+                    })}
                 {results}
             </Grid>
         </>
