@@ -68,6 +68,17 @@
   extension: m
   style: matlab
   run: [matlab, -nodesktop, -nosplash, -nodisplay, -r, "\"<filename-no-ext>;exit;\""]
+ 
+
+- id: MARKDOWN
+  name: Markdown
+  version: 1.0.0
+  scale-factor: 1
+  scale-start:  0.000
+  image: automatest/markdown
+  extension: md
+  style: markdown
+  run: [cat, <filename>]
 
 # ---------------------------------------------------------
 # ------------------------------------ DISABLED FOR NOW ---
