@@ -1128,7 +1128,7 @@ a.notification-item {
       @each $status,
       $color in $notifications {
         &.notification-type-#{$status} {
-          background: linear-gradient(90deg, white, $darken($color, 5));
+          background: linear-gradient(90deg, white, darken($color, 5));
         }
       }
     }
