@@ -60,11 +60,11 @@ const EventNotification = (props: EventNotificationProps) => {
   }
 
   return <>
-    <Box display="flex" flexDirection="row" style={{ gap: 10 }}>
+    <Box display="flex" flexDirection="row" style={{ gap: 10, width: "100%" }}>
       <div>
         <Avatar>{initials}</Avatar>
       </div>
-      <div>
+      <div style={{flexGrow: 1}}>
         <div className="notification-body" dangerouslySetInnerHTML={{ __html: converter.makeHtml(subject) }} />
         <Typography variant="body2" color="textSecondary" component="div" className="text-right">
           <Moment date={new Date(event.id.creationTime)} fromNow />
