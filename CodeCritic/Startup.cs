@@ -17,8 +17,11 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Threading;
+using CC.Net.Collections;
 using Cc.Net.Middlewares;
 using Cc.Net.Services;
+using MongoDB.Bson;
+using MongoDB.Driver;
 using Serilog;
 
 namespace CC.Net
@@ -94,6 +97,11 @@ namespace CC.Net
             app.UseSerilogRequestLogging();
             var logger = serviceProvider.GetService<ILogger<Startup>>();
             var hub = serviceProvider.GetService<IHubContext<LiveHub>>();
+            var dbService = serviceProvider.GetService<DbService>();
+
+            var filter = Builders<CcData>.Filter.Eq("result.status", (int) ProcessStatusCodes.Running);
+            var update = Builders<CcData>.Update.Set("result.status", (int) ProcessStatusCodes.InQueue);
+            var items = dbService.Data.UpdateMany(filter, update);
             
             new Thread (async () =>
             {
