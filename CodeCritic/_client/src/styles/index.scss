@@ -1125,11 +1125,10 @@ a.notification-item {
   &.is-new {
 
     &:hover {
-
       @each $status,
       $color in $notifications {
         &.notification-type-#{$status} {
-          background-color: darken($color, 5);
+          background: linear-gradient(90deg, white, $darken($color, 5));
         }
       }
     }
@@ -1137,7 +1136,7 @@ a.notification-item {
     @each $status,
     $color in $notifications {
       &.notification-type-#{$status} {
-        background-color: $color;
+        background: linear-gradient(90deg, white, $color);
 
         .MuiAvatar-root {
           background: darken($color, 30);
