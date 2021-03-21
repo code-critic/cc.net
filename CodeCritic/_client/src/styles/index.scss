@@ -1,5 +1,4 @@
-$statuses: (
-  answer-correct: #c0f3b3,
+$statuses: (answer-correct: #c0f3b3,
   answer-correct-timeout: #f0e097,
   ok: #efd3ff,
   running: #c6e9fa,
@@ -14,17 +13,17 @@ $statuses: (
   no-solution: #dadada,
 );
 
-$diffs: (
-  unchanged: #e6f1df,
+$diffs: (unchanged: #e6f1df,
   deleted: #ffd0d0,
   inserted: #ffd0d0,
   modified: #ffd0d0,
   1: #e6f1df,
   2: #ffd0d0,
-  // unchanged: rgb(255, 255, 255),
-  // deleted: rgb(255, 208, 208),
-  // inserted: rgb(210, 255, 208),
-  // modified: rgb(255, 208, 253),,,,,,,,,,,,,,,,,,,,,,,,,,
+);
+
+$notifications: (1: #ecec96,
+  2: #ffc7c7,
+  3: #cdf2fd,
 );
 
 @import url('https://fonts.googleapis.com/css2?family=Dosis:wght@300;500;700&display=swap');
@@ -43,6 +42,25 @@ $diffs: (
       max-width: 1840px;
     }
   }
+}
+
+a.navbar-brand {
+  white-space: normal;
+  text-align: center;
+  word-break: break-all;
+}
+
+html {
+  font-size: 14px;
+}
+@media (min-width: 768px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+.box-shadow {
+  box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .05);
 }
 
 .breadcrumb-item.form-group {
@@ -67,7 +85,7 @@ $diffs: (
     text-transform: none;
 
     .MuiButton-label {
-      > div {
+      >div {
         width: 100%;
       }
     }
@@ -76,6 +94,7 @@ $diffs: (
   .MuiButton-text {
     padding: 16px;
   }
+
   .MuiButton-label {
     text-align: center;
   }
@@ -94,6 +113,7 @@ $diffs: (
   img {
     max-width: 100%;
   }
+
   pre {
     code {
       font-size: 87.5%;
@@ -121,7 +141,9 @@ $diffs: (
 }
 
 .MuiChip-root {
-  @each $status, $color in $statuses {
+
+  @each $status,
+  $color in $statuses {
     &.chip-#{$status} {
       background-color: darken($color, 40);
       color: white;
@@ -183,7 +205,9 @@ $diffs: (
     }
 
     .status {
-      @each $status, $color in $statuses {
+
+      @each $status,
+      $color in $statuses {
         &.status-#{$status} {
           color: darken($color, 40);
           background: radial-gradient(white 35%, rgba(255, 255, 255, 0) 40%);
@@ -197,10 +221,11 @@ $diffs: (
     }
   }
 
-  & > .status {
+  &>.status {
     margin: 4px;
 
-    @each $status, $color in $statuses {
+    @each $status,
+    $color in $statuses {
       &.status-#{$status} {
         background: linear-gradient(to right, white, lighten($color, 5));
         transition: all 0.35s ease-in-out;
@@ -227,12 +252,12 @@ $diffs: (
   }
 }
 
-.small > .MuiOutlinedInput-input,
+.small>.MuiOutlinedInput-input,
 .MuiOutlinedInput-input.small {
   padding: 11px 14px;
 }
 
-.MuiTooltip-popper > .MuiTooltip-tooltip {
+.MuiTooltip-popper>.MuiTooltip-tooltip {
   font-size: 0.7rem;
 }
 
@@ -270,7 +295,8 @@ $diffs: (
       }
     }
 
-    @each $status, $color in $diffs {
+    @each $status,
+    $color in $diffs {
       &.line-#{$status} {
         background: linear-gradient(to left, white, $color);
       }
@@ -282,6 +308,7 @@ $diffs: (
   hr {
     margin: 5px 0;
   }
+
   .diff-legend-items {
     display: flex;
     align-items: stretch;
@@ -308,7 +335,8 @@ $diffs: (
         height: 20px;
         margin-right: 10px;
 
-        @each $status, $color in $diffs {
+        @each $status,
+        $color in $diffs {
           &.line-#{$status} {
             background-color: $color;
           }
@@ -379,6 +407,7 @@ $diffs: (
 
   &.with-label {
     height: 64px;
+
     &::before {
       content: attr(data-title);
       position: absolute;
@@ -479,7 +508,7 @@ div.MuiMenu-paper {
       right: 0;
     }
 
-    & > #ace-editor {
+    &>#ace-editor {
       width: 100% !important;
       height: 100% !important;
       z-index: 998;
@@ -492,6 +521,7 @@ div.MuiMenu-paper {
 
   &.dynamic-files {
     min-height: 33px;
+
     button.MuiButtonBase-root {
       min-height: 33px;
     }
@@ -520,6 +550,7 @@ div.MuiMenu-paper {
       .MuiSvgIcon-root {
         margin: 0;
       }
+
       // font-family: SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace;
     }
   }
@@ -597,6 +628,7 @@ div.MuiMenu-paper {
       min-width: 80px;
     }
   }
+
   .MuiTabs-indicator {
     background-color: #003bae;
     height: 3px;
@@ -644,6 +676,7 @@ div.MuiMenu-paper {
     &.result-status-0 {
       background-color: rgb(231, 63, 63);
     }
+
     &.result-status-1 {
       background-color: rgb(56, 185, 56);
     }
@@ -651,13 +684,14 @@ div.MuiMenu-paper {
 }
 
 .card-select {
-  .item-BeforeStart {
-  }
-  .item-Active {
-  }
+  .item-BeforeStart {}
+
+  .item-Active {}
+
   .item-ActiveLate {
     opacity: 0.75;
   }
+
   .item-AfterDeadline {
     opacity: 0.75;
   }
@@ -677,34 +711,18 @@ div.MuiMenu-paper {
     background-color: #36b423;
     box-shadow: 0px 0px 10px 2px #36b423;
   }
+
   &.state-connecting {
     background-color: #cf9c23;
     box-shadow: 0px 0px 10px 2px #cf9c23;
   }
+
   &.state-closed {
     background-color: #e90e0e;
     box-shadow: 0px 0px 10px 2px #e90e0e;
   }
 }
 
-a.notification-item {
-  min-width: 350px;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-}
-
-.notification-body {
-  p {
-    margin: 0;
-    padding: 0;
-  }
-  code {
-    font-weight: bold;
-    color: #3f51b5;
-    font-size: 100%;
-  }
-}
 
 .MuiAppBar-root.is-student {
   background: linear-gradient(90deg, #3f51b5 0%, #293a9c 100%);
@@ -726,11 +744,13 @@ a.notification-item {
     color: rgb(0, 0, 0);
     border: 1px solid #00000052;
   }
+
   &.color-a {
     .Mui-selected {
       background-color: #2b3c9e26;
     }
   }
+
   &.color-b {
     .Mui-selected {
       background-color: #9e2b6126;
@@ -779,15 +799,18 @@ a.notification-item {
 
 a.MuiButtonBase-root {
   transition: color 250ms cubic-bezier(0.4, 0, 0.2, 1);
+
   &:hover {
     .slack-icon {
       fill: #000000;
     }
   }
 }
+
 .MuiButton-endIcon.MuiButton-iconSizeSmall {
   margin-left: 2px;
 }
+
 .icon-holder {
   display: flex;
   align-items: center;
@@ -870,6 +893,7 @@ a.MuiButtonBase-root {
     }
   }
 }
+
 table.scoreboard.code-review {
   width: auto;
   margin-bottom: 24px;
@@ -885,6 +909,7 @@ table.scoreboard.code-review {
       background-color: #ececec;
     }
   }
+
   .MuiTableBody-root {
     .MuiTableCell-body {
       text-align: center;
@@ -912,6 +937,7 @@ table.scoreboard.code-review {
         background-color: #ffeffd;
         font-size: 0.9rem;
         color: #c500c6;
+
         a {
           font-size: 0.9rem;
           color: #c500c6;
@@ -922,6 +948,7 @@ table.scoreboard.code-review {
         background-color: #fff2f2;
         font-size: 0.9rem;
         color: #b90000;
+
         a {
           font-size: 0.9rem;
           color: #b90000;
@@ -931,6 +958,7 @@ table.scoreboard.code-review {
       &.pending-code-review {
         background-color: #fffae2;
         color: #735f00;
+
         a {
           color: #735f00;
         }
@@ -939,6 +967,7 @@ table.scoreboard.code-review {
       &.ok-code-review {
         background-color: #ebffe6;
         color: #007700;
+
         a {
           color: #007700;
         }
@@ -959,20 +988,174 @@ table.scoreboard.code-review {
   font-variant: small-caps;
 
   &.group-user-status-0 {
-    box-shadow: #dfd39e99  0 0 5px 2px;
+    box-shadow: #dfd39e99 0 0 5px 2px;
     border-color: #aa901d;
     color: #aa901d;
   }
 
   &.group-user-status-1 {
-    box-shadow: #94db9499  0 0 5px 2px;
+    box-shadow: #94db9499 0 0 5px 2px;
     border-color: #088f08;
     color: #088f08;
   }
 
   &.group-user-status-2 {
-    box-shadow: #ebb4b499  0 0 5px 2px;
+    box-shadow: #ebb4b499 0 0 5px 2px;
     border-color: #8f0808;
     color: #8f0808;
+  }
+}
+
+.terminal {
+  border-radius: 5px 5px 0 0;
+  position: relative;
+
+  .top {
+    background: #E8E6E8;
+    color: black;
+    padding: 5px;
+    border-radius: 5px 5px 0 0;
+  }
+
+  .bottom {
+    background: #31313a;
+    color: #fff;
+    padding: 2px 8px;
+
+    font-family: monospace;
+    font-size: 12px;
+  }
+
+  .btns {
+    position: absolute;
+    top: 7px;
+    right: 5px;
+  }
+
+  .circle {
+    width: 14px;
+    height: 14px;
+    display: inline-block;
+    border-radius: 15px;
+    margin-left: 2px;
+    border-width: 1px;
+    border-style: solid;
+  }
+
+  .body {
+    background-color: #31313a;
+    color: #fff;
+    padding: 12px;
+    overflow: auto;
+
+    font-family: monospace;
+    font-size: 11px;
+  }
+
+
+  .title {
+    text-align: center;
+  }
+
+  .red {
+    background: #EC6A5F;
+    border-color: #D04E42;
+  }
+
+  .red-text {
+    color: #E09690;
+  }
+
+  .green {
+    background: #64CC57;
+    border-color: #4EA73B;
+  }
+
+  .green-text {
+    color: #CDEE69;
+  }
+
+  .yellow {
+    background: #F5C04F;
+    border-color: #D6A13D;
+  }
+
+  .yellow-text {
+    color: #F5C04F;
+  }
+
+
+  .blue {
+    background: #9CD9F0;
+    border-color: #83c1d8;
+  }
+
+  .blue-text {
+    color: #9CD9F0;
+  }
+
+  &.shadow2 {
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, .4)
+  }
+}
+
+.MuiList-root.MuiMenu-list {
+  padding: 0;
+}
+
+a.notification-item {
+  min-width: 350px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  background: #ffffff;
+  transition: background-color 200ms ease-in-out;
+  margin: 8px;
+
+  &.is-old {
+    background: #fff;
+    opacity: 0.5;
+
+    &:hover {
+      opacity: 0.6;
+      background: #eee;
+    }
+  }
+
+  &.is-new {
+
+    &:hover {
+
+      @each $status,
+      $color in $notifications {
+        &.notification-type-#{$status} {
+          background-color: darken($color, 5);
+        }
+      }
+    }
+
+    @each $status,
+    $color in $notifications {
+      &.notification-type-#{$status} {
+        background-color: $color;
+
+        .MuiAvatar-root {
+          background: darken($color, 30);
+        }
+      }
+    }
+  }
+
+  .notification-body {
+    p {
+      margin: 0;
+      padding: 0;
+    }
+
+    code {
+      font-weight: bold;
+      color: #3f51b5;
+      font-size: 100%;
+    }
   }
 }

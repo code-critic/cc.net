@@ -27,7 +27,7 @@ namespace CC.Net.Controllers
     [ApiController]
     [Route("api")]
     [Authorize]
-    public class ApiConfigController: ControllerBase
+    public partial class ApiConfigController : ControllerBase
     {
         private readonly CourseService _courseService;
         private readonly LanguageService _languageService;
@@ -43,7 +43,7 @@ namespace CC.Net.Controllers
             ProblemDescriptionService problemDescriptionService, AppOptions appOptions,
             CompareService compareService, IHttpContextAccessor httpContextAccessor, UserService userService,
             UtilService utilService
-            )
+        )
         {
             _courseService = courseService;
             _languageService = languageService;
@@ -55,19 +55,12 @@ namespace CC.Net.Controllers
             _utilService = utilService;
         }
 
-        [HttpGet("courses")]
-        [UseCache(timeToLiveSeconds: 30, perUser: true)]
-        public IActionResult Courses()
-        {
-            return Ok(_courseService.GetAllowedCoursesForUser(_userService.CurrentUser));
-        }
-        
         [HttpGet("test-config/{courseName}/{courseYear}")]
         public object GetTestYaml(string courseName, string courseYear)
         {
             var course = _courseService.GetCourseForUser(_userService.CurrentUser, courseName);
             var yearConfig = course[courseYear];
-            return new { data = yearConfig.Yaml };
+            return new {data = yearConfig.Yaml};
         }
 
         [HttpGet("courses-full/{courseName}/{courseYear}")]
@@ -94,7 +87,7 @@ namespace CC.Net.Controllers
         }
 
         [HttpGet("languages")]
-        [UseCache(timeToLiveSeconds:60 * 60)]
+        [UseCache(timeToLiveSeconds: 60 * 60)]
         public IActionResult Languages()
         {
             return Ok(_languageService.Languages);
@@ -141,46 +134,48 @@ namespace CC.Net.Controllers
             var ids = students.Select(i => i.id).ToList();
             var items = _dbService.Data
                 .Find(i => (ids.Contains(i.User) || ids.Any(j => i.GroupUsers.Contains(i.User)))
-                    && i.CourseName == course.Name
-                    && i.CourseYear == yearConfig.Year
-                    && i.Problem == problem.Id
-                    && i.ReviewRequest != null)
+                           && i.CourseName == course.Name
+                           && i.CourseYear == yearConfig.Year
+                           && i.Problem == problem.Id
+                           && i.ReviewRequest != null)
                 .ToList()
                 .OrderByDescending(i => i.Id.CreationTime)
-                    .ThenByDescending(i => i.Points)
-                        .ThenByDescending(i => i.Result.Score)
+                .ThenByDescending(i => i.Points)
+                .ThenByDescending(i => i.Result.Score)
                 .ToList();
 
             var bestResults = new List<GradeDto>();
-            foreach(var student in students)
+            foreach (var student in students)
             {
                 var best = items.FirstOrDefault(i => i.User == student.id || i.GroupUsers.Contains(student.id));
-                if(best == null)
+                if (best == null)
                 {
                     var userItems = _dbService.Data
                         .Find(i => (ids.Contains(i.User) || ids.Any(j => i.GroupUsers.Contains(i.User)))
-                            && i.CourseName == course.Name
-                            && i.CourseYear == yearConfig.Year
-                            && i.Problem == problem.Id
-                            && i.ReviewRequest == null
-                            && (i.User == student.id || i.GroupUsers.Contains(student.id))
-                            && (i.Result.Status == (int)ProcessStatusCodes.AnswerCorrect 
-                                || i.Result.Status == (int)ProcessStatusCodes.AnswerCorrectTimeout
-                                || i.Result.Status == (int)ProcessStatusCodes.AnswerWrong
-                                || i.Result.Status == (int)ProcessStatusCodes.AnswerWrongTimeout
-                            ))
+                                   && i.CourseName == course.Name
+                                   && i.CourseYear == yearConfig.Year
+                                   && i.Problem == problem.Id
+                                   && i.ReviewRequest == null
+                                   && (i.User == student.id || i.GroupUsers.Contains(student.id))
+                                   && (i.Result.Status == (int) ProcessStatusCodes.AnswerCorrect
+                                       || i.Result.Status == (int) ProcessStatusCodes.AnswerCorrectTimeout
+                                       || i.Result.Status == (int) ProcessStatusCodes.AnswerWrong
+                                       || i.Result.Status == (int) ProcessStatusCodes.AnswerWrongTimeout
+                                   ))
                         .ToList()
                         .OrderByDescending(i => i.Points)
-                            .ThenByDescending(i => i.Result.Score)
+                        .ThenByDescending(i => i.Result.Score)
                         .ToList();
                     best = userItems.FirstOrDefault();
                 }
+
                 bestResults.Add(new GradeDto
                 {
                     Result = best ?? GradeDto.EmptyResult(course, yearConfig, problem, student),
                     User = student
                 });
             }
+
             return bestResults;
         }
 
@@ -207,12 +202,12 @@ namespace CC.Net.Controllers
             var problems = visibleProblems.Select(i => i.Id).ToList();
             var results = _dbService.Data
                 .Find(i => (i.User == currentUser || i.GroupUsers.Contains(currentUser))
-                    && i.CourseName == course.Name
-                    && i.CourseYear == yearConfig.Year
-                    && problems.Contains(i.Problem))
+                           && i.CourseName == course.Name
+                           && i.CourseYear == yearConfig.Year
+                           && problems.Contains(i.Problem))
                 .ToList()
                 .OrderByDescending(i => i.Result.Score)
-                    .ThenByDescending(i => i.Attempt)
+                .ThenByDescending(i => i.Attempt)
                 .GroupBy(i => i.Problem)
                 .Select(i => i.Take(3).ToList())
                 .ToList();
@@ -259,7 +254,7 @@ namespace CC.Net.Controllers
             var oid = new ObjectId(item.objectId);
             var ccData = await _dbService.DataSingleOrDefaultAsync(oid);
             var sender = _userService.CurrentUser.Id;
-            var recipients = await _utilService.GetUsersRelatedToResult(ccData);
+            var recipients = _utilService.GetUsersRelatedToResult(ccData);
 
             ccData.Points = item.points;
             ccData.GradeComment = item.comment;
@@ -270,22 +265,15 @@ namespace CC.Net.Controllers
 
             if (result.IsAcknowledged)
             {
-                recipients.ForEach(async recipient =>
-                {
-                    if (sender != recipient)
+                await _utilService.SendNotificationAsync(recipients,
+                    new CcEvent
                     {
-                        await _dbService.Events.InsertOneAsync(new CcEvent
-                        {
-                            Id = ObjectId.GenerateNewId(),
-                            ResultId = oid,
-                            Type = CcEventType.NewGrade,
-                            Subject = $"`[{ccData.CourseName}]`: Recieved `{item.points}%` in problem `{ccData.Problem}`",
-                            IsNew = true,
-                            Sender = sender,
-                            Reciever = recipient,
-                        });
-                    }
-                });
+                        ResultId = oid,
+                        Type = CcEventType.NewGrade,
+                        IsNew = true,
+                        Subject = $"**[{ccData.CourseName}]**: Received **{item.points}%** in problem **{ccData.Problem}**",
+                        Sender = sender,
+                    });
             }
 
             return new
@@ -312,7 +300,7 @@ namespace CC.Net.Controllers
         [UseCache(timeToLiveSeconds: 60)]
         public IActionResult BrowseDir(string objectId, string dir)
         {
-            var allowed = new string[] { "input", "output", "error", "reference" };
+            var allowed = new string[] {"input", "output", "error", "reference"};
             var data = _dbService.Data
                 .Find(i => i.Id == new ObjectId(objectId))
                 .First();

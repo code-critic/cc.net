@@ -13,6 +13,8 @@ import { StudentResultsDialogForTeacher } from './StudentResultsDialog';
 import { useOpenClose } from '../utils/StateUtils';
 import { RenderSolution } from '../utils/renderers';
 import { Container } from '@material-ui/core';
+import { useParams } from 'react-router';
+import { API } from '../api';
 
 
 interface SingleResultProps {
@@ -33,33 +35,48 @@ interface Match<P> {
 }
 
 export const SingleResult = (props: SingleResultProps) => {
-    const { match } = props;
+    const params = useParams<any>();
+    const objectId = params.objectId;
 
-    const [result, setResult] = useState<ICcData>();
+    const [result, setResult] = useState<ICcData | false>();
     const [languages, setLanguages] = React.useState<ILanguage[]>([]);
     const [items, setItems] = React.useState(commentService.items);
     const [discardDialog, setDiscardDialog] = React.useState(false);
     const [user, setUser] = React.useState(getUser());
     const [rng, setRng] = React.useState(Math.random());
     const [isOpen, openDialog, closeDialog] = useOpenClose(true);
-
-    useEffect(() => {
-        if (!result) {
-            new ApiResource<ICcData>(`result/${match.params.objectId}`, false)
-                .load()
-                .then(data => {
-                    setResult(data as any);
-                })
-
-            new ApiResource<ILanguage>("languages", false).load()
-                .then(setLanguages);
-        }
-    }, [result]);
-
+    const [ft, setFt] = useState(true);
 
     const refresh = () => {
         setRng(Math.random());
     }
+
+    useEffect(() => {
+        (async () => {
+            try {
+                const axiosResponseD = await API.get<ICcData>(`result/${objectId}`);
+                setResult(axiosResponseD.data);
+            } catch (error) {
+                setResult(false);
+            }
+
+            if (!languages.length) {
+                const axiosResponseL = await API.get<ILanguage[]>(`languages`);
+                setLanguages(axiosResponseL.data);
+            }
+        })();
+    }, [rng]);
+
+    useEffect(() => {
+        console.log(objectId);
+        
+        if (!ft) {
+            refresh();
+        }
+        setFt(false);
+    }, [objectId]);
+
+
 
     appDispatcher.register((payload: any) => {
         if (payload.actionType == "commentServiceChanged") {
@@ -70,7 +87,9 @@ export const SingleResult = (props: SingleResultProps) => {
         }
     });
 
-
+    if (result === false) {
+        return <div>Result does not exists or you do not have permission to view it.</div>
+    }
 
     if (!result || !user.role) {
         return <SimpleLoader />
@@ -106,15 +125,15 @@ export const SingleResult = (props: SingleResultProps) => {
 
     if (user.role === "root") {
         return <Container>
-            {isOpen && 
+            {isOpen &&
                 <StudentResultsDialogForTeacher
-                onClose={closeDialog}
-                result={result}
-                onRefresh={refresh}
+                    onClose={closeDialog}
+                    result={result}
+                    onRefresh={refresh}
                 />
             }
             <Button variant="contained" color="primary" onClick={openDialog}>Open Grade Dialog</Button>
-            <RenderSolution result={result}/>
+            <RenderSolution result={result} />
         </Container>
     }
     return <span>unknown role</span>

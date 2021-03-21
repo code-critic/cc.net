@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using Cc.Net.Apis;
 using Cc.Net.Dto;
 using CC.Net.Collections;
 using CC.Net.Controllers;
@@ -65,6 +66,8 @@ namespace CC.Net
                         .For<GradeDto>()
                         .For<StudentScoreboardCourse>()
                         .For<CcGroup>()
+                        
+                        .For<ApiError>()
 
                         .For<DiffResult>()
                         .For<AppUser>()

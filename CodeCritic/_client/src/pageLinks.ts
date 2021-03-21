@@ -3,6 +3,8 @@ import { StudentResultList } from "./routes/StudentResultList";
 import { Graderesults } from "./components/gradeResults";
 import { GlobalStats } from "./components/GlobalStats";
 import { StudentScoreboard } from "./comp/StudentScoreboard";
+import { ProblemPicker } from "./comp/ProblemPicker";
+import { SubmitSolutionWithComponent } from "./comp/SubmitSolution";
 
 export interface IPageLink<T> {
     title: string;
@@ -60,6 +62,7 @@ export const pageLinks: IPageLink<any>[] = [
         path: "/courses/:course?/:year?/:problem?",
         exact: false,
         component: SolutionSubmit,
+        // component: SubmitSolutionWithComponent,
         rootOnly: false,
     }
 ];

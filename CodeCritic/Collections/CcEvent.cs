@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using cc.net.Collections;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
@@ -13,7 +14,7 @@ namespace CC.Net.Collections
     }
 
     [BsonIgnoreExtraElements]
-    public class CcEvent
+    public class CcEvent : IObjectId
     {
         [BsonId]
         [BsonElement("_id")]
@@ -61,5 +62,20 @@ namespace CC.Net.Collections
 
         [BsonElement("isNew")]
         public bool IsNew { get; set; }
+
+        public CcEvent Clone()
+        {
+            return new CcEvent
+            {
+                Id = MongoDB.Bson.ObjectId.GenerateNewId(),
+                Content = Content,
+                Sender = Sender,
+                Reciever = Reciever,
+                Subject = Subject,
+                Type = Type,
+                IsNew = IsNew,
+                ResultId = ResultId
+            };
+        }
     }
 }

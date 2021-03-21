@@ -342,6 +342,10 @@
 		result: ICcData;
 		user: IUser;
 	}
+	interface IApiError {
+		errors: string[];
+		name: string;
+	}
 	export const enum ChangeType {
 		Unchanged = 0,
 		Deleted = 1,

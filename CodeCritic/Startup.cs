@@ -9,7 +9,6 @@ using CC.Net.Services.Courses;
 using CC.Net.Services.Languages;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
 using Microsoft.Extensions.Configuration;
@@ -18,8 +17,8 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Threading;
-using System.Threading.Tasks;
 using Cc.Net.Middlewares;
+using Cc.Net.Services;
 using Serilog;
 
 namespace CC.Net
@@ -56,6 +55,7 @@ namespace CC.Net
             services.AddScoped<UserService>();
             services.AddScoped<UtilService>();
             services.AddSingleton<CacheContentService>();
+            services.AddSingleton<NotificationFlag>();
             services.AddHostedService<ProcessService>();
             services.AddHostedService<NotificationService>();
             services.AddHttpContextAccessor();

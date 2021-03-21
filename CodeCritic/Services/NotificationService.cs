@@ -8,6 +8,7 @@ using CC.Net.Config;
 using CC.Net.Db;
 using CC.Net.Extensions;
 using CC.Net.Hubs;
+using Cc.Net.Services;
 using CC.Net.Services.Courses;
 using CC.Net.Services.Languages;
 using CC.Net.Utils;
@@ -26,7 +27,8 @@ namespace CC.Net.Services
         private readonly IServiceScopeFactory _serviceProvider;
         private readonly AppOptions _appOptions;
 
-        public NotificationService(ILogger<NotificationService> logger, IServiceScopeFactory serviceProvider, AppOptions appOptions)
+        public NotificationService(ILogger<NotificationService> logger, IServiceScopeFactory serviceProvider,
+            AppOptions appOptions)
         {
             _logger = logger;
             _serviceProvider = serviceProvider;
@@ -45,7 +47,7 @@ namespace CC.Net.Services
                     await DoWork();
                     await Task.Delay(5 * 1000, stoppingToken);
                 }
-            });
+            }, stoppingToken);
         }
 
         private async Task DoWork()
@@ -53,35 +55,49 @@ namespace CC.Net.Services
             using (var scope = _serviceProvider.CreateScope())
             {
                 var provider = scope.ServiceProvider;
-                var dbService = provider.GetService<DbService>();
-                var hub = provider.GetService<IHubContext<LiveHub>>();
-                var idService = provider.GetService<IdService>();
-
-                var allNotifications = await dbService.Events
-                    .Find(i => true)
-                    .SortByDescending(i => i.Id)
-                    .ToListAsync();
-
-                var remaining = idService.All;
-                foreach (var notificationGroup in allNotifications.GroupBy(i => i.Reciever))
+                var notificationFlag = provider.GetService<NotificationFlag>();
+                
+                if (notificationFlag.WasTouched())
                 {
-                    var ids = idService[notificationGroup.Key];
-                    remaining.RemoveAll(i => i == notificationGroup.Key);
+                    var dbService = provider.GetService<DbService>();
+                    var hub = provider.GetService<IHubContext<LiveHub>>();
+                    var idService = provider.GetService<IdService>();
 
-                    var channels = hub.Clients.Clients(ids);
-                    var notifications = notificationGroup.ToList();
-                    await channels.NewNotification(notifications);
+                    var minDate = DateTime.Now.Subtract(TimeSpan.FromDays(30));
+                    var minId = new ObjectId(minDate, 0, 0, 0);
+                    var allNotifications = await dbService.Events
+                        .Find(i => i.Id > minId)
+                        .SortByDescending(i => i.Id)
+                        .ToListAsync();
+
+                    allNotifications = allNotifications
+                        .OrderByDescending(i => i.Id.CreationTime)
+                        .ThenBy(i => i.IsNew ? 0 : 1)
+                        .ToList();
+
+                    var remaining = idService.All;
+                    foreach (var notificationGroup in allNotifications.GroupBy(i => i.Reciever))
+                    {
+                        var ids = idService[notificationGroup.Key];
+                        remaining.RemoveAll(i => i == notificationGroup.Key);
+
+                        var channels = hub.Clients.Clients(ids);
+                        var notifications = notificationGroup.Take(10).ToList();
+                        await channels.NewNotification(notifications);
+                    }
+
+                    foreach (var id in remaining)
+                    {
+                        var ids = idService[id];
+                        var channels = hub.Clients.Clients(ids);
+                        await channels.NewNotification(new List<CcEvent>());
+                    }
+
+                    var itemsCount =
+                        await dbService.Data.CountDocumentsAsync(i => i.Result.Status == ProcessStatus.InQueue.Value);
+                    await hub.Clients.All.QueueStatus(new string[itemsCount]);
+                    notificationFlag.Clear();
                 }
-
-                foreach(var id in remaining)
-                {
-                    var ids = idService[id];
-                    var channels = hub.Clients.Clients(ids);
-                    await channels.NewNotification(new List<CcEvent>{ });
-                }
-
-                var itemsCount = await dbService.Data.CountDocumentsAsync(i => i.Result.Status == ProcessStatus.InQueue.Value);
-                await hub.Clients.All.QueueStatus(new string[itemsCount]);
             }
         }
     }

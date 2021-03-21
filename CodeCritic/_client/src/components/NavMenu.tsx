@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from 'react';
-// import { Collapse, Container, Navbar, NavbarBrand, NavbarToggler, NavItem, NavLink } from 'reactstrap';
-import { NavLink, Link } from 'react-router-dom';
-import './NavMenu.css';
+import { Link } from 'react-router-dom';
 import { pageLinks } from '../pageLinks';
 import { getUser, appDispatcher, commentService, updateUser, httpClient, userIsRoot, userCanBeRoot } from '../init';
-import { AppBar, Toolbar, IconButton, Typography, Button, Menu, MenuItem, Badge, Tooltip } from '@material-ui/core';
+import { AppBar, Toolbar, IconButton, Typography, Button, Menu, MenuItem, Badge, Tooltip, Box, Avatar } from '@material-ui/core';
 import CodeIcon from '@material-ui/icons/Code';
 import AccountCircleIcon from '@material-ui/icons/AccountCircle';
 import NotificationsIcon from '@material-ui/icons/Notifications';
@@ -38,29 +36,42 @@ const converter = new Showdown.Converter({
 
 const EventNotification = (props: EventNotificationProps) => {
   const { event, groupCount } = props;
+  const { sender } = event;
+  const initials = (sender || "")
+    .split(".", 2)
+    .map(i => i.charAt(0))
+    .join("")
+    .toUpperCase();
+
   let subject = event.subject;
 
   if (!subject) {
     switch (event.type as number) {
       case CcEventType.NewCodeReview:
-        subject = `\`Code Review\` request from \`${event.sender}\``;
+        subject = `**Code Review** request from **${event.sender}**`;
         break;
       case CcEventType.NewComment:
-        subject = `\`New comment\` from \`${event.sender}\``;
+        subject = `**New comment** from **${event.sender}**`;
         break;
       case CcEventType.NewGrade:
-        subject = `\`New Grade\` recieved from \`${event.sender}\``;
+        subject = `**New Grade** recieved from **${event.sender}**`;
         break;
     }
   }
 
   return <>
-    <div className="notification-body" dangerouslySetInnerHTML={{ __html: converter.makeHtml(subject) }} />
-
-    <Typography variant="body2" color="textSecondary" component="div" style={{ textAlign: "right" }}>
-      <Moment date={new Date(event.id.creationTime)} fromNow />
-      {(groupCount && groupCount > 1) && <span> ({groupCount} notifications)</span>}
-    </Typography>
+    <Box display="flex" flexDirection="row" style={{ gap: 10 }}>
+      <div>
+        <Avatar>{initials}</Avatar>
+      </div>
+      <div>
+        <div className="notification-body" dangerouslySetInnerHTML={{ __html: converter.makeHtml(subject) }} />
+        <Typography variant="body2" color="textSecondary" component="div" className="text-right">
+          <Moment date={new Date(event.id.creationTime)} fromNow />
+          {(groupCount && groupCount > 1) && <span> ({groupCount} notifications)</span>}
+        </Typography>
+      </div>
+    </Box>
   </>
 }
 
@@ -138,6 +149,7 @@ export const NavMenu = (props: NavMenuProps) => {
   const notificationsMenuId = 'primary-search-notifications-menu';
   const onlineUserMenuId = 'online-user-menu';
   const notifByData = groupBy(notifications, i => i.resultObjectId);
+  const notifNewCount = groupBy(notifications.filter(i => i.isNew), i => i.resultObjectId);
   const renderMenu = (
     <>
       <Menu
@@ -157,7 +169,7 @@ export const NavMenu = (props: NavMenuProps) => {
             updateUser(user);
             handleMenuClose();
           }}>
-          <SecurityIcon />Switch to role student
+            <SecurityIcon />Switch to role student
         </MenuItem>
         }
         {isRoot &&
@@ -182,7 +194,7 @@ export const NavMenu = (props: NavMenuProps) => {
             updateUser(user);
             handleMenuClose();
           }}>
-          <SecurityIcon />Switch back to root
+            <SecurityIcon />Switch back to root
         </MenuItem>
         }
         <MenuItem component={Link} to={"/manage-groups"} onClick={handleMenuClose}>
@@ -210,7 +222,7 @@ export const NavMenu = (props: NavMenuProps) => {
         {[...notifByData.entries()].map(entry => {
           const [_, items] = entry;
           const i = items[0];
-          return <MenuItem className="notification-item" key={i.objectId}
+          return <MenuItem className={`notification-item ${i.isNew ? "is-new" : "is-old"} notification-type-${i.type}`} key={i.objectId}
             onClick={() => handleNotificationClose(i)}
             component={Link}
             to={`/r/${i.resultObjectId}`}>
@@ -281,7 +293,7 @@ export const NavMenu = (props: NavMenuProps) => {
           aria-haspopup="true"
           aria-controls={notificationsMenuId}
           onClick={handleProfileMenuOpen}>
-          <Badge badgeContent={notifByData.size} color={badgeColor}>
+          <Badge badgeContent={notifNewCount.size} color={badgeColor}>
             <NotificationsIcon />
           </Badge>
         </IconButton>

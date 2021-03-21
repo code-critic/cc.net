@@ -19,14 +19,13 @@ namespace CC.Net.Controllers
     {
         private readonly DbService _dbService;
         private readonly UserService _userService;
-        private readonly CourseService _courseService;
         private readonly UtilService _utilService;
 
-        public CommentsController(DbService dbService, UserService userService, CourseService courseService, UtilService utilService)
+        public CommentsController(DbService dbService, UserService userService, CourseService courseService,
+            UtilService utilService)
         {
             _dbService = dbService;
             _userService = userService;
-            _courseService = courseService;
             _utilService = utilService;
         }
 
@@ -36,7 +35,8 @@ namespace CC.Net.Controllers
             var user = _userService.CurrentUser.Id;
             var oid = new ObjectId(objectId);
             var ccEvent = (await _dbService.Events.FindAsync(i => i.Id == oid)).FirstOrDefault();
-            var deletedCount = await _utilService.MarkNotificationAsReadAsync(ccEvent) + await _utilService.MarkNotificationAsReadAsync(ccEvent?.ResultId, user);
+            var deletedCount = await _utilService.MarkNotificationAsReadAsync(ccEvent) +
+                               await _utilService.MarkNotificationAsReadAsync(ccEvent?.ResultId, user);
 
             return new
             {
@@ -53,27 +53,20 @@ namespace CC.Net.Controllers
 
             // generate notifications
             var ccData = await _dbService.DataSingleOrDefaultAsync(oid);
-            var recipients = await _utilService.GetUsersRelatedToResult(ccData);
+            var recipients = _utilService.GetUsersRelatedToResult(ccData);
 
-            foreach (var recipient in recipients)
-            {
-                if (sender != recipient)
+            await _utilService.SendNotificationAsync(recipients,
+                new CcEvent
                 {
-                    await _dbService.Events.InsertOneAsync(new CcEvent
-                    {
-                        Id = ObjectId.GenerateNewId(),
-                        ResultId = oid,
-                        Type = CcEventType.NewComment,
-                        IsNew = true,
-                        Sender = sender,
-                        Reciever = recipient,
-                    });
-                }
-            }
+                    ResultId = oid,
+                    Type = CcEventType.NewCodeReview,
+                    IsNew = true,
+                    Sender = sender,
+                });
 
             ccData.ReviewRequest = System.DateTime.Now;
             var result = await _dbService.Data.ReplaceOneAsync(i => i.Id == oid, ccData);
-            var updated = (int)result.ModifiedCount;
+            var updated = (int) result.ModifiedCount;
 
             return new
             {
@@ -92,7 +85,7 @@ namespace CC.Net.Controllers
 
             data.ReviewRequest = null;
             var result = await _dbService.Data.ReplaceOneAsync(i => i.Id == oid, data);
-            var updated = (int)result.ModifiedCount;
+            var updated = (int) result.ModifiedCount;
 
             return new
             {
@@ -102,13 +95,13 @@ namespace CC.Net.Controllers
         }
 
         [HttpPost("comments")]
-        public async Task<object> PostComments(IEnumerable<CommentServiceItem> items)
+        public async Task<object> PostComments(IList<CommentServiceItem> items)
         {
             var sender = _userService.CurrentUser.Id;
             var updated = 0;
             if (items.Any())
             {
-                var data = (CcData) null;
+                CcData data;
                 foreach (var item in items)
                 {
                     item.comment.User = sender;
@@ -117,28 +110,21 @@ namespace CC.Net.Controllers
                     data.Comments.Add(item.comment);
 
                     var result = await _dbService.Data.ReplaceOneAsync(i => i.Id == objectId, data);
-                    updated += (int)result.ModifiedCount;
+                    updated += (int) result.ModifiedCount;
                 }
 
                 var oid = new ObjectId(items.First().objectId);
                 var ccData = await _dbService.DataSingleOrDefaultAsync(oid);
-                var recipients = await _utilService.GetUsersRelatedToResult(ccData);
-
-                foreach (var recipient in recipients)
-                {
-                    if (sender != recipient)
+                var recipients = _utilService.GetUsersRelatedToResult(ccData);
+                
+                await _utilService.SendNotificationAsync(recipients,
+                    new CcEvent
                     {
-                        await _dbService.Events.InsertOneAsync(new CcEvent
-                        {
-                            Id = ObjectId.GenerateNewId(),
-                            ResultId = oid,
-                            Type = CcEventType.NewComment,
-                            IsNew = true,
-                            Sender = sender,
-                            Reciever = recipient,
-                        });
-                    }
-                }
+                        ResultId = oid,
+                        Type = CcEventType.NewComment,
+                        IsNew = true,
+                        Sender = sender,
+                    });
             }
 
             return new

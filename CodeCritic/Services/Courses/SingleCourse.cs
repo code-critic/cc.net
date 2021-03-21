@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Cc.Net.Apis;
 
 namespace CC.Net.Services.Courses
 {

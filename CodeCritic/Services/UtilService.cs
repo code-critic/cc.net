@@ -9,6 +9,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using cc.net.Extensions;
+using Cc.Net.Services;
 using static CC.Net.Collections.CcData;
 
 namespace CC.Net.Services
@@ -19,12 +21,16 @@ namespace CC.Net.Services
         private readonly UserService _userService;
         private readonly CourseService _courseService;
         private readonly LanguageService _languageService;
+        private readonly NotificationFlag _notificationFlag;
 
-        public UtilService(DbService dbService, UserService userService, CourseService courseService, LanguageService languageService)
+        public UtilService(DbService dbService, UserService userService, CourseService courseService,
+            LanguageService languageService, NotificationFlag notificationFlag)
         {
             _dbService = dbService;
             _userService = userService;
             _courseService = courseService;
+            _languageService = languageService;
+            _notificationFlag = notificationFlag;
         }
 
         public CcData ConvertToExtendedSimple(CcData item) {
@@ -92,8 +98,10 @@ namespace CC.Net.Services
         {
             if (ccEvent != null)
             {
-                var result = await _dbService.Events.DeleteOneAsync(i => i.Id == ccEvent.Id);
-                return result.DeletedCount;
+                var notifications = await _dbService.Events.FindAsync(i => i.Id == ccEvent.Id);
+                var result = await _dbService.Events.MarkAsReadAsync(notifications);
+                _notificationFlag.TouchIf(result);
+                return result;
             }
 
             return 0L;
@@ -103,21 +111,39 @@ namespace CC.Net.Services
         {
             if (resultId.HasValue)
             {
-                var result = await _dbService.Events.DeleteManyAsync(i => i.Reciever == user && i.ResultId == resultId.Value);
-                return result.DeletedCount;
+                var notifications = await _dbService.Events.FindAsync(i => i.Reciever == user && i.ResultId == resultId.Value);
+                var result = await _dbService.Events.MarkAsReadAsync(notifications);
+                _notificationFlag.TouchIf(result);
+                return result;
             }
 
             return 0L;
         }
 
-        public async Task<List<string>> GetUsersRelatedToResult(string objectId)
+        public IEnumerable<CcEvent> CreateNotifications(List<string> recipients, CcEvent template)
         {
-            var oid = new ObjectId(objectId);
-            var ccData = await _dbService.DataSingleOrDefaultAsync(oid);
-            return await GetUsersRelatedToResult(ccData);
+            var sender = template.Sender;
+            foreach (var recipient in recipients)
+            {
+                if (sender == recipient) continue;
+                var copy = template.Clone();
+                copy.Reciever = recipient;
+                yield return copy;
+            }
         }
 
-        public async Task<List<string>> GetUsersRelatedToResult(CcData ccData)
+        public async Task SendNotificationAsync(List<string> recipients, CcEvent template)
+        {
+            var notifications = CreateNotifications(recipients, template).ToList();
+            _notificationFlag.TouchIf(notifications.Count);
+            
+            if (notifications.Any())
+            {
+                await _dbService.Events.InsertManyAsync(notifications);
+            }
+        }
+
+        public List<string> GetUsersRelatedToResult(CcData ccData)
         {
             var sender = _userService.CurrentUser.Id;
 

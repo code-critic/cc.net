@@ -8,6 +8,7 @@ using CC.Net.Collections;
 using CC.Net.Db;
 using CC.Net.Dto;
 using CC.Net.Extensions;
+using Cc.Net.Services;
 using CC.Net.Services;
 using CC.Net.Services.Courses;
 using CC.Net.Services.Languages;
@@ -27,9 +28,12 @@ namespace CC.Net.Hubs
         private readonly LanguageService _languageService;
         private readonly CourseService _courseService;
         private readonly UserService _userService;
+        private readonly NotificationFlag _notificationFlag;
         private readonly ILogger<LiveHub> _logger;
 
-        public LiveHub(DbService dBService, IdService idService, LanguageService languageService, CourseService courseService, UserService userService, ILogger<LiveHub> logger)
+        public LiveHub(DbService dBService, IdService idService, LanguageService languageService,
+            CourseService courseService, UserService userService, NotificationFlag notificationFlag,
+            ILogger<LiveHub> logger)
         {
             _dbService = dBService;
             _idService = idService;
@@ -37,6 +41,7 @@ namespace CC.Net.Hubs
             _courseService = courseService;
             _userService = userService;
             _logger = logger;
+            _notificationFlag = notificationFlag;
         }
 
         public override Task OnDisconnectedAsync(Exception exception)
@@ -48,6 +53,7 @@ namespace CC.Net.Hubs
         public async Task RegisterUser(string username)
         {
             _logger.LogInformation("Hub register user: {Username}", username);
+            _notificationFlag.Touch();
             _idService.SaveUser(username, Context.ConnectionId);
         }
 
