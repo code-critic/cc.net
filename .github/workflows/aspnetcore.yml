@@ -4,8 +4,8 @@ on:
   push:
     branches: [ master ]
     
-  pull_request:
-    branches: [ master ]
+#  pull_request:
+#    branches: [ master ]
 
 jobs:
   build:
@@ -23,7 +23,7 @@ jobs:
       working-directory: CodeCritic
       run: dotnet build -c Release
       
-    - name: Test
+    - name: Publish
       working-directory: CodeCritic
       run: dotnet publish -c Release -o ccnetapp
       

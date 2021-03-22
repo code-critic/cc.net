@@ -80,7 +80,7 @@ namespace CC.Net
             });
         }
 
-        private void WaitForKey (ConsoleKey key)
+        private static void WaitForKey (ConsoleKey key)
         {
             while (true)
             {
@@ -153,7 +153,6 @@ namespace CC.Net
             app.UseSpa(spa =>
             {
                 spa.Options.SourcePath = "_client";
-                spa.Options.DefaultPage = "/Home/Index";
 
                 if (env.IsDevelopment())
                 {
