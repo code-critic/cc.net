@@ -102,7 +102,6 @@ namespace CC.Net.Services
         {
             _appOptions = appOptions;
             _logger = logger;
-            _appOptions.AESKey = "SXVSqERWLUqchC2h";
         }
 
         public AppUser Decrypt(string data)
