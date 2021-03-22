@@ -20,16 +20,19 @@ jobs:
         dotnet-version: 3.1.x
 
     - name: Build & Resotore
+      working-directory: CodeCritic
       run: dotnet build -c Release
       
     - name: Test
+      working-directory: CodeCritic
       run: dotnet publish -c Release -o ccnetapp
       
     - name: Tar
+      working-directory: CodeCritic
       run: tar -zcvf ccnetapp.tar.gz ccnetapp
 
     - name: Upload Artifact
       uses: actions/upload-artifact@v2
       with:
         name: ccnetapp
-        path: ccnetapp.tar.gz
+        path: CodeCritic/ccnetapp.tar.gz
