@@ -25,7 +25,7 @@ jobs:
       
     - name: CRA
       working-directory: CodeCritic/_client
-      run: npm install -g create-react-app node-sass-chokidar
+      run: sudo npm install -g create-react-app node-sass-chokidar
 
     - name: Publish
       working-directory: CodeCritic
