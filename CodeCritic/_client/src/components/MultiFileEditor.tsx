@@ -1,21 +1,12 @@
+import { IconButton } from '@material-ui/core';
+import { AppBar, Box, Dialog, DialogContent, DialogTitle, Tab, Tabs, TextField} from '@material-ui/core';
+
+import AddIcon from '@material-ui/icons/Add';
 import React from 'react';
-import PropTypes from 'prop-types';
-import Tabs from '@material-ui/core/Tabs';
-import Box from '@material-ui/core/Box';
-import Typography from '@material-ui/core/Typography';
-import AppBar from '@material-ui/core/AppBar';
-import Tab from '@material-ui/core/Tab';
-import { FileChooser, IFile } from "../components/FileChooser";
-import { FileEditor } from './FileEditor';
+import { IFile } from "../components/FileChooser";
 import { MultiFileModel } from '../routes/SolutionSubmit.Form';
 import { openCloseState } from '../utils/StateUtils';
-import Dialog from '@material-ui/core/Dialog';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogTitle from '@material-ui/core/DialogTitle';
-import FormControl from '@material-ui/core/FormControl';
-import TextField from '@material-ui/core/TextField';
-import AddIcon from '@material-ui/icons/Add';
-import { IconButton, Button } from '@material-ui/core';
+import { FileEditor } from './FileEditor';
 
 interface MultiFileEditorProps {
     maxFiles?: number
@@ -57,7 +48,7 @@ export const MultiFileEditor = (props: MultiFileEditorProps) => {
 
     }
     const addNewFile = () => {
-        if(!files.find(i => i.path === newName)) {
+        if (!files.find(i => i.path === newName)) {
             closeDialog();
             updateFile(files.length, newName);
         }

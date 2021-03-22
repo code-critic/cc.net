@@ -1,10 +1,7 @@
+import { StudentScoreboard } from "./comp/StudentScoreboard";
+import { Graderesults } from "./components/gradeResults";
 import { SolutionSubmit } from "./routes/SolutionSubmit";
 import { StudentResultList } from "./routes/StudentResultList";
-import { Graderesults } from "./components/gradeResults";
-import { GlobalStats } from "./components/GlobalStats";
-import { StudentScoreboard } from "./comp/StudentScoreboard";
-import { ProblemPicker } from "./comp/ProblemPicker";
-import { SubmitSolutionWithComponent } from "./comp/SubmitSolution";
 
 export interface IPageLink<T> {
     title: string;
@@ -32,14 +29,14 @@ export const pageLinks: IPageLink<any>[] = [
         component: StudentScoreboard,
         rootOnly: false,
     },
-    {
-        title: "Stats",
-        to: "/stats",
-        path: "/stats",
-        exact: true,
-        component: GlobalStats,
-        rootOnly: false,
-    },
+    // {
+    //     title: "Stats",
+    //     to: "/stats",
+    //     path: "/stats",
+    //     exact: true,
+    //     component: GlobalStats,
+    //     rootOnly: false,
+    // },
     {
         title: "View Results",
         to: "/view-results",

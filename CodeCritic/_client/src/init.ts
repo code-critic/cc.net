@@ -6,10 +6,6 @@ import { NotificationManager } from 'react-notifications';
 import { auth } from './auth';
 import { sleep } from "./utils/utils";
 
-// console.log('init auth');
-// await auth();
-// console.log('init auth end');
-
 interface HttpClientConfig {
     baseUrl: string;
     headers: { [key: string]: string };

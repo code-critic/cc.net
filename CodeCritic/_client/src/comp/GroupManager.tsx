@@ -1,12 +1,11 @@
-import React, { useState, useEffect } from 'react'
-import { useResource } from '../components/useResource'
+import { Button, Container, Dialog, DialogActions, DialogContent, DialogTitle, FormControlLabel, Radio, RadioGroup, Table, TableBody, TableCell, TableHead, TableRow, TextField } from '@material-ui/core';
+import React, { useState } from 'react';
 import { SimpleLoader } from '../components/SimpleLoader';
-import { ICcGroup, ICcUserGroup } from '../models/DataModel';
-import { Table, TableCell, TableHead, TableBody, TableRow, Button, Dialog, DialogTitle, DialogContent, Input, TextField, DialogActions, RadioGroup, FormControlLabel, Radio, Container } from '@material-ui/core';
-import { openCloseState, useOpenClose } from '../utils/StateUtils';
+import { useResource } from '../components/useResource';
 import { getUser, httpClient } from '../init';
+import { ICcGroup, ICcUserGroup } from '../models/DataModel';
 import { CcUserGroupStatus } from '../models/Enums';
-import { groupBy } from '../utils/arrayUtils';
+import { useOpenClose } from '../utils/StateUtils';
 
 
 // const model = Schema.ObjectType({

@@ -1,11 +1,8 @@
-import React, { Suspense, useEffect } from "react";
-import ButtonGroup from "@material-ui/core/ButtonGroup";
-import Button from "@material-ui/core/Button";
-import Link from '@material-ui/core/Link';
-import { Typography } from "@material-ui/core";
-import ViewListIcon from '@material-ui/icons/ViewList';
-import ImageIcon from '@material-ui/icons/Image';
+import { Typography, Button } from "@material-ui/core";
 import AudiotrackIcon from '@material-ui/icons/Audiotrack';
+import ImageIcon from '@material-ui/icons/Image';
+import ViewListIcon from '@material-ui/icons/ViewList';
+import React from "react";
 interface ShowAssetsProps {
     assets: string[];
     urlPrefix: string;

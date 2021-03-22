@@ -1,15 +1,15 @@
-import React, { useState, useEffect } from "react";
-import { useResource } from "../components/useResource";
-import { IStudentScoreboardCourse } from "../models/DataModel";
-import { SimpleLoader } from "../components/SimpleLoader";
-import { groupBy } from "../utils/arrayUtils";
-import { Table, TableHead, TableRow, TableCell, TableBody, Tooltip, Link, Button, Typography, Container } from "@material-ui/core";
-import { Link as RouterLink } from "react-router-dom";
-
-import PriorityHighIcon from '@material-ui/icons/PriorityHigh';
+import { Button, Container, Table, TableBody, TableCell, TableHead, TableRow, Tooltip, Typography } from "@material-ui/core";
 import ClearIcon from '@material-ui/icons/Clear';
 import DoneIcon from '@material-ui/icons/Done';
 import DoneAllIcon from '@material-ui/icons/DoneAll';
+import PriorityHighIcon from '@material-ui/icons/PriorityHigh';
+import React from "react";
+import { Link as RouterLink } from "react-router-dom";
+import { SimpleLoader } from "../components/SimpleLoader";
+import { useResource } from "../components/useResource";
+import { IStudentScoreboardCourse } from "../models/DataModel";
+import { groupBy } from "../utils/arrayUtils";
+
 
 interface ScoreBoardIconProps {
     icon: any;

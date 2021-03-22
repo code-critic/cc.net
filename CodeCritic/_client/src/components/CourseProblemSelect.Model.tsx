@@ -1,8 +1,6 @@
-import React from "react";
+import { ICourse, ICourseProblem, ILanguage, ISingleCourse } from "../models/DataModel";
 import { ApiResource } from "../utils/ApiResource";
-import { ICourse, ICourseProblem, ISingleCourse, ILanguage } from "../models/DataModel";
 import { flattenCourse } from "../utils/DataUtils";
-import { observable, computed } from "mobx";
 
 export class CourseProblemSelectModel {
 

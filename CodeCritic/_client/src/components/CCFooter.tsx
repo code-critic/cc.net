@@ -1,14 +1,14 @@
-import React, { useState, useEffect } from 'react'
-import { userIsRoot, getUser, appDispatcher } from '../init'
+import { Button, Dialog, DialogContent, DialogTitle, IconButton, Tooltip, Typography } from '@material-ui/core';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
-
-import { IconButton, Tooltip, Typography, Dialog, DialogTitle, DialogContent, Link, Button } from '@material-ui/core';
-import { openCloseState } from '../utils/StateUtils';
-import { Grow } from '../utils/renderers';
-
 import BugReportIcon from '@material-ui/icons/BugReport';
 import GitHubIcon from '@material-ui/icons/GitHub';
+import React, { useEffect, useState } from 'react';
+import { appDispatcher, getUser, userIsRoot } from '../init';
+import { Grow } from '../utils/renderers';
+import { openCloseState } from '../utils/StateUtils';
+
+
 
 const SlackIcon = () => {
     return <>

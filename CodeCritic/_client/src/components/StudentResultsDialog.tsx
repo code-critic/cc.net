@@ -1,18 +1,18 @@
-import React from "react";
-import { Dialog, DialogTitle, Box, Grid, Button, DialogContent, ButtonGroup, Paper, Tooltip, IconButton } from "@material-ui/core";
-import { commentService, appDispatcher, getUser } from "../init";
+import { Box, Button, ButtonGroup, Dialog, DialogContent, DialogTitle, Grid } from "@material-ui/core";
 import CloseIcon from '@material-ui/icons/Close';
-import StudentResults from "./StudentResults";
-import { ISingleCourse, ILanguage, ICourseProblem, ICcData } from "../models/DataModel";
-import { ToggleButton } from "./ToggleButton";
-
 import CommentIcon from '@material-ui/icons/Comment';
-import FeedbackIcon from '@material-ui/icons/Feedback';
 import DeleteForeverOutlinedIcon from '@material-ui/icons/DeleteForeverOutlined';
+import FeedbackIcon from '@material-ui/icons/Feedback';
+import React from "react";
+import { appDispatcher, commentService, getUser } from "../init";
+import { ICcData, ICourseProblem, ILanguage, ISingleCourse } from "../models/DataModel";
+import { GradeSystem } from "../routes/StudentResultList";
 import { AlertDialog } from "./AlertDialog";
 import { SimpleLoader } from "./SimpleLoader";
-import { GradeSystem } from "../routes/StudentResultList";
 import { StudentResultDetail } from "./StudentResultDetail";
+import StudentResults from "./StudentResults";
+import { ToggleButton } from "./ToggleButton";
+
 
 
 interface StudentResultsDialogProps {

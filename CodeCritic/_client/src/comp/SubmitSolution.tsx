@@ -1,14 +1,7 @@
-import { Button } from "@material-ui/core";
-import React, { useState, useEffect } from "react";
-import { useHistory, useParams } from "react-router";
-import { Link } from "react-router-dom";
-
-import { API } from "../api";
-import { SimpleLoader } from "../components/SimpleLoader";
-import { ISingleCourse, ICourseProblem } from "../models/DataModel";
-import { IApiListResponse, IApiResponse } from "../models/CustomModel";
-import { renderError } from "../renderers/renderErrors";
+import React from "react";
+import { ICourseProblem } from "../models/DataModel";
 import { ProblemPicker } from "./ProblemPicker";
+
 
 interface SubmitSolutionProps {
     courseProblem: ICourseProblem;

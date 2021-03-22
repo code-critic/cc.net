@@ -1,8 +1,8 @@
+import { Button, Card, Grid, Link, Typography } from '@material-ui/core';
 import React from "react";
 import { Link as RouterLink } from "react-router-dom";
-import { ICourse, ICourseYearConfig, ISingleCourse } from "../models/DataModel";
+import { ICourse, ISingleCourse } from "../models/DataModel";
 import { flattenCourse } from "../utils/DataUtils";
-import { Card, Paper, CardContent, Typography, GridListTile, makeStyles, Grid, Link, Button, ButtonBase } from '@material-ui/core';
 
 
 type ElOrStr = JSX.Element | string;

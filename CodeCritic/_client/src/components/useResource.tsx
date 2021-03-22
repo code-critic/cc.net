@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { httpClient } from '../init';
+
 export function useResource<T>(url?: string) {
     const [resource, serResource] = useState<T>();
     useEffect(() => {

@@ -1,20 +1,17 @@
-import Button from '@material-ui/core/Button';
-import ButtonGroup from '@material-ui/core/ButtonGroup';
+import { Container, Button, ButtonGroup } from '@material-ui/core';
 import DeleteForeverOutlinedIcon from '@material-ui/icons/DeleteForeverOutlined';
 import * as H from 'history';
 import React, { useEffect, useState } from 'react';
+import { useParams } from 'react-router';
+import { API } from '../api';
 import { appDispatcher, commentService, getUser } from '../init';
 import { ICcData, ILanguage } from '../models/DataModel';
-import { ApiResource } from '../utils/ApiResource';
+import { RenderSolution } from '../utils/renderers';
+import { useOpenClose } from '../utils/StateUtils';
 import { AlertDialog } from './AlertDialog';
 import { SimpleLoader } from './SimpleLoader';
 import { StudentResultItem } from './StudentResults.Item';
 import { StudentResultsDialogForTeacher } from './StudentResultsDialog';
-import { useOpenClose } from '../utils/StateUtils';
-import { RenderSolution } from '../utils/renderers';
-import { Container } from '@material-ui/core';
-import { useParams } from 'react-router';
-import { API } from '../api';
 
 
 interface SingleResultProps {

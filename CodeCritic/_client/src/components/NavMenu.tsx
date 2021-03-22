@@ -1,22 +1,22 @@
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { pageLinks } from '../pageLinks';
-import { getUser, appDispatcher, commentService, updateUser, httpClient, userIsRoot, userCanBeRoot } from '../init';
-import { AppBar, Toolbar, IconButton, Typography, Button, Menu, MenuItem, Badge, Tooltip, Box, Avatar } from '@material-ui/core';
-import CodeIcon from '@material-ui/icons/Code';
+import { AppBar, Avatar, Badge, Box, IconButton, Menu, MenuItem, Toolbar, Tooltip, Typography } from '@material-ui/core';
 import AccountCircleIcon from '@material-ui/icons/AccountCircle';
-import NotificationsIcon from '@material-ui/icons/Notifications';
 import CancelIcon from '@material-ui/icons/Cancel';
+import CodeIcon from '@material-ui/icons/Code';
 import FormatSizeIcon from '@material-ui/icons/FormatSize';
-import { SimpleLoader } from './SimpleLoader';
+import GroupIcon from '@material-ui/icons/Group';
+import NotificationsIcon from '@material-ui/icons/Notifications';
+import SecurityIcon from '@material-ui/icons/Security';
+import React, { useEffect, useState } from 'react';
+import Moment from 'react-moment';
+import { Link } from 'react-router-dom';
+import { CircleLoader } from 'react-spinners';
+import * as Showdown from 'showdown';
+import { appDispatcher, commentService, getUser, httpClient, updateUser, userCanBeRoot, userIsRoot } from '../init';
 import { ICcEvent } from '../models/DataModel';
 import { CcEventType } from '../models/Enums';
-import Moment from 'react-moment';
+import { pageLinks } from '../pageLinks';
 import { groupBy } from '../utils/arrayUtils';
-import * as Showdown from "showdown";
-import SecurityIcon from '@material-ui/icons/Security';
-import { CircleLoader } from 'react-spinners';
-import GroupIcon from '@material-ui/icons/Group';
+import { SimpleLoader } from './SimpleLoader';
 
 interface NavMenuProps {
 

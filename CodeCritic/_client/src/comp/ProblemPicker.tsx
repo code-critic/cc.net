@@ -1,13 +1,13 @@
 import { Button } from "@material-ui/core";
-import React, { useState, useEffect } from "react";
-import { useHistory, useParams } from "react-router";
+import React, { useEffect, useState } from "react";
+import { useParams } from "react-router";
 import { Link } from "react-router-dom";
-
 import { API } from "../api";
 import { SimpleLoader } from "../components/SimpleLoader";
-import { ISingleCourse, ICourseProblem } from "../models/DataModel";
-import { IApiListResponse, IApiResponse } from "../models/CustomModel";
+import { IApiListResponse } from "../models/CustomModel";
+import { ICourseProblem, ISingleCourse } from "../models/DataModel";
 import { renderError } from "../renderers/renderErrors";
+
 
 interface ProblemPickerProps {
     component?: React.ComponentType<any>;

@@ -1,23 +1,15 @@
+import { Typography, Tooltip, Grid, Card, Button } from "@material-ui/core";
 import React, { useEffect } from "react";
-import { ICourseProblem, ICourse, ILanguage, ISingleCourse, ICourseYearConfig } from "../models/DataModel";
-import Button from "@material-ui/core/Button";
-import { flattenCourse } from "../utils/DataUtils";
-import Grid from "@material-ui/core/Grid";
-import Card from "@material-ui/core/Card";
-import Typography from "@material-ui/core/Typography";
-import { ApiResource } from "../utils/ApiResource";
-import { randomColorCss } from "../utils/randomcolor";
-import { SimpleLoader } from "./SimpleLoader";
-import Breadcrumbs from "@material-ui/core/Breadcrumbs";
 import { Link as RouterLink } from "react-router-dom";
-import Link from "@material-ui/core/Link";
-import NavigateNextIcon from '@material-ui/icons/NavigateNext';
-import { getStatus, isStatusOk } from "../utils/StatusUtils";
-import Tooltip from '@material-ui/core/Tooltip';
-import { groupBy } from "../utils/arrayUtils";
 import { getUser } from "../init";
-import { ProblemStatus } from "../models/Enums";
+import { ICourse, ICourseProblem, ICourseYearConfig, ILanguage, ISingleCourse } from "../models/DataModel";
+import { ApiResource } from "../utils/ApiResource";
+import { groupBy } from "../utils/arrayUtils";
+import { flattenCourse } from "../utils/DataUtils";
+import { randomColorCss } from "../utils/randomcolor";
+import { getStatus, isStatusOk } from "../utils/StatusUtils";
 import { StatusMessage } from "./CourseProblemSelector.renderers";
+import { SimpleLoader } from "./SimpleLoader";
 
 interface CourseProblemSelectorProps {
     courses: ICourse[];

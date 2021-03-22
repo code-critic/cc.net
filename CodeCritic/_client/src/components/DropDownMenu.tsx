@@ -1,7 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import Button from '@material-ui/core/Button';
-import Menu from '@material-ui/core/Menu';
-import MenuItem from '@material-ui/core/MenuItem';
+import { Button, Menu, MenuItem } from '@material-ui/core';
+import React from 'react';
 
 
 interface DropDownMenuProps<T> {
@@ -12,7 +10,7 @@ interface DropDownMenuProps<T> {
     getIsDisabled?: (item: T) => boolean;
     buttonProps?: object;
 }
-export function DropDownMenu<T> (props: DropDownMenuProps<T>) {
+export function DropDownMenu<T>(props: DropDownMenuProps<T>) {
     const { title, options, getLabel, onChange, buttonProps, getIsDisabled } = props;
     const extraProps = buttonProps ?? {};
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);

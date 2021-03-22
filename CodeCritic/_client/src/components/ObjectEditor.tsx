@@ -1,5 +1,5 @@
-import React from 'react'
-import { Grid, TextField, Checkbox, Select, MenuItem, Box, Typography, withStyles, Theme, createStyles, InputBase, Card, CardContent, Button, ButtonGroup, FormControlLabel } from '@material-ui/core';
+import { Box, Button, Card, CardContent, Checkbox, createStyles, FormControlLabel, Grid, InputBase, MenuItem, Select, TextField, Theme, Typography, withStyles } from '@material-ui/core';
+import React from 'react';
 
 export type ValueType = "string" | "int" | "double" | "boolean" | "datetime" | "enum"
     | "array" | "object" | "model" | "fill" | "section";

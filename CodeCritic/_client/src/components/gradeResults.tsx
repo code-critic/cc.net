@@ -1,4 +1,3 @@
-import React, { useState } from 'react';
 import { Box, Dialog, Typography } from '@material-ui/core';
 import Button from '@material-ui/core/Button';
 import ArrowForwardIosIcon from '@material-ui/icons/ArrowForwardIos';
@@ -6,9 +5,12 @@ import GridOnIcon from '@material-ui/icons/GridOn';
 import Alert from '@material-ui/lab/Alert';
 import ToggleButton from '@material-ui/lab/ToggleButton';
 import ToggleButtonGroup from '@material-ui/lab/ToggleButtonGroup';
+import moment from 'moment';
+import React, { useState } from 'react';
 import { NotificationManager } from 'react-notifications';
 import Spreadsheet from "react-spreadsheet";
 import { RowInfo } from 'react-table';
+import XLSX from 'xlsx';
 import { userCanBeRoot } from '../init';
 import { ICcData, ICourse, ICourseProblem, IGradeDto, ISingleCourse } from '../models/DataModel';
 import { ProcessStatusCodes, ProcessStatusStatic } from '../models/Enums';
@@ -17,13 +19,10 @@ import { StudentResultListModel } from '../routes/StudentResultList.Model';
 import { flattenCourse } from '../utils/DataUtils';
 import { nestGet } from '../utils/NestGetter';
 import { ReactTableWithSelect } from '../utils/ReactTableWithSelect';
+import { DropDownMenu } from './DropDownMenu';
 import { SimpleLoader } from './SimpleLoader';
 import { StudentResultsDialogForTeacher } from './StudentResultsDialog';
-import moment from 'moment';
-import XLSX from 'xlsx';
-import { DropDownMenu } from './DropDownMenu';
 import { useResource } from './useResource';
-import { nameof } from 'ts-simple-nameof';
 
 
 interface SelectCourseAndProblem {

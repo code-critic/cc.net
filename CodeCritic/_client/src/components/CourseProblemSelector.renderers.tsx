@@ -1,12 +1,12 @@
-import React, { useEffect } from "react";
+import ErrorOutlineIcon from '@material-ui/icons/ErrorOutline';
+import PanToolIcon from '@material-ui/icons/PanTool';
+import ThumbUpAltIcon from '@material-ui/icons/ThumbUpAlt';
+import TimerIcon from '@material-ui/icons/Timer';
+import Alert from '@material-ui/lab/Alert';
+import React from "react";
+import Moment from "react-moment";
 import { ICourseProblem } from "../models/DataModel";
 import { ProblemStatus } from "../models/Enums";
-import ErrorOutlineIcon from '@material-ui/icons/ErrorOutline';
-import TimerIcon from '@material-ui/icons/Timer';
-import ThumbUpAltIcon from '@material-ui/icons/ThumbUpAlt';
-import PanToolIcon from '@material-ui/icons/PanTool';
-import Moment from "react-moment";
-import Alert from '@material-ui/lab/Alert';
 
 interface StatusMessageProps {
     problem: ICourseProblem;

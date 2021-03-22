@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React from "react";
+import { useState } from "react";
 
 export const openCloseState = (setter: React.Dispatch<React.SetStateAction<boolean>>) => {
     return [

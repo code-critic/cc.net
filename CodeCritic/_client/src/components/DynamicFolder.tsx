@@ -1,8 +1,8 @@
+import { Tab, Tabs } from "@material-ui/core";
 import React from "react";
-import { renderCode } from "../utils/renderers";
-import { ICcDataSolution } from "../models/DataModel";
 import { httpClient } from "../init";
-import { Tabs, Tab } from "@material-ui/core";
+import { ICcDataSolution } from "../models/DataModel";
+import { renderCode } from "../utils/renderers";
 
 interface FetchCacheItem {
     content: any;

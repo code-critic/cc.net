@@ -1,10 +1,10 @@
-import React, { Component } from 'react';
 import { observable } from "mobx";
 import { observer } from "mobx-react";
-import { ApiResource } from '../utils/ApiResource';
+import React from 'react';
 import { IDiffResultComposite, IDiffResultLine } from '../models/DataModel';
-import { SimpleLoader } from './SimpleLoader';
 import { ChangeType } from '../models/Enums';
+import { ApiResource } from '../utils/ApiResource';
+import { SimpleLoader } from './SimpleLoader';
 
 
 
