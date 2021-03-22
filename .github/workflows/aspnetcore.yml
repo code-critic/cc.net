@@ -19,7 +19,7 @@ jobs:
       with:
         dotnet-version: 3.1.x
 
-    - name: Build & Resotore
+    - name: Build & Restore
       working-directory: CodeCritic
       run: dotnet build -c Release
       
