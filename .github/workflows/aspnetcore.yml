@@ -23,10 +23,6 @@ jobs:
       working-directory: CodeCritic
       run: dotnet build -c Release
       
-    - name: CRA
-      working-directory: CodeCritic/_client
-      run: sudo npm install -g create-react-app node-sass-chokidar
-
     - name: Publish
       working-directory: CodeCritic
       run: dotnet publish -c Release -o ccnetapp

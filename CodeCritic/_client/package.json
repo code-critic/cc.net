@@ -3,12 +3,12 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "build-css": "node-sass-chokidar src/ -o src/",
+    "build-css": "npx node-sass-chokidar src/ -o src/",
     "watch-css": "npm run build-css && node-sass-chokidar src/ -o src/ --watch --recursive",
     "start-js": "react-scripts start",
     "start": "react-scripts start",
     "start_": "NODE_OPTIONS=\"--max-old-space-size=4096\" rimraf ./build && react-scripts start",
-    "build": "react-scripts build",
+    "build": "npx react-scripts build",
     "test": "cross-env CI=true react-scripts test --env=jsdom",
     "eject": "react-scripts eject",
     "lint": "eslint ./src/"
