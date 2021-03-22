@@ -95,7 +95,7 @@ export const SingleResult = (props: SingleResultProps) => {
         return <SimpleLoader />
     }
 
-    if (user.role === "student") {
+    if (user.roles.includes("student")) {
         return <Container>
             <div>
                 {items.length > 0 &&
