@@ -1,0 +1,35 @@
+name: .NET
+
+on:
+  push:
+    branches: [ master ]
+    
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 3.1.x
+
+    - name: Build & Resotore
+      run: dotnet build -c Release
+      
+    - name: Test
+      run: dotnet publish -c Release -o ccnetapp
+      
+    - name: Tar
+      run: tar -zcvf ccnetapp.tar.gz ccnetapp
+
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: ccnetapp
+        path: ccnetapp.tar.gz
