@@ -48,7 +48,7 @@ def main():
 
     Popen(['killall', 'cc.net']).wait(1.0)
     Popen(['killall', '-9', 'cc.net']).wait(1.0)
-    Popen(['./cc.net'], cwd=str(ccpublish)).wait()
+    Popen(['./cc.net', '--urls', 'http://0.0.0.0:5000'], cwd=str(ccpublish)).wait()
 
 if __name__ == '__main__':
     main()
