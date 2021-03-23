@@ -4,7 +4,7 @@ import Toolbar from '@material-ui/core/Toolbar';
 import BugReportIcon from '@material-ui/icons/BugReport';
 import GitHubIcon from '@material-ui/icons/GitHub';
 import React, { useEffect, useState } from 'react';
-import { appDispatcher, getUser, userIsRoot } from '../init';
+import { useUser } from '../hooks/useUser';
 import { Grow } from '../utils/renderers';
 import { openCloseState } from '../utils/StateUtils';
 
@@ -23,18 +23,7 @@ const SlackIcon = () => {
 export const CcFooter = () => {
     const [isOpen, setIsOpen] = useState(false);
     const [openDialog, closeDialog] = openCloseState(setIsOpen);
-    const [user, setUser] = useState(getUser());
-    const isRoot = userIsRoot();
-
-    useEffect(() => {
-        appDispatcher.register(payload => {
-            switch (payload.actionType) {
-                case "userChanged":
-                    setUser({ ...getUser() });
-                    break;
-            }
-        });
-    }, []);
+    const { isRoot } = useUser();
 
     return <AppBar position="fixed"
         component="footer"

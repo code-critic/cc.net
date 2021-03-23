@@ -16,5 +16,5 @@ export const SubmitSolution = (props: SubmitSolutionProps) => {
 }
 
 export const SubmitSolutionWithComponent = (props: SubmitSolutionProps) => {
-    return <ProblemPicker component={SubmitSolution} />
+    return <ProblemPicker component={SubmitSolution} baseUrl="/courses" />
 }

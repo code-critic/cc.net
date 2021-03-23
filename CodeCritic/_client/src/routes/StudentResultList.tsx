@@ -15,7 +15,7 @@ import { getColumns, getStatus } from "./StudentResultList.Columns";
 import { StudentResultListModel } from "./StudentResultList.Model";
 import { StudentResultDetail } from "../components/StudentResultDetail";
 import { Dialog, DialogTitle, DialogContent, Button, Box, AppBar, Grid, Slider, Typography, TextField } from "@material-ui/core";
-import { appDispatcher, commentService, httpClient, userIsRoot } from "../init";
+import { appDispatcher, commentService, httpClient } from "../init";
 import { NotificationManager } from 'react-notifications';
 import NotificationsIcon from '@material-ui/icons/Notifications';
 
@@ -128,7 +128,7 @@ export const GradeSystem = (props: GradeSystemProps) => {
 }
 
 @observer
-export class StudentResultList extends React.Component<any, StudentResultListState, any> {
+export class StudentResultList2 extends React.Component<any, StudentResultListState, any> {
     public model: StudentResultListModel = new StudentResultListModel();
     public columnsToCopy: any = {};
 
@@ -270,12 +270,6 @@ export class StudentResultList extends React.Component<any, StudentResultListSta
         if (model.apiIsLoading) {
             return <div>loading</div>
         }
-
-        if (!userIsRoot())
-        {
-            throw new Error("Access denied");
-        }
-
 
         return <div>
             {detailResult && detailIsOpened &&

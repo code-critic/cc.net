@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Route } from 'react-router-dom'
 import { Layout } from './components/Layout';
-import { SingleResult } from './components/SingleResult';
+import { SingleResult } from './comp/SingleResult';
 import { pageLinks } from './pageLinks';
 import { NotificationContainer } from 'react-notifications';
 import { GroupManager } from './comp/GroupManager';

@@ -57,6 +57,7 @@ namespace CC.Net
             services.AddScoped<CryptoService>();
             services.AddScoped<UserService>();
             services.AddScoped<UtilService>();
+            services.AddScoped<ViewResultService>();
             services.AddSingleton<CacheContentService>();
             services.AddSingleton<NotificationFlag>();
             services.AddHostedService<ProcessService>();

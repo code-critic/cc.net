@@ -11,7 +11,8 @@ import Moment from 'react-moment';
 import { Link } from 'react-router-dom';
 import { CircleLoader } from 'react-spinners';
 import * as Showdown from 'showdown';
-import { appDispatcher, commentService, getUser, httpClient, updateUser, userCanBeRoot, userIsRoot } from '../init';
+import { useUser } from '../hooks/useUser';
+import { appDispatcher, commentService, getUser, httpClient, updateUser } from '../init';
 import { ICcEvent } from '../models/DataModel';
 import { CcEventType } from '../models/Enums';
 import { pageLinks } from '../pageLinks';
@@ -79,17 +80,14 @@ const EventNotification = (props: EventNotificationProps) => {
 export const NavMenu = (props: NavMenuProps) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [menuId, setMenuId] = useState<string>();
-  const [user, setUser] = useState(getUser());
   const [notifications, setNotifications] = useState<ICcEvent[]>([]);
   const [queue, setQueue] = useState<any[]>([]);
   const [serverState, setServerState] = useState<string>("connected");
+  const { user, isRoot, canBeRoot } = useUser();
 
   useEffect(() => {
     appDispatcher.register(payload => {
       switch (payload.actionType) {
-        case "userChanged":
-          setUser({ ...getUser() });
-          break;
         case "newNotification":
           const user = getUser();
           if (user.role) {
@@ -141,8 +139,6 @@ export const NavMenu = (props: NavMenuProps) => {
     setMenuId(event.currentTarget.attributes["aria-controls"].value);
   };
 
-  const isRoot = userIsRoot();
-  const canBeRoot = userCanBeRoot();
   const badgeColor = isRoot ? "primary" : "secondary";
 
   const accountMenuId = 'primary-search-account-menu';
@@ -150,6 +146,7 @@ export const NavMenu = (props: NavMenuProps) => {
   const onlineUserMenuId = 'online-user-menu';
   const notifByData = groupBy(notifications, i => i.resultObjectId);
   const notifNewCount = groupBy(notifications.filter(i => i.isNew), i => i.resultObjectId);
+
   const renderMenu = (
     <>
       <Menu
@@ -161,11 +158,11 @@ export const NavMenu = (props: NavMenuProps) => {
         open={menuId === accountMenuId}
         onClose={handleMenuClose}
       >
-        <MenuItem disabled>{user.username} (<small>{user.id}</small>)</MenuItem>
+        <MenuItem disabled>{user.username} (<small>{user.id}:<code>{user.role}</code></small>)</MenuItem>
+        <MenuItem disabled>roles: (<small>{user.roles.join(", ")}</small>)</MenuItem>
         {isRoot &&
           <MenuItem onClick={() => {
             user.role = "student";
-            setUser(user);
             updateUser(user);
             handleMenuClose();
           }}>
@@ -179,7 +176,6 @@ export const NavMenu = (props: NavMenuProps) => {
               .then(data => {
                 user.id = newName;
                 user.username = newName;
-                setUser(user);
                 updateUser(user);
                 handleMenuClose();
               });
@@ -190,7 +186,6 @@ export const NavMenu = (props: NavMenuProps) => {
         {!isRoot && canBeRoot &&
           <MenuItem onClick={() => {
             user.role = "root";
-            setUser(user);
             updateUser(user);
             handleMenuClose();
           }}>
@@ -238,7 +233,6 @@ export const NavMenu = (props: NavMenuProps) => {
         open={menuId === onlineUserMenuId}
         keepMounted
         onClose={handleMenuClose}>
-
       </Menu>
     </>
   );

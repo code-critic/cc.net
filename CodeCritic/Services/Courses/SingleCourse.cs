@@ -10,5 +10,6 @@ namespace CC.Net.Services.Courses
         public string Year { get; set; }
         public CourseConfig CourseConfig { get; set; }
         public List<CourseProblem> Problems { get; set; }
+        public SettingsConfig SettingsConfig { get; set; }
     }
 }

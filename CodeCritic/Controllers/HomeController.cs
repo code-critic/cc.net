@@ -7,6 +7,7 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using cc.net.Auth;
 using CC.Net.Config;
 using CC.Net.Db;
 using CC.Net.Services;
@@ -47,21 +48,20 @@ namespace cc.net.Controllers
 
         [HttpGet("whoami")]
         [AllowAnonymous]
-        public async Task<AppUser> Whoami()
+        public async Task<IActionResult> Whoami()
         {
             var user = _userService.CurrentUser;
 
             if (user == null)
             {
-                Response.Redirect(LoginUrl);
-                throw new Exception("Not authorized");
+                return new UnauthorizedObject(LoginUrl);
             }
 
             user.Groups = await _dbService.Groups
                 .Find(i => i.Users.Any(j => j.Name == user.Id))
                 .ToListAsync();
 
-            return user;
+            return Ok(user);
         }
 
         [Route("index")]
@@ -78,7 +78,7 @@ namespace cc.net.Controllers
         {
             _logger.LogError(LoginUrl);
             _logger.LogError(_appOptions.ReturnUrl);
-            return Redirect(LoginUrl);
+            return new UnauthorizedObject(LoginUrl);
         }
         
         [Route("logout")]

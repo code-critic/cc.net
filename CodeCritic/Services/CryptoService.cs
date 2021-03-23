@@ -72,7 +72,11 @@ namespace CC.Net.Services
                 return;
             }
 
-            var newRoles = Roles.OrderBy(i => i == "root" ? -1 : 1).ToList();
+            var newRoles = Roles
+                .OrderBy(i => i == "root" ? -1 : 1)
+                .ThenBy(i => i == "student" ? -1 : 1)
+                .ToList();
+            
             Affiliation = newRoles.ToAffiliation();
             Role = Roles.First();
         }

@@ -8,41 +8,29 @@ import { appDispatcher, commentService, getUser } from '../init';
 import { ICcData, ILanguage } from '../models/DataModel';
 import { RenderSolution } from '../utils/renderers';
 import { useOpenClose } from '../utils/StateUtils';
-import { AlertDialog } from './AlertDialog';
-import { SimpleLoader } from './SimpleLoader';
-import { StudentResultItem } from './StudentResults.Item';
-import { StudentResultsDialogForTeacher } from './StudentResultsDialog';
+import { AlertDialog } from '../components/AlertDialog';
+import { SimpleLoader } from '../components/SimpleLoader';
+import { StudentResultItem } from '../components/StudentResults.Item';
+import { StudentResultsDialogForTeacher } from '../components/StudentResultsDialog';
+import { useUser } from '../hooks/useUser';
 
 
 interface SingleResultProps {
-    history: H.History;
-    match: Match<ParamsProps>;
-}
-
-interface ParamsProps {
-    objectId: string;
-}
-
-
-interface Match<P> {
-    params: P;
-    isExact: boolean;
-    path: string;
-    url: string;
+    objectId?: string;
 }
 
 export const SingleResult = (props: SingleResultProps) => {
     const params = useParams<any>();
-    const objectId = params.objectId;
+    const objectId = props.objectId || params.objectId;
 
     const [result, setResult] = useState<ICcData | false>();
     const [languages, setLanguages] = React.useState<ILanguage[]>([]);
     const [items, setItems] = React.useState(commentService.items);
     const [discardDialog, setDiscardDialog] = React.useState(false);
-    const [user, setUser] = React.useState(getUser());
     const [rng, setRng] = React.useState(Math.random());
     const [isOpen, openDialog, closeDialog] = useOpenClose(true);
     const [ft, setFt] = useState(true);
+    const { user, isRoot, isStudent, canBeRoot, canBeStudent } = useUser();
 
     const refresh = () => {
         setRng(Math.random());
@@ -79,9 +67,6 @@ export const SingleResult = (props: SingleResultProps) => {
         if (payload.actionType == "commentServiceChanged") {
             setItems([...commentService.items]);
         }
-        if (payload.actionType == "userChanged") {
-            setUser(getUser());
-        }
     });
 
     if (result === false) {
@@ -92,7 +77,7 @@ export const SingleResult = (props: SingleResultProps) => {
         return <SimpleLoader />
     }
 
-    if (user.roles.includes("student")) {
+    if (canBeStudent) {
         return <Container>
             <div>
                 {items.length > 0 &&
@@ -120,7 +105,7 @@ export const SingleResult = (props: SingleResultProps) => {
         </Container>
     }
 
-    if (user.role === "root") {
+    if (isRoot) {
         return <Container>
             {isOpen &&
                 <StudentResultsDialogForTeacher
@@ -133,5 +118,6 @@ export const SingleResult = (props: SingleResultProps) => {
             <RenderSolution result={result} />
         </Container>
     }
-    return <span>unknown role</span>
+
+    return <span>unknown roles: {user.roles.join()}</span>
 }

@@ -129,6 +129,7 @@
 		courseConfig: ICourseConfig;
 		courseRef: ICourse;
 		problems: ICourseProblem[];
+		settingsConfig: ISettingsConfig;
 		year: string;
 	}
 	export const enum CcEventType {

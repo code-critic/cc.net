@@ -11,7 +11,6 @@ import { NotificationManager } from 'react-notifications';
 import Spreadsheet from "react-spreadsheet";
 import { RowInfo } from 'react-table';
 import XLSX from 'xlsx';
-import { userCanBeRoot } from '../init';
 import { ICcData, ICourse, ICourseProblem, IGradeDto, ISingleCourse } from '../models/DataModel';
 import { ProcessStatusCodes, ProcessStatusStatic } from '../models/Enums';
 import { getColumns, getStatus } from '../routes/StudentResultList.Columns';
@@ -113,7 +112,7 @@ export const SelectCourseAndProblem = (props: SelectCourseAndProblem) => {
     </>)
 }
 
-export const Graderesults = (props) => {
+export const Graderesults2 = (props) => {
     const [course, setCourse] = React.useState<ISingleCourse>();
     const [problem, setProblem] = React.useState<ICourseProblem>();
     const [result, setResult] = React.useState<ICcData>();
@@ -126,10 +125,6 @@ export const Graderesults = (props) => {
         ? undefined
         : `grade-stats/${course.course}/${course.year}/${problem.id}?rng=${rng}`);
     const needsSelect = !course || !problem;
-
-    if (!userCanBeRoot()) {
-        // throw new Error("Access denied");
-    }
 
     const renderTable = () => {
         if (!stats) {

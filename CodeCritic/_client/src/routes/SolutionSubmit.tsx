@@ -20,7 +20,7 @@ import { ShowAssets } from "../components/ShowAssets";
 import { SimpleLoader } from "../components/SimpleLoader";
 import { StudentResultItem } from "../components/StudentResults.Item";
 import { StudentResultsDialog } from "../components/StudentResultsDialog";
-import { appDispatcher, getUser, liveConnection, userIsRoot } from "../init";
+import { appDispatcher, getUser, liveConnection } from "../init";
 import { IAppUser, ICcData, ICcGroup, ICourse, ICourseProblem, ILanguage, ISingleCourse } from "../models/DataModel";
 import "../third_party/mathjax";
 import { ApiResource } from "../utils/ApiResource";
@@ -29,6 +29,7 @@ import { openCloseState } from "../utils/StateUtils";
 import { hubException } from "../utils/utils";
 import { SolutionSubmitForm } from "./SolutionSubmit.Form";
 import Alert from '@material-ui/lab/Alert';
+import { useUser } from '../hooks/useUser';
 
 
 
@@ -169,6 +170,7 @@ export const SolutionSubmit = (props) => {
     const [apiLanguages, setApiLanguages] = React.useState(new ApiResource<ILanguage>("languages", false));
     const [resultsDialog, setResultsDialog] = React.useState(false);
     const [openResults, closeResults] = openCloseState(setResultsDialog);
+    const { user, isRoot } = useUser();
 
     useEffect(() => {
         const MathJax = (window as any).MathJax;
@@ -177,16 +179,7 @@ export const SolutionSubmit = (props) => {
         }
     });
 
-    useEffect(() => {
-        appDispatcher.register(payload => {
-            if (payload.actionType === "userChanged") {
-                setUser({ ...getUser() });
-            }
-        });
-    }, []);
 
-
-    const user = getUser();
     const { course: urlCourse, year: urlYear, problem: urlProblem } = match.params;
     const activeProblem = problem;
     const coursesFlatten = courses.flatMap(flattenCourse);
@@ -328,7 +321,7 @@ export const SolutionSubmit = (props) => {
                                 color: "primary",
                                 variant: "contained",
                                 size: "large",
-                                disabled: (!activeProblem.isActive && !userIsRoot()) || validGroups.length == 0,
+                                disabled: (!activeProblem.isActive && !isRoot) || validGroups.length == 0,
                                 endIcon: <SendIcon />,
                             }}
                             title={validGroups.length == 0 ? "No group found" : "Submit As ..."}
@@ -348,7 +341,7 @@ export const SolutionSubmit = (props) => {
                         />
                     }
                     {!activeProblem.groupsAllowed &&
-                        <Button size="large" variant="contained" color="primary" endIcon={<SendIcon />} disabled={!activeProblem.isActive && !userIsRoot()}
+                        <Button size="large" variant="contained" color="primary" endIcon={<SendIcon />} disabled={!activeProblem.isActive && !isRoot}
                             onClick={() => submitSolutionStudent(user, activeCourse, activeProblem, language || defaultLanguage, files)}>Submit Solution
                         </Button>
                     }

@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 using Cc.Net;
 using Cc.Net.Apis;
 using cc.net.Utils;
@@ -15,7 +16,7 @@ namespace CC.Net.Controllers
     
         [HttpGet("courses")]
         [UseCache(timeToLiveSeconds: 30, perUser: true)]
-        [Obsolete("User course-list")]
+        [Obsolete("Use course-list")]
         public IActionResult Courses()
         {
             return Ok(_courseService.GetAllowedCoursesForUser(_userService.CurrentUser));
@@ -37,8 +38,11 @@ namespace CC.Net.Controllers
                         Course = i.Name,
                         Year = j.Year,
                         CourseConfig = i.CourseConfig,
-                        Problems = j.Problems
-                    }));
+                        Problems = j.Problems,
+                        SettingsConfig = j.SettingsConfig,
+                    }))
+                .OrderByDescending(i => i.Year)
+                .ThenBy(i => i.Course);
 
             var response = new ApiListResponse<SingleCourse>
             {
@@ -68,6 +72,7 @@ namespace CC.Net.Controllers
                 Year = yearConfig.Year,
                 CourseConfig = course.CourseConfig,
                 Problems = yearConfig.Problems,
+                SettingsConfig = yearConfig.SettingsConfig,
             };
 
             var problems = yearConfig

@@ -1158,3 +1158,30 @@ a.notification-item {
     }
   }
 }
+
+
+.picker {
+  margin-bottom: 0.5rem;
+
+  .picker-old {
+    opacity: 0.5;
+  }
+
+  &.picker-level-course {
+    &.picker-style-small {
+      a {
+        margin: 4px 4px;
+        box-shadow: 0 0 4px 0 rgba(0,0,0,0.2);
+      }
+    }
+  }
+  
+  &.picker-level-problem {
+    &.picker-style-small {
+      a {
+        margin: 4px 4px;
+        box-shadow: 0 0 4px 0 rgba(0,0,0,0.2);
+      }
+    }
+  }
+}

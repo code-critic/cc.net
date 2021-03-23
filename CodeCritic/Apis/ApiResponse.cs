@@ -8,5 +8,13 @@ namespace Cc.Net.Apis
     {
         public T Data { get; set; }
         public IEnumerable<ApiError> Errors { get; set; } = new List<ApiError>();
+
+        public ApiResponse() { }
+
+        public ApiResponse(T data)
+        {
+            Data = data;
+        }
+
     }
 }
