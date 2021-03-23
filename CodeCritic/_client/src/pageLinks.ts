@@ -1,7 +1,6 @@
 import { Graderesults } from "./comp/GradeResults";
-import { ViewResults } from "./comp/StudentResultListNew";
+import { ViewResults } from "./comp/ViewResults";
 import { StudentScoreboard } from "./comp/StudentScoreboard";
-// import { Graderesults } from "./components/gradeResults";
 import { SolutionSubmit } from "./routes/SolutionSubmit";
 
 export interface IPageLink<T> {

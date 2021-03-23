@@ -10,6 +10,7 @@ import { SimpleLoader } from '../components/SimpleLoader';
 import { AxiosResponse } from 'axios';
 import { useParams } from 'react-router';
 import { StudentResultsDialogForTeacher } from '../components/StudentResultsDialog';
+import { debounce } from 'throttle-debounce';
 
 export const ViewResults = () => {
     return <div>
@@ -32,11 +33,11 @@ function getStatus(result: ICcDataResult) {
     return `status-${getStatusOrDefault(result)}`;
 }
 
-const addToFilters = (filters: ITableRequestFilter[], course, year, problem) => {
+const addToFilters = (filters: ITableRequestFilter[], course?: string, year?: string, problem?: string) => {
 
     const defaultValues = [course, year, problem];
     const names = ["courseName", "courseYear", "problem"];
-    const values = names.map((i, j) => filters.find(k => k.id == i) ?? defaultValues[j]);
+    const values = names.map((i, j) => filters.find(k => k.id == i)?.value ?? defaultValues[j]);
 
     return [
         ...filters.filter(i => !names.includes(i.id)),
@@ -61,9 +62,10 @@ const ViewResultsImpl = (props: ViewResultsImplProps) => {
         setRng(Math.random());
     }
 
-    const fetchData = async (state: any, instance: any) => {
+    const fetchData = async (state: any) => {
         setIsLoading(true);
         const { pageSize, page, sorted, filtered } = state;
+        const lastReq: ITableRequest = { pageSize, page, sorted, filtered };
         const request: ITableRequest = { pageSize, page, sorted, filtered };
         request.filtered = addToFilters(request.filtered, course, year, problem);
 
@@ -72,10 +74,12 @@ const ViewResultsImpl = (props: ViewResultsImplProps) => {
 
         const tableResponse = axiosResponse.data.data;
         setPages(Math.ceil(tableResponse.count / pageSize));
-        setState(request);
+        setState(lastReq);
         setTableResponse(tableResponse);
         setIsLoading(false);
     }
+
+    const debounceFetch = debounce(500, false, fetchData);
 
     useEffect(() => {
         (async () => {
@@ -88,8 +92,7 @@ const ViewResultsImpl = (props: ViewResultsImplProps) => {
         if (state) {
             const newState = { ...state };
             newState.filtered = addToFilters(newState.filtered, course, year, problem);
-            setState(newState);
-            fetchData(newState, null);
+            fetchData(newState);
         }
     }, [course, year, problem, rng]);
 
@@ -105,7 +108,7 @@ const ViewResultsImpl = (props: ViewResultsImplProps) => {
             columns={defaultColumns(languages)}
             showPagination={true}
             pageSizeOptions={[5, 10, 15, 20, 50]}
-            onFetchData={fetchData}
+            onFetchData={debounceFetch}
             defaultSorted={[
                 {
                     id: "id.timestamp",
