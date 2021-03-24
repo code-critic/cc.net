@@ -80,7 +80,7 @@ export class StudentResultItem extends React.Component<StudentResultItemProps, a
 
         return <Tooltip
             key={index} enterDelay={0}
-            title={`${subresult.case}: ${statusInstance.description}`} arrow>
+            title={`${subresult.case}: ${statusInstance.description} (${subresult.duration?.toFixed(2)}s)`} arrow>
             <Button className={`status status-${statusInstance.name}`} variant="text"
                 onClick={(e) => this.overrideClick(e, () => this.caseSubresult = subresult)}>
                 <span>
