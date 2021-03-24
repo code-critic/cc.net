@@ -16,6 +16,16 @@ namespace CC.Net.Extensions
             }
             return File.ReadAllText(path);
         }
+        
+        public static string ReadAllTextOrPeek(this string path, int maxLines = 1000)
+        {
+            if (!File.Exists(path))
+            {
+                return null;
+            }
+
+            return string.Join("\n", File.ReadLines(path).Take(maxLines));
+        }
 
         public static IEnumerable<string> ReadLines(this string path)
         {

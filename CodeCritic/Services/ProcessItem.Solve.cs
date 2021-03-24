@@ -88,7 +88,7 @@ namespace CC.Net.Services
 
             subcase.Status = ProcessStatus.Running.Value;
             var isUnitTest = Context.CourseProblem.Type == ProblemType.Unittest;
-            var filename = isUnitTest
+            var filename = isUnitTest || Context.Item.Action == "output"
                 ? Context.CourseProblem.Reference.Name
                 : Context.MainFileName;
 

@@ -69,14 +69,15 @@ namespace CC.Net.Services
                 subcase.Message = "Skipping static input file";
                 return;
             }
-
+            
             subcase.Status = ProcessStatus.Running.Value;
-            var baseCommand = $"{string.Join(" ", Context.Language.Run)}".ReplaceCommon(Context.MainFileName);
+            var timeout = (int) IncreaseTimeoutForInput(@case.Timeout < 0.01 ? 120 : (int) Math.Ceiling(@case.Timeout));
+            var baseCommand = $"{string.Join(" ", Context.Language.Run)}".ReplaceCommon(Context.CourseProblem.Reference.Name);
             var fullCommand = $"{baseCommand} {@case.GetArguments()}";
             var result = RunPipeline(
                 fullCommand,
                 Context.DockerTmpWorkdir,
-                @case.Timeout < 0.01 ? 120 : (int)Math.Ceiling(@case.Timeout),
+                timeout,
                 null,
                 $"output/{@case.Id}",
                 $"error/{@case.Id}"
@@ -101,11 +102,19 @@ namespace CC.Net.Services
             }
             else
             {
-                subcase.Status = ProcessStatus.ErrorWhileRunning.Value;
-                subcase.Message = ProcessStatus.ErrorWhileRunning.Description;
-                subcase.Messages = Context.GetTmpDirErrorMessage(@case.Id).SplitLines();
+                if (result.ReturnCode == 666)
+                {
+                    subcase.Status = ProcessStatus.GlobalTimeout.Value;
+                    subcase.Message = ProcessStatus.GlobalTimeout.Description;
+                    subcase.Messages = Context.GetTmpDirErrorMessage(@case.Id).SplitLines();
+                }
+                else
+                {
+                    subcase.Status = ProcessStatus.ErrorWhileRunning.Value;
+                    subcase.Message = ProcessStatus.ErrorWhileRunning.Description;
+                    subcase.Messages = Context.GetTmpDirErrorMessage(@case.Id).SplitLines();
+                }
             }
-
         }
     }
 }

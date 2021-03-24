@@ -38,6 +38,11 @@ namespace CC.Net.Services
         private double TimeRemaining { get; set; }
         private double TimeAvailable { get; set; }
 
+        public static double IncreaseTimeoutForInput(double timeout)
+        {
+            return timeout * 20 + 10;
+        }
+
 
         public ProcessItem(
             ILogger<ProcessItem> logger, CourseService courseService, LanguageService languageService,
@@ -65,6 +70,12 @@ namespace CC.Net.Services
             var timeout = Context.CourseProblem.Timeout;
             TimeRemaining = (timeout < 1 ? 30 : timeout) * Context.Language.ScaleFactor;
             TimeAvailable = TimeRemaining;
+
+            if (Item.Action == "input")
+            {
+                TimeRemaining = IncreaseTimeoutForInput(TimeRemaining);
+                TimeAvailable = TimeRemaining;
+            }
         }
 
 

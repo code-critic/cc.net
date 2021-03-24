@@ -308,7 +308,7 @@ namespace CC.Net.Controllers
             var context = new CourseContext(_courseService, _languageService, data);
             var dirName = dir.ToLower();
 
-            if (!allowed.Any(i => i == dirName))
+            if (allowed.All(i => i != dirName))
             {
                 throw new Exception("Access denied");
             }
@@ -331,7 +331,7 @@ namespace CC.Net.Controllers
             return Ok(files.Select(i => new FileDto
             {
                 Filename = i.Name,
-                Content = i.FullName.ReadAllText()
+                Content = i.FullName.ReadAllTextOrPeek()
             }));
         }
 
