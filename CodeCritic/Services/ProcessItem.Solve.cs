@@ -88,9 +88,6 @@ namespace CC.Net.Services
 
             subcase.Status = ProcessStatus.Running.Value;
             var isUnitTest = Context.CourseProblem.Type == ProblemType.Unittest;
-            var filename = isUnitTest || Context.Item.Action == "output"
-                ? Context.CourseProblem.Reference.Name
-                : Context.MainFileName;
 
             var pipeline = isUnitTest && language.Unittest.Any()
                 ? language.Unittest
@@ -99,7 +96,7 @@ namespace CC.Net.Services
 
             SetPermissions();
             var result = RunPipeline(
-                $"{string.Join(" ", pipeline)}".ReplaceCommon(filename),
+                $"{string.Join(" ", pipeline)}".ReplaceCommon(Context.MainFileName),
                 Context.DockerTmpWorkdir,
                 (int)Math.Ceiling(TimeRemaining),
                 isUnitTest ? null : $"input/{@case.Id}",

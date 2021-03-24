@@ -72,7 +72,7 @@ namespace CC.Net.Services
             
             subcase.Status = ProcessStatus.Running.Value;
             var timeout = (int) IncreaseTimeoutForInput(@case.Timeout < 0.01 ? 120 : (int) Math.Ceiling(@case.Timeout));
-            var baseCommand = $"{string.Join(" ", Context.Language.Run)}".ReplaceCommon(Context.CourseProblem.Reference.Name);
+            var baseCommand = $"{string.Join(" ", Context.Language.Run)}".ReplaceCommon(Context.MainFileName);
             var fullCommand = $"{baseCommand} {@case.GetArguments()}";
             var result = RunPipeline(
                 fullCommand,

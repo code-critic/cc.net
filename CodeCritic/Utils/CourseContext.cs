@@ -55,9 +55,13 @@ namespace CC.Net.Utils
         }
 
         
-
+    
         public Language Language => LanguageService[Item.Language];
-        public string MainFileName => $"main.{Language.Extension}";
+
+        public string MainFileName => Item.Action == "solve"
+            ? $"main.{Language.Extension}"
+            : CourseProblem.Reference.Name;
+        
         public static string CompilationFileName = "compilation.log";
 
         public Course Course => CourseService[Item.CourseName]
