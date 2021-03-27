@@ -15,3 +15,9 @@ export const hubException = (e: any) => {
             : error
     );
 }
+
+export const getInitials = (name) => (name || "")
+    .split(".", 2)
+    .map(i => i.charAt(0))
+    .join("")
+    .toUpperCase();

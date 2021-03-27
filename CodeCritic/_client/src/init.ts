@@ -1,9 +1,11 @@
-import { ICommentServiceItem, IAppUser, ICcEvent } from "./models/DataModel";
-import { observable } from "mobx";
-import { Dispatcher } from 'flux';
 import { HubConnectionBuilder, LogLevel } from '@aspnet/signalr';
+import { IAppUser, ICcEvent, ICommentServiceItem } from "./models/DataModel";
+import { getLocalStorageUserOrDefault, isUserEqual } from "./security/security";
+
+import { Dispatcher } from 'flux';
 import { NotificationManager } from 'react-notifications';
 import { auth } from './auth';
+import { observable } from "mobx";
 import { sleep } from "./utils/utils";
 
 interface HttpClientConfig {
@@ -136,19 +138,9 @@ export const httpClient = new HttpClient({
     },
 });
 
-let _currentUser: IAppUser = {
-    affiliation: "guest",
-    datetime: "guest",
-    email: "guest@tul.cz",
-    eppn: "guest",
-    id: "guest",
-    isRoot: false,
-    lastFirstName: "guest guest",
-    role: null as any,
-    roles: [],
-    username: "guest",
-    groups: [],
-}
+
+
+let _currentUser: IAppUser = getLocalStorageUserOrDefault();
 
 declare global {
     interface PrettyCode {
@@ -271,7 +263,12 @@ type NotificationLevel = "info" | "success" | "warning" | "error";
 
 auth()
     .then(i => {
+        const _lastUser = {..._currentUser};
         _currentUser = (window as any).currentUser as IAppUser;
-        appDispatcher.dispatch({ actionType: "userChanged" });
+        localStorage.setItem('user', JSON.stringify(_currentUser));
+        
+        if (!isUserEqual(_lastUser, _currentUser)) {
+            appDispatcher.dispatch({ actionType: "userChanged" });
+        }
         startWS();
     });

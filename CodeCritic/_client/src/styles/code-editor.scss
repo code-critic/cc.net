@@ -1,0 +1,137 @@
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+
+@keyframes AnimationName {
+    0%{background-position:0% 50%}
+    50%{background-position:100% 50%}
+    100%{background-position:0% 50%}
+}
+
+.code-editor-table {
+    width: 100%;
+
+    tr.has-comments {
+        border: none;
+        border-bottom: none;
+        font-weight: bold;
+
+        background: linear-gradient(225deg, #ffffff, #f2ffff);
+        background-size: 400% 400%;
+        animation: AnimationName 3s ease infinite;
+    }
+
+    tr.has-editor {
+        // background: #f9f9f9;
+        border: 1px solid #c8ccd0;
+        border-bottom: none;
+        font-weight: bold;
+
+        background: linear-gradient(225deg, #eef5fa, #caeaff);
+        background-size: 400% 400%;
+        animation: AnimationName 3s ease infinite;
+    }
+    
+    tr.comment-row {
+
+        &.pending {
+            .comment-grid {
+                // background: #fffedf;
+                background: linear-gradient(225deg, #fafaee, #ffeaca);
+                background-size: 400% 400%;
+                animation: AnimationName 3s ease infinite;
+                box-shadow: 0 0 5px 0px #7756195c;
+            }
+        }
+
+        .comment-grid {
+            box-shadow: 0 0 5px 0px #4b878a5c;
+            border-radius: 2px;
+            background: #f1fcff;
+
+            // background: #f9f9f9;
+            // border: 1px solid #c8ccd0;
+            // margin-bottom: -1px;
+
+            display: grid;
+            grid-template-columns: 64px 1.4fr;
+            grid-template-rows:  48px 1.4fr;
+            gap: 0px 0px;
+            grid-template-areas:
+                "ava inf"
+                "ava txt";
+
+            .ava {
+                margin: 16px;
+                grid-area: ava;
+                align-items: flex-start;
+                justify-content: center;
+            }
+
+            .inf {
+                margin-top: 16px;
+                grid-area: inf;
+            }
+
+            .txt {
+                margin-bottom: 16px;
+                grid-area: txt;
+
+                p {
+                    padding: 0;
+                    margin: 0;
+                }
+            }
+        }
+
+        .avatar-wrapper {
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .avatar {
+            display: flex;
+            background: #999;
+            color: white;
+            justify-content: center;
+            align-items: center;
+
+            width: 28px;
+            height: 28px;
+            font-size: .75rem;
+            border-radius: 50%;
+        }
+    }
+
+    td,
+    pre {
+        // font-family: 'Share Tech Mono', monospace;
+        font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+        margin: 0;
+        padding: 0;
+        font-size: 0.75rem;
+    }
+
+
+
+    .line-number {
+        text-align: right;
+        width: 50px;
+
+        .line-number-btn {
+            outline: none;
+            justify-content: flex-end;
+            font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+            color: #999;
+            text-align: right;
+            padding: 0 20px 0 0;
+            font-size: 0.75rem;
+
+            &:hover {
+                color: #333;
+            }
+
+            .MuiButton-label {
+                text-align: right;
+            }
+        }
+    }
+}

@@ -10,7 +10,7 @@ import { useResource } from '../components/useResource';
 import { ICcData, ICcDataResult, ICourseProblem, IGradeDto, ISingleCourse } from '../models/DataModel';
 import { ProcessStatusCodes } from '../models/Enums';
 import { GenerateSheet } from './GradeResults.Sheet';
-import { ProblemPicker } from './ProblemPicker';
+import { ProblemPicker, ProblemPickerExportProps } from './ProblemPicker';
 import { defaultColumns, getStatusOrDefault } from './result.columns';
 
 export const Graderesults = () => {
@@ -25,9 +25,8 @@ export const Graderesults = () => {
     </div>
 }
 
-interface GraderesultsImplProps {
-    course: ISingleCourse;
-    problem: ICourseProblem;
+interface GraderesultsImplProps extends ProblemPickerExportProps {
+
 }
 
 function getStatus(result: ICcDataResult) {
@@ -53,7 +52,7 @@ const GraderesultsImpl = (props: GraderesultsImplProps) => {
         }
 
         const data = (stats as any).map(i => i.result);
-        const columns = defaultColumns([]);
+        const columns = defaultColumns();
         
         const isLoading = false;
 

@@ -1,24 +1,23 @@
-import { observable } from "mobx";
-import { observer } from "mobx-react";
-import React from "react";
-import { Form } from "react-bootstrap";
-import { Column, RowInfo } from "react-table";
 import "react-table/react-table.css";
-import { debounce } from 'throttle-debounce';
-import { ICcData, IMarkSolutionItem } from "../models/DataModel";
 import "../styles/detail.css";
 import "../styles/list.css";
-import { CondenseButton } from "../utils/CondenseButton";
-import { nestGet } from "../utils/NestGetter";
-import { ReactTableWithSelect } from "../utils/ReactTableWithSelect";
-import { getColumns, getStatus } from "./StudentResultList.Columns";
-import { StudentResultListModel } from "./StudentResultList.Model";
-import { StudentResultDetail } from "../components/StudentResultDetail";
-import { Dialog, DialogTitle, DialogContent, Button, Box, AppBar, Grid, Slider, Typography, TextField } from "@material-ui/core";
+
+import { AppBar, Box, Button, Dialog, DialogContent, DialogTitle, Grid, Slider, TextField, Typography } from "@material-ui/core";
+import { Column, RowInfo } from "react-table";
+import { ICcData, IMarkSolutionItem } from "../models/DataModel";
 import { appDispatcher, commentService, httpClient } from "../init";
+import { getColumns, getStatus } from "./StudentResultList.Columns";
+
 import { NotificationManager } from 'react-notifications';
 import NotificationsIcon from '@material-ui/icons/Notifications';
-
+import React from "react";
+import { ReactTableWithSelect } from "../utils/ReactTableWithSelect";
+import { StudentResultDetail } from "../components/StudentResultDetail";
+import { StudentResultListModel } from "./StudentResultList.Model";
+import { debounce } from 'throttle-debounce';
+import { nestGet } from "../utils/NestGetter";
+import { observable } from "mobx";
+import { observer } from "mobx-react";
 
 interface StudentResultListState {
     model?: StudentResultListModel;
@@ -304,7 +303,7 @@ export class StudentResultList2 extends React.Component<any, StudentResultListSt
                 </Dialog>
             }
 
-            <div style={{ display: "flex" }}>
+            {/* <div style={{ display: "flex" }}>
                 <Form.Group>
                     <Form.Label>Select course</Form.Label>
                     <Form.Control as="select" onChange={(e) => this.changeCourse(e)} value={this.course}>
@@ -318,7 +317,7 @@ export class StudentResultList2 extends React.Component<any, StudentResultListSt
                         )}
                     </Form.Control>
                 </Form.Group>
-            </div>
+            </div> */}
 
             <div className="student-result-list-wrapper">
                 <div className="student-result-list">
@@ -356,7 +355,6 @@ export class StudentResultList2 extends React.Component<any, StudentResultListSt
                     />
                 </div>
             </div>
-            <CondenseButton onChange={(value: string) => this.changeDensity(value)} />
         </div>
     }
 }

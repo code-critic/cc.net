@@ -13,7 +13,7 @@ import React, { useEffect } from "react";
 import { Link as RouterLink } from "react-router-dom";
 import { ICourseYearProblem, RouteComponentProps } from "../components/CourseProblemSelect";
 import { CourseProblemSelector } from "../components/CourseProblemSelector";
-import { AlertStatusMessage } from "../components/CourseProblemSelector.renderers";
+import { AlertStatusMessage } from "../renderers/StatusMessageRenderer";
 import { DropDownMenu } from "../components/DropDownMenu";
 import { IFile } from "../components/FileChooser";
 import { ShowAssets } from "../components/ShowAssets";
@@ -30,6 +30,7 @@ import { hubException } from "../utils/utils";
 import { SolutionSubmitForm } from "./SolutionSubmit.Form";
 import Alert from '@material-ui/lab/Alert';
 import { useUser } from '../hooks/useUser';
+import { languages } from '../static/languages';
 
 
 
@@ -156,7 +157,6 @@ export const SolutionSubmit = (props) => {
 
     const { history, match } = props;
     const [courses, setCourses] = React.useState<ICourse[]>([]);
-    const [languages, setLanguages] = React.useState<ILanguage[]>([]);
 
     const [liveResult, setLiveResult] = React.useState<ICcData>();
     const [forcedResultId, setForcedResultId] = React.useState("");
@@ -167,7 +167,6 @@ export const SolutionSubmit = (props) => {
     const [params, setParams] = React.useState<any>();
 
     const [apiCourses, setApiCourses] = React.useState(new ApiResource<ICourse>("courses", false));
-    const [apiLanguages, setApiLanguages] = React.useState(new ApiResource<ILanguage>("languages", false));
     const [resultsDialog, setResultsDialog] = React.useState(false);
     const [openResults, closeResults] = openCloseState(setResultsDialog);
     const { user, isRoot } = useUser();
@@ -186,7 +185,6 @@ export const SolutionSubmit = (props) => {
     const activeCourse = coursesFlatten.find(i => i.course == urlCourse && i.year == urlYear) as ISingleCourse;
 
     apiCourses.loadState(setCourses);
-    apiLanguages.loadState(setLanguages);
 
 
     history.listen((location, action) => {
@@ -199,7 +197,7 @@ export const SolutionSubmit = (props) => {
     });
 
 
-    if (!user.role || !apiCourses.isLoaded || !apiLanguages.isLoaded) {
+    if (!user.role || !apiCourses.isLoaded) {
         return <SimpleLoader />
     }
 

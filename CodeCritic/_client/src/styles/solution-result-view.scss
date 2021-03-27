@@ -1,0 +1,59 @@
+.solution-result-view-grid {
+  display: grid;
+  grid-template-columns: 300px 3fr 160px;
+  grid-template-rows: auto auto auto 1fr 32px;
+  gap: 0px 0px;
+  grid-template-areas:
+    "sol-inf sol-inf sol-sts"
+    "sol-exp sol-res sol-res"
+    "sol-exp sol-sub sol-sub"
+    "sol-exp sol-src sol-src"
+    "sol-exp sol-btn sol-btn";
+
+
+  .sol-inf {
+    grid-area: sol-inf;
+    background: rgb(235, 235, 235);
+    padding: 10px;
+    min-height: 100px;
+  }
+
+  .sol-sts {
+    font-family: 'Dosis', sans-serif;
+    background: #d4d4d4;
+    grid-area: sol-sts;
+    padding: 10px;
+    font-size: 50px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+
+  .sol-res {
+    grid-area: sol-res;
+    background: pink;
+  }
+
+
+  .sol-sub {
+    grid-area: sol-sub;
+    background: blue;
+  }
+
+  .sol-exp {
+    grid-area: sol-exp;
+    background: purple;
+  }
+
+  .sol-src {
+    min-height: 50px;
+    grid-area: sol-src;
+    background: green;
+  }
+
+  .sol-btn {
+    grid-area: sol-btn;
+    background: orange;
+  }
+}

@@ -8,7 +8,7 @@ import { groupBy } from "../utils/arrayUtils";
 import { flattenCourse } from "../utils/DataUtils";
 import { randomColorCss } from "../utils/randomcolor";
 import { getStatus, isStatusOk } from "../utils/StatusUtils";
-import { StatusMessage } from "./CourseProblemSelector.renderers";
+import { StatusMessage } from "../renderers/StatusMessageRenderer";
 import { SimpleLoader } from "./SimpleLoader";
 
 interface CourseProblemSelectorProps {

@@ -1,7 +1,8 @@
 import { Graderesults } from "./comp/GradeResults";
-import { ViewResults } from "./comp/ViewResults";
+import { SolutionResultView } from "./comp/SolutionResultView";
 import { StudentScoreboard } from "./comp/StudentScoreboard";
-import { SolutionSubmit } from "./routes/SolutionSubmit";
+import { SubmitSolution } from "./comp/SubmitSolution";
+import { ViewResults } from "./comp/ViewResults";
 
 export interface IPageLink<T> {
     title: string;
@@ -16,9 +17,10 @@ export const pageLinks: IPageLink<any>[] = [
     {
         title: "Home",
         to: "/",
-        path: "/",
-        exact: true,
-        component: SolutionSubmit,
+        path: "/:objectId?",
+        exact: false,
+        // component: SolutionSubmit,
+        component: SolutionResultView,
         rootOnly: false,
     },
     {
@@ -58,8 +60,8 @@ export const pageLinks: IPageLink<any>[] = [
         to: "/courses",
         path: "/courses/:course?/:year?/:problem?",
         exact: false,
-        component: SolutionSubmit,
-        // component: SubmitSolutionWithComponent,
+        // component: SolutionSubmit,
+        component: SubmitSolution,
         rootOnly: false,
     }
 ];

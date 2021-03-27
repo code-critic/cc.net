@@ -18,6 +18,7 @@ import { CcEventType } from '../models/Enums';
 import { pageLinks } from '../pageLinks';
 import { groupBy } from '../utils/arrayUtils';
 import { SimpleLoader } from './SimpleLoader';
+import { getInitials } from '../utils/utils';
 
 interface NavMenuProps {
 
@@ -38,11 +39,7 @@ const converter = new Showdown.Converter({
 const EventNotification = (props: EventNotificationProps) => {
   const { event, groupCount } = props;
   const { sender } = event;
-  const initials = (sender || "")
-    .split(".", 2)
-    .map(i => i.charAt(0))
-    .join("")
-    .toUpperCase();
+  const initials = getInitials(sender);
 
   let subject = event.subject;
 

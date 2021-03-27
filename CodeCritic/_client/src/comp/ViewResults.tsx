@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { ICcData, ICcDataResult, ICourseProblem, ILanguage, ISingleCourse, ITableRequest, ITableRequestFilter, ITableResponse } from '../models/DataModel';
-import { ProblemPicker } from './ProblemPicker';
+import { ProblemPicker, ProblemPickerExportProps } from './ProblemPicker';
 import AssignmentIndIcon from '@material-ui/icons/AssignmentInd';
 import ReactTable, { Column, RowInfo } from 'react-table';
 import { defaultColumns, getStatusOrDefault } from './result.columns';
 import { API } from '../api';
 import { IApiResponse } from '../models/CustomModel';
-import { SimpleLoader } from '../components/SimpleLoader';
 import { AxiosResponse } from 'axios';
 import { useParams } from 'react-router';
 import { StudentResultsDialogForTeacher } from '../components/StudentResultsDialog';
@@ -24,9 +23,7 @@ export const ViewResults = () => {
     </div>
 }
 
-interface ViewResultsImplProps {
-    course?: ISingleCourse;
-    problem?: ICourseProblem;
+interface ViewResultsImplProps extends Partial<ProblemPickerExportProps> {
 }
 
 function getStatus(result: ICcDataResult) {
@@ -52,7 +49,6 @@ const ViewResultsImpl = (props: ViewResultsImplProps) => {
     const { course, year, problem } = useParams<any>();
     const [tableResponse, setTableResponse] = useState<ITableResponse>({ count: 0, data: [] });
     const [pages, setPages] = useState(0);
-    const [languages, setLanguages] = useState<ILanguage[]>();
     const [isLoading, setIsLoading] = useState(true);
     const [state, setState] = useState<ITableRequest>();
     const [gradeResult, setGradeResult] = useState<ICcData>();
@@ -82,13 +78,6 @@ const ViewResultsImpl = (props: ViewResultsImplProps) => {
     const debounceFetch = debounce(500, false, fetchData);
 
     useEffect(() => {
-        (async () => {
-            const axiosResponse = await API.get<ILanguage[]>(`languages`);
-            setLanguages(axiosResponse.data);
-        })();
-    }, []);
-
-    useEffect(() => {
         if (state) {
             const newState = { ...state };
             newState.filtered = addToFilters(newState.filtered, course, year, problem);
@@ -96,16 +85,13 @@ const ViewResultsImpl = (props: ViewResultsImplProps) => {
         }
     }, [course, year, problem, rng]);
 
-    if (!languages) {
-        return <SimpleLoader />
-    }
 
     return <>
         <ReactTable filterable manual
             data={tableResponse.data}
             pages={pages}
             loading={isLoading}
-            columns={defaultColumns(languages)}
+            columns={defaultColumns()}
             showPagination={true}
             pageSizeOptions={[5, 10, 15, 20, 50]}
             onFetchData={debounceFetch}

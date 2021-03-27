@@ -68,6 +68,9 @@ namespace CC.Net.Services.Courses
         {
             CourseYearConfig = instance;
         }
+
+        public string Course => CourseYearConfig?.Course.Name;
+        public string Year => CourseYearConfig?.Year;
     }
     
     public class CourseProblemCollaborationConfig

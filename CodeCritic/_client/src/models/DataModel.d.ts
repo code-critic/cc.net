@@ -64,6 +64,7 @@
 		avail: Date;
 		cat: string[];
 		collaboration: ICourseProblemCollaborationConfig;
+		course: string;
 		courseYearConfig: ICourseYearConfig;
 		deadline: Date;
 		description: string;
@@ -82,6 +83,7 @@
 		timeout: number;
 		type: ProblemType;
 		unittest: boolean;
+		year: string;
 	}
 	interface ICourseProblemCase {
 		id: string;

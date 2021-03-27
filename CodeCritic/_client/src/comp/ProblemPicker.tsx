@@ -1,15 +1,23 @@
-import { Button } from "@material-ui/core";
-import React, { useEffect, useState } from "react";
-import { useParams } from "react-router";
-import { Link } from "react-router-dom";
-import { API } from "../api";
-import { SimpleLoader } from "../components/SimpleLoader";
-import { IApiListResponse } from "../models/CustomModel";
+import { Button, Typography } from "@material-ui/core";
 import { ICourseProblem, ISingleCourse } from "../models/DataModel";
-import { renderError } from "../renderers/renderErrors";
+import { PickerCourseBigTile, PickerProblemBigTile } from "./ProblemPicker.BigTile";
+import React, { useEffect, useState } from "react";
+
+import { API } from "../api";
+import { IApiListResponse } from "../models/CustomModel";
+import { Link } from "react-router-dom";
 import { RenderBreadcrumbs } from "../renderers/BreadcrumbsRenderer";
+import { SimpleLoader } from "../components/SimpleLoader";
+import { StatusMessage } from "../renderers/StatusMessageRenderer";
+import { groupBy } from "../utils/arrayUtils";
+import { renderErrorForAdmin } from "../renderers/renderErrors";
+import { useParams } from "react-router";
 import { useUser } from "../hooks/useUser";
 
+export interface ProblemPickerExportProps {
+    course: ISingleCourse;
+    problem: ICourseProblem;
+}
 
 interface ProblemPickerProps {
     baseUrl: string;
@@ -82,33 +90,51 @@ export const ProblemPicker = (props: ProblemPickerProps) => {
         }
 
         if (!courseResponse) {
-            return (<>
-                <div className={`picker picker-level-course picker-style-${tileStyle}`}>
-                    {coursesResponse.errors.map(renderError)}
-                    {coursesResponse.data
-                        .filter(i => !whereUserIsTeacher || userIsTeacher(i))
-                        .map((i, j) => {
-                            const currentYear = i.year === new Date().getFullYear().toString()
-                                ? "picker-current" : "picker-old";
-                            return <Button 
-                                className={currentYear}
-                                key={j} component={Link}
-                                to={`${baseUrl}/${i.course}/${i.year}`}>
-                                {i.course}/{i.year}
-                            </Button>
+            if (tileStyle === "small") {
+                return (<>
+                    <div className={`picker picker-level-course picker-style-${tileStyle}`}>
+                        {coursesResponse.errors.map(renderErrorForAdmin)}
+                        {coursesResponse.data
+                            .filter(i => !whereUserIsTeacher || userIsTeacher(i))
+                            .map((i, j) => {
+                                const currentYear = i.year === new Date().getFullYear().toString()
+                                    ? "picker-current" : "picker-old";
+                                return <Button 
+                                    className={currentYear}
+                                    key={j} component={Link}
+                                    to={`${baseUrl}/${i.course}/${i.year}`}>
+                                    {i.course}/{i.year}
+                                </Button>
+                            })}
+                    </div>
+                </>)
+            } else {
+                const byYear = groupBy(coursesResponse.data, i => i.year);
+                return (<>
+                    <div className={`picker picker-level-course picker-style-${tileStyle}`}>
+                        {coursesResponse.errors.map(renderErrorForAdmin)}
+                        {[...byYear.entries()].map(([year, courses], i) => {
+                            return <PickerCourseBigTile baseUrl={baseUrl} defaultVisible={i == 0} key={i} section={year} items={courses} />
                         })}
-                </div>
-            </>)
+                    </div>
+                </>)
+            }
         }
 
         if (!courseProblem && courseResponse) {
-            return <div className={`picker picker-level-problem picker-style-${tileStyle}`}>
-                <div>
-                    {courseResponse.errors.map(renderError)}
-                    {courseResponse.data
-                        .map((i, j) => <Button key={j} component={Link} to={`${baseUrl}/${course}/${year}/${i.id}`}>{i.id} ({i.name})</Button>)}
+            if (tileStyle === "small") {
+                return (<div className={`picker picker-level-problem picker-style-${tileStyle}`}>
+                    <div>
+                        {courseResponse.errors.map(renderErrorForAdmin)}
+                        {courseResponse.data
+                            .map((i, j) => <Button key={j} component={Link} to={`${baseUrl}/${course}/${year}/${i.id}`}>{i.name}</Button>)}
+                    </div>
+                </div>)
+            } else {
+                return <div>
+                    <PickerProblemBigTile baseUrl={baseUrl} items={courseResponse.data} />
                 </div>
-            </div>
+            }
         }
     }
 

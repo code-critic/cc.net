@@ -1,6 +1,5 @@
 import { Container, Button, ButtonGroup } from '@material-ui/core';
 import DeleteForeverOutlinedIcon from '@material-ui/icons/DeleteForeverOutlined';
-import * as H from 'history';
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router';
 import { API } from '../api';
@@ -13,6 +12,7 @@ import { SimpleLoader } from '../components/SimpleLoader';
 import { StudentResultItem } from '../components/StudentResults.Item';
 import { StudentResultsDialogForTeacher } from '../components/StudentResultsDialog';
 import { useUser } from '../hooks/useUser';
+import { languages } from '../static/languages';
 
 
 interface SingleResultProps {
@@ -24,7 +24,6 @@ export const SingleResult = (props: SingleResultProps) => {
     const objectId = props.objectId || params.objectId;
 
     const [result, setResult] = useState<ICcData | false>();
-    const [languages, setLanguages] = React.useState<ILanguage[]>([]);
     const [items, setItems] = React.useState(commentService.items);
     const [discardDialog, setDiscardDialog] = React.useState(false);
     const [rng, setRng] = React.useState(Math.random());
@@ -43,11 +42,6 @@ export const SingleResult = (props: SingleResultProps) => {
                 setResult(axiosResponseD.data);
             } catch (error) {
                 setResult(false);
-            }
-
-            if (!languages.length) {
-                const axiosResponseL = await API.get<ILanguage[]>(`languages`);
-                setLanguages(axiosResponseL.data);
             }
         })();
     }, [rng]);
@@ -77,7 +71,21 @@ export const SingleResult = (props: SingleResultProps) => {
         return <SimpleLoader />
     }
 
-    if (canBeStudent) {
+    if (isRoot) {
+        return <Container>
+            {isOpen &&
+                <StudentResultsDialogForTeacher
+                    onClose={closeDialog}
+                    result={result}
+                    onRefresh={refresh}
+                />
+            }
+            <Button variant="contained" color="primary" onClick={openDialog}>Open Grade Dialog</Button>
+            <RenderSolution result={result} />
+        </Container>
+    }
+
+    if (canBeStudent || user.roles.length) {
         return <Container>
             <div>
                 {items.length > 0 &&
@@ -102,20 +110,6 @@ export const SingleResult = (props: SingleResultProps) => {
                 languages={languages}
                 forceOpen={true}
             />
-        </Container>
-    }
-
-    if (isRoot) {
-        return <Container>
-            {isOpen &&
-                <StudentResultsDialogForTeacher
-                    onClose={closeDialog}
-                    result={result}
-                    onRefresh={refresh}
-                />
-            }
-            <Button variant="contained" color="primary" onClick={openDialog}>Open Grade Dialog</Button>
-            <RenderSolution result={result} />
         </Container>
     }
 

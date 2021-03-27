@@ -1,50 +1,28 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="theme-color" content="#000000">
-    <base href="%PUBLIC_URL%/" />
-    <!--
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="theme-color" content="#000000">
+  <base href="%PUBLIC_URL%/" />
+  <!--
       manifest.json provides metadata used when your web app is added to the
       homescreen on Android. See https://developers.google.com/web/fundamentals/engage-and-retain/web-app-manifest/
     -->
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" />
-    <link rel="manifest" href="%PUBLIC_URL%/manifest.json">
-    <link rel="shortcut icon" href="%PUBLIC_URL%/favicon.ico">
-    <title>cc.net</title>
-      <script type="text/javascript">
-        /*const auth = async () => {
-            debugger;
-            console.log("auth start");
-            if (window.currentUser) {
-                console.log('auth end', window.currentUser);
-                return;
-            }
-            
-            console.log('auth fetch');
-            debugger;
-            const response = await fetch("home/whoami");
-            if (response.ok) {
-              debugger;
-                console.log('auth json');
-                window.currentUser = await response.json();
-                console.log('auth end', window.currentUser);
-            } else {
-              debugger;
-                console.log('auth error', window.currentUser);
-                debugger;
-                window.location.href = "https://flowdb.nti.tul.cz/auth/";
-            }
-        };
-        auth();*/
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" />
+  <link rel="manifest" href="%PUBLIC_URL%/manifest.json">
+  <link rel="shortcut icon" href="%PUBLIC_URL%/favicon.ico">
+  <!-- <script type="text/javascript" src="%PUBLIC_URL%/3rd/prismjs.js"></script> -->
+  <script type="text/javascript" src="%PUBLIC_URL%/3rd/highlight.min.js"></script>
+  <title>cc.net</title>
+</head>
 
-    </script>
-  </head>
-  <body>
-    <noscript>
-      You need to enable JavaScript to run this app.
-    </noscript>
-    <div id="root"></div>
-  </body>
+<body>
+  <noscript>
+    You need to enable JavaScript to run this app.
+  </noscript>
+  <div id="root"></div>
+</body>
+
 </html>

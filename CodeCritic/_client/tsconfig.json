@@ -1,18 +1,19 @@
 {
   "compilerOptions": {
     "checkJs": false,
+    "noImplicitAny": false,
+    "allowJs": false,
     "experimentalDecorators": true,
+    "strict": false,
     "target": "es2017",
     "lib": [
       "dom",
       "dom.iterable",
       "esnext"
     ],
-    "allowJs": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
-    "strict": true,
     "forceConsistentCasingInFileNames": true,
     "module": "esnext",
     "moduleResolution": "node",
@@ -20,12 +21,12 @@
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "preserve",
-    "noImplicitAny": false
   },
+  "exclude": [
+    "./src/**/*.js",
+    "./src/**/*.jsx"
+  ],
   "include": [
     "src"
-  ],
-  "exclude": [
-    "src/third_party/*.js"
   ]
 }

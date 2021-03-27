@@ -27,6 +27,7 @@ $notifications: (1: #ecec96,
 );
 
 @import url('https://fonts.googleapis.com/css2?family=Dosis:wght@300;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@500&display=swap');
 
 @media (min-width: 1600px) {
   .container {
@@ -53,6 +54,7 @@ a.navbar-brand {
 html {
   font-size: 14px;
 }
+
 @media (min-width: 768px) {
   html {
     font-size: 16px;
@@ -79,6 +81,12 @@ html {
 }
 
 .card-select {
+  &.card-select-problem {
+    .MuiButton-root {
+      min-height: 100px;
+    }
+  }
+
   .MuiButton-root {
     width: 100%;
     min-height: 140px;
@@ -1125,6 +1133,7 @@ a.notification-item {
   &.is-new {
 
     &:hover {
+
       @each $status,
       $color in $notifications {
         &.notification-type-#{$status} {
@@ -1167,21 +1176,208 @@ a.notification-item {
     opacity: 0.5;
   }
 
+  .picker-section-header {
+    width: 100%;
+    border-bottom: 1px solid #c7c7c7;
+    margin-bottom: 20px;
+    border-radius: 0;
+    outline: none;
+
+    &.MuiButtonBase-root {
+
+      text-transform: none;
+      align-items: flex-start;
+      justify-content: flex-start;
+      text-align: left;
+
+      .MuiTypography-root {
+        font-size: 21px;
+        font-weight: 500;
+        font-family: 'Roboto', sans-serif;
+      }
+    }
+  }
+
+  .picker-items {
+    margin-top: 5px;
+    margin-bottom: 30px;
+    animation: fadeIn ease .5s;
+  }
+
   &.picker-level-course {
     &.picker-style-small {
       a {
         margin: 4px 4px;
-        box-shadow: 0 0 4px 0 rgba(0,0,0,0.2);
+        box-shadow: 0 0 4px 0 rgba(0, 0, 0, 0.2);
+        animation: fadeIn ease .5s;
       }
     }
   }
-  
+
   &.picker-level-problem {
     &.picker-style-small {
       a {
         margin: 4px 4px;
-        box-shadow: 0 0 4px 0 rgba(0,0,0,0.2);
+        box-shadow: 0 0 4px 0 rgba(0, 0, 0, 0.2);
+        animation: fadeIn ease .5s;
       }
     }
   }
+}
+
+.fade-in {
+  animation: fadeIn ease .5s;
+}
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
+
+
+.MuiButton-root.icon-text-button {
+  min-width: 80px;
+  width: 80px;
+  padding: 0;
+  margin-bottom: 20px;
+  position: relative;
+
+  @each $status,
+  $color in $statuses {
+    &.#{$status} {
+      .MuiButton-label {
+        background-color: rgba($color, 0.4);
+      }
+
+      .icon {
+        color: darken($color, 45);
+      }
+
+      .text {
+        color: darken($color, 45);
+      }
+
+      .cr {
+        color: darken($color, 25);
+        svg {
+          stroke: darken($color, 55);
+        }
+      }
+    }
+  }
+
+  .icon {
+    padding: 5px;
+
+    .MuiSvgIcon-root {
+      font-size: 2rem;
+    }
+
+    text-align: center;
+    background-color: #ffffff10;
+  }
+
+  .text {
+    text-align: center;
+    background-color: #ffffff56;
+  }
+  .cr {
+    left: 0;
+    right: 0;
+    position: relative;
+    text-align: center;
+
+    .MuiSvgIcon-root {
+      font-size: 2rem;
+    }
+    
+    svg {
+      stroke-width: 1px;
+    }
+  }
+
+  .MuiButton-label {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: center;
+  }
+}
+
+.latest-result-wrapper {
+  position: relative;
+
+  &::before {
+    content: " ";
+    width: 100%;
+    position: absolute;
+    display: block;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(90deg, #ffffff00 60%, #ffffffa4);
+    z-index: 1;
+    pointer-events: none;
+  }
+
+  .latest-results {
+    --scrollbarBG: #ffffff;
+    --thumbBG: #b4b4b400;
+
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: visible;
+
+    scrollbar-width: thin;
+    scrollbar-color: var(--thumbBG) var(--scrollbarBG);
+    display: flex;
+    flex-direction: row;
+    align-items: flex-end;
+
+    &:hover {
+      --thumbBG: #b4b4b4;
+    }
+
+
+    &::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: var(--scrollbarBG);
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background-color: var(--thumbBG);
+      border-radius: 5px;
+      border: 2px solid var(--scrollbarBG);
+    }
+  }
+}
+
+
+
+@keyframes pulse {
+  from {
+    transform: scale(1);
+    opacity: .5;
+  }
+  to {
+    transform: scale(3, 3);
+    opacity: 0;
+  }
+}
+
+.hide-links {
+  a.MuiTypography-root {
+    color: initial;
+  }
+
 }

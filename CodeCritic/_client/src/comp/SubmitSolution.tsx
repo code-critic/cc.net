@@ -1,20 +1,49 @@
-import React from "react";
-import { ICourseProblem } from "../models/DataModel";
-import { ProblemPicker } from "./ProblemPicker";
+import { Container, Grid } from "@material-ui/core";
+import React, { useEffect, useState } from "react";
+import { ICcData } from "../models/DataModel";
+import { ProblemPicker, ProblemPickerExportProps } from "./ProblemPicker";
+import { SubmitSolutionLastResults } from "./SubmitSolution.LastResults";
+import "../third_party/mathjax";
 
-
-interface SubmitSolutionProps {
-    courseProblem: ICourseProblem;
+interface SubmitSolutionProps extends ProblemPickerExportProps {
 }
+
 
 export const SubmitSolution = (props: SubmitSolutionProps) => {
-    const { courseProblem } = props;
-    return <div>
-        <div>so, you have selected {courseProblem.id}</div>
-        <div dangerouslySetInnerHTML={{__html: courseProblem.description}} />
-    </div>
+    return (<Container maxWidth="lg">
+        <ProblemPicker
+            component={SubmitSolutionImpl}
+            baseUrl="/courses"
+            tileStyle="big"
+            withBreadcrumbs
+        />
+    </Container>)
 }
 
-export const SubmitSolutionWithComponent = (props: SubmitSolutionProps) => {
-    return <ProblemPicker component={SubmitSolution} baseUrl="/courses" />
+export const SubmitSolutionImpl = (props: SubmitSolutionProps) => {
+    const { course, problem } = props;
+
+    useEffect(() => {
+        const MathJax = (window as any).MathJax;
+        if (MathJax && MathJax.typeset) {
+            MathJax.typeset();
+        }
+    });
+
+    return <Grid container spacing={2}>
+        {/* top info */}
+        <Grid item xs={12}>
+            <SubmitSolutionLastResults course={course} problem={problem} />
+        </Grid>
+
+        {/* left half */}
+        <Grid item xs={12} md={6}>
+            <div dangerouslySetInnerHTML={{ __html: problem.description }} />
+        </Grid>
+
+        {/* right half */}
+        <Grid item xs={12} md={6}>
+
+        </Grid>
+    </Grid>
 }

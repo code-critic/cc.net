@@ -1,10 +1,10 @@
-import React from 'react'
-import { useResource } from "./useResource";
-import { SimpleLoader } from './SimpleLoader';
+import { Container } from '@material-ui/core';
 import Highcharts from 'highcharts/highstock';
-import addHistogramModule from 'highcharts/modules/histogram-bellcurve';
 import HighchartsReact from 'highcharts-react-official';
-import { Container } from 'reactstrap';
+import React from 'react'
+import { SimpleLoader } from './SimpleLoader';
+import addHistogramModule from 'highcharts/modules/histogram-bellcurve';
+import { useResource } from "./useResource";
 
 addHistogramModule(Highcharts);
 
