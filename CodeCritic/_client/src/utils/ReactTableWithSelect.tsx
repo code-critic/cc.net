@@ -1,15 +1,20 @@
-import React from "react";
-import ReactTable, { CellInfo, Column, TableProps } from "react-table";
-import { copyToClipboard } from "./ClipboardUtils";
-import { transpose } from "./MatrixUtils";
+import React from 'react';
+import { copyToClipboard } from './ClipboardUtils';
+import { transpose } from './MatrixUtils';
+// import ReactTable, { CellInfo, Column, TableProps } from "react-table";
 
-export interface NewProps<D> extends React.Component<Partial<TableProps<D>>> {
+let ReactTable: any;
+let TableProps: any;
+let CellInfo: any;
+let Column: any;
+
+export interface NewProps<D> extends React.Component<any> {
     extractData: (key: string) => string[];
     dataChanged: () => void;
     copyHeader?: boolean;
 }
 
-function getHeaderId(cellInfo: CellInfo): string {
+function getHeaderId(cellInfo: any): string {
     if (!cellInfo.column.columns) {
         return "";
     }
@@ -19,16 +24,16 @@ function getHeaderId(cellInfo: CellInfo): string {
 
 
 
-export class ReactTableWithSelect<D> extends React.Component<Partial<TableProps<D> & NewProps<D>>>  {
+export class ReactTableWithSelect<D> extends React.Component<any>  {
     public headerProps: { [name: string]: boolean } = {};
 
-    private getHeaderState(cellInfo: CellInfo): boolean {
+    private getHeaderState(cellInfo: any): boolean {
         return this.headerProps[
             getHeaderId(cellInfo)
         ];
     }
 
-    private copyCol(cellInfo: CellInfo) {
+    private copyCol(cellInfo: any) {
         if (cellInfo.column.columns) {
             this.headerProps[getHeaderId(cellInfo)] = !this.getHeaderState(cellInfo);
             this.copyData();
@@ -65,14 +70,14 @@ export class ReactTableWithSelect<D> extends React.Component<Partial<TableProps<
         }
     }
 
-    private wrappedColumns(columns: Column<D>[]): Column[] {
-        var newCols: Column[] = [];
+    private wrappedColumns(columns: any[]): any[] {
+        var newCols: any[] = [];
         for (const col of columns) {
             const extraClass = this.headerProps[col.accessor ? col.accessor.toString() : ""] ? "selected" : "";
             col.className = extraClass;
-            var newCol: Column = {
+            var newCol: any = {
                 columns: [col],
-                Header: (cellInfo: CellInfo, column: any) => {
+                Header: (cellInfo: any, column: any) => {
                     return <input
                         type="checkbox"
                         onChange={(e) => this.copyCol(cellInfo)}

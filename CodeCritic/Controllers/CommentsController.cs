@@ -1,8 +1,10 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CC.Net.Collections;
 using CC.Net.Db;
+using CC.Net.Extensions;
 using CC.Net.Services;
 using CC.Net.Services.Courses;
 using Microsoft.AspNetCore.Authorization;
@@ -49,10 +51,13 @@ namespace CC.Net.Controllers
         public async Task<object> RequestCodeReview(string objectId)
         {
             var oid = new ObjectId(objectId);
-            var sender = _userService.CurrentUser.Id;
+            var user = _userService.CurrentUser;
+            var sender = user.Id;
 
             // generate notifications
-            var ccData = await _dbService.DataSingleOrDefaultAsync(oid);
+            var ccData = await _dbService.DataSingleAsync(oid);
+            _utilService.RequireAccess(ccData);
+
             var recipients = _utilService.GetUsersRelatedToResult(ccData);
 
             await _utilService.SendNotificationAsync(recipients,
@@ -79,12 +84,12 @@ namespace CC.Net.Controllers
         public async Task<object> CancelCodeReview(string objectId)
         {
             var oid = new ObjectId(objectId);
-            var data = _dbService.Data
-                .Find(i => i.Id == oid)
-                .First();
+            var ccData = await _dbService.DataSingleAsync(oid);
+            _utilService.RequireAccess(ccData);
+            var user = _userService.CurrentUser;
 
-            data.ReviewRequest = null;
-            var result = await _dbService.Data.ReplaceOneAsync(i => i.Id == oid, data);
+            ccData.ReviewRequest = null;
+            var result = await _dbService.Data.ReplaceOneAsync(i => i.Id == oid, ccData);
             var updated = (int) result.ModifiedCount;
 
             return new
@@ -106,15 +111,23 @@ namespace CC.Net.Controllers
                 {
                     item.comment.User = sender;
                     var objectId = new ObjectId(item.objectId);
-                    data = await _dbService.DataSingleOrDefaultAsync(objectId);
-                    data.Comments.Add(item.comment);
+                    data = await _dbService.DataSingleAsync(objectId);
+                    _utilService.RequireAccess(data);
+                    var finished = new CcData.LineComment {
+                        Time = DateTimeOffset.Now.ToUnixTimeSeconds(),
+                        Text = item.comment.Text.ToMarkdown(),
+                        User = sender,
+                        Filename = item.comment.Filename,
+                        Line = item.comment.Line,
+                    };
+                    data.Comments.Add(finished);
 
                     var result = await _dbService.Data.ReplaceOneAsync(i => i.Id == objectId, data);
                     updated += (int) result.ModifiedCount;
                 }
 
                 var oid = new ObjectId(items.First().objectId);
-                var ccData = await _dbService.DataSingleOrDefaultAsync(oid);
+                var ccData = await _dbService.DataSingleAsync(oid);
                 var recipients = _utilService.GetUsersRelatedToResult(ccData);
                 
                 await _utilService.SendNotificationAsync(recipients,

@@ -1,3 +1,4 @@
+import { ProcessStatus, SubmissionStatus, ProblemType, ProblemStatus, CcEventType, CcUserGroupStatus, DiffResultLineType, ProcessStatusCodes, ChangeType } from  './Enums'
 
 	interface IUser {
 		id: string;
@@ -16,23 +17,6 @@
 		scaleStart: number;
 		unittest: string[];
 		version: string;
-	}
-	export const enum ProblemStatus {
-		BeforeStart = 0,
-		Active = 1,
-		ActiveLate = 2,
-		AfterDeadline = 3
-	}
-	export const enum ProblemType {
-		LineByLine = 1,
-		Unittest = 2,
-		Program = 3
-	}
-	export const enum SubmissionStatus {
-		Unkown = 0,
-		Intime = 1,
-		Late = 2,
-		None = 3
 	}
 	interface ICourse {
 		courseConfig: ICourseConfig;
@@ -134,17 +118,6 @@
 		settingsConfig: ISettingsConfig;
 		year: string;
 	}
-	export const enum CcEventType {
-		Unknown = 0,
-		NewComment = 1,
-		NewGrade = 2,
-		NewCodeReview = 3
-	}
-	export const enum CcUserGroupStatus {
-		NotConfirmed = 0,
-		Confirmed = 1,
-		Rejected = 2
-	}
 	interface ICcData {
 		action: string;
 		attempt: number;
@@ -152,6 +125,7 @@
 		courseName: string;
 		courseYear: string;
 		docker: boolean;
+		files: ISimpleFile[];
 		gradeComment: string;
 		groupId: IObjectId;
 		groupName: string;
@@ -245,11 +219,15 @@
 		time: number;
 		user: string;
 	}
-	interface IDateTimeOrDays {
+	interface ISimpleFile {
+		content: any;
+		filename: string;
+		files: ISimpleFile[];
+		isDir: boolean;
+		rawPath: string;
+		relPath: string;
 	}
-	export const enum DiffResultLineType {
-		Correct = 1,
-		Wrong = 2
+	interface IDateTimeOrDays {
 	}
 	interface IDiffResult {
 		generated: string;
@@ -290,21 +268,29 @@
 	}
 	interface ITableResponse {
 		count: number;
-		data: any[];
+		data: ICcDataDto[];
 	}
-	export const enum ProcessStatusCodes {
-		InQueue = 1,
-		Running = 2,
-		Skipped = 9,
-		Ok = 10,
-		GlobalTimeout = 12,
-		AnswerCorrect = 100,
-		AnswerCorrectTimeout = 101,
-		AnswerWrong = 200,
-		AnswerWrongTimeout = 201,
-		CompilationFailed = 400,
-		ErrorWhileRunning = 500,
-		NoSolution = 666
+	interface ICcDataDto {
+		attempt: number;
+		comments: number;
+		course: string;
+		date: Date;
+		duration: number;
+		group: string;
+		isLate: string;
+		language: string;
+		objectId: string;
+		points: number;
+		problem: string;
+		reviewRequest: Date;
+		score: string;
+		status: string;
+		users: string[];
+		year: string;
+	}
+	interface IGradeDto {
+		result: ICcDataDto;
+		user: IUser;
 	}
 	interface IAppUser {
 		affiliation: string;
@@ -313,18 +299,12 @@
 		eppn: string;
 		groups: ICcGroup[];
 		id: string;
+		isCurrentlyRoot: boolean;
 		isRoot: boolean;
 		lastFirstName: string;
 		role: string;
 		roles: string[];
 		username: string;
-	}
-	interface IProcessStatus {
-		code: ProcessStatusCodes;
-		description: string;
-		letter: string;
-		name: string;
-		value: number;
 	}
 	interface ICommentServiceItem {
 		comment: ILineComment;
@@ -341,20 +321,9 @@
 		score: number;
 		since: Date;
 	}
-	interface IGradeDto {
-		result: ICcData;
-		user: IUser;
-	}
 	interface IApiError {
 		errors: string[];
 		name: string;
-	}
-	export const enum ChangeType {
-		Unchanged = 0,
-		Deleted = 1,
-		Inserted = 2,
-		Imaginary = 3,
-		Modified = 4
 	}
 	interface IDiffPiece {
 		position: number;
@@ -362,3 +331,7 @@
 		text: string;
 		type: ChangeType;
 	}
+
+
+// generated at 4/1/2021 5:57:13 PM (UTC)
+export const __uuid = '107f96ca-98f2-4405-a6d1-9c4c0d8ef55b'

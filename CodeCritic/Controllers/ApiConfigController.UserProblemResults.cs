@@ -34,9 +34,9 @@ namespace CC.Net.Controllers
                 .Select(_utilService.ConvertToExtended)
                 .ToList();
 
-            var rng = new Random();
-            var options = (ProcessStatusCodes[]) Enum.GetValues(typeof(ProcessStatusCodes));
-            results.ForEach(i => i.Result.Status = (int) options[rng.Next(0, options.Length-1)]);
+            // var rng = new Random();
+            // var options = (ProcessStatusCodes[]) Enum.GetValues(typeof(ProcessStatusCodes));
+            // results.ForEach(i => i.Result.Status = (int) options[rng.Next(0, options.Length-1)]);
 
             var response = new ApiListResponse<CcData>(results);
             return Ok(response);

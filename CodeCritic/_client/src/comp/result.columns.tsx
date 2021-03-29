@@ -1,11 +1,11 @@
 import moment from 'moment';
-import React from 'react';
 import Moment from 'react-moment';
-import { CellInfo, Column, ReactTableFunction } from "react-table";
-import { nameof } from "ts-simple-nameof";
-import { ICcData, ICcDataResult, ILanguage } from "../models/DataModel";
-import { ProcessStatusStatic, SubmissionStatus } from '../models/Enums';
+import React from 'react';
+import { Column } from 'react-table';
+import { ICcData, ICcDataResult, ILanguage } from '../models/DataModel';
 import { languages } from '../static/languages';
+import { nameof } from 'ts-simple-nameof';
+import { ProcessStatusStatic, SubmissionStatus } from '../models/Enums';
 
 interface Filter {
     id: string;
@@ -46,7 +46,7 @@ export const defaultColumns = () => [
         Header: () => "#",
         accessor: nameof<ICcData>(i => i.attempt),
         maxWidth: 70,
-        Filter: (params: { column: Column, filter: any, onChange: ReactTableFunction, key?: string }) =>
+        Filter: (params: { column: Column, filter: any, onChange: any, key?: string }) =>
             <select onChange={event => params.onChange(event.target.value)} style={{ width: "100%" }}
                 value={params.filter ? params.filter.value : "all"}>
                 <option value="all">∞</option>
@@ -60,7 +60,7 @@ export const defaultColumns = () => [
     {
         Header: () => "Date",
         accessor: "id.timestamp",
-        Cell: (cellInfo: CellInfo) =>
+        Cell: (cellInfo: any) =>
             <Moment date={cellInfo.value * 1000} fromNow />,
         filterMethod: (filter: Filter, row: ICcData) => {
             if (filter.value === "all") {
@@ -68,7 +68,7 @@ export const defaultColumns = () => [
             }
             return getStatusOrDefault(row.result) === filter.value;
         },
-        Filter: (params: { column: Column, filter: any, onChange: ReactTableFunction, key?: string }) =>
+        Filter: (params: { column: Column, filter: any, onChange: any, key?: string }) =>
             <select onChange={event => params.onChange(event.target.value)} style={{ width: "100%" }}
                 value={params.filter ? params.filter.value : "all"}>
                 <option value="all">Show All</option>
@@ -79,7 +79,7 @@ export const defaultColumns = () => [
     {
         Header: "Late submission",
         accessor: "submissionStatus",
-        Filter: (params: { column: Column, filter: any, onChange: ReactTableFunction, key?: string }) =>
+        Filter: (params: { column: Column, filter: any, onChange: any, key?: string }) =>
             <select onChange={event => params.onChange(event.target.value)} style={{ width: "100%" }}
                 value={params.filter ? params.filter.value : "all"}>
                 <option value="all">Show All</option>
@@ -87,7 +87,7 @@ export const defaultColumns = () => [
                 <option value={SubmissionStatus.Late}>AF(ter)</option>
                 <option value={SubmissionStatus.None}>NO(ne)</option>
             </select>,
-        Cell: (cellInfo: CellInfo) =>
+        Cell: (cellInfo: any) =>
             cellInfo.value == SubmissionStatus.Intime
                 ? "IN"
                 : cellInfo.value == SubmissionStatus.Late
@@ -112,7 +112,7 @@ export const defaultColumns = () => [
             }
             return getStatusOrDefault(row.result) === filter.value;
         },
-        Filter: (params: { column: Column, filter: any, onChange: ReactTableFunction, key?: string }) =>
+        Filter: (params: { column: Column, filter: any, onChange: any, key?: string }) =>
             <select onChange={event => params.onChange(event.target.value)} style={{ width: "100%" }}
                 value={params.filter ? params.filter.value : "all"}>
                 <option value="all">Show All</option>
@@ -141,8 +141,8 @@ export const defaultColumns = () => [
     {
         Header: "Review Request",
         accessor: nameof<ICcData>(i => i.reviewRequest),
-        Cell: (cellInfo: CellInfo) => cellInfo.value ? "yes" : "",
-        Filter: (params: { column: Column, filter: any, onChange: ReactTableFunction, key?: string }) =>
+        Cell: (cellInfo: any) => cellInfo.value ? "yes" : "",
+        Filter: (params: { column: Column, filter: any, onChange: any, key?: string }) =>
             <select onChange={event => params.onChange(event.target.value)} style={{ width: "100%" }}
                 value={params.filter ? params.filter.value : "all"}>
                 <option value="all">Show All</option>
@@ -155,8 +155,8 @@ export const defaultColumns = () => [
     {
         Header: "Comments",
         accessor: nameof<ICcData>(i => i.comments),
-        Cell: (cellInfo: CellInfo) => (cellInfo.value && cellInfo.value.length) ? "yes" : "",
-        Filter: (params: { column: Column, filter: any, onChange: ReactTableFunction, key?: string }) =>
+        Cell: (cellInfo: any) => (cellInfo.value && cellInfo.value.length) ? "yes" : "",
+        Filter: (params: { column: Column, filter: any, onChange: any, key?: string }) =>
             <select onChange={event => params.onChange(event.target.value)} style={{ width: "100%" }}
                 value={params.filter ? params.filter.value : "all"}>
                 <option value="all">Show All</option>
@@ -171,7 +171,7 @@ export const defaultColumns = () => [
     {
         Header: "Score",
         accessor: nameof<ICcData>(i => i.result),
-        Cell: (cellInfo: CellInfo) => {
+        Cell: (cellInfo: any) => {
             var data = cellInfo.value as ICcDataResult;
             if (!data) {
                 return "";
@@ -203,11 +203,11 @@ export const defaultColumns = () => [
     {
         Header: "Status",
         accessor: nameof<ICcData>(i => i.result.status),
-        Cell: (cellInfo: CellInfo) => {
+        Cell: (cellInfo: any) => {
             const status = ProcessStatusStatic.All.find(i => i.code === cellInfo.value);
             return !status ? "" : status.letter;
         },
-        Filter: (params: { column: Column, filter: any, onChange: ReactTableFunction, key?: string }) =>
+        Filter: (params: { column: Column, filter: any, onChange: any, key?: string }) =>
             <select onChange={event => params.onChange(event.target.value)} style={{ width: "100%" }}
                 value={params.filter ? params.filter.value : "all"}>
                 <option value="all">Show All</option>
@@ -224,7 +224,7 @@ export const defaultColumns = () => [
 
     {
         Header: () => <i className="fa fa-clock-o" />,
-        Cell: (cellInfo: CellInfo) => <span>{Number(cellInfo.value).toFixed(2)}</span>,
+        Cell: (cellInfo: any) => <span>{Number(cellInfo.value).toFixed(2)}</span>,
         accessor: nameof<ICcData>(i => i.result.duration),
         filterable: false,
         maxWidth: 70

@@ -1,0 +1,29 @@
+.pretty-scrollbar {
+    --scrollbarBG: #ffffff;
+    --thumbBG: #b4b4b400;
+
+    overflow-x: auto;
+    overflow-y: visible;
+
+    scrollbar-width: thin;
+    scrollbar-color: var(--thumbBG) var(--scrollbarBG);
+
+    &:hover {
+      --thumbBG: #b4b4b4;
+    }
+
+    &::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: var(--scrollbarBG);
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background-color: var(--thumbBG);
+      border-radius: 5px;
+      border: 2px solid var(--scrollbarBG);
+    }
+  }

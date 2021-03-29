@@ -18,6 +18,7 @@ using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using static CC.Net.Collections.CcData;
+using SimpleFile = CC.Net.Dto.SimpleFile;
 
 namespace CC.Net.Hubs
 {

@@ -20,16 +20,20 @@ let exportData: Matrix<DefaultCellValue> = [];
 export const GenerateSheet = (props: GenerateSheetProps) => {
     const { stats, name } = props;
     const sorted = stats.sort((a, b) => a.user.id.localeCompare(b.user.id));
-    const header: DefaultCellValue[] = [{ value: "Date" }, { value: "User" }, { value: "Points" }, { value: "Status" }, { value: "Comment" }];
+    const header: DefaultCellValue[] = [
+        { value: "Date" },
+        { value: "User" },
+        { value: "Points" },
+        { value: "Status" },
+    ];
     const data: Matrix<DefaultCellValue> = [
         header,
         ...(sorted.map(i => {
             return [
-                { value: moment(i.result.id.creationTime).format("YYYY/MM/DD hh:mm:ss") },
+                { value: moment(i.result.date).format("YYYY/MM/DD hh:mm:ss") },
                 { value: i.user.id },
                 { value: i.result.points },
-                { value: ProcessStatusStatic.All.find(j => j.value == i.result.result.status)?.name ?? null },
-                { value: i.result.gradeComment },
+                { value: ProcessStatusStatic.All.find(j => j.letter === i.result.status)?.name ?? null },
             ];
         })),
         []

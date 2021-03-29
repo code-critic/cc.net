@@ -7,10 +7,10 @@ import { observable } from "mobx";
 import { observer } from "mobx-react";
 import React from "react";
 import Moment from "react-moment";
-import { NotificationManager } from 'react-notifications';
 import { getUser, httpClient } from "../init";
 import { ICcData, ICcDataCaseResult, ILanguage } from "../models/DataModel";
 import { ProcessStatusCodes } from "../models/Enums";
+import { notifications } from "../utils/notifications";
 import { Grow, renderCode, RenderSolution, Tiny } from "../utils/renderers";
 import { getStatus, isStatusOk } from "../utils/StatusUtils";
 import { DiffView } from "./DiffView";
@@ -154,11 +154,11 @@ export class StudentResultItem extends React.Component<StudentResultItemProps, a
             .then(data => {
                 const { status, updated, msg } = data;
                 if (status === "ok") {
-                    NotificationManager.success(`Ok, Teacher(s) have been notified`);
+                    notifications.success(`Ok, Teacher(s) have been notified`);
                     this.props.item.reviewRequest = new Date();
                     this.setState({ reviewRequest: new Date() });
                 } else {
-                    NotificationManager.error(`Failed notify Teacher(s) comments, ${msg}`);
+                    notifications.error(`Failed notify Teacher(s) comments, ${msg}`);
                 }
             });
     }
@@ -170,11 +170,11 @@ export class StudentResultItem extends React.Component<StudentResultItemProps, a
             .then(data => {
                 const { status, updated } = data;
                 if (status === "ok") {
-                    NotificationManager.success(`Ok, review request cancelled`);
+                    notifications.success(`Ok, review request cancelled`);
                     this.props.item.reviewRequest = null as any;
                     this.setState({ reviewRequest: undefined });
                 } else {
-                    NotificationManager.error(`Could not cancel the operation`);
+                    notifications.error(`Could not cancel the operation`);
                 }
             });
     }

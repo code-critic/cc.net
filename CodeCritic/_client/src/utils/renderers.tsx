@@ -5,7 +5,6 @@ import { observer } from "mobx-react";
 
 import ReactMde from "react-mde";
 import * as Showdown from "showdown";
-
 import "react-mde/lib/styles/css/react-mde-all.css";
 // import "prismjs/plugins/line-numbers/prism-line-numbers.css"
 // import "prismjs/prism.js"
@@ -26,14 +25,9 @@ import FolderIcon from '@material-ui/icons/Folder';
 import VisibilityIcon from '@material-ui/icons/Visibility';
 import Tooltip from '@material-ui/core/Tooltip';
 import { mapByExtensionPrism } from "./LanguageMap";
+import {converter} from "../renderers/markdown";
 
 
-const converter = new Showdown.Converter({
-    tables: true,
-    simplifiedAutoLink: true,
-    strikethrough: true,
-    tasklists: true
-});
 
 
 declare global {

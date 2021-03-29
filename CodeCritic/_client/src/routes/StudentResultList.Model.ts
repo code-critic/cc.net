@@ -1,8 +1,14 @@
-import { action, observable } from "mobx";
-import "react-table/react-table.css";
-import { httpClient } from "../init";
-import { ICcData, ICourse, ILanguage, ITableRequestFilter, ITableRequestSort, ITableResponse } from "../models/DataModel";
-import { ApiResource } from "../utils/ApiResource";
+import { action, observable } from 'mobx';
+import { ApiResource } from '../utils/ApiResource';
+import { httpClient } from '../init';
+import {
+    ICcData,
+    ICourse,
+    ILanguage,
+    ITableRequestFilter,
+    ITableRequestSort,
+    ITableResponse
+    } from '../models/DataModel';
 
 
 export class StudentResultListModel {
@@ -23,7 +29,7 @@ export class StudentResultListModel {
         httpClient.fetch("student-result-list", { pageSize, page, sorted, filtered })
             .catch(e => console.error(e))
             .then((res: ITableResponse) => {
-                this.data = res.data as ICcData[];
+                this.data = res.data as any[];
                 this.pages = Math.ceil(res.count / pageSize);
                 this.dataIsLoading = false;
             });

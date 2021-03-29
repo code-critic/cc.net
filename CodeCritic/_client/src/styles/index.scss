@@ -28,6 +28,7 @@ $notifications: (1: #ecec96,
 
 @import url('https://fonts.googleapis.com/css2?family=Dosis:wght@300;500;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@500&display=swap');
+@import url('https://unpkg.com/basscss@8.0.2/css/basscss.min.css');
 
 @media (min-width: 1600px) {
   .container {
@@ -43,6 +44,25 @@ $notifications: (1: #ecec96,
       max-width: 1840px;
     }
   }
+}
+
+body {
+  font-family: "Roboto", "Helvetica", "Arial", sans-serif;
+}
+
+a {
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.nav-menu-root {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 8px;
 }
 
 a.navbar-brand {
@@ -644,6 +664,7 @@ div.MuiMenu-paper {
 }
 
 .MuiBreadcrumbs-root.breadcrumb {
+  padding: 5px;
   background-color: #efefef;
   margin-bottom: 0.5rem;
 
@@ -1379,5 +1400,4 @@ a.notification-item {
   a.MuiTypography-root {
     color: initial;
   }
-
 }

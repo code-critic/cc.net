@@ -41,7 +41,6 @@ export const ProblemPicker = (props: ProblemPickerProps) => {
     const { user } = useUser();
 
     const { course, year, problem } = useParams<any>();
-    // const history = useHistory();
 
     useEffect(() => {
         (async () => {

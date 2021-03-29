@@ -1,24 +1,25 @@
-import { AppBar, Avatar, Badge, Box, IconButton, Menu, MenuItem, Toolbar, Tooltip, Typography } from '@material-ui/core';
+import { AppBar, Avatar, Badge, Box, Container, IconButton, Menu, MenuItem, Toolbar, Tooltip, Typography } from '@material-ui/core';
+import React, { useEffect, useState } from 'react';
+import { appDispatcher, commentService, getUser, httpClient, updateUser } from '../init';
+
 import AccountCircleIcon from '@material-ui/icons/AccountCircle';
 import CancelIcon from '@material-ui/icons/Cancel';
+import { CcEventType } from '../models/Enums';
+import { CircleLoader } from 'react-spinners';
 import CodeIcon from '@material-ui/icons/Code';
 import FormatSizeIcon from '@material-ui/icons/FormatSize';
 import GroupIcon from '@material-ui/icons/Group';
+import { ICcEvent } from '../models/DataModel';
+import { Link } from 'react-router-dom';
+import Moment from 'react-moment';
 import NotificationsIcon from '@material-ui/icons/Notifications';
 import SecurityIcon from '@material-ui/icons/Security';
-import React, { useEffect, useState } from 'react';
-import Moment from 'react-moment';
-import { Link } from 'react-router-dom';
-import { CircleLoader } from 'react-spinners';
-import * as Showdown from 'showdown';
-import { useUser } from '../hooks/useUser';
-import { appDispatcher, commentService, getUser, httpClient, updateUser } from '../init';
-import { ICcEvent } from '../models/DataModel';
-import { CcEventType } from '../models/Enums';
-import { pageLinks } from '../pageLinks';
-import { groupBy } from '../utils/arrayUtils';
 import { SimpleLoader } from './SimpleLoader';
 import { getInitials } from '../utils/utils';
+import { groupBy } from '../utils/arrayUtils';
+import { pageLinks } from '../pageLinks';
+import { useUser } from '../hooks/useUser';
+import {converter} from "../renderers/markdown";
 
 interface NavMenuProps {
 
@@ -28,13 +29,6 @@ interface EventNotificationProps {
   event: ICcEvent;
   groupCount?: number;
 }
-
-const converter = new Showdown.Converter({
-  tables: true,
-  simplifiedAutoLink: true,
-  strikethrough: true,
-  tasklists: true
-});
 
 const EventNotification = (props: EventNotificationProps) => {
   const { event, groupCount } = props;
@@ -238,7 +232,8 @@ export const NavMenu = (props: NavMenuProps) => {
     .filter(i => !i.rootOnly || (i.rootOnly && user.role === "root"));
 
   return <>
-    <AppBar position="static" className={`mb-2 ${isRoot ? "is-root" : "is-student"}`}>
+    <AppBar position="static" className={`nav-menu-root ${isRoot ? "is-root" : "is-student"}`}>
+      <Container className="nav-menu-wrapper">
       <Toolbar className="container">
         <IconButton edge="start" color="inherit" component={Link} to="/">
           <CodeIcon />
@@ -298,6 +293,7 @@ export const NavMenu = (props: NavMenuProps) => {
           <AccountCircleIcon />
         </IconButton>
       </Toolbar>
+      </Container>
     </AppBar>
     {renderMenu}
   </>

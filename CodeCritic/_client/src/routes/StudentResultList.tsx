@@ -1,23 +1,34 @@
-import "react-table/react-table.css";
-import "../styles/detail.css";
-import "../styles/list.css";
-
-import { AppBar, Box, Button, Dialog, DialogContent, DialogTitle, Grid, Slider, TextField, Typography } from "@material-ui/core";
-import { Column, RowInfo } from "react-table";
-import { ICcData, IMarkSolutionItem } from "../models/DataModel";
-import { appDispatcher, commentService, httpClient } from "../init";
-import { getColumns, getStatus } from "./StudentResultList.Columns";
-
-import { NotificationManager } from 'react-notifications';
 import NotificationsIcon from '@material-ui/icons/Notifications';
-import React from "react";
-import { ReactTableWithSelect } from "../utils/ReactTableWithSelect";
-import { StudentResultDetail } from "../components/StudentResultDetail";
-import { StudentResultListModel } from "./StudentResultList.Model";
+import React from 'react';
+import {
+    AppBar,
+    Box,
+    Button,
+    Dialog,
+    DialogContent,
+    DialogTitle,
+    Grid,
+    Slider,
+    TextField,
+    Typography
+    } from '@material-ui/core';
+import { appDispatcher, commentService, httpClient } from '../init';
+import { Column } from 'react-table';
 import { debounce } from 'throttle-debounce';
-import { nestGet } from "../utils/NestGetter";
-import { observable } from "mobx";
-import { observer } from "mobx-react";
+import { getColumns, getStatus } from './StudentResultList.Columns';
+import { ICcData, IMarkSolutionItem } from '../models/DataModel';
+import { nestGet } from '../utils/NestGetter';
+import { observable } from 'mobx';
+import { observer } from 'mobx-react';
+import { ReactTableWithSelect } from '../utils/ReactTableWithSelect';
+import { StudentResultDetail } from '../components/StudentResultDetail';
+import { StudentResultListModel } from './StudentResultList.Model';
+import '../styles/detail.css';
+import '../styles/list.css';
+import { notifications } from '../utils/notifications';
+// import 'react-table/react-table.css';
+
+
 
 interface StudentResultListState {
     model?: StudentResultListModel;
@@ -87,9 +98,9 @@ export const GradeSystem = (props: GradeSystemProps) => {
                 console.log(i);
                 onChange();
                 if (i.status === "ok") {
-                    NotificationManager.success(`Ok, saved`);
+                    notifications.success(`Ok, saved`);
                 } else {
-                    NotificationManager.error(`Error while saving`);
+                    notifications.error(`Error while saving`);
                 }
             })
     }
@@ -237,21 +248,21 @@ export class StudentResultList2 extends React.Component<any, StudentResultListSt
                     case 37: // left
                     case 40: // down
                         if (index == 0) {
-                            NotificationManager.info("That's all on this page");
+                            notifications.info("That's all on this page");
                             this.closeDetail();
                         } else {
                             this.openDetail(this.model.data[index - 1]);
-                            NotificationManager.success(`Item ${index} of ${total}`);
+                            notifications.success(`Item ${index} of ${total}`);
                         }
                         break;
                     case 39: // right
                     case 49: // up
                         if (index == this.model.data.length-1) {
-                            NotificationManager.info("That's all on this page");
+                            notifications.info("That's all on this page");
                             this.closeDetail();
                         } else {
                             this.openDetail(this.model.data[index + 1]);
-                            NotificationManager.success(`Item ${index + 2} of ${total}`)
+                            notifications.success(`Item ${index + 2} of ${total}`)
                         }
                         break;
                     default:
@@ -340,7 +351,7 @@ export class StudentResultList2 extends React.Component<any, StudentResultListSt
                                 desc: true
                             }
                         ]}
-                        getTrProps={(_finalState: any, rowInfo?: RowInfo) => {
+                        getTrProps={(_finalState: any, rowInfo?: any) => {
                             if (!rowInfo) {
                                 return {};
                             }

@@ -1,12 +1,12 @@
 import moment from 'moment';
-import React from "react";
 import Moment from 'react-moment';
-import { CellInfo, Column, Filter, ReactTableFunction } from "react-table";
-import "react-table/react-table.css";
-import { nameof } from "ts-simple-nameof";
-import { ICcData, ICcDataResult, ICourse } from "../models/DataModel";
-import { StudentResultListModel } from "./StudentResultList.Model";
-import { ProcessStatusCodes, ProcessStatusStatic, SubmissionStatus } from "../models/Enums";
+import React from 'react';
+import { Column } from 'react-table';
+import { ICcData, ICcDataResult, ICourse } from '../models/DataModel';
+import { nameof } from 'ts-simple-nameof';
+import { ProcessStatusCodes, ProcessStatusStatic, SubmissionStatus } from '../models/Enums';
+import { StudentResultListModel } from './StudentResultList.Model';
+// import 'react-table/react-table.css';
 
 
 export function getStatusOrDefault(result: ICcDataResult) {
@@ -42,8 +42,8 @@ const statuses = ProcessStatusStatic.All.map(i => {
 });
 
 
-function statusRenderer(cellInfo: CellInfo) {
-    var data = cellInfo.value as ICcDataResult;
+function statusRenderer(any: any) {
+    var data = any.value as ICcDataResult;
     if (!data) {
         return "";
     }
@@ -64,7 +64,7 @@ export function getColumns(model: StudentResultListModel, courses: ICourse[], sh
             Header: () => "#",
             accessor: nameof<ICcData>(i => i.attempt),
             maxWidth: 70,
-            Filter: (params: { column: Column, filter: any, onChange: ReactTableFunction, key?: string }) =>
+            Filter: (params: { column: Column, filter: any, onChange: any, key?: string }) =>
                 <select onChange={event => params.onChange(event.target.value)} style={{ width: "100%" }}
                     value={params.filter ? params.filter.value : "all"}>
                     <option value="all">∞</option>
@@ -76,15 +76,15 @@ export function getColumns(model: StudentResultListModel, courses: ICourse[], sh
         {
             Header: () => "Date",
             accessor: "id.timestamp",
-            Cell: (cellInfo: CellInfo) =>
-                <Moment date={cellInfo.value * 1000} fromNow />,
-            filterMethod: (filter: Filter, row: ICcData) => {
+            Cell: (any: any) =>
+                <Moment date={any.value * 1000} fromNow />,
+            filterMethod: (filter: any, row: ICcData) => {
                 if (filter.value === "all") {
                     return true;
                 }
                 return getStatusOrDefault(row.result) === filter.value;
             },
-            Filter: (params: { column: Column, filter: any, onChange: ReactTableFunction, key?: string }) =>
+            Filter: (params: { column: Column, filter: any, onChange: any, key?: string }) =>
                 <select onChange={event => params.onChange(event.target.value)} style={{ width: "100%" }}
                     value={params.filter ? params.filter.value : "all"}>
                     <option value="all">Show All</option>
@@ -94,7 +94,7 @@ export function getColumns(model: StudentResultListModel, courses: ICourse[], sh
         {
             Header: "Late submission",
             accessor: "submissionStatus",
-            Filter: (params: { column: Column, filter: any, onChange: ReactTableFunction, key?: string }) =>
+            Filter: (params: { column: Column, filter: any, onChange: any, key?: string }) =>
                 <select onChange={event => params.onChange(event.target.value)} style={{ width: "100%" }}
                     value={params.filter ? params.filter.value : "all"}>
                     <option value="all">Show All</option>
@@ -102,12 +102,12 @@ export function getColumns(model: StudentResultListModel, courses: ICourse[], sh
                     <option value={SubmissionStatus.Late}>AF(ter)</option>
                     <option value={SubmissionStatus.None}>NO(ne)</option>
                 </select>,
-            Cell: (cellInfo: CellInfo) =>
-                cellInfo.value == SubmissionStatus.Intime
+            Cell: (any: any) =>
+                any.value == SubmissionStatus.Intime
                     ? "IN"
-                    : cellInfo.value == SubmissionStatus.Late
+                    : any.value == SubmissionStatus.Late
                         ? "AF"
-                        : cellInfo.value == SubmissionStatus.None
+                        : any.value == SubmissionStatus.None
                             ? "NO"
                             : ""
         },
@@ -118,13 +118,13 @@ export function getColumns(model: StudentResultListModel, courses: ICourse[], sh
         {
             Header: "Language",
             accessor: nameof<ICcData>(i => i.language),
-            filterMethod: (filter: Filter, row: ICcData) => {
+            filterMethod: (filter: any, row: ICcData) => {
                 if (filter.value === "all") {
                     return true;
                 }
                 return getStatusOrDefault(row.result) === filter.value;
             },
-            Filter: (params: { column: Column, filter: any, onChange: ReactTableFunction, key?: string }) =>
+            Filter: (params: { column: Column, filter: any, onChange: any, key?: string }) =>
                 <select onChange={event => params.onChange(event.target.value)} style={{ width: "100%" }}
                     value={params.filter ? params.filter.value : "all"}>
                     <option value="all">Show All</option>
@@ -142,13 +142,13 @@ export function getColumns(model: StudentResultListModel, courses: ICourse[], sh
         {
             Header: "Problem",
             accessor: nameof<ICcData>(i => i.problem),
-            filterMethod: (filter: Filter, row: ICcData) => {
+            filterMethod: (filter: any, row: ICcData) => {
                 if (filter.value === "all") {
                     return true;
                 }
                 return getStatusOrDefault(row.result) === filter.value;
             },
-            Filter: (params: { column: Column, filter: any, onChange: ReactTableFunction, key?: string }) =>
+            Filter: (params: { column: Column, filter: any, onChange: any, key?: string }) =>
                 <select onChange={event => params.onChange(event.target.value)} style={{ width: "100%" }}
                     value={params.filter ? params.filter.value : "all"}>
                     <option value="all">Show All</option>
@@ -166,8 +166,8 @@ export function getColumns(model: StudentResultListModel, courses: ICourse[], sh
         {
             Header: "Review Request",
             accessor: nameof<ICcData>(i => i.reviewRequest),
-            Cell: (cellInfo: CellInfo) => cellInfo.value ? "yes" : "",
-            Filter: (params: { column: Column, filter: any, onChange: ReactTableFunction, key?: string }) =>
+            Cell: (any: any) => any.value ? "yes" : "",
+            Filter: (params: { column: Column, filter: any, onChange: any, key?: string }) =>
                 <select onChange={event => params.onChange(event.target.value)} style={{ width: "100%" }}
                     value={params.filter ? params.filter.value : "all"}>
                     <option value="all">Show All</option>
@@ -178,8 +178,8 @@ export function getColumns(model: StudentResultListModel, courses: ICourse[], sh
         {
             Header: "Comments",
             accessor: nameof<ICcData>(i => i.comments),
-            Cell: (cellInfo: CellInfo) => (cellInfo.value && cellInfo.value.length) ? "yes" : "",
-            Filter: (params: { column: Column, filter: any, onChange: ReactTableFunction, key?: string }) =>
+            Cell: (any: any) => (any.value && any.value.length) ? "yes" : "",
+            Filter: (params: { column: Column, filter: any, onChange: any, key?: string }) =>
                 <select onChange={event => params.onChange(event.target.value)} style={{ width: "100%" }}
                     value={params.filter ? params.filter.value : "all"}>
                     <option value="all">Show All</option>
@@ -206,11 +206,11 @@ export function getColumns(model: StudentResultListModel, courses: ICourse[], sh
         {
             Header: "Status",
             accessor: nameof<ICcData>(i => i.result.status),
-            Cell: (cellInfo: CellInfo) => {
-                const status = ProcessStatusStatic.All.find(i => i.code === cellInfo.value);
+            Cell: (any: any) => {
+                const status = ProcessStatusStatic.All.find(i => i.code === any.value);
                 return !status ? "" : status.letter;
             },
-            Filter: (params: { column: Column, filter: any, onChange: ReactTableFunction, key?: string }) =>
+            Filter: (params: { column: Column, filter: any, onChange: any, key?: string }) =>
                 <select onChange={event => params.onChange(event.target.value)} style={{ width: "100%" }}
                     value={params.filter ? params.filter.value : "all"}>
                     <option value="all">Show All</option>
@@ -223,7 +223,7 @@ export function getColumns(model: StudentResultListModel, courses: ICourse[], sh
         },
         {
             Header: () => <i className="fa fa-clock-o" />,
-            Cell: (cellInfo: CellInfo) => <span>{Number(cellInfo.value).toFixed(2)}</span>,
+            Cell: (any: any) => <span>{Number(any.value).toFixed(2)}</span>,
             accessor: nameof<ICcData>(i => i.result.duration),
             filterable: false,
             maxWidth: 70

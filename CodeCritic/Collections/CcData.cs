@@ -2,16 +2,17 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.Serialization;
 using cc.net.Collections;
 using CC.Net.Extensions;
 using CC.Net.Services;
 using CC.Net.Services.Courses;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
+using Newtonsoft.Json;
 
 namespace CC.Net.Collections
 {
-
     [BsonIgnoreExtraElements]
     public class CcDataSimple : IObjectId
     {
@@ -56,26 +57,23 @@ namespace CC.Net.Collections
 
         override public string ToString()
         {
-            return $"{Id}/{Action}/{ResultDirname,-10} {CourseName}/{CourseYear}/{Problem} [{Result?.Duration:0.000} sec] {ProcessStatus.Get(Result?.Status ?? -1).Name}";
+            return
+                $"{Id}/{Action}/{ResultDirname,-10} {CourseName}/{CourseYear}/{Problem} [{Result?.Duration:0.000} sec] {ProcessStatus.Get(Result?.Status ?? -1).Name}";
         }
 
         public string ToString(CcDataCaseResult result)
         {
-            return $"{Id}/{Action}/{ResultDirname,-10} {CourseName}/{CourseYear}/{Problem}/{result.Case} [{result?.Duration:0.000} sec] {ProcessStatus.Get(result?.Status ?? -1).Name}";
+            return
+                $"{Id}/{Action}/{ResultDirname,-10} {CourseName}/{CourseYear}/{Problem}/{result.Case} [{result?.Duration:0.000} sec] {ProcessStatus.Get(result?.Status ?? -1).Name}";
         }
 
         public string ToString(string caseId)
         {
-            return $"{Id}/{Action}/{ResultDirname,-10} {CourseName}/{CourseYear}/{Problem}/{caseId} [{Result?.Duration:0.000} sec] {ProcessStatus.Get(Result?.Status ?? -1).Name}";
+            return
+                $"{Id}/{Action}/{ResultDirname,-10} {CourseName}/{CourseYear}/{Problem}/{caseId} [{Result?.Duration:0.000} sec] {ProcessStatus.Get(Result?.Status ?? -1).Name}";
         }
 
-        public string ObjectId
-        {
-            get
-            {
-                return Id.ToString();
-            }
-        }
+        public string ObjectId => Id.ToString();
 
         [BsonIgnore]
         public bool IsActive { get; set; }
@@ -85,7 +83,7 @@ namespace CC.Net.Collections
 
         [BsonElement("groupName")]
         public string GroupName { get; set; }
-        
+
         [BsonElement("groupId")]
         public ObjectId GroupId { get; set; }
 
@@ -103,7 +101,7 @@ namespace CC.Net.Collections
         [BsonIgnore]
         public List<string> UserOrGroupUsers => IsGroup
             ? GroupUsers
-            : new List<string> { User };
+            : new List<string> {User};
 
 
         [BsonElement("courseName")]
@@ -136,7 +134,7 @@ namespace CC.Net.Collections
         [BsonElement("submissionStatus")]
         public SubmissionStatus SubmissionStatus { get; set; }
 
-        public string ResultDir(string courseDir) => 
+        public string ResultDir(string courseDir) =>
             Path.Combine(
                 courseDir, CourseYear, "results", ResultDirname, Problem,
                 $"{Attempt:D2}-{ProcessStatus.Get(Result.Status).Letter}-{ProcessStatus.Get(Result.Status).Name}"
@@ -156,6 +154,23 @@ namespace CC.Net.Collections
 
         [BsonElement("comments")]
         public List<LineComment> Comments { get; set; } = new List<LineComment>();
+
+        [BsonIgnore]
+        public List<SimpleFile> Files { get; set; } = new List<SimpleFile>();
+
+        public class SimpleFile
+        {
+            [JsonIgnore]
+            [IgnoreDataMember]
+            public string RawPath { get; set; }
+            
+            public string RelPath { get; set; }
+            public string Filename { get; set; }
+            public bool IsDir { get; set; }
+            
+            public object Content { get; set; }
+            public List<SimpleFile> Files { get; set; } = new List<SimpleFile>();
+        }
 
         public class LineComment
         {
@@ -198,7 +213,8 @@ namespace CC.Net.Collections
             [BsonIgnore]
             public bool IsSeparator { get; set; } = false;
 
-            public static CcDataSolution Single(string content, string filename, int index = 0, bool isMain = true, bool hidden = false)
+            public static CcDataSolution Single(string content, string filename, int index = 0, bool isMain = true,
+                bool hidden = false)
             {
                 return new CcDataSolution
                 {
@@ -213,7 +229,8 @@ namespace CC.Net.Collections
 
             public static CcDataSolution Seperator(string title)
             {
-                return new CcDataSolution{
+                return new CcDataSolution
+                {
                     IsSeparator = true,
                     Filename = title,
                 };

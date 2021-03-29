@@ -1,0 +1,5 @@
+{
+    "importSorter.generalConfiguration.sortOnBeforeSave": true,
+    "importSorter.sortConfiguration.removeUnusedDefaultImports": false,
+    "importSorter.sortConfiguration.removeUnusedImports": false,
+}

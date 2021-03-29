@@ -1,19 +1,20 @@
-import { Container, Button, ButtonGroup } from '@material-ui/core';
-import DeleteForeverOutlinedIcon from '@material-ui/icons/DeleteForeverOutlined';
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router';
+
+import { Button, ButtonGroup, Container } from '@material-ui/core';
+import DeleteForeverOutlinedIcon from '@material-ui/icons/DeleteForeverOutlined';
+
 import { API } from '../api';
-import { appDispatcher, commentService, getUser } from '../init';
-import { ICcData, ILanguage } from '../models/DataModel';
-import { RenderSolution } from '../utils/renderers';
-import { useOpenClose } from '../utils/StateUtils';
 import { AlertDialog } from '../components/AlertDialog';
 import { SimpleLoader } from '../components/SimpleLoader';
 import { StudentResultItem } from '../components/StudentResults.Item';
 import { StudentResultsDialogForTeacher } from '../components/StudentResultsDialog';
 import { useUser } from '../hooks/useUser';
+import { appDispatcher, commentService, getUser } from '../init';
+import { ICcData, ILanguage } from '../models/DataModel';
 import { languages } from '../static/languages';
-
+import { RenderSolution } from '../utils/renderers';
+import { useOpenClose } from '../utils/StateUtils';
 
 interface SingleResultProps {
     objectId?: string;

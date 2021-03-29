@@ -35,8 +35,6 @@ import { languages } from '../static/languages';
 
 
 
-
-
 interface SolutionSubmitProps extends RouteComponentProps<ICourseYearProblem> {
 }
 
@@ -156,12 +154,12 @@ const RenderBreadcrumbs = (props: RenderBreadcrumbsProps) => {
 export const SolutionSubmit = (props) => {
 
     const { history, match } = props;
+    const { user, isRoot } = useUser();
     const [courses, setCourses] = React.useState<ICourse[]>([]);
 
     const [liveResult, setLiveResult] = React.useState<ICcData>();
     const [forcedResultId, setForcedResultId] = React.useState("");
     const [problem, setProblem] = React.useState<ICourseProblem>();
-    const [userState, setUser] = React.useState(getUser());
     const [files, setFiles] = React.useState<IFile[]>([]);
     const [language, setLanguage] = React.useState<ILanguage>();
     const [params, setParams] = React.useState<any>();
@@ -169,7 +167,6 @@ export const SolutionSubmit = (props) => {
     const [apiCourses, setApiCourses] = React.useState(new ApiResource<ICourse>("courses", false));
     const [resultsDialog, setResultsDialog] = React.useState(false);
     const [openResults, closeResults] = openCloseState(setResultsDialog);
-    const { user, isRoot } = useUser();
 
     useEffect(() => {
         const MathJax = (window as any).MathJax;

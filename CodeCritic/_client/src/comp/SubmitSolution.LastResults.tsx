@@ -1,62 +1,20 @@
+import { Box, Button, Tooltip, Typography } from "@material-ui/core";
 import React, { useEffect, useState } from "react";
-import { useUser } from "../hooks/useUser";
-import { ICcData } from "../models/DataModel";
-import { ProblemPickerExportProps } from "./ProblemPicker";
-import ClearIcon from '@material-ui/icons/Clear';
-import DoneIcon from '@material-ui/icons/Done';
-import DoneAllIcon from '@material-ui/icons/DoneAll';
-import PriorityHighIcon from '@material-ui/icons/PriorityHigh';
+
 import { API } from "../api";
-import { IApiListResponse } from "../models/CustomModel";
-import { SimpleLoader } from "../components/SimpleLoader";
-import { Box, Typography, Button, Tooltip } from "@material-ui/core";
-import { ProcessStatusCodes } from "../models/Enums";
-import { Link as RouterLink } from "react-router-dom";
-import { getStatus } from "../utils/StatusUtils";
-import TimerIcon from '@material-ui/icons/Timer';
-import HourglassEmptyIcon from '@material-ui/icons/HourglassEmpty';
-import PlayArrowIcon from '@material-ui/icons/PlayArrow';
-import CallMissedIcon from '@material-ui/icons/CallMissed';
 import GradeIcon from '@material-ui/icons/Grade';
+import { IApiListResponse } from "../models/CustomModel";
+import { ICcData } from "../models/DataModel";
+import { IconClass } from "../renderers/IconClass";
+import { ProblemPickerExportProps } from "./ProblemPicker";
+import { Link as RouterLink } from "react-router-dom";
+import { SimpleLoader } from "../components/SimpleLoader";
+import { getStatus } from "../utils/StatusUtils";
+import { useUser } from "../hooks/useUser";
 
 interface SubmitSolutionLastResultsProps extends ProblemPickerExportProps {
 }
 
-
-const IconClass = (result: ICcData) => {
-    switch (result.result.status) {
-        case ProcessStatusCodes.AnswerCorrect:
-        case ProcessStatusCodes.Ok:
-            return result.points > 0
-                ? DoneAllIcon
-                : DoneIcon;
-
-        case ProcessStatusCodes.AnswerCorrectTimeout:
-        case ProcessStatusCodes.GlobalTimeout:
-            return TimerIcon;
-
-        case ProcessStatusCodes.AnswerWrong:
-            return ClearIcon;
-
-        case ProcessStatusCodes.Running:
-            return PlayArrowIcon;
-
-        case ProcessStatusCodes.InQueue:
-            return HourglassEmptyIcon;
-
-        case ProcessStatusCodes.Skipped:
-            return CallMissedIcon;
-    }
-
-    return PriorityHighIcon;
-}
-
-interface IconTextProps {
-    icon: any;
-    children: any;
-    to: string;
-    cls: string;
-}
 
 
 export const SubmitSolutionLastResults = (props: SubmitSolutionLastResultsProps) => {
