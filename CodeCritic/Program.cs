@@ -24,6 +24,7 @@ using Serilog;
 using TypeLite;
 using TypeLite.TsModels;
 using YamlDotNet.Serialization;
+using cc.net.Auth;
 
 namespace CC.Net
 {
@@ -105,6 +106,7 @@ namespace CC.Net
                         .For<GradeDto>()
                         .For<StudentScoreboardCourse>()
                         .For<CcGroup>()
+                        .For<UnauthorizedObjectIface>()
 
                         .For<ApiError>()
                         .For<CcDataDto>()

@@ -3,16 +3,22 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace cc.net.Auth
 {
+
+    public class UnauthorizedObjectIface {
+        public string Redirect { get; set; }
+        public int Error { get; set; }
+        public string Message { get; set; }
+    }
     public class UnauthorizedObject : ObjectResult
     {
         private const int DefaultStatusCode = StatusCodes.Status203NonAuthoritative;
 
         public UnauthorizedObject(string redirect) :
-            base(new
+            base(new UnauthorizedObjectIface
             {
-                redirect = redirect,
-                error = DefaultStatusCode,
-                message = "Unauthorized"
+                Redirect = redirect,
+                Error = DefaultStatusCode,
+                Message = "Unauthorized"
             })
         {
             StatusCode = DefaultStatusCode;

@@ -32,7 +32,7 @@ export const SubmitSolutionImpl = (props: SubmitSolutionProps) => {
 
     return <Grid container spacing={2}>
         {/* top info */}
-        <Grid item xs={12}>
+        <Grid item xs={12} style={{padding: 0}}>
             <SubmitSolutionLastResults course={course} problem={problem} />
         </Grid>
 

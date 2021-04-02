@@ -6,11 +6,9 @@ interface SimpleLoaderProps {
     title?: string;
 }
 
-export class SimpleLoader extends React.Component<SimpleLoaderProps, any, any> {
-    render() {
-        const { title } = this.props;
-        return <div className="simple-loader">
-            <BarLoader loading />{title && <span>{title}</span>}
-        </div>
-    }
+export const SimpleLoader = (props: SimpleLoaderProps) => {
+    const { title } = props;
+    return <div className="simple-loader">
+        <BarLoader loading />{title && <span>{title}</span>}
+    </div>
 }

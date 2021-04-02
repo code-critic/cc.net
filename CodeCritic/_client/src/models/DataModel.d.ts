@@ -321,6 +321,11 @@ import { ProcessStatus, SubmissionStatus, ProblemType, ProblemStatus, CcEventTyp
 		score: number;
 		since: Date;
 	}
+	interface IUnauthorizedObjectIface {
+		error: number;
+		message: string;
+		redirect: string;
+	}
 	interface IApiError {
 		errors: string[];
 		name: string;
@@ -333,5 +338,5 @@ import { ProcessStatus, SubmissionStatus, ProblemType, ProblemStatus, CcEventTyp
 	}
 
 
-// generated at 4/1/2021 5:57:13 PM (UTC)
-export const __uuid = '107f96ca-98f2-4405-a6d1-9c4c0d8ef55b'
+// generated at 4/2/2021 8:50:07 AM (UTC)
+export const __uuid = '08b2c694-39f1-4f79-9f3f-d7023a0eed67'

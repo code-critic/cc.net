@@ -12,7 +12,6 @@ import {
     ICcData, ICcDataDto, ICcDataResult, ITableRequest, ITableRequestFilter, ITableResponse,
 } from '../models/DataModel';
 import { ProblemPicker, ProblemPickerExportProps } from './ProblemPicker';
-import { getStatusOrDefault } from './result.columns';
 import { SolutionResultView } from './solutionResultView/SolutionResultView';
 import { TableModel, TableResults } from './table/TableResults';
 import { createTableRequest } from './table/TableResults.request';
@@ -29,28 +28,7 @@ export const ViewResults = () => {
     </div>
 }
 
-interface ViewResultsImplProps extends Partial<ProblemPickerExportProps> {
-}
-
-function getStatus(result: ICcDataResult) {
-    return `status-${getStatusOrDefault(result)}`;
-}
-
-const addToFilters = (filters: ITableRequestFilter[], course?: string, year?: string, problem?: string) => {
-
-    const defaultValues = [course, year, problem];
-    const names = ["courseName", "courseYear", "problem"];
-    const values = names.map((i, j) => filters.find(k => k.id == i)?.value ?? defaultValues[j]);
-
-    return [
-        ...filters.filter(i => !names.includes(i.id)),
-        ...names.map((i, j) => {
-            return { id: i, value: values[j] }
-        }),
-    ].filter(i => i.value != null && i.value.length > 0) as ITableRequestFilter[];
-}
-
-
+interface ViewResultsImplProps extends Partial<ProblemPickerExportProps> { }
 const ViewResultsImpl = (props: ViewResultsImplProps) => {
     const { course, year, problem } = useParams<any>();
     const [tableResponse, setTableResponse] = useState<ITableResponse>({ count: 0, data: [] });
@@ -93,7 +71,10 @@ const ViewResultsImpl = (props: ViewResultsImplProps) => {
             onSelected={handleSelected}
             isLoading={isLoading} />
         {selectedItem && <>
-            <Dialog open={!!selectedItem} onClose={() => setSelectedItem(undefined)} fullWidth maxWidth="lg">
+            <Dialog className="solution-result-view-dialog"
+                    open={!!selectedItem} 
+                    onClose={() => setSelectedItem(undefined)} 
+                    fullWidth maxWidth="lg">
                 <DialogContent>
                     <SolutionResultView onClose={() => setSelectedItem(undefined)} onChange={fetchData} objectId={selectedItem.objectId} />
                 </DialogContent>

@@ -197,7 +197,7 @@ $statuses: (answer-correct: #c0f3b3,
           color: darken($color, 40);
         }
 
-        &:hover {
+        &:hover, &.hover {
           color: darken($color, 50);
           background: lighten($color, 10);
           border-color: darken($color, 50);
@@ -354,5 +354,24 @@ $statuses: (answer-correct: #c0f3b3,
 
   .grade-comment {
     margin: 20px 0;
+  }
+}
+
+.MuiDialog-root.solution-result-view-dialog {
+  .MuiDialogContent-root {
+    padding: 10px;
+  }
+}
+.solution-result-view {
+  &.full-page {
+    box-shadow: 0 0 10px 0px #00000080;
+    padding: 0;
+    margin-bottom: 20px;
+    .solution-result-view-grid {
+      padding: 10px;
+    }
+  }
+  &.dialog-page {
+    padding: 0;
   }
 }

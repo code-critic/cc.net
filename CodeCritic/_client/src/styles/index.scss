@@ -1261,16 +1261,50 @@ a.notification-item {
 }
 
 
-.MuiButton-root.icon-text-button {
-  min-width: 80px;
-  width: 80px;
-  padding: 0;
-  margin-bottom: 20px;
-  position: relative;
+.icon-text-button-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
 
   @each $status,
   $color in $statuses {
     &.#{$status} {
+      background-color: rgba($color, 0.4);
+
+      .cr .MuiSvgIcon-root {
+        color: darken($color, 45);
+        opacity: 0.3;
+      }
+    }
+  }
+
+  .MuiButton-root.cr {
+    &.has-cr {
+      .MuiSvgIcon-root {
+        font-size: 2rem;
+        opacity: 1;
+      }
+    }
+    .MuiButton-label {
+      background-color: transparent;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+  }
+}
+
+.icon-text-button-wrapper,
+.MuiButton-root.icon-text-button {
+  min-width: 80px;
+  width: 80px;
+  padding: 0;
+  position: relative;
+
+  @each $status,
+  $color in $statuses {
+    &.#{$status}, .#{$status} {
       .MuiButton-label {
         background-color: rgba($color, 0.4);
       }
@@ -1281,13 +1315,6 @@ a.notification-item {
 
       .text {
         color: darken($color, 45);
-      }
-
-      .cr {
-        color: darken($color, 25);
-        svg {
-          stroke: darken($color, 55);
-        }
       }
     }
   }
@@ -1306,20 +1333,6 @@ a.notification-item {
   .text {
     text-align: center;
     background-color: #ffffff56;
-  }
-  .cr {
-    left: 0;
-    right: 0;
-    position: relative;
-    text-align: center;
-
-    .MuiSvgIcon-root {
-      font-size: 2rem;
-    }
-    
-    svg {
-      stroke-width: 1px;
-    }
   }
 
   .MuiButton-label {

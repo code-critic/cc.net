@@ -1,5 +1,4 @@
 import { Dispatcher } from 'flux';
-import { observable } from 'mobx';
 import { NotificationManager } from 'react-notifications';
 
 import { HubConnectionBuilder, LogLevel } from '@aspnet/signalr';
@@ -79,7 +78,6 @@ class CommentService {
             });
     }
 
-    @observable
     public items: ICommentServiceItem[] = [];
 
     public prepareComment(item: ICommentServiceItem) {

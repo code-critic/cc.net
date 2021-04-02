@@ -1,16 +1,18 @@
-import { Box, Button, Tooltip, Typography } from "@material-ui/core";
-import React, { useEffect, useState } from "react";
-
-import { API } from "../api";
+import { Box, Button } from "@material-ui/core";
 import GradeIcon from '@material-ui/icons/Grade';
+import React, { useEffect, useState } from "react";
+import { Link as RouterLink } from "react-router-dom";
+import { API } from "../api";
+import { SimpleLoader } from "../components/SimpleLoader";
+import { useUser } from "../hooks/useUser";
 import { IApiListResponse } from "../models/CustomModel";
 import { ICcData } from "../models/DataModel";
+import { AbsMoment } from "../renderers/AbsMoment";
 import { IconClass } from "../renderers/IconClass";
-import { ProblemPickerExportProps } from "./ProblemPicker";
-import { Link as RouterLink } from "react-router-dom";
-import { SimpleLoader } from "../components/SimpleLoader";
+import { LightTooltip } from "../renderers/LightTooltip";
 import { getStatus } from "../utils/StatusUtils";
-import { useUser } from "../hooks/useUser";
+import { ProblemPickerExportProps } from "./ProblemPicker";
+import StarOutlineIcon from '@material-ui/icons/StarOutline';
 
 interface SubmitSolutionLastResultsProps extends ProblemPickerExportProps {
 }
@@ -34,26 +36,50 @@ export const SubmitSolutionLastResults = (props: SubmitSolutionLastResultsProps)
     if (results == null) {
         return <SimpleLoader title="loading latest results" />
     }
+    if (!results.length) {
+        return <></>
+    }
 
-    return (<div>
-        {!results.length && <Typography color="textSecondary">
-            No results found
-        </Typography>}
+    return (<div style={{ padding: 8 }}>
         <div className="latest-result-wrapper">
             <Box display="flex" className="latest-results">
-                {results.length && results.map((i, j) => {
+                {results.map((i, j) => {
                     const status = getStatus(i.result.status);
                     const IconCls = IconClass(i);
+                    const canEditResult = (user.id == i.user && i.isActive && i.points <= 0);
+                    const statusDesc = <>
+                        <strong>{status.description}</strong>
+                        <br />
+                        <strong>Submission date: </strong><AbsMoment date={i.id.creationTime} noTooltip />
+                        {i.reviewRequest && <>
+                            <br />
+                            <strong>Review requested: </strong><AbsMoment date={i.id.creationTime} noTooltip />
+                        </>}
+                    </>;
+                    const starDesc = <>
+                        {canEditResult
+                            ? (!i.reviewRequest
+                                ? "Click to send Review Request"
+                                : "Click to take back Review Request")
+                            : "Cannot change Review Request"}
+                    </>
 
-                    return (<Tooltip key={j} title={status.description} enterDelay={0} arrow>
-                        <Button component={RouterLink} to={`/r/${i.objectId}`} className={`icon-text-button ${status.name}`}>
-                            {i.reviewRequest && <div className="cr marker">
-                                <GradeIcon />
-                            </div>}
-                            <div className="icon"><IconCls /></div>
-                            <div className="text">#{i.attempt}</div>
-                        </Button>
-                    </Tooltip>)
+                    return (<div key={j} className={`icon-text-button-wrapper ${status.name}`}>
+                        <LightTooltip title={starDesc} enterDelay={0}>
+                            <span>
+                                <Button fullWidth disabled={!canEditResult} className={`${i.reviewRequest ? "cr has-cr" : "cr"}`}>
+                                    {i.reviewRequest ? <GradeIcon /> : <StarOutlineIcon />}
+                                </Button>
+                            </span>
+                        </LightTooltip>
+
+                        <LightTooltip title={statusDesc} enterDelay={0}>
+                            <Button component={RouterLink} to={`/r/${i.objectId}`} className={`icon-text-button`}>
+                                <div className="icon"><IconCls /></div>
+                                <div className="text">#{i.attempt}</div>
+                            </Button>
+                        </LightTooltip>
+                    </div>)
                 })}
             </Box>
         </div>

@@ -5,13 +5,13 @@ import { Route } from 'react-router-dom';
 import { Container } from '@material-ui/core';
 
 import { GroupManager } from './comp/GroupManager';
-import { SingleResult } from './comp/SingleResult';
 import { SolutionResultView } from './comp/solutionResultView/SolutionResultView';
 import { NavMenu } from './components/NavMenu';
 import { ICcDataCaseResult } from './models/DataModel';
 import { ProcessStatusStatic } from './models/Enums';
 import { pageLinks } from './pageLinks';
 import { TimelineRenderer } from './renderers/TimelineRenderer';
+import { CcFooter } from './components/CCFooter';
 
 export default class App extends Component {
     static displayName = App.name;
@@ -47,7 +47,7 @@ export default class App extends Component {
 
         return (<>
             <NavMenu />
-            <Container maxWidth={"xl"}>
+            <Container maxWidth={"xl"} style={{marginBottom: 50}}>
                 {/* <TimelineRenderer subresults={subresults as any} /> */}
                 <Route component={SolutionResultView} path="/r/:objectId" exact />
                 <Route component={GroupManager} path="/manage-groups" exact />
@@ -57,6 +57,7 @@ export default class App extends Component {
                 )}
                 <NotificationContainer />
             </Container>
+            <CcFooter />
         </>);
     }
 }

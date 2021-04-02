@@ -108,8 +108,10 @@ export const SourceCodeReview = (props: ISourceCodeReview) => {
     const { user } = useUser();
     const [commentsOn, setCommentOn] = useState(true);
     const [editor, setEditor] = useState(-1);
-    const [comments, setComments] = useState(defaultComment);
+    const [allComments, setComments] = useState(defaultComment);
     const { prepareComment } = useComments();
+
+    const comments = allComments.filter(i => i.filename === relPath);
 
     const parts = relPath.toLowerCase().split(".");
     const extension = parts[parts.length - 1];
@@ -135,7 +137,7 @@ export const SourceCodeReview = (props: ISourceCodeReview) => {
             text: value,
             filename: relPath
         }
-        setComments([...comments, comment]);
+        setComments([...allComments, comment]);
         prepareComment({
             comment: comment,
             objectId: objectId,

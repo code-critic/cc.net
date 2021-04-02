@@ -82,8 +82,6 @@ export const SolutionResultView = (props: SolutionResultViewProps) => {
     }, [user.id, counter, objectId]);
 
     const handleFileChange = async (file: ISimpleFile) => {
-        console.log(file);
-
         if (!file.content) {
             file.content = <SimpleLoader />
             setSelectedFile(file);
@@ -112,6 +110,9 @@ export const SolutionResultView = (props: SolutionResultViewProps) => {
     const Icon = IconClass(result);
     const canEditResult = (user.id == result.user && result.isActive && result.points <= 0) || isRoot;
     const statusName = `status-${mainStatus.name}`;
+    const extraCls = onClose == undefined
+        ? "solution-result-view full-page"
+        : "solution-result-view dialog-page";
 
     const requestCR = async () => {
         try {
@@ -152,7 +153,7 @@ export const SolutionResultView = (props: SolutionResultViewProps) => {
     }
 
     return (<>
-        <Container maxWidth={"lg"} style={{ padding: 0 }}>
+        <Container maxWidth={"lg"} className={extraCls}>
             <div className="solution-result-view">
                 <div className={`solution-result-view-grid ${statusName}`}>
                     <div className="sol-inf sol-item">
@@ -226,7 +227,7 @@ export const SolutionResultView = (props: SolutionResultViewProps) => {
                                 objectId={objectId}
                                 relPath={selectedFile.relPath}
                                 code={selectedFile.content}
-                                comments={result.comments.filter(i => i.filename === selectedFile.relPath)}
+                                comments={result.comments}
                             />
                         </>}
                     </div>

@@ -45,7 +45,7 @@ namespace CC.Net.Services
                 while (stoppingToken.IsCancellationRequested == false)
                 {
                     await DoWork();
-                    await Task.Delay(5 * 1000, stoppingToken);
+                    await Task.Delay(15 * 1000, stoppingToken);
                 }
             }, stoppingToken);
         }
@@ -67,6 +67,7 @@ namespace CC.Net.Services
                     var minId = new ObjectId(minDate, 0, 0, 0);
                     var allNotifications = await dbService.Events
                         .Find(i => i.Id > minId)
+                        .SortByDescending(i => i.IsNew)
                         .SortByDescending(i => i.Id)
                         .ToListAsync();
 
@@ -82,7 +83,7 @@ namespace CC.Net.Services
                         remaining.RemoveAll(i => i == notificationGroup.Key);
 
                         var channels = hub.Clients.Clients(ids);
-                        var notifications = notificationGroup.Take(10).ToList();
+                        var notifications = notificationGroup.Take(30).ToList();
                         await channels.NewNotification(notifications);
                     }
 

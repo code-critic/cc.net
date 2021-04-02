@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useState, useEffect } from 'react';
 
 import { Fade, IconButton, makeStyles, Popover, Theme, Tooltip, withStyles, Zoom } from '@material-ui/core';
 import AttachMoneyIcon from '@material-ui/icons/AttachMoney';
@@ -30,6 +31,7 @@ interface TimelineRendererProps {
 }
 export const TimelineRenderer = (props: TimelineRendererProps) => {
     const { subresults, showExtra } = props;
+    const [pinned, setPinned] = useState("");
 
     const N = subresults.length;
     const caseRadius = 40;
@@ -40,14 +42,18 @@ export const TimelineRenderer = (props: TimelineRendererProps) => {
 
     const connectorLength = Math.min(170, Math.max(30, guess));
 
+    const handlePinned = (caseId: string) => {
+        setPinned(caseId === pinned ? "" : caseId);
+    }
+
     return (<div className="subresults-timeline-wrapper">
         {subresults?.map((i, j) => {
             const status = getStatus(i.status);
 
-            return (<span key={j}>
+            return (<span key={j} onClick={() => handlePinned(i.case)}>
                 <Fade in timeout={250} style={{ transitionDelay: `${j * 100}ms` }}>
                     <span className="subresults-timeline">
-                        <SubresultDot subresult={i} showExtra={showExtra} />
+                        <SubresultDot subresult={i} showExtra={showExtra} pinned={pinned === i.case} />
                         {j !== subresults.length - 1 && <>
                             <span style={{ width: connectorLength }} className={`connector status-${status.name}`}></span>
                         </>}
@@ -58,14 +64,11 @@ export const TimelineRenderer = (props: TimelineRendererProps) => {
     </div>)
 }
 
-interface SubresultDotProps {
-    subresult: ICcDataCaseResult,
-    showExtra: boolean;
-}
+
 const useStyles = makeStyles(theme => ({
     popover: {
         pointerEvents: "none",
-        fontSize: "0.8rem",
+        fontSize: "0.6rem",
     },
     paper: {
         pointerEvents: "all",
@@ -73,52 +76,48 @@ const useStyles = makeStyles(theme => ({
     }
 }));
 
+interface SubresultDotProps {
+    subresult: ICcDataCaseResult,
+    showExtra: boolean;
+    pinned: boolean;
+}
 const SubresultDot = (props: SubresultDotProps) => {
-    const { subresult, showExtra } = props;
+    const { subresult, showExtra, pinned } = props;
     const classes = useStyles();
     const [anchorEl, setAnchorEl] = React.useState<HTMLElement | null>(null);
-    const [locked, setLocked] = React.useState(false);
     const open = Boolean(anchorEl);
 
     const id = open ? subresult.case : undefined;
     const IconClass = IconClassSubresult(subresult);
     const status = getStatus(subresult.status);
 
-    const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-        if (locked) {
+    useEffect(() => {
+        if (pinned == false) {
             handleClose();
-            setLocked(false);
-        } else {
-            setAnchorEl(event.currentTarget);
-            setLocked(true);
         }
-    };
+    }, [pinned]);
 
     const handleClose = () => {
         setAnchorEl(null);
-        setLocked(false);
     };
 
     const handlePopoverOpen = (event: React.MouseEvent<HTMLElement, MouseEvent>) => {
-        if (!locked) {
-            setAnchorEl(event.currentTarget);
-        }
+        setAnchorEl(event.currentTarget);
     };
 
     const handlePopoverClose = () => {
-        if (!locked) {
+        if(!pinned) {
             setAnchorEl(null);
         }
     };
 
-    return (<span className={`case status-${status.name}`}>
+    return (<span className={`case status-${status.name} ${pinned ? "hover" : ""}`}>
         <IconButton
             aria-owns={id}
             aria-haspopup="true"
             aria-describedby={id}
             onMouseEnter={handlePopoverOpen}
-            onMouseLeave={handlePopoverClose}
-            onClick={handleClick}>
+            onMouseLeave={handlePopoverClose}>
             <IconClass />
         </IconButton>
         <Popover

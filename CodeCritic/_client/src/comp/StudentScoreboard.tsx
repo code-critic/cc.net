@@ -3,10 +3,10 @@ import ClearIcon from '@material-ui/icons/Clear';
 import DoneIcon from '@material-ui/icons/Done';
 import DoneAllIcon from '@material-ui/icons/DoneAll';
 import PriorityHighIcon from '@material-ui/icons/PriorityHigh';
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Link as RouterLink } from "react-router-dom";
+import { API } from "../api";
 import { SimpleLoader } from "../components/SimpleLoader";
-import { useResource } from "../components/useResource";
 import { IStudentScoreboardCourse } from "../models/DataModel";
 import { groupBy } from "../utils/arrayUtils";
 
@@ -64,7 +64,14 @@ interface StudentScoreboardProps {
 
 }
 export const StudentScoreboard = (props: StudentScoreboardProps) => {
-    const items = useResource<IStudentScoreboardCourse[]>("student-scoreboard");
+    const [items, setItems] = useState<IStudentScoreboardCourse[]>();
+
+    useEffect(() => {
+        (async () => {
+            const axiosResponse = await API.get<IStudentScoreboardCourse[]>("student-scoreboard");
+            setItems(axiosResponse.data);
+        })()
+    }, [ ]);
 
     if (items === undefined) {
         return <SimpleLoader title="loading" />

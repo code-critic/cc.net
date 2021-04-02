@@ -5,11 +5,16 @@ import BugReportIcon from '@material-ui/icons/BugReport';
 import GitHubIcon from '@material-ui/icons/GitHub';
 import React, { useEffect, useState } from 'react';
 import { useUser } from '../hooks/useUser';
-import { Grow } from '../utils/renderers';
 import { openCloseState } from '../utils/StateUtils';
 
 
+export const Grow = (props: any) => {
+    return <span className="grow" {...props}>&nbsp;</span>
+}
 
+export const Tiny = (props: any) => {
+    return <div className="tiny" {...props} />
+}
 const SlackIcon = () => {
     return <>
         <svg aria-hidden="true" focusable="false" width="1em" height="1em" className="slack-icon" preserveAspectRatio="xMidYMid meet" viewBox="0 0 24 24">

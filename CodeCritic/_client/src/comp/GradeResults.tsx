@@ -68,7 +68,10 @@ const GraderesultsImpl = (props: GraderesultsImplProps) => {
         mode="client"
     />
         {selectedItem && <>
-            <Dialog open={!!selectedItem} onClose={() => setSelectedItem(undefined)} fullWidth maxWidth="lg">
+            <Dialog className="solution-result-view-dialog"
+                    open={!!selectedItem}
+                    onClose={() => setSelectedItem(undefined)}
+                    fullWidth maxWidth="lg">
                 <DialogContent>
                     <SolutionResultView onClose={() => setSelectedItem(undefined)} onChange={refresh} objectId={selectedItem.objectId} />
                 </DialogContent>

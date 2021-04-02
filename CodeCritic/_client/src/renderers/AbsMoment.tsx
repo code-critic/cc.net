@@ -5,14 +5,19 @@ import { Tooltip } from '@material-ui/core';
 
 interface AbsMomentProps {
     date: any;
+    noTooltip?: boolean;
 }
 export const AbsMoment = (props: AbsMomentProps) => {
-    const { date } = props;
+    const { date, noTooltip } = props;
     
     if (!date) {
         return <></>
     }
     const datetime = moment(date);
+
+    if (noTooltip) {
+        return <><Moment date={date} fromNow /> (<Moment date={date} format="llll" />)</>
+    }
     
 
     return (<Tooltip title={datetime.format('llll')}>
