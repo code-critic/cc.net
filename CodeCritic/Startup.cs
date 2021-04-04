@@ -104,10 +104,10 @@ namespace CC.Net
             var update = Builders<CcData>.Update.Set("result.status", (int) ProcessStatusCodes.InQueue);
             var items = dbService.Data.UpdateMany(filter, update);
 
-            var crypto = serviceProvider.GetService<CryptoService>();
-            Console.WriteLine(
-                crypto.Encrypt("{\"eppn\": \"foo.bara@tul.cz\", \"affiliation\": \"root@tul.cz;member@tul.cz;employee@tul.cz;alum@tul.cz;faculty@tul.cz\"}")
-            );
+            // var crypto = serviceProvider.GetService<CryptoService>();
+            // Console.WriteLine(
+            //     crypto.Encrypt("{\"eppn\": \"foo.bara@tul.cz\", \"affiliation\": \"root@tul.cz;member@tul.cz;employee@tul.cz;alum@tul.cz;faculty@tul.cz\"}")
+            // );
             
             new Thread (async () =>
             {
