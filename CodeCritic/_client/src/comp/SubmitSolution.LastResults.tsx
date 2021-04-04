@@ -70,6 +70,10 @@ export const SubmitSolutionLastResults = (props: SubmitSolutionLastResultsProps)
     const allResults = hybrid == null
         ? results
         : [hybrid, ...results.filter(i => i.objectId !== liveResult.objectId)];
+    
+    if (allResults.length === 0) {
+        return <></>
+    }
 
     return (<div>
         <div className="latest-result-wrapper">

@@ -85,11 +85,36 @@ namespace CC.Net.Services
                 ToSimpleFile(referenceDir, "reference"),
             };
             files.ForEach(i => PopulateRelPath(i));
+            files = FilterEmptyFiles(files);
             
             return files;
         }
 
-        private void PopulateRelPath(SimpleFile f, string prefix = "")
+        private static List<SimpleFile> FilterEmptyFiles(List<SimpleFile> files)
+        {
+            var newFiles = new List<SimpleFile>();
+            foreach (var f in files)
+            {
+                if (f.IsDir)
+                {
+                    f.Files = FilterEmptyFiles(f.Files);
+                    if (f.Files.Any())
+                    {
+                        newFiles.Add(f);
+                    }
+                }
+                else
+                {
+                    if (new FileInfo(f.RawPath).Length > 0)
+                    {
+                        newFiles.Add(f);
+                    }
+                }
+            }
+            return newFiles;
+        }
+
+        private static void PopulateRelPath(SimpleFile f, string prefix = "")
         {
             f.RelPath = string.IsNullOrEmpty(prefix) ? f.Filename : $"{prefix}/{f.Filename}";
             foreach (var ff in f.Files)

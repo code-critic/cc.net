@@ -143,7 +143,7 @@ export const SubmitSolutionRequiredLanguageTag = (props: SubmitSolutionRequiredL
     const title = isUnittest
         ? (<Alert severity="info" icon={<LanguageIcon/>}>
             <AlertTitle>{language.name} only!</AlertTitle>
-            Solution must use programming language {language.name}
+            Solution must use programming language {language.name} ({language.version})
         </Alert>)
         : (<Alert severity="info" icon={<LanguageIcon/>}>
             <AlertTitle>Any programming language!</AlertTitle>
