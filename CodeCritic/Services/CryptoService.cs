@@ -163,7 +163,7 @@ namespace CC.Net.Services
 
             // Declare the string used to hold
             // the decrypted text.
-            var bytes = default(byte[]);
+            var plaintext = default(string);
 
             // Create an Aes object
             // with the specified key and IV.
@@ -184,15 +184,10 @@ namespace CC.Net.Services
                 // Read the decrypted bytes from the decrypting stream
                 // and place them in a string.
 
-                
-                using (var memstream = new MemoryStream())
-                {
-                    srDecrypt.BaseStream.CopyTo(memstream);
-                    bytes = memstream.ToArray();
-                }
+                plaintext = srDecrypt.ReadToEnd();
             }
 
-            return Convert.ToBase64String(bytes);
+            return plaintext;
         }
 
         private string EncryptStringFromBytes_Aes(byte[] plaintext, byte[] Key, byte[] IV)
