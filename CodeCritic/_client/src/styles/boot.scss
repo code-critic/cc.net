@@ -1,0 +1,37 @@
+.text-muted {
+    color: #999;
+}
+
+.console, ol.console {
+    font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    font-size: 0.7rem;
+
+    li {
+        &::marker {
+            color: #666;
+        }
+    }
+}
+
+body {
+    margin: 0;
+    padding: 0;
+}
+
+* {
+    box-sizing: border-box
+}
+
+code {
+    font-size: 87.5%;
+    color: #ab2e68;
+    word-wrap: break-word;
+}
+
+footer {
+    z-index: 0;
+}
+
+.no-transform {
+    text-transform: none !important;
+}

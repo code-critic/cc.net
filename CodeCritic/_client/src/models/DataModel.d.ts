@@ -1,3 +1,4 @@
+import { ProcessStatus, SubmissionStatus, ProblemType, ProblemStatus, CcEventType, CcUserGroupStatus, DiffResultLineType, ProcessStatusCodes, ChangeType } from  './Enums'
 
 	interface IUser {
 		id: string;
@@ -16,23 +17,6 @@
 		scaleStart: number;
 		unittest: string[];
 		version: string;
-	}
-	export const enum ProblemStatus {
-		BeforeStart = 0,
-		Active = 1,
-		ActiveLate = 2,
-		AfterDeadline = 3
-	}
-	export const enum ProblemType {
-		LineByLine = 1,
-		Unittest = 2,
-		Program = 3
-	}
-	export const enum SubmissionStatus {
-		Unkown = 0,
-		Intime = 1,
-		Late = 2,
-		None = 3
 	}
 	interface ICourse {
 		courseConfig: ICourseConfig;
@@ -64,6 +48,7 @@
 		avail: Date;
 		cat: string[];
 		collaboration: ICourseProblemCollaborationConfig;
+		course: string;
 		courseYearConfig: ICourseYearConfig;
 		deadline: Date;
 		description: string;
@@ -82,6 +67,7 @@
 		timeout: number;
 		type: ProblemType;
 		unittest: boolean;
+		year: string;
 	}
 	interface ICourseProblemCase {
 		id: string;
@@ -132,17 +118,6 @@
 		settingsConfig: ISettingsConfig;
 		year: string;
 	}
-	export const enum CcEventType {
-		Unknown = 0,
-		NewComment = 1,
-		NewGrade = 2,
-		NewCodeReview = 3
-	}
-	export const enum CcUserGroupStatus {
-		NotConfirmed = 0,
-		Confirmed = 1,
-		Rejected = 2
-	}
 	interface ICcData {
 		action: string;
 		attempt: number;
@@ -150,6 +125,7 @@
 		courseName: string;
 		courseYear: string;
 		docker: boolean;
+		files: ISimpleFile[];
 		gradeComment: string;
 		groupId: IObjectId;
 		groupName: string;
@@ -243,11 +219,15 @@
 		time: number;
 		user: string;
 	}
-	interface IDateTimeOrDays {
+	interface ISimpleFile {
+		content: any;
+		filename: string;
+		files: ISimpleFile[];
+		isDir: boolean;
+		rawPath: string;
+		relPath: string;
 	}
-	export const enum DiffResultLineType {
-		Correct = 1,
-		Wrong = 2
+	interface IDateTimeOrDays {
 	}
 	interface IDiffResult {
 		generated: string;
@@ -272,6 +252,11 @@
 		objectId: string;
 		points: number;
 	}
+	interface ISimpleFileDto {
+		content: string;
+		name: string;
+		path: string;
+	}
 	interface ITableRequest {
 		filtered: ITableRequestFilter[];
 		page: number;
@@ -288,21 +273,29 @@
 	}
 	interface ITableResponse {
 		count: number;
-		data: any[];
+		data: ICcDataDto[];
 	}
-	export const enum ProcessStatusCodes {
-		InQueue = 1,
-		Running = 2,
-		Skipped = 9,
-		Ok = 10,
-		GlobalTimeout = 12,
-		AnswerCorrect = 100,
-		AnswerCorrectTimeout = 101,
-		AnswerWrong = 200,
-		AnswerWrongTimeout = 201,
-		CompilationFailed = 400,
-		ErrorWhileRunning = 500,
-		NoSolution = 666
+	interface ICcDataDto {
+		attempt: number;
+		comments: number;
+		course: string;
+		date: Date;
+		duration: number;
+		group: string;
+		isLate: string;
+		language: string;
+		objectId: string;
+		points: number;
+		problem: string;
+		reviewRequest: Date;
+		score: string;
+		status: string;
+		users: string[];
+		year: string;
+	}
+	interface IGradeDto {
+		result: ICcDataDto;
+		user: IUser;
 	}
 	interface IAppUser {
 		affiliation: string;
@@ -311,18 +304,12 @@
 		eppn: string;
 		groups: ICcGroup[];
 		id: string;
+		isCurrentlyRoot: boolean;
 		isRoot: boolean;
 		lastFirstName: string;
 		role: string;
 		roles: string[];
 		username: string;
-	}
-	interface IProcessStatus {
-		code: ProcessStatusCodes;
-		description: string;
-		letter: string;
-		name: string;
-		value: number;
 	}
 	interface ICommentServiceItem {
 		comment: ILineComment;
@@ -339,20 +326,14 @@
 		score: number;
 		since: Date;
 	}
-	interface IGradeDto {
-		result: ICcData;
-		user: IUser;
+	interface IUnauthorizedObjectIface {
+		error: number;
+		message: string;
+		redirect: string;
 	}
 	interface IApiError {
 		errors: string[];
 		name: string;
-	}
-	export const enum ChangeType {
-		Unchanged = 0,
-		Deleted = 1,
-		Inserted = 2,
-		Imaginary = 3,
-		Modified = 4
 	}
 	interface IDiffPiece {
 		position: number;
@@ -360,3 +341,7 @@
 		text: string;
 		type: ChangeType;
 	}
+
+
+// generated at 4/3/2021 4:36:17 PM (UTC)
+export const __uuid = 'e795e17c-3a52-4a6c-bb4a-f8ca0eed1acc'

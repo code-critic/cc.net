@@ -1,3 +1,5 @@
+import { IAppUser, IUnauthorizedObjectIface } from "./models/DataModel";
+
 const defaultAuthUrl = `https://flowdb.nti.tul.cz/auth/index.php`;
 const defaultLoginUrl = `${defaultAuthUrl}?returnurl=${window.location.origin}/home/login`;
 
@@ -12,7 +14,7 @@ export const auth = () => {
                 if (response.status === 200) {
                     response
                         .json()
-                        .then(data => {
+                        .then((data: IAppUser) => {
                             (window as any).currentUser = data;
                             resolve((window as any).currentUser);
                         })
@@ -20,7 +22,7 @@ export const auth = () => {
                     if (response.status === 203) {
                         response
                         .json()
-                        .then(data => {
+                        .then((data: IUnauthorizedObjectIface) => {
                             const { error, message, redirect } = data;
                             (window as any).location.href = defaultLoginUrl;
                         })

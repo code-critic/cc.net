@@ -39,6 +39,17 @@ export const mapByExtension = (extension: string) => {
     }
 }
 
+export const supportedExtensions = [
+    ".c", ".cc", ".cpp",
+    ".h", ".hh", ".hpp",
+    ".cs", ".py", ".java", ".m",
+    ".txt", ".md", ".json", ".xml"
+]
+
+export const isFiletypeSupported = (filename: string) => {
+    return supportedExtensions.some(i => filename.endsWith(i));
+}
+
 export const mapByExtensionPrism = (extension: string) => {
     const ext = extension || "";
 

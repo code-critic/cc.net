@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using CC.Net.Collections;
+using CC.Net.Services.Courses;
 using MongoDB.Bson;
 
 namespace CC.Net.Utils
@@ -13,7 +14,7 @@ namespace CC.Net.Utils
 
     public static class QueryUtils
     {
-        public static BsonDocument Parse(TableRequestFilter[] filters, params ParseUtilType[] extras)
+        public static BsonDocument Parse(TableRequestFilter[] filters)
         {
             if (filters.Length == 0)
             {
@@ -21,7 +22,7 @@ namespace CC.Net.Utils
             }
 
             var result = filters.ToList()
-                .Select(f => Parse(f, extras))
+                .Select(f => Parse(f))
                 .Where(s => !string.IsNullOrEmpty(s))
                 .ToList();
 
@@ -29,86 +30,83 @@ namespace CC.Net.Utils
             return BsonDocument.Parse($"{{{doc}}}");
         }
 
-        public static string Parse(TableRequestFilter filter, params ParseUtilType[] extras)
+
+        public static string Parse(TableRequestFilter filter)
         {
             var filterId = filter.id.ToLower();
-            if (filter.value == "all" || filter.value == "")
+            if (filter.value == "all" || string.IsNullOrWhiteSpace(filter.value))
             {
                 return null;
             }
+            switch (filterId)
+            {
+                case "attempt":
+                    // handled different in a way
+                    return "";
 
-            if (filter.id == "action")
-            {
-                return $"action: \"{filter.value}\"";
-            }
+                case "user":
+                case "problem":
+                    return filter.FilterRegexProperty();
 
-            if (filter.id == "submissionStatus")
-            {
-                return $"submissionStatus: {filter.value}";
-            }
+                case "action":
+                case "language":
+                    return filter.FilterStringProperty();
 
-            var extra = extras.FirstOrDefault(i => i.Id == filter.id);
-            if (extra != null)
-            {
-                return extra.Parser(filter);
-            }
+                case "course":
+                    return filter.FilterRegexProperty("courseName");
 
-            if (filter.id == "id.timestamp")
-            {
-                var minId = new ObjectId(int.Parse(filter.value), 0, 0, 0);
-                return $"_id: {{\"$gt\": ObjectId(\"{minId}\")}}";
-            }
+                case "year":
+                    return filter.FilterRegexProperty("courseYear");
 
-            if (filterId == nameof(CcData.Language).ToLower())
-            {
-                return $"language: \"{filter.value}\"";
-            }
-            
-            if (filterId == nameof(CcData.Points).ToLower())
-            {
-                return $"points: {filter.value}";
-            }
+                case "submissionstatus":
+                case "points":
+                    return filter.FilterNumericProperty();
 
-            if (filterId == nameof(CcData.ReviewRequest).ToLower())
-            {
-                if (filter.value == "yes")
-                {
-                    return $"reviewRequest: {{ $ne: null }}";
-                }
-                else if (filter.value == "no")
-                {
-                    return $"reviewRequest: {{ $eq: null }}";
-                }
-            }
-            
-            if (filterId == nameof(CcData.Comments).ToLower())
-            {
-                if (filter.value == "yes")
-                {
-                    return $"comments: {{ $ne: [] }}";
-                }
-                else if (filter.value == "no")
-                {
-                    return $"comments: {{ $eq: [] }}";
-                }
-                else if (filter.value == "1")
-                {
-                    return $"comments: {{ $size: 1 }}";
-                }
-                else if (filter.value == "2")
-                {
-                    return $"comments: {{ $size: 2 }}";
-                }
-            }
+                case "islate":
+                    var value = (int)filter.value.ParseSubmissionStatus();
+                    if (value == 0)
+                    {
+                        return "";
+                    }
+                    return $"submissionStatus: {value}";
 
-            var result_status = "result.status";
-            if (filter.id == result_status && filter.value != "all")
-            {
-                return $"\"result.status\": {int.Parse(filter.value)}";
+                case "id.timestamp":
+                case "date":
+                    var minId = new ObjectId(int.Parse(filter.value), 0, 0, 0);
+                    return $"_id: {{\"$gt\": ObjectId(\"{minId}\")}}";
+
+                case "reviewrequest":
+                    if (filter.value == "yes")
+                    {
+                        return $"reviewRequest: {{ $ne: null }}";
+                    }
+                    else if (filter.value == "no")
+                    {
+                        return $"reviewRequest: {{ $eq: null }}";
+                    }
+                    return null;
+
+                case "comments":
+                    if (filter.value == "yes")
+                    {
+                        return $"comments: {{ $ne: [] }}";
+                    }
+                    else if (filter.value == "no")
+                    {
+                        return $"comments: {{ $eq: [] }}";
+                    }
+                    else if (int.TryParse(filter.value, out var n))
+                    {
+                        return $"comments: {{ $size: {n} }}";
+                    }
+                    return null;
+
+                case "status":
+                    return $"\"result.status\": {int.Parse(filter.value)}";
             }
 
             //default fallback
-            return $"\"{filter.id}\": /{filter.value}/i";
+            return filter.FilterRegexProperty();
         }
 
         public static BsonDocument Parse(TableRequestSort[] sorts)
@@ -129,22 +127,25 @@ namespace CC.Net.Utils
 
         public static string Parse(TableRequestSort sort)
         {
-            if (sort.id == "id.timestamp")
+            switch (sort.id.ToLower())
             {
-                return sort.desc ? "_id: -1" : "_id: 1";
-            }
-            
-            if (sort.id == "result")
-            {
-                return sort.desc ? @"""result.score"": -1" : @"""result.score"": 1";
+                case "id.timestamp":
+                case "date":
+                    return sort.FilterProperty("_id");
+
+                case "submissionstatus":
+                case "islate":
+                    return sort.desc ? @"""result.submissionstatus"": -1" : @"""result.submissionstatus"": 1";
+
+                case "duration":
+                case "score":
+                    return sort.FilterResultProperty();
+
+                case "group":
+                    return sort.FilterProperty("groupName");
             }
 
-            if (sort.id == "submissionStatus")
-            {
-                return sort.desc ? "submissionStatus: -1" : "submissionStatus: 1";
-            }
-
-            return sort.desc ? $"\"{sort.id}\": -1" : $"\"{sort.id}\": 1";
+            return sort.FilterProperty();
         }
     }
 }

@@ -27,6 +27,8 @@ $notifications: (1: #ecec96,
 );
 
 @import url('https://fonts.googleapis.com/css2?family=Dosis:wght@300;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@500&display=swap');
+@import url('https://unpkg.com/basscss@8.0.2/css/basscss.min.css');
 
 @media (min-width: 1600px) {
   .container {
@@ -44,6 +46,25 @@ $notifications: (1: #ecec96,
   }
 }
 
+body {
+  font-family: "Roboto", "Helvetica", "Arial", sans-serif;
+}
+
+a {
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.nav-menu-root {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
 a.navbar-brand {
   white-space: normal;
   text-align: center;
@@ -53,6 +74,7 @@ a.navbar-brand {
 html {
   font-size: 14px;
 }
+
 @media (min-width: 768px) {
   html {
     font-size: 16px;
@@ -79,6 +101,12 @@ html {
 }
 
 .card-select {
+  &.card-select-problem {
+    .MuiButton-root {
+      min-height: 100px;
+    }
+  }
+
   .MuiButton-root {
     width: 100%;
     min-height: 140px;
@@ -117,7 +145,7 @@ html {
   pre {
     code {
       font-size: 87.5%;
-      color: #e83e8c;
+      color: #ab2e68;
       word-break: break-word;
       background: #fbfbfb;
       display: block;
@@ -575,32 +603,6 @@ div.MuiMenu-paper {
   justify-content: space-between;
 }
 
-.dropzone {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 20px 20px;
-  border-width: 2px;
-  border-radius: 2px;
-  border-color: #eeeeee;
-  border-style: dashed;
-  background-color: #fafafa;
-  color: #bdbdbd;
-  outline: none;
-  transition: border 0.24s ease-in-out, padding 0.24s ease-in-out;
-
-  p {
-    padding: 0;
-    margin: 0;
-  }
-
-  &.dropzone-active {
-    padding: 30px 20px;
-    border-color: #28601f;
-  }
-}
-
 .CodeMirror {
   font-size: 12px;
 }
@@ -636,6 +638,7 @@ div.MuiMenu-paper {
 }
 
 .MuiBreadcrumbs-root.breadcrumb {
+  padding: 5px;
   background-color: #efefef;
   margin-bottom: 0.5rem;
 
@@ -1125,6 +1128,7 @@ a.notification-item {
   &.is-new {
 
     &:hover {
+
       @each $status,
       $color in $notifications {
         &.notification-type-#{$status} {
@@ -1167,21 +1171,280 @@ a.notification-item {
     opacity: 0.5;
   }
 
+  .picker-section-header {
+    width: 100%;
+    border-bottom: 1px solid #c7c7c7;
+    margin-bottom: 20px;
+    border-radius: 0;
+    outline: none;
+
+    &.MuiButtonBase-root {
+
+      text-transform: none;
+      align-items: flex-start;
+      justify-content: flex-start;
+      text-align: left;
+
+      .MuiTypography-root {
+        font-size: 21px;
+        font-weight: 500;
+        font-family: 'Roboto', sans-serif;
+      }
+    }
+  }
+
+  .picker-items {
+    margin-top: 5px;
+    margin-bottom: 30px;
+    animation: fadeIn ease .5s;
+  }
+
   &.picker-level-course {
     &.picker-style-small {
       a {
         margin: 4px 4px;
-        box-shadow: 0 0 4px 0 rgba(0,0,0,0.2);
+        box-shadow: 0 0 4px 0 rgba(0, 0, 0, 0.2);
+        animation: fadeIn ease .5s;
       }
     }
   }
-  
+
   &.picker-level-problem {
     &.picker-style-small {
       a {
         margin: 4px 4px;
-        box-shadow: 0 0 4px 0 rgba(0,0,0,0.2);
+        box-shadow: 0 0 4px 0 rgba(0, 0, 0, 0.2);
+        animation: fadeIn ease .5s;
       }
     }
+  }
+}
+
+.fade-in {
+  animation: fadeIn ease .5s;
+}
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
+
+
+.icon-text-button-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  margin: 5px;
+
+  @each $status,
+  $color in $statuses {
+    &.#{$status} {
+      background-color: rgba($color, 0.4);
+      border: 1px solid darken($color, 45);
+      box-shadow: 0 0 17px 0px rgba(darken($color, 45), 0.3);
+
+      .cr .MuiSvgIcon-root {
+        color: darken($color, 45);
+        opacity: 0.3;
+      }
+    }
+  }
+
+  .MuiButton-root.cr {
+    &.has-cr {
+      .MuiSvgIcon-root {
+        font-size: 2rem;
+        opacity: 1;
+      }
+    }
+
+    .MuiButton-label {
+      background-color: transparent;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+  }
+}
+
+
+
+.icon-text-button-wrapper {
+  padding: 0;
+  position: relative;
+  display: grid;
+  align-items: stretch;
+  justify-content: stretch;
+  grid-template-columns: 90px auto;
+  grid-template-areas:
+    "star live-result"
+    "icon-text-button live-result";
+
+  .star {
+    grid-area: star;
+  }
+  .icon-text-button {
+    grid-area: icon-text-button;
+  }
+  .live-result {
+    grid-area: live-result;
+    padding: 10px 20px 0 20px;
+  }
+
+  @each $status,
+  $color in $statuses {
+
+    &.#{$status},
+    .#{$status} {
+
+      .live-result {
+        color: darken($color, 65);
+      }
+
+      .icon {
+        color: darken($color, 45);
+      }
+
+      .text {
+        color: darken($color, 45);
+      }
+
+      .MuiButton-root.icon-text-button {
+        padding: 0;
+
+        .pts {
+          color: #fff;
+          background-color: darken($color, 45);
+          padding: 2px 4px;
+          border-radius: 4px;
+          margin: 0 2px;
+          text-transform: none;
+          font-size: 0.8rem;
+        }
+        
+        &:hover {
+          .MuiButton-label {
+            background-color: darken(rgba($color, 0.9), 5);
+          }  
+        }
+        .MuiButton-label {
+          background-color: rgba($color, 0.4);
+        }
+      }
+    }
+  }
+
+  .icon {
+    padding: 5px;
+
+    .MuiSvgIcon-root {
+      font-size: 2rem;
+    }
+
+    text-align: center;
+    background-color: #ffffff10;
+  }
+
+  .text {
+    text-align: center;
+    background-color: #ffffff56;
+  }
+
+  .MuiButton-label {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: center;
+  }
+}
+
+.latest-result-wrapper {
+  position: relative;
+
+  &::before {
+    content: " ";
+    width: 100%;
+    position: absolute;
+    display: block;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(90deg, #ffffff00 60%, #ffffffa4);
+    z-index: 1;
+    pointer-events: none;
+  }
+
+  .latest-results {
+    --scrollbarBG: #efefef;
+    --thumbBG: #b4b4b400;
+
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: visible;
+
+    scrollbar-width: thin;
+    scrollbar-color: var(--thumbBG) var(--scrollbarBG);
+    display: flex;
+    flex-direction: row;
+    align-items: flex-end;
+
+    &:hover {
+      --thumbBG: #b4b4b4;
+    }
+
+
+    &::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: var(--scrollbarBG);
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background-color: var(--thumbBG);
+      border-radius: 5px;
+      border: 2px solid var(--scrollbarBG);
+    }
+  }
+}
+
+
+
+@keyframes pulse {
+  from {
+    transform: scale(1);
+    opacity: .5;
+  }
+
+  to {
+    transform: scale(3, 3);
+    opacity: 0;
+  }
+}
+
+.hide-links {
+  a.MuiTypography-root {
+    color: initial;
+  }
+}
+
+.stack {
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: 1fr;
+  align-items: stretch;
+  justify-content: stretch;
+
+  &>* {
+    grid-area: 1 / 1 / 2 / 2;
   }
 }

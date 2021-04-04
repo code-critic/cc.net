@@ -9,6 +9,7 @@ using CC.Net.Config;
 using CC.Net.Db;
 using CC.Net.Extensions;
 using CC.Net.Hubs;
+using Cc.Net.Services;
 using CC.Net.Services.Courses;
 using CC.Net.Services.Languages;
 using CC.Net.Services.Matlab;
@@ -71,6 +72,7 @@ namespace CC.Net.Services
             {
                 var provider = scope.ServiceProvider;
                 var dbService = provider.GetService<DbService>();
+                var notificationFlag = provider.GetService<NotificationFlag>();
 
                 var cursor = await dbService.Data
                     .FindAsync(i => i.Result.Status == ProcessStatus.InQueue.Value);
@@ -132,8 +134,12 @@ namespace CC.Net.Services
                     }
                     catch (Exception ex)
                     {
-                        _logger.LogError(ex, "Error while processing solution {item}", item.ToString());
+                        _logger.LogError(ex, "Error while processing solution {Item}", item.ToString());
                         continue;
+                    }
+                    finally
+                    {
+                        notificationFlag.Touch();
                     }
                 }
             }

@@ -79,6 +79,8 @@ namespace CC.Net.Controllers
                 .Problems
                 .Select(i => i.AddDescription(_problemDescriptionService, singleCourse))
                 .ToList();
+            
+            problems.ForEach(i => i.UpdateRefs(yearConfig));
 
             var response = new ApiListResponse<CourseProblem>(problems);
 

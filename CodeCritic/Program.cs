@@ -24,9 +24,29 @@ using Serilog;
 using TypeLite;
 using TypeLite.TsModels;
 using YamlDotNet.Serialization;
+using cc.net.Auth;
 
 namespace CC.Net
 {
+
+    public static class TsGeneratorExtensions
+    {
+
+        public static TypeScriptFluent RegisterTypeConvertor(this TypeScriptFluent fluent, Type a, TypeConvertor b)
+        {
+            var sg = fluent.ScriptGenerator;
+            var flags = BindingFlags.NonPublic | BindingFlags.GetField | BindingFlags.Instance;
+            var _typeConvertorsField = typeof(TsGenerator).GetField("_typeConvertors", flags);
+            var _typeConvertors = (TypeConvertorCollection) _typeConvertorsField.GetValue(sg);
+
+            var _convertorsField = typeof(TypeConvertorCollection).GetField("_convertors", flags);
+            var _convertors = (Dictionary<Type, TypeConvertor>) _convertorsField.GetValue(_typeConvertors);
+            _convertors.Add(a, b);
+
+            return fluent;
+        }
+    }
+
     public class Program
     {
         public static void Main(string[] args)
@@ -45,12 +65,32 @@ namespace CC.Net
                 File.WriteAllText($"{docs}/README.md", sections.AsString("\n\n\n"));
                 return;
             }
+
             if (args.Length > 0 && args[0] == "--generate")
             {
+
+                var enumImports = new List<Type>{
+                    typeof(ProcessStatus),
+                    typeof(SubmissionStatus),
+                    typeof(ProblemType),
+                    typeof(ProblemStatus),
+                    typeof(CcEventType),
+                    typeof(CcUserGroupStatus),
+                    typeof(DiffResultLineType),
+                    typeof(ProcessStatusCodes),
+                    typeof(ChangeType),
+                };
+
                 Directory.CreateDirectory("_client/src/models/");
-                File.WriteAllText(
-                    "_client/src/models/DataModel.d.ts",
-                    TypeScript.Definitions()
+                var destModelPath = "_client/src/models/DataModel.d.ts";
+                var modelDefinitions = TypeScript.Definitions();
+
+                enumImports.ForEach(T =>
+                {
+                    modelDefinitions = modelDefinitions.RegisterTypeConvertor(T, i => T.Name);
+                });
+
+                modelDefinitions = modelDefinitions
                         .For<User>()
                         .For<Language>()
                         .For<Course>()
@@ -66,30 +106,36 @@ namespace CC.Net
                         .For<GradeDto>()
                         .For<StudentScoreboardCourse>()
                         .For<CcGroup>()
-                        
+                        .For<UnauthorizedObjectIface>()
+                        .For<SimpleFileDto>()
+
                         .For<ApiError>()
+                        .For<CcDataDto>()
 
                         .For<DiffResult>()
                         .For<AppUser>()
-                        .For<DiffResultComposite>()
-
+                        .For<DiffResultComposite>();
+                        
+                var destModel = modelDefinitions
                         .WithModuleNameFormatter((moduleName) => "")
                         .WithMemberFormatter((identifier) =>
                             char.ToLower(identifier.Name[0]) + identifier.Name.Substring(1)
                         )
                         .WithTypeFormatter((type, f) => "I" + ((TsClass)type).Name)
-                        .Generate());
+                        .Generate();
 
-                var enumBase =
-                        TypeScript.Definitions()
-                            .For<ProcessStatusCodes>()
-                            .For<ChangeType>()
-                            .For<ProcessStatus>()
-                            .For<CcEventType>()
-                            .For<ProblemStatus>()
-                            .For<SubmissionStatus>()
-                            .For<CcUserGroupStatus>()
+                var importLine = $"import {{ {enumImports.Select(i => i.Name).AsString(", ")} }} from  './Enums'";
+                var dateLine = $"// generated at {DateTime.Now.ToUniversalTime()} (UTC)";
+                var guidLine = $"export const __uuid = '{Guid.NewGuid()}'";
+                File.WriteAllText(destModelPath, $"{importLine}\n{destModel}\n\n{dateLine}\n{guidLine}");
 
+                var enumDefinition = TypeScript.Definitions();
+                enumImports.ForEach(T =>
+                {
+                    enumDefinition = enumDefinition.For(T);
+                });
+
+                var enumBase = enumDefinition
                             .WithModuleNameFormatter((moduleName) => "")
                             .WithMemberFormatter((identifier) =>
                                 char.ToLower(identifier.Name[0]) + identifier.Name.Substring(1)
@@ -112,15 +158,15 @@ namespace CC.Net
         }
 
         public static string AddEnumLike<T>()
-            where T: class, IJson
+            where T : class, IJson
         {
             var type = typeof(T);
             var fields = type.GetFields(BindingFlags.Public | BindingFlags.Static);
             var result = $"\texport class {type.Name}Static {{\n";
-            foreach(var field in fields)
+            foreach (var field in fields)
             {
                 var value = field.GetValue(null);
-                if(value is T)
+                if (value is T)
                 {
                     var instance = value as T;
                     var row = $"public static {field.Name}: I{field.ReflectedType.Name}";
@@ -129,7 +175,8 @@ namespace CC.Net
                     row += instance.AsJson();
                     row += ";\n";
                     result += $"\t\t{row}\n";
-                }else if(value is IEnumerable<T>)
+                }
+                else if (value is IEnumerable<T>)
                 {
                     var row = $"public static {field.Name}: I{field.ReflectedType.Name}[] = [";
                     var instance = value as IEnumerable<T>;
@@ -160,7 +207,7 @@ namespace CC.Net
                 {
                     options.Enrich.FromLogContext();
 
-                    
+
                     var logFormat = "{Timestamp:yyyy-MM-dd HH:mm:ss.fff} [{Level:u3}] [{UserName}] {Message:lj}{NewLine}{Exception}";
                     options.WriteTo.Console(outputTemplate: logFormat)
                         .MinimumLevel.Override("Default", Serilog.Events.LogEventLevel.Information)
@@ -182,4 +229,3 @@ namespace CC.Net
         }
     }
 }
-;

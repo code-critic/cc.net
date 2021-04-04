@@ -1,6 +1,7 @@
 using System.Threading.Tasks;
 using Cc.Net.Apis;
 using CC.Net.Attributes;
+using CC.Net.Collections;
 using Cc.Net.Services;
 using CC.Net.Services;
 using CC.Net.Utils;

@@ -1,10 +1,12 @@
-import { ICommentServiceItem, IAppUser, ICcEvent } from "./models/DataModel";
-import { observable } from "mobx";
 import { Dispatcher } from 'flux';
-import { HubConnectionBuilder, LogLevel } from '@aspnet/signalr';
 import { NotificationManager } from 'react-notifications';
+
+import { HubConnectionBuilder, LogLevel } from '@aspnet/signalr';
+
 import { auth } from './auth';
-import { sleep } from "./utils/utils";
+import { IAppUser, ICcEvent, ICommentServiceItem } from './models/DataModel';
+import { getLocalStorageUserOrDefault, isUserEqual } from './security/security';
+import { sleep } from './utils/utils';
 
 interface HttpClientConfig {
     baseUrl: string;
@@ -76,7 +78,6 @@ class CommentService {
             });
     }
 
-    @observable
     public items: ICommentServiceItem[] = [];
 
     public prepareComment(item: ICommentServiceItem) {
@@ -93,6 +94,28 @@ class CommentService {
         });
     }
 
+    public async postCommentsAsync () {
+        return new Promise(async (resolve, reject) => {
+            if (!this.items.length) {
+                return;
+            }
+    
+            const recovery = this.items;
+            const data = await httpClient.fetch("comments", this.items, "post")
+            const { status, updated } = data;
+            if (status === "ok") {
+                NotificationManager.success(`Ok, Saved ${updated} comments`);
+            } else {
+                NotificationManager.error(`Failed to save ${recovery.length} comments`);
+            }
+    
+            this.items = [];
+            appDispatcher.dispatch({
+                actionType: "commentServiceChanged"
+            });
+            resolve(true);
+        })
+    }
     public postComments() {
         if (!this.items.length) {
             return;
@@ -136,19 +159,9 @@ export const httpClient = new HttpClient({
     },
 });
 
-let _currentUser: IAppUser = {
-    affiliation: "guest",
-    datetime: "guest",
-    email: "guest@tul.cz",
-    eppn: "guest",
-    id: "guest",
-    isRoot: false,
-    lastFirstName: "guest guest",
-    role: null as any,
-    roles: [],
-    username: "guest",
-    groups: [],
-}
+
+
+let _currentUser: IAppUser = getLocalStorageUserOrDefault();
 
 declare global {
     interface PrettyCode {
@@ -224,6 +237,8 @@ const startWS = () => {
             });
 
             liveConnection.on("serverMessage", (level: NotificationLevel, message: string, title:string = "", timeOut: number = 400) => {
+                console.log({level, message, title, timeOut})
+                console.log(NotificationManager);
                 switch (level) {
                     case "info":
                         NotificationManager.info(message.toString(), title, timeOut);
@@ -271,7 +286,12 @@ type NotificationLevel = "info" | "success" | "warning" | "error";
 
 auth()
     .then(i => {
+        const _lastUser = {..._currentUser};
         _currentUser = (window as any).currentUser as IAppUser;
-        appDispatcher.dispatch({ actionType: "userChanged" });
+        localStorage.setItem('user', JSON.stringify(_currentUser));
+        
+        if (!isUserEqual(_lastUser, _currentUser)) {
+            appDispatcher.dispatch({ actionType: "userChanged" });
+        }
         startWS();
     });

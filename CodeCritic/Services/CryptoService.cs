@@ -30,6 +30,8 @@ namespace CC.Net.Services
 
         public string Id => Eppn.Split('@').First();
         public bool IsRoot => Roles.Contains("root");
+        
+        public bool IsCurrentlyRoot => Role == "root";
 
         public string Username => string.Join(' ',
             Id
@@ -108,6 +110,15 @@ namespace CC.Net.Services
             _logger = logger;
         }
 
+
+        public string Encrypt(string data)
+        {
+            return this.EncryptStringFromBytes_Aes(
+                Encoding.ASCII.GetBytes(data),
+                Encoding.ASCII.GetBytes(_appOptions.AESKey),
+                Encoding.ASCII.GetBytes(_appOptions.AESKey)
+            );
+        }
         public AppUser Decrypt(string data)
         {
             try
@@ -152,7 +163,7 @@ namespace CC.Net.Services
 
             // Declare the string used to hold
             // the decrypted text.
-            string plaintext = null;
+            var bytes = default(byte[]);
 
             // Create an Aes object
             // with the specified key and IV.
@@ -172,10 +183,49 @@ namespace CC.Net.Services
                 using var srDecrypt = new StreamReader(csDecrypt);
                 // Read the decrypted bytes from the decrypting stream
                 // and place them in a string.
-                plaintext = srDecrypt.ReadToEnd();
+
+                
+                using (var memstream = new MemoryStream())
+                {
+                    srDecrypt.BaseStream.CopyTo(memstream);
+                    bytes = memstream.ToArray();
+                }
             }
 
-            return plaintext;
+            return Convert.ToBase64String(bytes);
+        }
+
+        private string EncryptStringFromBytes_Aes(byte[] plaintext, byte[] Key, byte[] IV)
+        {
+            // Check arguments.
+            if (plaintext == null || plaintext.Length <= 0)
+                throw new ArgumentNullException("cipherText");
+            if (Key == null || Key.Length <= 0)
+                throw new ArgumentNullException("Key");
+            if (IV == null || IV.Length <= 0)
+                throw new ArgumentNullException("IV");
+
+            // Declare the string used to hold
+            // the decrypted text.
+            string cipherText = null;
+
+            // Create an Aes object
+            // with the specified key and IV.
+            using (var aesAlg = Aes.Create())
+            {
+                aesAlg.Key = Key;
+                aesAlg.IV = IV;
+                aesAlg.Mode = CipherMode.CBC;
+                aesAlg.Padding = PaddingMode.Zeros;
+
+                // Create a decryptor to perform the stream transform.
+                var encryptor = aesAlg.CreateEncryptor(aesAlg.Key, aesAlg.IV);
+                cipherText = Convert
+                    .ToBase64String(encryptor.TransformFinalBlock(plaintext, 0, plaintext.Length))
+                    .Replace(':', '/');
+            }
+
+            return cipherText;
         }
     }
 }

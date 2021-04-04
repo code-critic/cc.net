@@ -7,15 +7,17 @@ using MongoDB.Bson;
 using MongoDB.Driver;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using cc.net.Extensions;
 using Cc.Net.Services;
 using static CC.Net.Collections.CcData;
+using Cc.Net.Exceptions;
 
 namespace CC.Net.Services
 {
-    public class UtilService
+    public partial class UtilService
     {
         private readonly DbService _dbService;
         private readonly UserService _userService;
@@ -33,7 +35,8 @@ namespace CC.Net.Services
             _notificationFlag = notificationFlag;
         }
 
-        public CcData ConvertToExtendedSimple(CcData item) {
+        public CcData ConvertToExtendedSimple(CcData item)
+        {
             var course = _courseService[item.CourseName];
             var courseYearConfig = course[item.CourseYear];
             var problem = courseYearConfig[item.Problem];
@@ -79,7 +82,7 @@ namespace CC.Net.Services
             item.Solutions.Add(CcDataSolution.Seperator("Browser Directories"));
 
             item.Solutions.AddRange(
-                new [] {
+                new[] {
                     problem.Type == ProblemType.Unittest ? null : CcDataSolution.Dynamic("Input", item.ObjectId),
                     CcDataSolution.Dynamic("Output", item.ObjectId),
                     CcDataSolution.Dynamic("Error", item.ObjectId),
@@ -132,16 +135,45 @@ namespace CC.Net.Services
             }
         }
 
-        public async Task SendNotificationAsync(List<string> recipients, CcEvent template)
+        public async Task<int> SendNotificationAsync(List<string> recipients, CcEvent template)
         {
             var notifications = CreateNotifications(recipients, template).ToList();
             _notificationFlag.TouchIf(notifications.Count);
-            
+
             if (notifications.Any())
             {
                 await _dbService.Events.InsertManyAsync(notifications);
             }
+            return notifications.Count;
         }
+
+        public UserAccessItem RequireAccess(CcData ccData) {
+            return CheckAccess(ccData, true);
+        }
+
+        public UserAccessItem CheckAccess(CcData ccData, bool strict = true)
+        {
+            var user = _userService.CurrentUser;
+            var access = new UserAccessItem {
+                AccessAuthor = ccData.UserOrGroupUsers.Any(i => i == user.Id),
+                AccessAdmin = user.IsCurrentlyRoot
+            };
+            Console.WriteLine($"{ccData.ObjectId}: AccessAuthor={access.AccessAuthor}, AccessAdmin={access.AccessAdmin}");
+
+            if (!access.HaveAccess && strict) {
+                throw new PermissionDeniedException();
+            }
+
+            return access.HaveAccess ? access : null;
+            
+        }
+
+        public class UserAccessItem {
+            public bool AccessAuthor { get;set; }
+            public bool AccessAdmin { get;set; }
+            public bool HaveAccess => AccessAdmin || AccessAuthor;
+        }
+
 
         public List<string> GetUsersRelatedToResult(CcData ccData)
         {

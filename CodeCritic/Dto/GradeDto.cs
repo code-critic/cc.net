@@ -12,7 +12,7 @@ namespace Cc.Net.Dto
 {
     public class GradeDto
     {
-        public CcData Result { get; set; }
+        public CcDataDto Result { get; set; }
         public User User { get; set; }
 
         public static CcData EmptyResult(Course course, CourseYearConfig courseYear, CourseProblem problem, User user)

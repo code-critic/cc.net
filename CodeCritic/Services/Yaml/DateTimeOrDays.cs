@@ -10,7 +10,7 @@ namespace cc.net.Services.Yaml
         private TimeSpan? _duration { get; set; }
         private DateTime? _dt { get; }
         
-        private readonly Regex _durationRegex = new Regex(@".*(\d+).*");
+        private readonly Regex _durationRegex = new Regex(@"(\d+)");
 
         public DateTimeOrDays(string value)
         {
@@ -19,6 +19,11 @@ namespace cc.net.Services.Yaml
             {
                 var days = int.Parse(_durationRegex.Match(_value).Groups[1].Value);
                 _duration = TimeSpan.FromDays(days);
+            }
+            else if (_value.Contains("week") && _durationRegex.IsMatch(_value))
+            {
+                var days = int.Parse(_durationRegex.Match(_value).Groups[1].Value);
+                _duration = TimeSpan.FromDays(days * 7);
             }
             else
             {

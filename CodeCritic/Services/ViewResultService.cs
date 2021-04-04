@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using CC.Net.Collections;
 using CC.Net.Db;
+using Cc.Net.Dto;
 using CC.Net.Utils;
 using MongoDB.Bson;
 using MongoDB.Driver;
@@ -33,14 +34,7 @@ namespace Cc.Net.Services
             });
 
 
-            var matchBody = QueryUtils.Parse(
-                filtered.ToArray(),
-                new ParseUtilType
-                {
-                    Id = nameof(CcData.Attempt).ToLower(),
-                    Parser = f => null,
-                }
-            );
+            var matchBody = QueryUtils.Parse(filtered.ToArray());
             var match = new BsonDocument("$match", matchBody);
 
             var sort = new BsonDocument("$sort", QueryUtils.Parse(
@@ -94,14 +88,15 @@ namespace Cc.Net.Services
             pipeline.Add(new BsonDocument("$skip", request.page * request.pageSize));
             pipeline.Add(new BsonDocument("$limit", request.pageSize));
 
+            Console.WriteLine(pipeline.ToJson());
+
             if (attempt != null)
             {
-                Console.WriteLine(pipeline.ToJson());
                 var data = await _dbService.Data.AggregateAsync<CcData>(pipeline.ToArray());
                 return new TableResponse
                 {
                     count = await _dbService.Data.CountDocumentsAsync(matchBody),
-                    data = await data.ToListAsync(),
+                    data = (await data.ToListAsync()).Select(CcDataDto.FromCcData),
                 };
             }
             else
@@ -110,7 +105,7 @@ namespace Cc.Net.Services
                 return new TableResponse
                 {
                     count = await _dbService.Data.Find(matchBody).CountDocumentsAsync(),
-                    data = await data.ToListAsync(),
+                    data = (await data.ToListAsync()).Select(CcDataDto.FromCcData),
                 };
             }
         }

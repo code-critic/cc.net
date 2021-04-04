@@ -1,0 +1,33 @@
+.pretty-scrollbar,
+.CodeMirror .CodeMirror-vscrollbar,
+.CodeMirror .CodeMirror-hscrollbar {
+  --scrollbarBG: #ffffff;
+  --scrollbarthumbBG: #b4b4b400;
+  --scrollbarsize: 8px;
+  --scrollbarborder: 2px;
+
+  overflow-x: auto;
+  overflow-y: visible;
+
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbarthumbBG) var(--scrollbarBG);
+
+  &:hover {
+    --scrollbarthumbBG: #b4b4b4;
+  }
+
+  &::-webkit-scrollbar {
+    width: var(--scrollbarsize);
+    height: var(--scrollbarsize);
+  }
+
+  &::-webkit-scrollbar-track {
+    background: var(--scrollbarBG);
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: var(--scrollbarthumbBG);
+    border-radius: 5px;
+    border: var(--scrollbarborder) solid var(--scrollbarBG);
+  }
+}

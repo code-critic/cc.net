@@ -3,6 +3,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using CC.Net.Services.Courses;
+using Markdig;
+using Markdig.Parsers;
+using Markdig.Renderers;
 
 namespace CC.Net.Extensions
 {
@@ -19,12 +23,9 @@ namespace CC.Net.Extensions
         
         public static string ReadAllTextOrPeek(this string path, int maxLines = 1000)
         {
-            if (!File.Exists(path))
-            {
-                return null;
-            }
-
-            return string.Join("\n", File.ReadLines(path).Take(maxLines));
+            return File.Exists(path)
+                ? string.Join("\n", File.ReadLines(path).Take(maxLines))
+                : null;
         }
 
         public static IEnumerable<string> ReadLines(this string path)
@@ -81,6 +82,31 @@ namespace CC.Net.Extensions
         public static string Dirname(this string path)
         {
             return path.Split('/').Last(i => !string.IsNullOrEmpty(i));
+        }
+
+        public static string ToAbbrev(this SubmissionStatus status)
+        {
+            switch (status)
+            {
+                case SubmissionStatus.Intime:
+                    return "IN";
+                case SubmissionStatus.Late:
+                    return "AF";
+            }
+
+            return "??";
+        }
+
+        public static string ToMarkdown(this string content) {
+            var pipeline = new MarkdownPipelineBuilder().Build();
+            var writer = new StringWriter();
+            var renderer = new HtmlRenderer(writer);
+            
+            var document = MarkdownParser.Parse(content, pipeline);
+            renderer.Render(document);
+            writer.Flush();
+            
+            return writer.ToString();
         }
     }
 

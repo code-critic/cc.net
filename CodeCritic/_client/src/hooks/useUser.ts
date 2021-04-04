@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react"
-import { appDispatcher, getUser } from "../init"
+import { useEffect, useState } from 'react';
+
+import { appDispatcher, getUser } from '../init';
 
 const Role = {
     root: 'root',
@@ -15,14 +16,19 @@ export const useUser = () => {
     const canBeStudent = user.roles.includes(Role.student);
 
     useEffect(() => {
-        appDispatcher.register(payload => {
-          switch (payload.actionType) {
-            case "userChanged":
-              setUser({ ...getUser() });
-              break;
-          }
+        const id = appDispatcher.register(payload => {
+            switch (payload.actionType) {
+                case "userChanged":
+                    setUser({ ...getUser() });
+                    break;
+            }
         });
-      }, []);
+
+        return () => {
+            appDispatcher.unregister(id);
+        }
+
+    }, []);
 
     // const { user, isRoot, isStudent, canBeRoot, canBeStudent } = useUser();
     return { user, isRoot, isStudent, canBeRoot, canBeStudent };

@@ -24,6 +24,22 @@ namespace CC.Net.Services.Courses
         None = 3,
     }
 
+    public static class SubmissionStatusExtensions {
+        public static SubmissionStatus ParseSubmissionStatus(this string status) {
+            var value = status.ToUpper();
+            switch(value){
+                case "IN":
+                    return SubmissionStatus.Intime;
+                case "AF":
+                case "LA":
+                    return SubmissionStatus.Late;
+            }
+            
+            return Enum.TryParse<SubmissionStatus>(status, true, out var parsed)
+                ? parsed : SubmissionStatus.Unkown;
+        }
+    }
+
     public partial class CourseProblem: IUpdateRefs<CourseYearConfig>
     {
         public ProblemStatus StatusCode =>
@@ -68,6 +84,9 @@ namespace CC.Net.Services.Courses
         {
             CourseYearConfig = instance;
         }
+
+        public string Course => CourseYearConfig?.Course.Name;
+        public string Year => CourseYearConfig?.Year;
     }
     
     public class CourseProblemCollaborationConfig

@@ -20,12 +20,22 @@
 		name: string;
 		value: number;
 	}
-	export enum ChangeType {
-		Unchanged = 0,
-		Deleted = 1,
-		Inserted = 2,
-		Imaginary = 3,
-		Modified = 4
+	export enum ProblemStatus {
+		BeforeStart = 0,
+		Active = 1,
+		ActiveLate = 2,
+		AfterDeadline = 3
+	}
+	export enum ProblemType {
+		LineByLine = 1,
+		Unittest = 2,
+		Program = 3
+	}
+	export enum SubmissionStatus {
+		Unkown = 0,
+		Intime = 1,
+		Late = 2,
+		None = 3
 	}
 	export enum CcEventType {
 		Unknown = 0,
@@ -38,17 +48,16 @@
 		Confirmed = 1,
 		Rejected = 2
 	}
-	export enum ProblemStatus {
-		BeforeStart = 0,
-		Active = 1,
-		ActiveLate = 2,
-		AfterDeadline = 3
+	export enum DiffResultLineType {
+		Correct = 1,
+		Wrong = 2
 	}
-	export enum SubmissionStatus {
-		Unkown = 0,
-		Intime = 1,
-		Late = 2,
-		None = 3
+	export enum ChangeType {
+		Unchanged = 0,
+		Deleted = 1,
+		Inserted = 2,
+		Imaginary = 3,
+		Modified = 4
 	}
 	export class ProcessStatusStatic {
 		public static InQueue: IProcessStatus = {

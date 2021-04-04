@@ -171,7 +171,7 @@ namespace CC.Net.Controllers
 
                 bestResults.Add(new GradeDto
                 {
-                    Result = best ?? GradeDto.EmptyResult(course, yearConfig, problem, student),
+                    Result = CcDataDto.FromCcData(best ?? GradeDto.EmptyResult(course, yearConfig, problem, student)),
                     User = student
                 });
             }
@@ -252,7 +252,7 @@ namespace CC.Net.Controllers
         public async Task<object> SaveGrade(MarkSolutionItem item)
         {
             var oid = new ObjectId(item.objectId);
-            var ccData = await _dbService.DataSingleOrDefaultAsync(oid);
+            var ccData = await _dbService.DataSingleAsync(oid);
             var sender = _userService.CurrentUser.Id;
             var recipients = _utilService.GetUsersRelatedToResult(ccData);
 
@@ -262,10 +262,11 @@ namespace CC.Net.Controllers
             await _utilService.MarkNotificationAsReadAsync(oid, sender);
 
             var result = await _dbService.Data.UpdateDocumentAsync(ccData);
+            var notificationCount = default(int);
 
             if (result.IsAcknowledged)
             {
-                await _utilService.SendNotificationAsync(recipients,
+                notificationCount = await _utilService.SendNotificationAsync(recipients,
                     new CcEvent
                     {
                         ResultId = oid,
@@ -278,7 +279,8 @@ namespace CC.Net.Controllers
 
             return new
             {
-                status = result.IsAcknowledged ? "ok" : "error"
+                status = result.IsAcknowledged ? "ok" : "error",
+                count = notificationCount
             };
         }
 

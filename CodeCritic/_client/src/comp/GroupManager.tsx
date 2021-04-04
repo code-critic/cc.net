@@ -1,11 +1,12 @@
 import { Button, Container, Dialog, DialogActions, DialogContent, DialogTitle, FormControlLabel, Radio, RadioGroup, Table, TableBody, TableCell, TableHead, TableRow, TextField } from '@material-ui/core';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { API } from '../api';
 import { SimpleLoader } from '../components/SimpleLoader';
-import { useResource } from '../components/useResource';
-import { getUser, httpClient } from '../init';
+import { useRefresh } from '../hooks/useRefresh';
+import { useUser } from '../hooks/useUser';
 import { ICcGroup, ICcUserGroup } from '../models/DataModel';
 import { CcUserGroupStatus } from '../models/Enums';
-import { useOpenClose } from '../utils/StateUtils';
+import { useOpenClose } from "../hooks/useOpenClose";
 
 
 // const model = Schema.ObjectType({
@@ -36,11 +37,19 @@ interface GroupManagerProps {
 
 }
 export const GroupManager = (props: GroupManagerProps) => {
-    const [rnd, setRnd] = useState(Math.random());
-    const groups = useResource<ICcGroup[]>(`student/group?r${rnd}`);
+    const [groups, setGroups] = useState<ICcGroup[]>();
     const [edit, openEdit, closeEdit] = useOpenClose(false);
     const [newGroup, setNewGroup] = useState<ICcGroup>({} as any);
     const [isEditMode, setIsEditMode] = useState(true);
+    const { counter, refresh } = useRefresh();
+    const { user } = useUser();
+
+    useEffect(() => {
+        (async () => {
+            const axiosReponse = await API.get<ICcGroup[]>(`student/group`);
+            setGroups(axiosReponse.data);
+        })()
+    }, [ counter ]);
 
     if (groups === undefined) {
         return <SimpleLoader />
@@ -56,7 +65,7 @@ export const GroupManager = (props: GroupManagerProps) => {
         setIsEditMode(false);
         const newGrp: Partial<ICcGroup> = {
             name: "skupina",
-            owner: getUser().id, users: [
+            owner: user.id, users: [
             ]
         };
         setNewGroup(newGrp as any);
@@ -67,36 +76,28 @@ export const GroupManager = (props: GroupManagerProps) => {
         setNewGroup({ ...newGroup });
     }
 
-    const saveNewGroup = () => {
-        httpClient.fetch("student/group-new", newGroup, "post")
-            .then(i => {
-                setRnd(Math.random());
-            })
+    const saveNewGroup = async () => {
+        await API.post("student/group-new", newGroup);
+        refresh();
         closeEdit();
     }
 
-    const editGroup = () => {
+    const editGroup = async () => {
         newGroup.oid = newGroup.objectId;
-        httpClient.fetch("student/group-edit", newGroup)
-            .then(i => {
-                setRnd(Math.random());
-            })
+        await API.post("student/group-edit", newGroup);
+        refresh();
         closeEdit();
     }
 
-    const deleteGroup = () => {
-        httpClient.fetch(`student/group-delete/${newGroup.objectId}`)
-            .then(i => {
-                setRnd(Math.random());
-            })
+    const deleteGroup = async () => {
+        await API.get(`student/group-delete/${newGroup.objectId}`);
+        refresh();
         closeEdit();
     }
 
-    const updateStatus = (objectId: string, myGrp: ICcUserGroup) => {
-        httpClient.fetch(`student/group-status`, { oid: objectId, ...myGrp })
-            .then(i => {
-                setRnd(Math.random());
-            })
+    const updateStatus = async (objectId: string, myGrp: ICcUserGroup) => {
+        await API.post(`student/group-status`, { oid: objectId, ...myGrp });
+        refresh();
     }
 
     const users = [
@@ -156,7 +157,7 @@ export const GroupManager = (props: GroupManagerProps) => {
             </TableHead>
             <TableBody>
                 {groups.map((i, j) => {
-                    const me = getUser().id;
+                    const me = user.id;
                     const myGrp = i.users.find(k => k.name == me);
 
                     if (!myGrp) {

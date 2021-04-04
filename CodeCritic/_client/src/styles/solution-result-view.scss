@@ -1,0 +1,438 @@
+$statuses: (answer-correct: #c0f3b3,
+  answer-correct-timeout: #f0e097,
+  ok: #efd3ff,
+  running: #c6e9fa,
+  unknown: #e2b3b3,
+  answer-wrong: #f5d0d0,
+  answer-wrong-timeout: #f5d0d0,
+  global-timeout: #f5d0d0,
+  error-while-running: #f5d0d0,
+  compilation-failed: #f5d0d0,
+  in-queue: #dadada,
+  skipped: #dadada,
+  no-solution: #dadada,
+);
+
+.solution-result-view-grid {
+  display: grid;
+  grid-template-columns: 275px 3fr 170px;
+  grid-template-rows: auto auto auto 1fr auto;
+  gap: 0px 0px;
+  grid-template-areas:
+    "sol-inf sol-inf sol-sts"
+    "sol-exp sol-res sol-res"
+    "sol-exp sol-sub sol-sub"
+    "sol-src sol-src sol-src"
+    "sol-btn sol-btn sol-btn";
+
+
+  .sol-inf {
+    grid-area: sol-inf;
+    padding: 10px;
+    min-height: 100px;
+    
+    .key-value-grid {
+      display: grid;
+      grid-template-columns: 200px auto;
+      grid-template-rows: minmax(30px, auto);
+      align-items: center;
+      margin: 2px 0;
+      
+      .MuiButtonBase-root {
+        font-size: 0.75rem;
+        padding: 2px 8px;
+        margin: 0 10px;
+
+        .MuiSvgIcon-root {
+          display: inline-block;
+          margin-left: 5px;
+          font-size: 0.85rem;
+        }
+      }
+      
+      .key {
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+    
+        .MuiSvgIcon-root {
+          margin-right: 5px;
+          font-size: 1rem;
+        }
+      }
+      
+      .value {
+        display: flex;
+        align-items: center;
+      }
+    }
+  }
+
+  .sol-sts {
+    .MuiButtonBase-root {
+      height: 100%;
+      width: 100%;
+
+      font-family: 'Dosis', sans-serif;
+      grid-area: sol-sts;
+      padding: 10px;
+      font-size: 50px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+
+      small {
+        font-size: 30px;
+      }
+    }
+  }
+
+
+  .sol-res {
+    padding: 10px;
+    grid-area: sol-res;
+  }
+
+
+  .sol-sub {
+    grid-area: sol-sub;
+
+    .subresults-wrapper {
+      padding: 10px;
+    }
+
+    .subresults {
+      display: flex;
+      width: 100%;
+
+      .subresult {
+        flex-grow: 1;
+      }
+
+      .icon-text-button {
+        font-size: 0.6rem;
+        width: 100%;
+
+        .duration {
+          font-variant: normal;
+          text-transform: none;
+        }
+      }
+    }
+  }
+
+  .sol-exp {
+    padding: 10px;
+    grid-area: sol-exp;
+    // background: purple;
+  }
+
+  .sol-src {
+    min-height: 400px;
+    grid-area: sol-src;
+    padding: 10px;
+    // background: green;
+  }
+
+  .sol-btn {
+    grid-area: sol-btn;
+    display: flex;
+
+    .filler {
+      flex-grow: 1;
+    }
+
+    min-height: 50px;
+    padding: 10px;
+    // background: orange;
+  }
+
+  .grade-btn {
+    &.Mui-disabled {
+      color: initial;
+    }
+  }
+}
+
+
+.MuiDataGrid-root {
+  &.is-loading {
+    pointer-events: none;
+    position: relative;
+
+    &::before {
+      content: " ";
+      position: absolute;
+      display: block;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: #ffffff77;
+      z-index: 1;
+      animation: fadeIn 500ms ease-in-out;
+      animation-delay: 500ms;
+    }
+
+    .MuiCircularProgress-root {
+      z-index: 2;
+    }
+  }
+}
+
+.MuiDataGrid-root .MuiDataGrid-main .MuiDataGrid-colCellTitleContainer {
+  display: flex;
+  align-items: center;
+}
+
+.MuiDataGrid-root {
+  .MuiDataGrid-cell {
+
+    @each $status,
+    $color in $statuses {
+      &.status-#{$status} {
+        color: darken($color, 50);
+        background: lighten($color, 10);
+      }
+    }
+  }
+}
+
+
+.subresults-timeline-wrapper {
+
+  &.mini {
+    .subresults-timeline {
+      --connector-length: 50px;
+      --case-radius: 25px;
+
+      .connector {
+        border-width: 1px;
+      }
+
+      .case {
+        border-width: 2px;
+        .MuiSvgIcon-root {
+          font-size: 1rem;
+        }
+      }
+    }
+  }
+
+
+  .subresults-timeline {
+    --connector-length: 100px;
+    --case-radius: 40px;
+    // animation: fadeIn 200ms ease-in-out;
+    // animation-fill-mode: both;
+    padding: 20px 0;
+
+    display: inline-flex;
+    align-items: center;
+
+
+    .case {
+      display: inline-flex;
+      width: var(--case-radius);
+      height: var(--case-radius);
+      border-radius: 50%;
+      align-items: center;
+      justify-content: center;
+      border: 5px solid #000;
+      cursor: pointer;
+      transition: all 200ms ease-in-out;
+
+      @each $status,
+      $color in $statuses {
+        &.status-#{$status} {
+          color: darken($color, 40);
+          background: lighten($color, 0);
+          border-color: darken($color, 40);
+
+          .MuiSvgIcon-root {
+            color: darken($color, 40);
+          }
+
+          &:hover,
+          &.hover {
+            color: darken($color, 50);
+            background: lighten($color, 10);
+            border-color: darken($color, 50);
+
+
+            .MuiSvgIcon-root {
+              color: darken($color, 50);
+            }
+          }
+        }
+      }
+    }
+
+    .connector {
+      display: inline-block;
+      height: 2px;
+      border-bottom: 2px dashed #000;
+      width: var(--connector-length);
+
+      @each $status,
+      $color in $statuses {
+        &.status-#{$status} {
+          border-color: darken($color, 40);
+        }
+      }
+    }
+  }
+}
+
+.subresult-tooltip {
+  padding: 5px;
+  display: block;
+
+  .subresult-tooltip-item {
+    font-size: 1.2em;
+    display: flex;
+    align-items: flex-start;
+    justify-content: stretch;
+    padding: 4px;
+    transition: background-color 100ms ease-in-out;
+
+    &:hover {
+      background: rgb(233, 233, 233);
+    }
+
+    pre,
+    code {
+      margin: 0;
+      font-size: 100%;
+      line-height: 24px;
+    }
+
+    .subresult-tooltip-item-key {
+      min-width: 120px;
+      display: flex;
+      align-items: center;
+    }
+  }
+}
+
+
+.solution-result-view-grid {
+
+  @each $status,
+  $color in $statuses {
+    &.status-#{$status} {
+
+      .sol-res,
+      .sol-exp,
+      .sol-sub {
+        background-color: rgba($color, 0.3);
+      }
+
+      .sol-inf {
+        background-color: rgba($color, 0.5);
+      }
+
+      .sol-sts {
+        background-color: rgba($color, 0.4);
+      }
+
+      .sol-item {
+        .sol-status {
+          margin: 0;
+          color: darken($color, 40);
+          display: flex;
+          align-items: center;
+          padding-bottom: 5px;
+        }
+
+        .sol-status .MuiSvgIcon-root {
+          font-size: 2rem;
+          color: darken($color, 30);
+        }
+      }
+
+      .sol-status-info {
+        padding-left: 20px;
+        overflow: auto;
+      }
+    }
+  }
+}
+
+.data-grid-wrapper {
+  width: 100%;
+  height: 840px;
+  position: relative;
+
+  .data-grid-filter-btn {
+    position: absolute !important;
+    right: 0;
+    z-index: 11;
+  }
+}
+
+.filter-row {
+  padding: 5px;
+  display: flex;
+  align-items: center;
+  transition: background-color 100ms ease-in-out;
+  border-radius: 5px;
+
+  &:hover {
+    background-color: #fcecf5a9;
+  }
+
+  .clearBtn {
+    min-width: 48px;
+    margin-left: 30px;
+  }
+
+  .MuiFormControlLabel-root {
+    display: flex;
+    align-items: center;
+
+    .MuiFormControl-root,
+    .MuiButtonBase-root {
+      min-width: 230px;
+      justify-content: flex-end;
+
+      .MuiInputBase-input {
+        padding: 8px;
+      }
+    }
+
+    .MuiFormControlLabel-label {
+      width: 130px;
+    }
+  }
+}
+
+.grade-slider {
+  margin: 40px 80px 10px 80px;
+
+  .grade-comment {
+    margin: 20px 0;
+  }
+}
+
+.MuiDialog-root.solution-result-view-dialog {
+  .MuiDialogContent-root {
+    padding: 10px;
+  }
+}
+
+.solution-result-view {
+  &.full-page {
+    box-shadow: 0 0 10px 0px #00000080;
+    padding: 0;
+    margin-bottom: 20px;
+
+    .solution-result-view-grid {
+      padding: 10px;
+    }
+  }
+
+  &.dialog-page {
+    padding: 0;
+  }
+}

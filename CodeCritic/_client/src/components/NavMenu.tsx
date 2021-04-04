@@ -1,23 +1,29 @@
-import { AppBar, Avatar, Badge, Box, IconButton, Menu, MenuItem, Toolbar, Tooltip, Typography } from '@material-ui/core';
+import { AppBar, Avatar, Badge, Box, Container, IconButton, Menu, MenuItem, Toolbar, Tooltip, Typography } from '@material-ui/core';
+import React, { useEffect, useState } from 'react';
+import { appDispatcher, commentService, getUser, httpClient, updateUser } from '../init';
+
 import AccountCircleIcon from '@material-ui/icons/AccountCircle';
 import CancelIcon from '@material-ui/icons/Cancel';
+import { CcEventType } from '../models/Enums';
+import { CircleLoader } from 'react-spinners';
 import CodeIcon from '@material-ui/icons/Code';
 import FormatSizeIcon from '@material-ui/icons/FormatSize';
 import GroupIcon from '@material-ui/icons/Group';
+import { ICcEvent } from '../models/DataModel';
+import { Link } from 'react-router-dom';
+import Moment from 'react-moment';
 import NotificationsIcon from '@material-ui/icons/Notifications';
 import SecurityIcon from '@material-ui/icons/Security';
-import React, { useEffect, useState } from 'react';
-import Moment from 'react-moment';
-import { Link } from 'react-router-dom';
-import { CircleLoader } from 'react-spinners';
-import * as Showdown from 'showdown';
-import { useUser } from '../hooks/useUser';
-import { appDispatcher, commentService, getUser, httpClient, updateUser } from '../init';
-import { ICcEvent } from '../models/DataModel';
-import { CcEventType } from '../models/Enums';
-import { pageLinks } from '../pageLinks';
-import { groupBy } from '../utils/arrayUtils';
 import { SimpleLoader } from './SimpleLoader';
+import { getInitials } from '../utils/utils';
+import { groupBy } from '../utils/arrayUtils';
+import { pageLinks } from '../pageLinks';
+import { useUser } from '../hooks/useUser';
+import { converter } from "../renderers/markdown";
+import { API } from '../api';
+import { IApiListResponse } from '../models/CustomModel';
+import { reduceNotifications } from '../utils/notificationUtils';
+import { AbsMoment } from '../renderers/AbsMoment';
 
 interface NavMenuProps {
 
@@ -28,21 +34,10 @@ interface EventNotificationProps {
   groupCount?: number;
 }
 
-const converter = new Showdown.Converter({
-  tables: true,
-  simplifiedAutoLink: true,
-  strikethrough: true,
-  tasklists: true
-});
-
 const EventNotification = (props: EventNotificationProps) => {
-  const { event, groupCount } = props;
+  const { event, groupCount=0 } = props;
   const { sender } = event;
-  const initials = (sender || "")
-    .split(".", 2)
-    .map(i => i.charAt(0))
-    .join("")
-    .toUpperCase();
+  const initials = getInitials(sender);
 
   let subject = event.subject;
 
@@ -65,11 +60,11 @@ const EventNotification = (props: EventNotificationProps) => {
       <div>
         <Avatar>{initials}</Avatar>
       </div>
-      <div style={{flexGrow: 1}}>
+      <div style={{ flexGrow: 1 }}>
         <div className="notification-body" dangerouslySetInnerHTML={{ __html: converter.makeHtml(subject) }} />
         <Typography variant="body2" color="textSecondary" component="div" className="text-right">
-          <Moment date={new Date(event.id.creationTime)} fromNow />
-          {(groupCount && groupCount > 1) && <span> ({groupCount} notifications)</span>}
+          <AbsMoment date={event.id.creationTime} />
+          {groupCount > 1 && <span> ({groupCount} notifications)</span>}
         </Typography>
       </div>
     </Box>
@@ -84,6 +79,7 @@ export const NavMenu = (props: NavMenuProps) => {
   const [queue, setQueue] = useState<any[]>([]);
   const [serverState, setServerState] = useState<string>("connected");
   const { user, isRoot, canBeRoot } = useUser();
+  const { groups: groupedNotifications, newCount } = reduceNotifications(notifications);
 
   useEffect(() => {
     appDispatcher.register(payload => {
@@ -109,6 +105,11 @@ export const NavMenu = (props: NavMenuProps) => {
           break;
       }
     });
+    (async () => {
+      const axiosResponse = await API.get<IApiListResponse<ICcEvent>>('notificatons-get');
+      const newNotifications = axiosResponse.data.data;
+      setNotifications(newNotifications);
+    })();
   }, []);
 
 
@@ -144,8 +145,6 @@ export const NavMenu = (props: NavMenuProps) => {
   const accountMenuId = 'primary-search-account-menu';
   const notificationsMenuId = 'primary-search-notifications-menu';
   const onlineUserMenuId = 'online-user-menu';
-  const notifByData = groupBy(notifications, i => i.resultObjectId);
-  const notifNewCount = groupBy(notifications.filter(i => i.isNew), i => i.resultObjectId);
 
   const renderMenu = (
     <>
@@ -214,14 +213,12 @@ export const NavMenu = (props: NavMenuProps) => {
         open={menuId === notificationsMenuId}
         onClose={handleMenuClose}
       >
-        {[...notifByData.entries()].map(entry => {
-          const [_, items] = entry;
-          const i = items[0];
+        {groupedNotifications.map(i => {
           return <MenuItem className={`notification-item ${i.isNew ? "is-new" : "is-old"} notification-type-${i.type}`} key={i.objectId}
             onClick={() => handleNotificationClose(i)}
             component={Link}
             to={`/r/${i.resultObjectId}`}>
-            <EventNotification event={i} groupCount={items.length} />
+            <EventNotification event={i} groupCount={0} />
           </MenuItem>;
         })}
       </Menu>
@@ -241,66 +238,68 @@ export const NavMenu = (props: NavMenuProps) => {
     .filter(i => !i.rootOnly || (i.rootOnly && user.role === "root"));
 
   return <>
-    <AppBar position="static" className={`mb-2 ${isRoot ? "is-root" : "is-student"}`}>
-      <Toolbar className="container">
-        <IconButton edge="start" color="inherit" component={Link} to="/">
-          <CodeIcon />
-        </IconButton>
-        <Badge badgeContent={1} variant="dot" color={badgeColor}
-          anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
-          classes={{ badge: `small state-${serverState}` }}>
-          {isRoot && <Tooltip title="You are root, student may see things differently">
-            <SecurityIcon />
-          </Tooltip>}
-          <Typography variant="h6">Code Critic</Typography>
-        </Badge>
+    <AppBar position="static" className={`nav-menu-root ${isRoot ? "is-root" : "is-student"}`}>
+      <Container className="nav-menu-wrapper">
+        <Toolbar className="container">
+          <IconButton edge="start" color="inherit" component={Link} to="/">
+            <CodeIcon />
+          </IconButton>
+          <Badge badgeContent={1} variant="dot" color={badgeColor}
+            anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
+            classes={{ badge: `small state-${serverState}` }}>
+            {isRoot && <Tooltip title="You are root, student may see things differently">
+              <SecurityIcon />
+            </Tooltip>}
+            <Typography variant="h6">Code Critic</Typography>
+          </Badge>
 
-        <div style={{ flexGrow: 1 }} />
+          <div style={{ flexGrow: 1 }} />
 
 
-        {availLinks.map(i =>
-          <MenuItem key={i.path} component={Link} to={i.to}>{i.title}</MenuItem>
-        )}
+          {availLinks.map(i =>
+            <MenuItem key={i.path} component={Link} to={i.to}>{i.title}</MenuItem>
+          )}
 
-        {/* online users */}
-        {/* {isRoot && <IconButton
+          {/* online users */}
+          {/* {isRoot && <IconButton
           aria-haspopup="true"
           aria-controls={onlineUserMenuId}
           onClick={handleProfileMenuOpen}>
 
         </IconButton>} */}
 
-        {/* queue status */}
-        {queue.length > 0 && <Tooltip title={`Server is running. Currently ${queue.length} item${(queue.length == 1 ? "" : "s")} in queue.`}>
-          <IconButton>
-            <Badge badgeContent={<>{queue.length}&nbsp;▶</>} color={badgeColor} className="queue-badge">
-              <CircleLoader size={24} color="#fff" />
+          {/* queue status */}
+          {queue.length > 0 && <Tooltip title={`Server is running. Currently ${queue.length} item${(queue.length == 1 ? "" : "s")} in queue.`}>
+            <IconButton>
+              <Badge badgeContent={<>{queue.length}&nbsp;▶</>} color={badgeColor} className="queue-badge">
+                <CircleLoader size={24} color="#fff" />
+              </Badge>
+            </IconButton>
+          </Tooltip>}
+
+          {/* notifications */}
+          <IconButton
+            disabled={notifications.length === 0}
+            edge="end"
+            color="inherit"
+            aria-haspopup="true"
+            aria-controls={notificationsMenuId}
+            onClick={handleProfileMenuOpen}>
+            <Badge badgeContent={newCount} color={badgeColor}>
+              <NotificationsIcon />
             </Badge>
           </IconButton>
-        </Tooltip>}
 
-        {/* notifications */}
-        <IconButton
-          disabled={notifications.length === 0}
-          edge="end"
-          color="inherit"
-          aria-haspopup="true"
-          aria-controls={notificationsMenuId}
-          onClick={handleProfileMenuOpen}>
-          <Badge badgeContent={notifNewCount.size} color={badgeColor}>
-            <NotificationsIcon />
-          </Badge>
-        </IconButton>
-
-        {/* user menu */}
-        <IconButton
-          color="inherit"
-          aria-haspopup="true"
-          aria-controls={accountMenuId}
-          onClick={handleProfileMenuOpen}>
-          <AccountCircleIcon />
-        </IconButton>
-      </Toolbar>
+          {/* user menu */}
+          <IconButton
+            color="inherit"
+            aria-haspopup="true"
+            aria-controls={accountMenuId}
+            onClick={handleProfileMenuOpen}>
+            <AccountCircleIcon />
+          </IconButton>
+        </Toolbar>
+      </Container>
     </AppBar>
     {renderMenu}
   </>

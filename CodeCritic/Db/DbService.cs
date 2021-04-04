@@ -41,5 +41,10 @@ namespace CC.Net.Db
         {
             return Data.Find(i => i.Id == objectId).SingleOrDefaultAsync();
         }
+        public async Task<CcData> DataSingleAsync(ObjectId objectId)
+        {
+            var data = await DataSingleOrDefaultAsync(objectId);
+            return data ?? throw new Exception("Result not found");
+        }
     }
 }
