@@ -89,10 +89,29 @@ int main(void)
   return(0);
 }`,
 
-        'MATLAB': `// Matlab code
-close all; clear *;
-vv = 1901:2:2000;
-disp(vv);
+        'MATLAB': `% Matlab code
+A = ones(10);
+B = zeros(10);
+C = eye(10);
+
+%% test
+e = 1.0;
+[a2, b2, c2] = kvadracoef(x, y);
+ 
+ 
+%% plot
+ff = figure;
+p = [a2, b2, c2];
+f = polyval(p,x);
+plot(x,y,'o',x,f,'-');
+legend('data','linear fit');
+saveas(ff, 'figure.png');
 `,
+        'MARKDOWN': `# Big title
+
+> quote
+
+\`some code\`
+        `
     };
 }

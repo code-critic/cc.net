@@ -1,4 +1,3 @@
-import 'font-awesome/css/font-awesome.min.css';
 import 'react-notifications/lib/notifications.css';
 import 'react-mde/lib/styles/css/react-mde-all.css';
 
@@ -12,6 +11,7 @@ import './styles/solution-result-view.css';
 import './styles/scrollbar.css';
 import './styles/list.css';
 import './styles/detail.css';
+import './styles/solution-submit.css';
 
 import App from './App';
 import { BrowserRouter } from 'react-router-dom';

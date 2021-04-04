@@ -3,10 +3,10 @@ import { ILanguage } from "../models/DataModel";
 export const languages: ILanguage[] = [
     {
         "id": "PY-367",
-        "name": "Python 3.6.8",
+        "name": "Python",
         "scaleFactor": 5,
         "scaleStart": 0,
-        "version": "Python 3.6.8",
+        "version": "3.6.8",
         "extension": "py",
         "disabled": false,
         "compile": [],
@@ -73,7 +73,7 @@ export const languages: ILanguage[] = [
         "name": "Java",
         "scaleFactor": 2.6,
         "scaleStart": 0.2,
-        "version": "Java 1.8.0_91",
+        "version": "1.8.0_91",
         "extension": "java",
         "disabled": false,
         "compile": [

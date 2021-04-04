@@ -27,3 +27,11 @@ code {
     color: #ab2e68;
     word-wrap: break-word;
 }
+
+footer {
+    z-index: 0;
+}
+
+.no-transform {
+    text-transform: none !important;
+}

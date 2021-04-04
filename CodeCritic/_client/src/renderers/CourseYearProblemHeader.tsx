@@ -12,10 +12,10 @@ interface CourseYearProblemHeaderProps {
 export const CourseYearProblemHeader = (props: CourseYearProblemHeaderProps) => {
     const { course, year, problem } = props;
     return (<>
-        <Typography variant="inherit" component={RouterLink} to={`courses/${course}`}>{course}</Typography>
+        <Typography variant="inherit" component={RouterLink} to={`/courses/${course}`}>{course}</Typography>
         <ChevronRightIcon color="disabled" />
-        <Typography variant="inherit" component={RouterLink} to={`courses/${course}/${year}`}>{year}</Typography>
+        <Typography variant="inherit" component={RouterLink} to={`/courses/${course}/${year}`}>{year}</Typography>
         <ChevronRightIcon color="disabled" />
-        <Typography variant="inherit" component={RouterLink} to={`courses/${course}/${year}/${problem}`}>{problem}</Typography>
+        <Typography variant="inherit" component={RouterLink} to={`/courses/${course}/${year}/${problem}`}>{problem}</Typography>
     </>)
 }

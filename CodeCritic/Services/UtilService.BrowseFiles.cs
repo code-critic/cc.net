@@ -67,6 +67,7 @@ namespace CC.Net.Services
             var context = new CourseContext(_courseService, _languageService, item);
             var studentDir = new DirectoryInfo(context.StudentDir.Root);
             var referenceDir = new DirectoryInfo(context.ProblemDir.OutputDir);
+            var allowedDirs = new List<string> {"output", "input", "error", ".verification"};
 
             var files = new List<SimpleFile>
             {
@@ -76,8 +77,10 @@ namespace CC.Net.Services
                     Filename = "generated",
                     IsDir = true,
                     Files = studentDir.Exists
-                        ? studentDir.GetDirectories().Select(i => ToSimpleFile(i)).ToList()
-                        : new List<SimpleFile>{ }
+                        ? studentDir.GetDirectories()
+                            .Where(i => allowedDirs.Contains(i.Name))
+                            .Select(i => ToSimpleFile(i)).ToList()
+                        : new List<SimpleFile>()
                 },
                 ToSimpleFile(referenceDir, "reference"),
             };
@@ -125,6 +128,7 @@ namespace CC.Net.Services
                 Files = new List<SimpleFile>()
                     .Concat(dir.GetFiles().Select(ToSimpleFile))
                     .Concat(dir.GetDirectories().Select(i => ToSimpleFile(i)))
+                    .OrderBy(i => i.Filename)
                     .ToList()
             };
             return root;

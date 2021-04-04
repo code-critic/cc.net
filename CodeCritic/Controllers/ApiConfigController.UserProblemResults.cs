@@ -18,7 +18,6 @@ namespace CC.Net.Controllers
     
 
         [HttpGet(UserProblemResults + "/{courseName}/{courseYear}/{problem}/{user}")]
-        [UseCache(timeToLiveSeconds: 30, perUser: true)]
         public IActionResult UserProblemResultsList(string courseName, string courseYear, string problem, string user)
         {
             var results = _dbService.Data

@@ -145,7 +145,7 @@ html {
   pre {
     code {
       font-size: 87.5%;
-      color: #e83e8c;
+      color: #ab2e68;
       word-break: break-word;
       background: #fbfbfb;
       display: block;
@@ -601,32 +601,6 @@ div.MuiMenu-paper {
   display: flex;
   align-items: center;
   justify-content: space-between;
-}
-
-.dropzone {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 20px 20px;
-  border-width: 2px;
-  border-radius: 2px;
-  border-color: #eeeeee;
-  border-style: dashed;
-  background-color: #fafafa;
-  color: #bdbdbd;
-  outline: none;
-  transition: border 0.24s ease-in-out, padding 0.24s ease-in-out;
-
-  p {
-    padding: 0;
-    margin: 0;
-  }
-
-  &.dropzone-active {
-    padding: 30px 20px;
-    border-color: #28601f;
-  }
 }
 
 .CodeMirror {
@@ -1265,11 +1239,14 @@ a.notification-item {
   display: flex;
   flex-direction: column;
   align-items: stretch;
+  margin: 5px;
 
   @each $status,
   $color in $statuses {
     &.#{$status} {
       background-color: rgba($color, 0.4);
+      border: 1px solid darken($color, 45);
+      box-shadow: 0 0 17px 0px rgba(darken($color, 45), 0.3);
 
       .cr .MuiSvgIcon-root {
         color: darken($color, 45);
@@ -1285,6 +1262,7 @@ a.notification-item {
         opacity: 1;
       }
     }
+
     .MuiButton-label {
       background-color: transparent;
       display: flex;
@@ -1295,18 +1273,38 @@ a.notification-item {
   }
 }
 
-.icon-text-button-wrapper,
-.MuiButton-root.icon-text-button {
-  min-width: 80px;
-  width: 80px;
+
+
+.icon-text-button-wrapper {
   padding: 0;
   position: relative;
+  display: grid;
+  align-items: stretch;
+  justify-content: stretch;
+  grid-template-columns: 90px auto;
+  grid-template-areas:
+    "star live-result"
+    "icon-text-button live-result";
+
+  .star {
+    grid-area: star;
+  }
+  .icon-text-button {
+    grid-area: icon-text-button;
+  }
+  .live-result {
+    grid-area: live-result;
+    padding: 10px 20px 0 20px;
+  }
 
   @each $status,
   $color in $statuses {
-    &.#{$status}, .#{$status} {
-      .MuiButton-label {
-        background-color: rgba($color, 0.4);
+
+    &.#{$status},
+    .#{$status} {
+
+      .live-result {
+        color: darken($color, 65);
       }
 
       .icon {
@@ -1315,6 +1313,29 @@ a.notification-item {
 
       .text {
         color: darken($color, 45);
+      }
+
+      .MuiButton-root.icon-text-button {
+        padding: 0;
+
+        .pts {
+          color: #fff;
+          background-color: darken($color, 45);
+          padding: 2px 4px;
+          border-radius: 4px;
+          margin: 0 2px;
+          text-transform: none;
+          font-size: 0.8rem;
+        }
+        
+        &:hover {
+          .MuiButton-label {
+            background-color: darken(rgba($color, 0.9), 5);
+          }  
+        }
+        .MuiButton-label {
+          background-color: rgba($color, 0.4);
+        }
       }
     }
   }
@@ -1361,7 +1382,7 @@ a.notification-item {
   }
 
   .latest-results {
-    --scrollbarBG: #ffffff;
+    --scrollbarBG: #efefef;
     --thumbBG: #b4b4b400;
 
     width: 100%;
@@ -1403,6 +1424,7 @@ a.notification-item {
     transform: scale(1);
     opacity: .5;
   }
+
   to {
     transform: scale(3, 3);
     opacity: 0;
@@ -1412,5 +1434,17 @@ a.notification-item {
 .hide-links {
   a.MuiTypography-root {
     color: initial;
+  }
+}
+
+.stack {
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: 1fr;
+  align-items: stretch;
+  justify-content: stretch;
+
+  &>* {
+    grid-area: 1 / 1 / 2 / 2;
   }
 }

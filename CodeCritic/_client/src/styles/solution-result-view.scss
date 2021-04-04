@@ -28,9 +28,44 @@ $statuses: (answer-correct: #c0f3b3,
 
   .sol-inf {
     grid-area: sol-inf;
-    // background: rgb(235, 235, 235);
     padding: 10px;
     min-height: 100px;
+    
+    .key-value-grid {
+      display: grid;
+      grid-template-columns: 200px auto;
+      grid-template-rows: minmax(30px, auto);
+      align-items: center;
+      margin: 2px 0;
+      
+      .MuiButtonBase-root {
+        font-size: 0.75rem;
+        padding: 2px 8px;
+        margin: 0 10px;
+
+        .MuiSvgIcon-root {
+          display: inline-block;
+          margin-left: 5px;
+          font-size: 0.85rem;
+        }
+      }
+      
+      .key {
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+    
+        .MuiSvgIcon-root {
+          margin-right: 5px;
+          font-size: 1rem;
+        }
+      }
+      
+      .value {
+        display: flex;
+        align-items: center;
+      }
+    }
   }
 
   .sol-sts {
@@ -164,63 +199,86 @@ $statuses: (answer-correct: #c0f3b3,
 }
 
 
-.subresults-timeline {
-  --connector-length: 100px;
-  --case-radius: 40px;
-  // animation: fadeIn 200ms ease-in-out;
-  // animation-fill-mode: both;
-  padding: 20px 0;
+.subresults-timeline-wrapper {
 
-  display: inline-flex;
-  align-items: center;
+  &.mini {
+    .subresults-timeline {
+      --connector-length: 50px;
+      --case-radius: 25px;
 
+      .connector {
+        border-width: 1px;
+      }
 
-  .case {
-    display: inline-flex;
-    width: var(--case-radius);
-    height: var(--case-radius);
-    border-radius: 50%;
-    align-items: center;
-    justify-content: center;
-    border: 5px solid #000;
-    cursor: pointer;
-    transition: all 200ms ease-in-out;
-
-    @each $status,
-    $color in $statuses {
-      &.status-#{$status} {
-        color: darken($color, 40);
-        background: lighten($color, 0);
-        border-color: darken($color, 40);
-
+      .case {
+        border-width: 2px;
         .MuiSvgIcon-root {
-          color: darken($color, 40);
-        }
-
-        &:hover, &.hover {
-          color: darken($color, 50);
-          background: lighten($color, 10);
-          border-color: darken($color, 50);
-
-
-          .MuiSvgIcon-root {
-            color: darken($color, 50);
-          }
+          font-size: 1rem;
         }
       }
     }
   }
 
-  .connector {
-    display: inline-block;
-    height: 2px;
-    border-bottom: 2px dashed #000;
-    width: var(--connector-length);
 
-    @each $status,
-    $color in $statuses {
-      &.status-#{$status} {
-        border-color: darken($color, 40);
+  .subresults-timeline {
+    --connector-length: 100px;
+    --case-radius: 40px;
+    // animation: fadeIn 200ms ease-in-out;
+    // animation-fill-mode: both;
+    padding: 20px 0;
+
+    display: inline-flex;
+    align-items: center;
+
+
+    .case {
+      display: inline-flex;
+      width: var(--case-radius);
+      height: var(--case-radius);
+      border-radius: 50%;
+      align-items: center;
+      justify-content: center;
+      border: 5px solid #000;
+      cursor: pointer;
+      transition: all 200ms ease-in-out;
+
+      @each $status,
+      $color in $statuses {
+        &.status-#{$status} {
+          color: darken($color, 40);
+          background: lighten($color, 0);
+          border-color: darken($color, 40);
+
+          .MuiSvgIcon-root {
+            color: darken($color, 40);
+          }
+
+          &:hover,
+          &.hover {
+            color: darken($color, 50);
+            background: lighten($color, 10);
+            border-color: darken($color, 50);
+
+
+            .MuiSvgIcon-root {
+              color: darken($color, 50);
+            }
+          }
+        }
+      }
+    }
+
+    .connector {
+      display: inline-block;
+      height: 2px;
+      border-bottom: 2px dashed #000;
+      width: var(--connector-length);
+
+      @each $status,
+      $color in $statuses {
+        &.status-#{$status} {
+          border-color: darken($color, 40);
+        }
       }
     }
   }
@@ -362,15 +420,18 @@ $statuses: (answer-correct: #c0f3b3,
     padding: 10px;
   }
 }
+
 .solution-result-view {
   &.full-page {
     box-shadow: 0 0 10px 0px #00000080;
     padding: 0;
     margin-bottom: 20px;
+
     .solution-result-view-grid {
       padding: 10px;
     }
   }
+
   &.dialog-page {
     padding: 0;
   }

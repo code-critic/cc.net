@@ -6,7 +6,8 @@ export const LightTooltip = withStyles((theme: Theme) => ({
         backgroundColor: theme.palette.common.white,
         color: 'rgba(60, 60, 60, 0.87)',
         boxShadow: theme.shadows[3],
-        maxWidth: 400,
+        maxWidth: 700,
+        overflow: 'auto',
         fontSize: 11,
         '& strong': {
             color: '#000',

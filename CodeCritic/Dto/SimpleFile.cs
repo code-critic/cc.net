@@ -1,6 +1,6 @@
 namespace CC.Net.Dto
 {
-    public class SimpleFile
+    public class SimpleFileDto
     {
         public string Name { get; set; }
         public string Path { get; set; }

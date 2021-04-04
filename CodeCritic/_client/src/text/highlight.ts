@@ -32,6 +32,8 @@ const getSyntax = (language: ILanguage | string) => {
             return "bash";
         case "json":
             return "json";
+        case "m":
+            return "matlab";
     }
     return "plaintext";
 }

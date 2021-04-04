@@ -57,12 +57,12 @@ namespace CC.Net.Services
                 var provider = scope.ServiceProvider;
                 var notificationFlag = provider.GetService<NotificationFlag>();
                 
+                var dbService = provider.GetService<DbService>();
+                var hub = provider.GetService<IHubContext<LiveHub>>();
+                var idService = provider.GetService<IdService>();
+                
                 if (notificationFlag.WasTouched())
                 {
-                    var dbService = provider.GetService<DbService>();
-                    var hub = provider.GetService<IHubContext<LiveHub>>();
-                    var idService = provider.GetService<IdService>();
-
                     var minDate = DateTime.Now.Subtract(TimeSpan.FromDays(30));
                     var minId = new ObjectId(minDate, 0, 0, 0);
                     var allNotifications = await dbService.Events
@@ -93,9 +93,8 @@ namespace CC.Net.Services
                         var channels = hub.Clients.Clients(ids);
                         await channels.NewNotification(new List<CcEvent>());
                     }
-
-                    var itemsCount =
-                        await dbService.Data.CountDocumentsAsync(i => i.Result.Status == ProcessStatus.InQueue.Value);
+                    
+                    var itemsCount = await dbService.Data.CountDocumentsAsync(i => i.Result.Status == ProcessStatus.InQueue.Value);
                     await hub.Clients.All.QueueStatus(new string[itemsCount]);
                     notificationFlag.Clear();
                 }

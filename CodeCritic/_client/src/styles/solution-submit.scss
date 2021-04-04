@@ -1,0 +1,148 @@
+.solution-submit {
+    --gap: 15px;
+    display: grid;
+    grid-template-columns: calc(50% - var(--gap)) calc(50% - var(--gap));
+    grid-template-rows: auto auto auto 1fr;
+    gap: 10px calc(var(--gap) * 2);
+    grid-template-areas:
+        "last-results last-results"
+        "problem-tags problem-tags"
+        "description info"
+        "description code";
+
+
+    .last-results {
+        grid-area: last-results;
+
+        .latest-result-wrapper {
+            padding: 10px;
+            background: #efefef;
+        }
+    }
+
+    .problem-tags {
+        grid-area: problem-tags;
+    }
+
+    .description {
+        grid-area: description;
+    }
+
+    .info {
+        grid-area: info;
+
+        .language {
+            display: flex;
+            align-items: flex-end;
+            gap: 10px;
+
+            .language-select {
+                flex-grow: 1;
+            }
+
+            .language-select {
+                flex-grow: 1;
+            }
+        }
+    }
+
+    .code {
+        grid-area: code;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 5px;
+
+        .code-editor-wrapper {
+            width: 100%;
+        }
+    }
+}
+
+.group-selector-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-auto-rows: minmax(50px, auto);
+    gap: 15px;
+    justify-content: stretch;
+    align-items: stretch;
+
+    .MuiButtonBase-root {
+        padding: 4px;
+    }
+
+    .MuiButton-label {
+        display: flex;
+        flex-direction: column;
+        text-transform: none;
+
+        .MuiTypography-subtitle1 {
+            font-size: 0.7rem;
+        }
+    }
+}
+
+.align-center {
+    display: inline-flex;
+    align-items: center;
+}
+
+.problem-tags {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 15px;
+}
+.problem-tag {
+    --bg-color: #fff;
+    --hv-color: #000;
+
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 6px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    
+    .MuiSvgIcon-root {
+        font-size: 1.4rem;
+        display: inline-block;
+        margin-right: 2px;
+    }
+
+    background: var(--bg-color);
+    box-shadow: 0 0 8px 0px var(--hv-color);
+    &:hover {
+        color: #fff;
+        background: var(--hv-color);
+    }
+}
+
+.problem-tag {
+    &.success {
+        --bg-color: #edf7ed;
+        --hv-color: #47a52f;
+    }
+    &.info {
+        --bg-color: #e8f4fd;
+        --hv-color: #428abd;
+    }
+    &.warning {
+        --bg-color: #fff4e5;
+        --hv-color: #96572d;
+    }
+    &.error {
+        --bg-color: #fdecea;
+        --hv-color: #c54938;
+    }
+}
+
+.assets-select-grid {
+    padding: 10px;
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-auto-rows: minmax(30px, auto);
+    gap: 15px;
+    justify-content: stretch;
+    align-items: stretch;
+}

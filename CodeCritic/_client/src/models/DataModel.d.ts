@@ -252,6 +252,11 @@ import { ProcessStatus, SubmissionStatus, ProblemType, ProblemStatus, CcEventTyp
 		objectId: string;
 		points: number;
 	}
+	interface ISimpleFileDto {
+		content: string;
+		name: string;
+		path: string;
+	}
 	interface ITableRequest {
 		filtered: ITableRequestFilter[];
 		page: number;
@@ -338,5 +343,5 @@ import { ProcessStatus, SubmissionStatus, ProblemType, ProblemStatus, CcEventTyp
 	}
 
 
-// generated at 4/2/2021 8:50:07 AM (UTC)
-export const __uuid = '08b2c694-39f1-4f79-9f3f-d7023a0eed67'
+// generated at 4/3/2021 4:36:17 PM (UTC)
+export const __uuid = 'e795e17c-3a52-4a6c-bb4a-f8ca0eed1acc'

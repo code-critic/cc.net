@@ -10,13 +10,16 @@ export interface IFile {
     isManual?: boolean;
 }
 interface FileChooserProps {
-    onFileDrop?(files: IFile[]): void;
+    onFileDrop(files: IFile[]): void;
+    component: JSX.Element;
 }
 
 export const FileChooser = (props: FileChooserProps) => {
-    const { onFileDrop } = props;
+    const { onFileDrop, component } = props;
+
     const dropzone = useDropzone({
-        onDropAccepted: (files) => onFileDrop ? onFileDrop(files as any) : null
+        onDropAccepted: (files) => onFileDrop ? onFileDrop(files as any) : null,
+        noClick: true,
     });
     const { acceptedFiles, getRootProps, getInputProps } = dropzone;
     const { isDragActive, isDragAccept, isDragReject } = dropzone;
@@ -33,8 +36,7 @@ export const FileChooser = (props: FileChooserProps) => {
 
     return (
         <div {...getRootProps({ className: className })}>
-            <input {...getInputProps()} />
-            <p>Drag 'n' drop some files here, or click to select files</p>
+            {component}
         </div>
     );
 }

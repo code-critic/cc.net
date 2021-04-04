@@ -18,7 +18,7 @@ using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using static CC.Net.Collections.CcData;
-using SimpleFile = CC.Net.Dto.SimpleFile;
+using SimpleFileDto = CC.Net.Dto.SimpleFileDto;
 
 namespace CC.Net.Hubs
 {
@@ -122,7 +122,7 @@ namespace CC.Net.Hubs
             await Clients.All.QueueStatus(new string[itemsCount]);
         }
 
-        public async Task SubmitSolutionGroup(string groupId, string courseName, string courseYear, string problemId, string langId, IList<SimpleFile> files)
+        public async Task SubmitSolutionGroup(string groupId, string courseName, string courseYear, string problemId, string langId, IList<SimpleFileDto> files)
         {
             var course = _courseService[courseName];
             var courseYearConfig = course[courseYear];
@@ -197,7 +197,7 @@ namespace CC.Net.Hubs
             await Clients.All.QueueStatus(new string[itemsCount]);
         }
 
-        public async Task SubmitSolutionStudent(string userId, string courseName, string courseYear, string problemId, string langId, IList<SimpleFile> files)
+        public async Task SubmitSolutionStudent(string userId, string courseName, string courseYear, string problemId, string langId, IList<SimpleFileDto> files)
         {
             var course = _courseService[courseName];
             var courseYearConfig = course[courseYear];
@@ -261,74 +261,11 @@ namespace CC.Net.Hubs
             var itemsCount = await _dbService.Data.CountDocumentsAsync(i => i.Result.Status == ProcessStatus.InQueue.Value);
             await Clients.All.QueueStatus(new string[itemsCount]);
         }
-
-        /*public async Task SubmitSolution(string userId, string courseName, string courseYear, string problemId, string solution, string langId, bool useDocker)
-        {
-            var course = _courseService[courseName];
-            var courseYearConfig = course[courseYear];
-            var problem = courseYearConfig[problemId];
-            var language = _languageService[langId];
-
-            var attemptNo = 1 + await _dbService.Data
-                .CountDocumentsAsync(i => i.CourseName == courseName
-                    && i.CourseYear == courseYear
-                    && i.User == userId
-                    && i.Problem == problemId
-                // && i.Action == "solve"
-                );
-
-            var solutions = new List<CcDataSolution>();
-
-            if (problem.Unittest)
-            {
-                var refCode = problem.ProblemDir().RootFile(problem.Reference.Name).ReadAllText();
-                solutions.Add(CcDataSolution.Single(solution, problem.Libname, 1, true));
-                solutions.Add(CcDataSolution.Single(refCode, problem.Reference.Name, 2, false));
-                solutions.Add(CcDataSolution.Single(string.Empty, $".debug", int.MaxValue, false));
-            }
-            else
-            {
-                solutions.Add(CcDataSolution.Single(solution, $"main.{language.Extension}"));
-                solutions.Add(CcDataSolution.Single(string.Empty, $".debug", int.MaxValue, false));
-            }
-
-            var attemptId = ObjectId.GenerateNewId();
-
-            var ccData = new CcData
-            {
-                Id = attemptId,
-                User = userId,
-                CourseName = courseName,
-                CourseYear = courseYear,
-                Action = "solve",
-                Docker = useDocker,
-                Problem = problemId,
-                Language = langId,
-                Solutions = solutions,
-                Attempt = (int)attemptNo,
-
-                Result = new CcDataResult
-                {
-                    Status = ProcessStatus.InQueue.Value,
-                    Duration = 0,
-                    Message = null,
-                    Score = 0,
-                    Scores = new[] { 0, 0, 0 },
-                }
-            };
-
-            _idService.RemeberClient(Clients.Caller, attemptId);
-            await Clients.Clients(_idService[ccData.User]).ServerMessageToClient("info", $"Attempt {attemptNo} inserted into queue");
-            await _dbService.Data.InsertOneAsync(ccData);
-
-            var itemsCount = await _dbService.Data.CountDocumentsAsync(i => i.Result.Status == ProcessStatus.InQueue.Value);
-            await Clients.All.QueueStatus(new string[itemsCount]);
-        }*/
     }
 
     public static class LiveHubExtensions
     {
-        public static Task ServerMessageToClient(this IClientProxy clients, string level, string message, string title = "", int timeOut = 400)
+        public static Task ServerMessageToClient(this IClientProxy clients, string level, string message, string title = "", int timeOut = 1500)
         {
             try
             {

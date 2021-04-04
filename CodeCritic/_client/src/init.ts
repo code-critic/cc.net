@@ -237,6 +237,8 @@ const startWS = () => {
             });
 
             liveConnection.on("serverMessage", (level: NotificationLevel, message: string, title:string = "", timeOut: number = 400) => {
+                console.log({level, message, title, timeOut})
+                console.log(NotificationManager);
                 switch (level) {
                     case "info":
                         NotificationManager.info(message.toString(), title, timeOut);

@@ -1,9 +1,17 @@
 @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
 
 @keyframes AnimationName {
-    0%{background-position:0% 50%}
-    50%{background-position:100% 50%}
-    100%{background-position:0% 50%}
+    0% {
+        background-position: 0% 50%
+    }
+
+    50% {
+        background-position: 100% 50%
+    }
+
+    100% {
+        background-position: 0% 50%
+    }
 }
 
 .code-editor-table {
@@ -29,7 +37,7 @@
         background-size: 400% 400%;
         animation: AnimationName 3s ease infinite;
     }
-    
+
     tr.comment-row {
 
         &.pending {
@@ -53,7 +61,7 @@
 
             display: grid;
             grid-template-columns: 64px 1.4fr;
-            grid-template-rows:  48px 1.4fr;
+            grid-template-rows: 48px 1.4fr;
             gap: 0px 0px;
             grid-template-areas:
                 "ava inf"
@@ -136,3 +144,129 @@
     }
 }
 
+
+.code-editor-wrapper {
+    &.fullscreen {
+        position: absolute;
+        top: 70px;
+        bottom: 40px;
+        left: 0;
+        right: 0;
+        z-index: 1000;
+
+        .react-codemirror2 .CodeMirror {
+            max-height: none;
+            height: 100%;
+        }
+    }
+}
+
+
+.react-codemirror2 .CodeMirror {
+    height: 40vh;
+    min-height: 300px;
+    max-height: 600px;
+
+    .CodeMirror-vscrollbar,
+    .CodeMirror-hscrollbar {
+        --scrollbarBG: #ffffff;
+        --scrollbarthumbBG: #b4b4b4a6;
+        --scrollbarsize: 14px;
+        --scrollbarborder: 4px;
+        outline: none;
+    }
+
+    .CodeMirror-scrollbar-filler {
+        background-color: var(--scrollbarBG);
+    }
+}
+
+.filebar {
+    flex-grow: 1;
+    display: flex;
+    background-color: #f0f0f0;
+    overflow-x: auto;
+    position: relative;
+
+    .MuiButtonGroup-root {
+        &.selected {
+            .MuiButtonBase-root {
+                background-color: #dfdfdf;
+                font-weight: 700;
+            }
+        }
+    }
+
+    .MuiButtonBase-root {
+        min-width: 30px;
+        font-weight: 300;
+        border: none;
+
+
+        &.new-file-btn {
+            .MuiButton-label {
+                color: #8f8f8f;
+
+                &:hover {
+                    color: inherit;
+                }
+
+                .MuiSvgIcon-root {
+                    font-size: 1.1rem;
+                }
+            }
+        }
+
+        &.close-btn {
+            padding: 0;
+            min-width: 30px;
+            border-radius: 0;
+
+            .MuiButton-label {
+                .MuiSvgIcon-root {
+                    font-size: 0.7rem;
+                }
+            }
+        }
+
+        &.fullscreen-btn {
+            top: 0;
+            right: 0;
+            position: absolute;
+
+            .MuiSvgIcon-root {
+                font-size: 1rem;
+            }
+        }
+    }
+
+    .MuiButton-label {
+        text-transform: none;
+    }
+}
+
+
+.file-dropzone {
+    padding: 0;
+    border-width: 2px;
+    border-radius: 1px;
+    border-color: #cccccc00;
+    border-style: dashed;
+    background-color: #ffffff00;
+    color: #bdbdbd;
+    outline: none;
+    transition: all 0.24s ease-in-out;
+
+    p {
+        padding: 0;
+        margin: 0;
+    }
+
+    &.active {
+        padding: 5px;
+        border-width: 2px;
+        border-radius: 2px;
+        border-color: #28601f;
+        background-color: #dcffdc;
+    }
+}

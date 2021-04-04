@@ -23,12 +23,20 @@ import { getStatus } from '../../utils/StatusUtils';
 import { humanizeName } from '../../utils/utils';
 import { SolutionResultViewTreeViewRoot } from './SolutionResultView.TreeView';
 import { SolutionResultViewGradeDialog } from './SolutionResultView.GradeDialog';
-import { notifications } from '../../utils/notifications';
 import { nop } from '../../utils/nop';
+import { cancelCodeReview, requestCodeReview } from '../../utils/api';
+import SendIcon from '@material-ui/icons/Send';
+import CancelIcon from '@material-ui/icons/Cancel';
+import PersonIcon from '@material-ui/icons/Person';
+import TimerIcon from '@material-ui/icons/Timer';
+import GradeIcon from '@material-ui/icons/Grade';
+import SecurityIcon from '@material-ui/icons/Security';
+
 
 interface IParamsObjectId {
     objectId?: string;
 }
+
 const extractSingleSimpleFile = (result: ICcData) => {
     const f = result.solutions[0];
     if (!f) {
@@ -54,11 +62,11 @@ export const SolutionResultView = (props: SolutionResultViewProps) => {
     const params = useParams<IParamsObjectId>();
     const objectId = props.objectId ?? params.objectId;
     const { user, isRoot } = useUser();
-    const [result, setResult] = useState<ICcData>();
+    const [ result, setResult ] = useState<ICcData>();
     const { counter, refresh } = useRefresh();
-    const [error, setError] = useState<IApiError>();
-    const [selectedFile, setSelectedFile] = useState<ISimpleFile>();
-    const [gradeDialog, setGradeDialog] = useState(false);
+    const [ error, setError ] = useState<IApiError>();
+    const [ selectedFile, setSelectedFile ] = useState<ISimpleFile>();
+    const [ gradeDialog, setGradeDialog ] = useState(false);
     const { comments, postCommentsAsync } = useComments();
 
     useEffect(() => {
@@ -74,21 +82,22 @@ export const SolutionResultView = (props: SolutionResultViewProps) => {
                 } catch (error) {
                     setError({
                         name: "Not found",
-                        errors: ["Solution was not found"]
+                        errors: [ "Solution was not found" ]
                     });
                 }
             }
         })();
-    }, [user.id, counter, objectId]);
+    }, [ user.id, counter, objectId ]);
 
     const handleFileChange = async (file: ISimpleFile) => {
-        if (!file.content) {
-            file.content = <SimpleLoader />
+        if (file.content === null) {
+            file.content = <SimpleLoader/>
             setSelectedFile(file);
 
             const response = await API.get(`file-get/${objectId}/${file.relPath}`);
+            console.log(response);
             const { content } = response.data as any;
-            file.content = content;
+            file.content = content ?? "";
             setSelectedFile({ ...file });
         } else {
             setSelectedFile(file);
@@ -100,7 +109,7 @@ export const SolutionResultView = (props: SolutionResultViewProps) => {
     }
 
     if (!result) {
-        return <SimpleLoader />
+        return <SimpleLoader/>
     }
 
     const { courseName, courseYear, problem, reviewRequest, points, result: mainResult } = result;
@@ -108,31 +117,23 @@ export const SolutionResultView = (props: SolutionResultViewProps) => {
     const { status, message, messages } = mainResult;
     const mainStatus = getStatus(status);
     const Icon = IconClass(result);
-    const canEditResult = (user.id == result.user && result.isActive && result.points <= 0) || isRoot;
+    const canEditResult = (user.id == result.user && result.points <= 0) || isRoot;
     const statusName = `status-${mainStatus.name}`;
     const extraCls = onClose == undefined
         ? "solution-result-view full-page"
         : "solution-result-view dialog-page";
 
     const requestCR = async () => {
-        try {
-            await API.get(`reviewrequest/${result.objectId}`);
-            notifications.success(`Teacher notified!`);
+        if (await requestCodeReview(result)) {
             refresh();
             onChange();
-        } catch (error) {
-            notifications.error(`There was an error: ${error}`)
         }
     }
 
     const cancelCR = async () => {
-        try {
-            await API.delete(`reviewrequest/${result.objectId}`);
-            notifications.success(`Ok`);
+        if (await cancelCodeReview(result)) {
             refresh();
             onChange();
-        } catch (error) {
-            notifications.error(`There was an error: ${error}`)
         }
     }
 
@@ -158,36 +159,72 @@ export const SolutionResultView = (props: SolutionResultViewProps) => {
                 <div className={`solution-result-view-grid ${statusName}`}>
                     <div className="sol-inf sol-item">
                         <Typography variant="h4" className="hide-links pb1">
-                            <CourseYearProblemHeader course={courseName} year={courseYear} problem={problem} />
-                            <ChevronRightIcon color="disabled" />
-                            <Typography variant="inherit" component={RouterLink} to={`r/${objectId}`}>#{result.attempt}</Typography>
+                            <CourseYearProblemHeader course={courseName} year={courseYear} problem={problem}/>
+                            <ChevronRightIcon color="disabled"/>
+                            <Typography variant="inherit" component={RouterLink}
+                                        to={`/r/${objectId}`}>#{result.attempt}</Typography>
                         </Typography>
-                        <Typography variant="subtitle1" color="textSecondary">
-                            Author(s):&nbsp;<strong>
+
+                        <div className="key-value-grid">
+                            <div className="key"><PersonIcon/>Author(s)</div>
+                            <div className="value">
                                 {groupName && <>{groupName} ({userOrGroupUsers.map(humanizeName).join(", ")})</>}
                                 {!groupName && <>{humanizeName(username)}</>}
-                            </strong>
-                        </Typography>
+                            </div>
+                        </div>
 
-                        <Typography variant="subtitle1" color="textSecondary">
-                            Duration:&nbsp;<strong>
+                        <div className="key-value-grid">
+                            <div className="key"><TimerIcon/>Duration</div>
+                            <div className="value">
                                 {mainResult?.duration?.toFixed(3) ?? "??"} sec
-                        </strong>
-                        </Typography>
+                            </div>
+                        </div>
 
-                        <Typography variant="subtitle1" color="textSecondary">
-                            {reviewRequest && <>Review Request: &nbsp;
-                            <strong><AbsMoment date={reviewRequest} /></strong>&nbsp;
-                                {canEditResult && 
-                                    <Button color="secondary" size="small" variant="text" onClick={cancelCR}>Cancel Review Request</Button>}
-                            </>}
-                            {!reviewRequest && <>No Review Request: <strong>
-                                {canEditResult ?
-                                    <Button color="primary" size="small" variant="text" onClick={requestCR}>Request now</Button> :
-                                    <strong>cannot change, unsufficient permissions</strong>
-                                }
-                            </strong></>}
-                        </Typography>
+                        <div className="key-value-grid">
+                            <div className="key"><GradeIcon/>Review Request</div>
+                            <div className="value">
+                                {reviewRequest != null && <>
+                                    Requested &nbsp;<AbsMoment date={reviewRequest}/>
+
+                                    {canEditResult &&
+                                    <Button color="secondary" size="small" variant="contained" onClick={cancelCR}>
+                                        Cancel Review Request <CancelIcon />
+                                    </Button>}
+                                    {!canEditResult &&
+                                    <Button color="secondary" size="small" variant="contained" disabled>
+                                        No longer possible to cancel
+                                    </Button>}
+                                </>}
+                                {reviewRequest == null && <>
+                                    Not requested
+                                    {canEditResult &&
+                                    <Button color="primary" size="small" variant="contained" onClick={requestCR}>
+                                        Request now <SendIcon/>
+                                    </Button>}
+                                    {!canEditResult &&
+                                    <Button color="secondary" size="small" variant="contained" disabled>
+                                        No longer possible to request
+                                    </Button>}
+                                </>}
+                            </div>
+                        </div>
+
+                        {reviewRequest != null && result.gradeComment?.length > 0 &&
+                            <div className="key-value-grid">
+                                <div className="key"><DescriptionIcon/>Comment from Teacher</div>
+                                <div className="value">
+                                    {result.gradeComment}
+                                </div>
+                            </div>}
+                            
+                        {isRoot &&
+                            <div className="key-value-grid">
+                                <div className="key"><SecurityIcon/>Dbg</div>
+                                <div className="value">
+                                    {result.files.map(i => i.rawPath)[0] ?? ""}
+                                </div>
+                            </div>}
+
                     </div>
                     <div className="sol-sts sol-item">
                         {reviewRequest && <Button className="grade-btn" disabled={!isRoot} onClick={showGradeDialog}>
@@ -196,32 +233,34 @@ export const SolutionResultView = (props: SolutionResultViewProps) => {
                     </div>
                     <div className="sol-res sol-item">
                         <Typography variant="h6" className="sol-status">
-                            <Icon />&nbsp;
-                    <>{message ?? mainStatus.description} ({mainStatus.name})</>
+                            <Icon/>&nbsp;
+                            <>{message ?? mainStatus.description} ({mainStatus.name})</>
                         </Typography>
                         <div className="sol-status-info pretty-scrollbar">
                             {messages?.length > 0 && <ol className="console">
-                                {messages.join("\n").trimEnd().split("\n").map((i, j) => <li key={j}><pre>{i}</pre></li>)}
+                                {messages.join("\n").trimEnd().split("\n").map((i, j) => <li key={j}>
+                                    <pre>{i}</pre>
+                                </li>)}
                             </ol>}
                         </div>
                     </div>
                     <div className="sol-sub sol-item">
                         {result.results?.length > 1 && <div className="subresults-wrapper">
                             <Typography variant="h6" className="sol-status">
-                                <Icon />&nbsp;Subresults
-                        </Typography>
+                                <Icon/>&nbsp;Subresults
+                            </Typography>
                             <div className="sol-status-info">
-                                <TimelineRenderer showExtra={isRoot} subresults={result.results} />
+                                <TimelineRenderer showExtra={isRoot} subresults={result.results}/>
                             </div>
                         </div>}
                     </div>
                     <div className="sol-exp">
-                        <SolutionResultViewTreeViewRoot onChange={handleFileChange} result={result} />
+                        <SolutionResultViewTreeViewRoot onChange={handleFileChange} result={result}/>
                     </div>
                     <div className="sol-src">
                         {selectedFile && <>
                             <Typography variant="h6" className="sol-status">
-                                <DescriptionIcon />&nbsp;{selectedFile.filename}
+                                <DescriptionIcon/>&nbsp;{selectedFile.filename}
                             </Typography>
                             <SourceCodeReview
                                 objectId={objectId}
@@ -232,17 +271,17 @@ export const SolutionResultView = (props: SolutionResultViewProps) => {
                         </>}
                     </div>
                     <div className="sol-btn">
-                        <span className="filler" />
+                        <span className="filler"/>
                         {comments.length > 0 && <Button onClick={postCommentsAndRefresh}>
                             Send {comments.length} comments
-                    </Button>}
-                    {onClose && <Button onClick={onClose}>Close</Button>}
+                        </Button>}
+                        {onClose && <Button onClick={onClose}>Close</Button>}
                     </div>
                 </div>
             </div>
         </Container>
         {gradeDialog && <SolutionResultViewGradeDialog
             onClose={hideGradeDialog}
-            objectId={objectId} />}
+            objectId={objectId}/>}
     </>)
 }

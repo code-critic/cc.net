@@ -5,26 +5,32 @@ import FolderOpenIcon from '@material-ui/icons/FolderOpen';
 import { ICcData, ISimpleFile } from '../../models/DataModel';
 import { TreeItem, TreeView } from '@material-ui/lab';
 import { useState } from 'react';
+import { useUser } from "../../hooks/useUser";
 
 
 interface SolutionResultViewTreeViewRootProps {
     result: ICcData;
+
     onChange(item: ISimpleFile): void;
 }
+
 export const SolutionResultViewTreeViewRoot = (props: SolutionResultViewTreeViewRootProps) => {
     const { result, onChange } = props;
-    const [selected, setSelected] = useState<string>(result.solutions[0]?.filename ?? "");
+    const { isRoot } = useUser();
+    const [ selected, setSelected ] = useState<string>(result.solutions[0]?.filename ?? "");
 
-    const solutionSimpleFiles: ISimpleFile[] = result.solutions.map(i => {
-        return {
-            filename: i.filename,
-            isDir: false,
-            files: [],
-            content: i.content,
-            relPath: `/${i.filename}`,
-            rawPath: null,
-        }
-    });
+    const solutionSimpleFiles: ISimpleFile[] = result.solutions
+        .filter(i => isRoot || !i.hidden)
+        .map(i => {
+            return {
+                filename: i.filename,
+                isDir: false,
+                files: [],
+                content: i.content,
+                relPath: `/${i.filename}`,
+                rawPath: null,
+            }
+        });
     const allFiles = [
         ...solutionSimpleFiles,
         ...result.files
@@ -47,14 +53,14 @@ export const SolutionResultViewTreeViewRoot = (props: SolutionResultViewTreeView
     const handleSelect = (event: React.ChangeEvent<{}>, nodeId: string) => {
         setSelected(nodeId);
         const file = findFile(allFiles, nodeId);
-        
-        if(file && !file.isDir) {
+
+        if (file && !file.isDir) {
             onChange(file);
         }
-      };
+    };
 
     return (<TreeView selected={selected} onNodeSelect={handleSelect}>
-        <SolutionResultViewTreeView files={allFiles} />
+        <SolutionResultViewTreeView files={allFiles}/>
     </TreeView>)
 }
 
@@ -62,16 +68,19 @@ export const SolutionResultViewTreeViewRoot = (props: SolutionResultViewTreeView
 interface SolutionResultViewTreeViewProps {
     files: ISimpleFile[];
 }
+
 export const SolutionResultViewTreeView = React.forwardRef((props: SolutionResultViewTreeViewProps, ref) => {
     const { files, ...rest } = props;
 
     return <>
         {files.map((i, j) => <TreeItem key={i.filename}
-            nodeId={i.relPath}
-            expandIcon={i.isDir ? <FolderIcon /> : i.filename.startsWith("/") ? null : <CodeIcon />}
-            collapseIcon={i.isDir ? <FolderOpenIcon /> : i.filename.startsWith("/") ? null : <CodeIcon />}
-            label={i.filename || "Solution files"}>
-            <SolutionResultViewTreeView files={i.files} />
+                                       nodeId={i.relPath}
+                                       expandIcon={i.isDir ? <FolderIcon/> : i.filename.startsWith("/") ? null :
+                                           <CodeIcon/>}
+                                       collapseIcon={i.isDir ? <FolderOpenIcon/> : i.filename.startsWith("/") ? null :
+                                           <CodeIcon/>}
+                                       label={i.filename || "Solution files"}>
+            <SolutionResultViewTreeView files={i.files}/>
         </TreeItem>)}
     </>
 });

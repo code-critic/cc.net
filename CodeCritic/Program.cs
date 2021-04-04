@@ -107,6 +107,7 @@ namespace CC.Net
                         .For<StudentScoreboardCourse>()
                         .For<CcGroup>()
                         .For<UnauthorizedObjectIface>()
+                        .For<SimpleFileDto>()
 
                         .For<ApiError>()
                         .For<CcDataDto>()

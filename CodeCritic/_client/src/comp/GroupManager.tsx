@@ -6,7 +6,7 @@ import { useRefresh } from '../hooks/useRefresh';
 import { useUser } from '../hooks/useUser';
 import { ICcGroup, ICcUserGroup } from '../models/DataModel';
 import { CcUserGroupStatus } from '../models/Enums';
-import { useOpenClose } from '../utils/StateUtils';
+import { useOpenClose } from "../hooks/useOpenClose";
 
 
 // const model = Schema.ObjectType({

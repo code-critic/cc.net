@@ -13,6 +13,7 @@ import { DropDownMenu } from '../../components/DropDownMenu';
 import { FilterModel, GridColParams, GridFilterItem } from '@material-ui/data-grid';
 import { GridColDefEx } from './TableResults.columns';
 import ClearIcon from '@material-ui/icons/Clear';
+import { onEnter } from '../../utils/onEnter';
 
 
 interface KV {
@@ -84,7 +85,7 @@ export const TableResultsFilters = (props: TableResultsFiltersProps) => {
                     <FormControlLabel
                         labelPlacement="start"
                         label={<code style={{ minWidth: 150, display: "block" }}>{field}: &nbsp;</code>}
-                        onKeyPress={e => e.key === "Enter" ? finishDialog() : void 0}
+                        onKeyPress={onEnter(finishDialog)}
                         control={<>
                             {i.options &&
                                 <>
