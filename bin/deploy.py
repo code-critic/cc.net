@@ -1,6 +1,15 @@
 from subprocess import check_output, Popen
+from optparse import OptionParser
 import os
 from pathlib import Path
+
+
+parser = OptionParser()
+parser.add_option("-p", "--port", type=str, default="5000")
+parser.add_option("-K", "--no-kill", dest="kill", action="store_false", default=True)
+parser.add_option("-u", "--url", type=str, default='https://github.com/code-critic/cc.net/archive/refs/heads/master.zip')
+options, args = parser.parse_args()
+
 
 absdir = Path(__file__).parent.absolute()
 srcdir = absdir.parent
@@ -10,7 +19,9 @@ publish = srcdir.parent / 'publish'
 tmp = publish / 'tmp'
 tmpcc = tmp / 'cc.net-master'
 
-github_zip = 'https://github.com/code-critic/cc.net/archive/refs/heads/master.zip'
+kill_previous = options.kill is True
+port = options.port
+github_zip = options.url
 
 
 def next_version(cwd: Path, prefix: str):
@@ -46,9 +57,11 @@ def main():
     print("")
     print(f"new release {ccpublish}")
 
-    Popen(['killall', 'cc.net']).wait(1.0)
-    Popen(['killall', '-9', 'cc.net']).wait(1.0)
-    Popen(['./cc.net', '--urls', 'http://0.0.0.0:5000'], cwd=str(ccpublish)).wait()
+    if kill_previous:
+        Popen(['killall', 'cc.net']).wait(1.0)
+        Popen(['killall', '-9', 'cc.net']).wait(1.0)
+    
+    Popen(['./cc.net', '--urls', f'http://0.0.0.0:{port}'], cwd=str(ccpublish)).wait()
 
 if __name__ == '__main__':
     main()

@@ -9,6 +9,18 @@
         "problem-tags problem-tags"
         "description info"
         "description code";
+    
+    &.inactive {
+        grid-template-areas:
+            "last-results last-results"
+            "problem-tags problem-tags"
+            "description description"
+            "description description";
+        
+        .code, .info {
+            display: none;
+        }
+    }
 
 
     .last-results {

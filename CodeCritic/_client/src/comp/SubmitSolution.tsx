@@ -1,20 +1,20 @@
 import '../third_party/mathjax';
 
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 
-import {Button, Container} from '@material-ui/core';
+import { Button, Container } from '@material-ui/core';
 import SendIcon from '@material-ui/icons/Send';
 
-import {useOpenClose} from '../hooks/useOpenClose';
-import {useUser} from '../hooks/useUser';
-import {ICcData, ICourseProblem, ILanguage, ISimpleFile, ISimpleFileDto} from '../models/DataModel';
-import {ProblemType} from '../models/Enums';
-import {languages} from '../static/languages';
-import {CodeEditor} from './codeEditor/CodeEditor';
-import {CodeEditorLanguage} from './codeEditor/CodeEditor.Language';
-import {ProblemPicker, ProblemPickerExportProps} from './ProblemPicker';
-import {SubmitSolutionLastResults} from './SubmitSolution.LastResults';
-import {SubmitSolutionGroupSelect} from './submitSolution/SubmitSolution.GroupSelect';
+import { useOpenClose } from '../hooks/useOpenClose';
+import { useUser } from '../hooks/useUser';
+import { ICcData, ICourseProblem, ILanguage, ISimpleFile, ISimpleFileDto } from '../models/DataModel';
+import { ProblemStatus, ProblemType } from '../models/Enums';
+import { languages } from '../static/languages';
+import { CodeEditor } from './codeEditor/CodeEditor';
+import { CodeEditorLanguage } from './codeEditor/CodeEditor.Language';
+import { ProblemPicker, ProblemPickerExportProps } from './ProblemPicker';
+import { SubmitSolutionLastResults } from './SubmitSolution.LastResults';
+import { SubmitSolutionGroupSelect } from './submitSolution/SubmitSolution.GroupSelect';
 import {
     SubmitSolutionAssetsTag,
     SubmitSolutionDeadlineTag,
@@ -23,9 +23,9 @@ import {
     SubmitSolutionRequiredFilesTag,
     SubmitSolutionRequiredLanguageTag
 } from './submitSolution/SubmitSolution.Tags';
-import {hubApi} from './submitSolution/SubmitSolution.Hub';
-import {notifications} from '../utils/notifications';
-import {liveConnection} from '../init';
+import { hubApi } from './submitSolution/SubmitSolution.Hub';
+import { notifications } from '../utils/notifications';
+import { liveConnection } from '../init';
 
 
 const determineDefaultLanguage = (problem: ICourseProblem) => {
@@ -138,8 +138,12 @@ export const SubmitSolutionImpl = (props: SubmitSolutionProps) => {
     const isUnittest = problem.type === ProblemType.Unittest;
     const groupMenuIsOpen = problem.groupsAllowed && groupMenu;
     const showGenerateBtns = isRoot && problem.type === ProblemType.LineByLine && problem.reference != null;
+    const problemIsActive = problem.statusCode === ProblemStatus.Active
+        || problem.statusCode === ProblemStatus.ActiveLate;
+    const codeHidden = !problemIsActive && !isRoot;
+    const canSubmitSolution = isRoot || (files != null && files.length > 0 && problemIsActive);
 
-    return (<div className="solution-submit">
+    return (<div className={`solution-submit ${codeHidden ? "inactive" : ""}`}>
         <div className="last-results">
             <SubmitSolutionLastResults liveResult={liveResult} course={course} problem={problem} />
         </div>
@@ -154,10 +158,10 @@ export const SubmitSolutionImpl = (props: SubmitSolutionProps) => {
         <div className="description">
             <div dangerouslySetInnerHTML={{ __html: problem.description }} />
         </div>
-        <div className="info">
+        {!codeHidden && <div className="info">
             <CodeEditorLanguage language={language} onChange={onLanguageChange} fixed={isUnittest} />
-        </div>
-        <div className="code">
+        </div>}
+        {!codeHidden && <div className="code">
             <CodeEditor language={language} problem={problem} onChange={handleChange} />
             <div style={{ display: 'flex', gap: 10 }}>
                 {showGenerateBtns && <>
@@ -168,7 +172,7 @@ export const SubmitSolutionImpl = (props: SubmitSolutionProps) => {
                         Generate Output
                     </Button>
                 </>}
-                <Button variant="contained" color="primary" disabled={!files || files.length == 0} onClick={submitSolution}>
+                <Button variant="contained" color="primary" disabled={!canSubmitSolution} onClick={submitSolution}>
                     Submit Solution&nbsp;<SendIcon />
                 </Button>
             </div>
@@ -179,6 +183,6 @@ export const SubmitSolutionImpl = (props: SubmitSolutionProps) => {
                     onClose={closeGroupMenu}
                     onClick={handleGroupSelect} />
             </>}
-        </div>
+        </div>}
     </div>)
 }
