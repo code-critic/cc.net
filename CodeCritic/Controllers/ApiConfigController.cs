@@ -286,11 +286,9 @@ namespace CC.Net.Controllers
 
         [HttpGet("diff/{objectId}/{caseId}")]
         [UseCache(timeToLiveSeconds: 60)]
-        public IActionResult ViewDiff(string objectId, string caseId)
+        public async Task<IActionResult> ViewDiff(string objectId, string caseId)
         {
-            var data = _dbService.Data
-                .Find(i => i.Id == new ObjectId(objectId))
-                .First();
+            var data = await _dbService.DataSingleAsync(new ObjectId(objectId));
 
             var context = new CourseContext(_courseService, _languageService, data);
             var generatedFile = context.StudentDir.OutputFile(caseId);
@@ -300,6 +298,7 @@ namespace CC.Net.Controllers
 
         [HttpGet("browse-dir/{objectId}/{dir}")]
         [UseCache(timeToLiveSeconds: 60)]
+        [Obsolete]
         public IActionResult BrowseDir(string objectId, string dir)
         {
             var allowed = new string[] {"input", "output", "error", "reference"};

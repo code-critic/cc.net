@@ -1,33 +1,39 @@
 import * as React from 'react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
-import { Fade, IconButton, makeStyles } from '@material-ui/core';
+import { Dialog, DialogContent, Fade, IconButton, makeStyles } from '@material-ui/core';
 import AttachMoneyIcon from '@material-ui/icons/AttachMoney';
 import DeveloperModeIcon from '@material-ui/icons/DeveloperMode';
 import FingerprintIcon from '@material-ui/icons/Fingerprint';
 import SpeakerNotesIcon from '@material-ui/icons/SpeakerNotes';
 import TimerIcon from '@material-ui/icons/Timer';
 
-import { ICcDataCaseResult } from '../models/DataModel';
+import { ICcData, ICcDataCaseResult, IDiffResultComposite, IDiffResultLine } from '../models/DataModel';
 import { getStatus } from '../utils/StatusUtils';
 import { IconClassSubresult } from './IconClass';
-import { ProcessStatusStatic } from '../models/Enums';
+import { ChangeType, ProcessStatusStatic } from '../models/Enums';
 import FlagIcon from '@material-ui/icons/Flag';
 import { LightTooltip } from './LightTooltip';
+import { useOpenClose } from "../hooks/useOpenClose";
+import { API } from "../api";
+import { SimpleLoader } from "../components/SimpleLoader";
+import { notifications } from "../utils/notifications";
 
 interface TimelineRendererProps {
-    subresults: ICcDataCaseResult[],
+    result: ICcData,
     showExtra?: boolean,
     miniMode?: boolean,
 }
-export const TimelineRenderer = (props: TimelineRendererProps) => {
-    const { subresults, showExtra=false, miniMode=false } = props;
 
+export const TimelineRenderer = (props: TimelineRendererProps) => {
+    const { showExtra = false, miniMode = false, result } = props;
+
+    const subresults = result.results;
     const N = subresults.length;
     const caseRadius = miniMode ? 25 : 40;
     const maxWidth = miniMode ? 300 : 800;
     const miniCls = miniMode ? "mini" : "";
-    
+
     const minW = miniMode ? 10 : 30;
     const maxW = miniMode ? 70 : 170;
 
@@ -36,21 +42,22 @@ export const TimelineRenderer = (props: TimelineRendererProps) => {
         : 100;
 
     const connectorLength = Math.min(maxW, Math.max(minW, guess));
-    const ws = miniMode ? {width: maxWidth} : { };
+    const ws = miniMode ? { width: maxWidth } : {};
 
     return (<div className={`subresults-timeline-wrapper ${miniCls}`} style={ws}>
         {subresults?.map((i, j) => {
             const status = getStatus(i.status);
 
-            return (<span key={j} >
+            return (<span key={j}>
                 <Fade in timeout={250} style={{ transitionDelay: `${j * 100}ms` }}>
                     <span className="subresults-timeline">
-                        <SubresultDot subresult={i} showExtra={showExtra} />
+                        <SubresultDot subresult={i} showExtra={showExtra} result={result}/>
                         {subresults.length === 1 && <>
                             &nbsp; {i.duration.toFixed(3)} sec
                         </>}
                         {j !== subresults.length - 1 && <>
-                            <span style={{ width: connectorLength }} className={`connector status-${status.name}`}> </span>
+                            <span style={{ width: connectorLength }}
+                                  className={`connector status-${status.name}`}> </span>
                         </>}
                     </span>
                 </Fade>
@@ -60,43 +67,45 @@ export const TimelineRenderer = (props: TimelineRendererProps) => {
 }
 
 interface SubresultDotProps {
+    result: ICcData;
     subresult: ICcDataCaseResult,
     showExtra: boolean;
 }
-const SubresultDot = (props: SubresultDotProps) => {
-    const { subresult, showExtra } = props;
-    const [anchorEl, setAnchorEl] = React.useState<HTMLElement | null>(null);
-    const open = Boolean(anchorEl);
 
-    const id = open ? subresult.case : undefined;
+const SubresultDot = (props: SubresultDotProps) => {
+    const { subresult, showExtra, result } = props;
+    const [ diffOpen, openDiff, closeDiff ] = useOpenClose();
+
+    const id = subresult.case;
     const IconClass = IconClassSubresult(subresult);
     const status = getStatus(subresult.status);
 
     return (<span className={`case status-${status.name}`}>
+        {diffOpen && <DiffView onClose={closeDiff} subresult={subresult} result={result}/>}
         <LightTooltip interactive title={<span className="subresult-tooltip">
             <div className="subresult-tooltip-item">
                 <span className="subresult-tooltip-item-key">
-                    <FingerprintIcon />&nbsp;Test:
+                    <FingerprintIcon/>&nbsp;Test:
                     </span>
                 <code>{subresult.case}</code>
             </div>
             <div className="subresult-tooltip-item">
                 <span className="subresult-tooltip-item-key">
-                    <FlagIcon />&nbsp;Status:
+                    <FlagIcon/>&nbsp;Status:
                     </span>
                 <code>{ProcessStatusStatic.All.find(i => i.value == subresult.status).name}</code>
             </div>
 
             <div className="subresult-tooltip-item">
                 <span className="subresult-tooltip-item-key">
-                    <TimerIcon />&nbsp;Duration:
+                    <TimerIcon/>&nbsp;Duration:
                     </span>
                 <code>{subresult.duration?.toFixed(3) ?? "??"} sec</code>
             </div>
 
             {subresult.message && <div className="subresult-tooltip-item">
                 <span className="subresult-tooltip-item-key">
-                    <SpeakerNotesIcon />&nbsp;Output:
+                    <SpeakerNotesIcon/>&nbsp;Output:
                     </span>
                 <code>{subresult.message}</code>
             </div>}
@@ -104,25 +113,96 @@ const SubresultDot = (props: SubresultDotProps) => {
             {showExtra && <>
                 {subresult.messages?.length > 0 && <div className="subresult-tooltip-item">
                     <span className="subresult-tooltip-item-key">
-                        <DeveloperModeIcon />&nbsp;Log:
+                        <DeveloperModeIcon/>&nbsp;Log:
                         </span>
                     <pre>{subresult.messages.join("\n")}</pre>
                 </div>}
 
                 {subresult.command && <div className="subresult-tooltip-item">
                     <span className="subresult-tooltip-item-key">
-                        <AttachMoneyIcon />&nbsp;Command:
+                        <AttachMoneyIcon/>&nbsp;Command:
                         </span>
                     <pre>{subresult.command}</pre>
                 </div>}
             </>}
         </span>}>
             <IconButton
+                onClick={openDiff}
                 aria-owns={id}
                 aria-haspopup="true"
                 aria-describedby={id}>
-                <IconClass />
+                <IconClass/>
             </IconButton>
         </LightTooltip>
     </span>)
+}
+
+interface DiffViewProps {
+    onClose(): void;
+    result: ICcData;
+    subresult: ICcDataCaseResult;
+}
+
+const DiffView = (props: DiffViewProps) => {
+    const { onClose, subresult, result } = props;
+    const [ diff, setDiff ] = useState<IDiffResultComposite>();
+    const hideLegend = false;
+
+    const renderLine = (line: IDiffResultLine, lineNo: number) => {
+        return <tr key={lineNo}>
+            <td className="blob-num" data-line-number={lineNo}>
+            </td>
+            <td className={`line-${line.type} line blob-code`}>{line.generated}
+            </td>
+            <td className={`line-${line.type} line blob-code`}>{line.reference}
+            </td>
+        </tr>
+    }
+
+    useEffect(() => {
+        (async () => {
+            try {
+                const axiosResponse = await API.get<IDiffResultComposite>(`diff/${result.objectId}/${subresult.case}`);
+                const data = axiosResponse.data;
+                setDiff(data);
+            } catch (e) {
+                notifications.error(`Could not compare files, ${e}`);
+                onClose();
+            }
+        })();
+    }, []);
+
+    if (!diff) {
+        return <SimpleLoader/>
+    }
+
+    return <Dialog open onClose={onClose}>
+        <DialogContent>
+            <table className="source-code diff">
+                <thead>
+                <tr>
+                    <th></th>
+                    <th>Generated</th>
+                    <th>Reference</th>
+                </tr>
+                </thead>
+                <tbody>
+                {diff.lines.map((line, lineNo) => renderLine(line, lineNo + 1))}
+                </tbody>
+            </table>
+            {!hideLegend && <div className="diff-legend">
+                <hr/>
+                <div className="diff-legend-items">
+                        <span className="line">
+                            <span className="square line-1"> </span>
+                            <span className="label">Correct</span>
+                        </span>
+                    <span className="line">
+                            <span className="square line-2"> </span>
+                            <span className="label">Wrong</span>
+                        </span>
+                </div>
+            </div>}
+        </DialogContent>
+    </Dialog>
 }

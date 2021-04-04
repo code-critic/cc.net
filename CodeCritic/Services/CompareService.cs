@@ -12,7 +12,6 @@ namespace CC.Net.Services
 {
     public class CompareService
     {
-
         public DiffResult CompareFiles(string generatedFile, string referenceFile)
         {
             var generated = File.ReadAllText(generatedFile).TrimEnd();
@@ -42,9 +41,10 @@ namespace CC.Net.Services
             var referenceFile = Context.ProblemDir.OutputFile(@case.Id);
             return CompareFilesComposite(generatedFile, referenceFile);
         }
+
         public DiffResultComposite CompareFilesComposite(string generatedFile, string referenceFile)
         {
-            if(!File.Exists(referenceFile))
+            if (!File.Exists(referenceFile))
             {
                 return new DiffResultComposite
                 {
@@ -52,12 +52,13 @@ namespace CC.Net.Services
                 };
             }
 
-            var generatedLines = generatedFile.ReadLines();
-            var referenceLines = referenceFile.ReadLines();
+            var generatedLines = generatedFile.ReadLines().Take(1000).ToList();
+            var referenceLines = referenceFile.ReadLines().Take(1000).ToList();
             var lines = referenceLines.Zip(generatedLines);
 
             var lineId = 0;
-            var result = new DiffResultComposite(){
+            var result = new DiffResultComposite()
+            {
                 Reference = referenceFile,
                 Generated = generatedFile,
                 Lines = new List<DiffResultLine>()
@@ -65,7 +66,8 @@ namespace CC.Net.Services
 
             foreach (var line in lines)
             {
-                result.Lines.Add(new DiffResultLine{
+                result.Lines.Add(new DiffResultLine
+                {
                     Reference = line.First,
                     Generated = line.Second,
                     Type = line.First == line.Second
@@ -78,8 +80,8 @@ namespace CC.Net.Services
             var generatedRemainder = generatedLines
                 .Skip(lineId)
                 .ToList();
-            
-            if(generatedRemainder.All(i => string.IsNullOrWhiteSpace(i)))
+
+            if (generatedRemainder.All(string.IsNullOrWhiteSpace))
             {
                 generatedRemainder = new List<string>();
             }
@@ -88,7 +90,7 @@ namespace CC.Net.Services
                 .Skip(lineId)
                 .ToList();
 
-            if (referenceRemainder.All(i => string.IsNullOrWhiteSpace(i)))
+            if (referenceRemainder.All(string.IsNullOrWhiteSpace))
             {
                 referenceRemainder = new List<string>();
             }

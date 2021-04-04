@@ -250,7 +250,7 @@ export const SolutionResultView = (props: SolutionResultViewProps) => {
                                 <Icon/>&nbsp;Subresults
                             </Typography>
                             <div className="sol-status-info">
-                                <TimelineRenderer showExtra={isRoot} subresults={result.results}/>
+                                <TimelineRenderer showExtra={isRoot} result={result}/>
                             </div>
                         </div>}
                     </div>

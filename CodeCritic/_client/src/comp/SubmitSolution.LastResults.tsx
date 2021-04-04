@@ -126,7 +126,7 @@ export const SubmitSolutionLastResults = (props: SubmitSolutionLastResultsProps)
                                     </strong>
                                 </div>
                                 <div>
-                                    <TimelineRenderer subresults={liveResult.results} showExtra={isRoot} miniMode />
+                                    <TimelineRenderer result={liveResult} showExtra={isRoot} miniMode />
                                 </div>
                         </div>}
                     </div>)
