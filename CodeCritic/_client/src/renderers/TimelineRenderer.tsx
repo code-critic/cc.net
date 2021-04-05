@@ -11,12 +11,12 @@ import TimerIcon from '@material-ui/icons/Timer';
 import { ICcData, ICcDataCaseResult, IDiffResultComposite, IDiffResultLine } from '../models/DataModel';
 import { getStatus } from '../utils/StatusUtils';
 import { IconClassSubresult } from './IconClass';
-import { ChangeType, ProcessStatusStatic } from '../models/Enums';
+import { ChangeType, ProcessStatusCodes, ProcessStatusStatic } from '../models/Enums';
 import FlagIcon from '@material-ui/icons/Flag';
 import { LightTooltip } from './LightTooltip';
 import { useOpenClose } from "../hooks/useOpenClose";
 import { API } from "../api";
-import { SimpleLoader } from "../components/SimpleLoader";
+import { SimpleLoader, SimplePacmanLoader } from "../components/SimpleLoader";
 import { notifications } from "../utils/notifications";
 
 interface TimelineRendererProps {
@@ -47,13 +47,21 @@ export const TimelineRenderer = (props: TimelineRendererProps) => {
     return (<div className={`subresults-timeline-wrapper ${miniCls}`} style={ws}>
         {subresults?.map((i, j) => {
             const status = getStatus(i.status);
+            const isRunning = status.code == ProcessStatusCodes.Running;
 
             return (<span key={j}>
                 <Fade in timeout={250} style={{ transitionDelay: `${j * 100}ms` }}>
                     <span className="subresults-timeline">
-                        <SubresultDot subresult={i} showExtra={showExtra} result={result}/>
-                        {subresults.length === 1 && <>
-                            &nbsp; {i.duration.toFixed(3)} sec
+                        {subresults.length === 1
+                        ? <>
+                            {isRunning && <SimplePacmanLoader />}
+                            {!isRunning && <>
+                                <SubresultDot subresult={i} showExtra={showExtra} result={result}/>
+                                &nbsp; {i.duration.toFixed(3)} sec
+                            </>}
+                        </>
+                        : <>
+                            <SubresultDot subresult={i} showExtra={showExtra} result={result}/>
                         </>}
                         {j !== subresults.length - 1 && <>
                             <span style={{ width: connectorLength }}
