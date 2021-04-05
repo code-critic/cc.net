@@ -436,3 +436,29 @@ $statuses: (answer-correct: #c0f3b3,
     padding: 0;
   }
 }
+
+.problem-timeline {
+  display: flex;
+
+  .dot {
+    display: inline-block;
+    height: 20px;
+    width:  20px;
+    // border-radius: 15% 85% 15% 85% / 85% 15% 85% 15% ;
+    // background: #0000001f;
+    // border: 2px solid #000000;
+  }
+
+  .connector {
+      display: inline-block;
+      height: 2px;
+      width: 40px;
+      border-bottom: 2px dotted #00000038;
+
+      &.active {
+        height: 4px;
+        width: 80px;
+        border-bottom: 4px dotted #000000;
+      }
+  }
+}

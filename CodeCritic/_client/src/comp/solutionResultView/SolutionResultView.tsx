@@ -11,8 +11,8 @@ import { SimpleLoader } from '../../components/SimpleLoader';
 import { useComments } from '../../hooks/useComments';
 import { useRefresh } from '../../hooks/useRefresh';
 import { useUser } from '../../hooks/useUser';
-import { IApiResponse } from '../../models/CustomModel';
-import { IApiError, ICcData, ISimpleFile } from '../../models/DataModel';
+import { IApiListResponse, IApiResponse } from '../../models/CustomModel';
+import { IApiError, ICcData, ICourseProblem, ISimpleFile, ISingleCourse } from '../../models/DataModel';
 import { AbsMoment } from '../../renderers/AbsMoment';
 import { CourseYearProblemHeader } from '../../renderers/CourseYearProblemHeader';
 import { IconClass } from '../../renderers/IconClass';
@@ -31,7 +31,11 @@ import PersonIcon from '@material-ui/icons/Person';
 import TimerIcon from '@material-ui/icons/Timer';
 import GradeIcon from '@material-ui/icons/Grade';
 import SecurityIcon from '@material-ui/icons/Security';
-
+import TimelineIcon from '@material-ui/icons/Timeline';
+import { LightTooltip } from '../../renderers/LightTooltip';
+import { ProblemStatus } from '../../models/Enums';
+import AdjustIcon from '@material-ui/icons/Adjust';
+import TodayIcon from '@material-ui/icons/Today';
 
 interface IParamsObjectId {
     objectId?: string;
@@ -52,6 +56,12 @@ const extractSingleSimpleFile = (result: ICcData) => {
     } as ISimpleFile;
 }
 
+const IncongnitoIcon = (props) => {
+    return <svg className="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall" focusable="false" viewBox="0 0 120 120" aria-hidden="true">
+            <path d="M60 0c33.137 0 60 26.863 60 60s-26.863 60-60 60S0 93.137 0 60 26.863 0 60 0zm17.5 64.837c-6.456 0-11.822 4.502-13.222 10.516-3.267-1.397-6.3-1.009-8.556-.039C54.283 69.3 48.917 64.837 42.5 64.837c-7.506 0-13.611 6.092-13.611 13.582C28.889 85.908 34.994 92 42.5 92c7.156 0 12.95-5.51 13.494-12.495 1.167-.815 4.24-2.328 8.012.078C64.628 86.529 70.383 92 77.5 92c7.506 0 13.611-6.092 13.611-13.581 0-7.49-6.105-13.582-13.611-13.582zm-35 3.88c5.367 0 9.722 4.347 9.722 9.702 0 5.355-4.355 9.7-9.722 9.7-5.367 0-9.722-4.345-9.722-9.7 0-5.355 4.355-9.701 9.722-9.701zm35 0c5.367 0 9.722 4.347 9.722 9.702 0 5.355-4.355 9.7-9.722 9.7-5.367 0-9.722-4.345-9.722-9.7 0-5.355 4.355-9.701 9.722-9.701zM95 57H25v4h70v-4zM72.874 29.34c-.8-1.82-2.866-2.78-4.785-2.143L60 29.914l-8.128-2.717-.192-.058c-1.928-.533-3.954.51-4.669 2.387L38.144 53h43.712L72.95 29.526z" />
+        </svg>
+}
+
 interface SolutionResultViewProps extends IParamsObjectId {
     onChange?: () => void;
     onClose?: () => void;
@@ -68,6 +78,8 @@ export const SolutionResultView = (props: SolutionResultViewProps) => {
     const [ selectedFile, setSelectedFile ] = useState<ISimpleFile>();
     const [ gradeDialog, setGradeDialog ] = useState(false);
     const { comments, postCommentsAsync } = useComments();
+    const [ problemRef, setProblemRef ] = useState<ICourseProblem>();
+    
 
     useEffect(() => {
         (async () => {
@@ -88,6 +100,19 @@ export const SolutionResultView = (props: SolutionResultViewProps) => {
             }
         })();
     }, [ user.id, counter, objectId ]);
+
+    useEffect(() => {
+        (async () => {
+            if (isRoot && result) {
+                const axiosResponse = await API.get<IApiListResponse<ISingleCourse>>(`course-list`);
+                const courses = axiosResponse.data.data;
+                const problemRef = courses
+                    .find(i => i.course === result.courseName && i.year === result.courseYear)?.problems
+                    .find(i => i.id === result.problem);
+                setProblemRef(problemRef);
+            }
+        })()
+    }, [ result?.objectId ]);
 
     const handleFileChange = async (file: ISimpleFile) => {
         if (file.content === null) {
@@ -186,6 +211,13 @@ export const SolutionResultView = (props: SolutionResultViewProps) => {
                                 {!groupName && <>{humanizeName(username)} {isRoot && <>&nbsp;<code>({username})</code></>}</>}
                             </div>
                         </div>
+                        
+                        <div className="key-value-grid">
+                            <div className="key"><TodayIcon/>Submitted</div>
+                            <div className="value">
+                                <AbsMoment date={result.id.creationTime} />
+                            </div>
+                        </div>
 
                         <div className="key-value-grid">
                             <div className="key"><TimerIcon/>Duration</div>
@@ -228,6 +260,32 @@ export const SolutionResultView = (props: SolutionResultViewProps) => {
                                 <div className="key"><DescriptionIcon/>Comment from Teacher</div>
                                 <div className="value">
                                     {result.gradeComment}
+                                </div>
+                            </div>}
+
+                        {isRoot != null && problemRef != null &&
+                            <div className="key-value-grid">
+                                <div className="key"><TimelineIcon/>Problem timeline</div>
+                                <div className="value problem-timeline">
+                                    <span className={`connector ${problemRef.statusCode === ProblemStatus.BeforeStart ? "active" : ""}`} />
+
+                                    <LightTooltip title={<>Actived: <AbsMoment noTooltip date={problemRef.since} /></>}>
+                                        <AdjustIcon className="dot" />
+                                    </LightTooltip>
+
+                                    <span className={`connector ${problemRef.statusCode === ProblemStatus.Active ? "active" : ""}`} />
+
+                                    <LightTooltip title={<>Soft deadline: <AbsMoment noTooltip date={problemRef.avail} /></>}>
+                                        <AdjustIcon className="dot" />
+                                    </LightTooltip>
+
+                                    <span className={`connector ${problemRef.statusCode === ProblemStatus.ActiveLate ? "active" : ""}`} />
+
+                                    <LightTooltip title={<>Hard deadline: <AbsMoment noTooltip date={problemRef.deadline} /></>}>
+                                        <AdjustIcon className="dot" />
+                                    </LightTooltip>
+
+                                    <span className={`connector ${problemRef.statusCode === ProblemStatus.AfterDeadline ? "active" : ""}`} />
                                 </div>
                             </div>}
                             
