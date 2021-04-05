@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using CC.Net.Extensions;
 using static CC.Net.Collections.CcData;
+using CC.Net.Services.Courses;
 
 namespace CC.Net.Services
 {
@@ -18,16 +19,16 @@ namespace CC.Net.Services
             var course = _courseService[item.CourseName];
             var courseYearConfig = course[item.CourseYear];
             var problem = courseYearConfig[item.Problem];
-            
+
             item.IsActive = problem.IsActive;
-            item.Files = BrowseFiles(item).ToList();
+            item.Files = BrowseFiles(item, problem).ToList();
 
             return item;
         }
 
         private static IEnumerable<SimpleFile> Flatten(SimpleFile f)
         {
-            var result = new List<SimpleFile> {f};
+            var result = new List<SimpleFile> { f };
             foreach (var ff in f.Files)
             {
                 result.AddRange(Flatten(ff));
@@ -36,7 +37,11 @@ namespace CC.Net.Services
         }
         public object GetFileContent(CcData item, string path)
         {
-            var files = BrowseFiles(item).SelectMany(Flatten);
+            var course = _courseService[item.CourseName];
+            var courseYearConfig = course[item.CourseYear];
+            var problem = courseYearConfig[item.Problem];
+
+            var files = BrowseFiles(item, problem).SelectMany(Flatten);
             var file = files.FirstOrDefault(i => i.RelPath == path);
             if (file == null)
             {
@@ -49,10 +54,10 @@ namespace CC.Net.Services
                 return null;
             }
 
-            var images = new [] { ".png", ".jpg", ".gif", ".jpeg" };
+            var images = new[] { ".png", ".jpg", ".gif", ".jpeg" };
             var extension = $".{file.Filename.ToLower().Split('.').Last()}";
             var isImage = images.Any(i => extension == i);
-            
+
             if (isImage)
             {
                 var bytes = File.ReadAllBytes(info.FullName);
@@ -62,31 +67,31 @@ namespace CC.Net.Services
             return new FileContent(info.FullName.ReadAllTextOrPeek(), extension);
         }
 
-        private IEnumerable<SimpleFile> BrowseFiles(CcData item)
+        private IEnumerable<SimpleFile> BrowseFiles(CcData item, CourseProblem problem)
         {
             var context = new CourseContext(_courseService, _languageService, item);
             var studentDir = new DirectoryInfo(context.StudentDir.Root);
             var referenceDir = new DirectoryInfo(context.ProblemDir.OutputDir);
-            var allowedDirs = new List<string> {"output", "input", "error", ".verification"};
+            var allowedDirs = new List<string> { "output", "input", "error", ".verification" };
+            var resultDir = item.ResultDir(problem.CourseYearConfig.Course.CourseDir);
 
-            var files = new List<SimpleFile>
+            var files = new List<SimpleFile>();
+            files.AddRange(problem.Export.Select(i => ToSimpleFile(new FileInfo($"{resultDir}/{i}"))));
+            files.Add(new SimpleFile
             {
-                new SimpleFile
-                {
-                    RawPath = studentDir.FullName,
-                    Filename = "generated",
-                    IsDir = true,
-                    Files = studentDir.Exists
+                RawPath = studentDir.FullName,
+                Filename = "generated",
+                IsDir = true,
+                Files = studentDir.Exists
                         ? studentDir.GetDirectories()
                             .Where(i => allowedDirs.Contains(i.Name))
                             .Select(i => ToSimpleFile(i)).ToList()
                         : new List<SimpleFile>()
-                },
-                ToSimpleFile(referenceDir, "reference"),
-            };
+            });
+            files.Add(ToSimpleFile(referenceDir, "reference"));
             files.ForEach(i => PopulateRelPath(i));
             files = FilterEmptyFiles(files);
-            
+
             return files;
         }
 
@@ -105,7 +110,8 @@ namespace CC.Net.Services
                 }
                 else
                 {
-                    if (new FileInfo(f.RawPath).Length > 0)
+                    var info = new FileInfo(f.RawPath);
+                    if (info.Exists && info.Length > 0)
                     {
                         newFiles.Add(f);
                     }
@@ -170,7 +176,7 @@ namespace CC.Net.Services
             Content = Convert.ToBase64String(bytes);
             Extension = extension;
         }
-        
+
         public FileContent(string content, string extension)
         {
             Content = content;
