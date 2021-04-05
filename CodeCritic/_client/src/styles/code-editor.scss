@@ -17,6 +17,28 @@
 .code-editor-table {
     width: 100%;
 
+    pre {
+        strong {
+            &:first-child:last-child {
+                display: block;
+
+                &.info {
+                    background-color: #d6f5ff;
+                    color: #00496b;
+                }
+
+                &.success {
+                    background-color: #d7ffd6;
+                    color: #046b00;
+                }
+                &.error {
+                    background-color: #ffd6d6;
+                    color: #6b0000;
+                }
+            }
+        }
+    }
+
     tr.has-comments {
         border: none;
         border-bottom: none;
@@ -163,7 +185,7 @@
 
 
 .react-codemirror2 .CodeMirror {
-    height: 40vh;
+    height: 50vh;
     min-height: 300px;
     max-height: 600px;
 

@@ -58,6 +58,7 @@ namespace CC.Net
             services.AddScoped<UserService>();
             services.AddScoped<UtilService>();
             services.AddScoped<ViewResultService>();
+            services.AddScoped<SubmitSolutionService>();
             services.AddSingleton<CacheContentService>();
             services.AddSingleton<NotificationFlag>();
             services.AddHostedService<ProcessService>();

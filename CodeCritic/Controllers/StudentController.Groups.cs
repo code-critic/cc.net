@@ -1,25 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
-using cc.net.Dto;
 using cc.net.Extensions;
-using CC.Net.Attributes;
 using CC.Net.Collections;
-using CC.Net.Db;
-using CC.Net.Extensions;
-using CC.Net.Services;
-using CC.Net.Services.Courses;
-using CC.Net.Services.Languages;
-using CC.Net.Utils;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
 using MongoDB.Driver;
-using Newtonsoft.Json;
 
 namespace CC.Net.Controllers
 {

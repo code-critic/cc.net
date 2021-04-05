@@ -153,6 +153,20 @@ export const SolutionResultView = (props: SolutionResultViewProps) => {
         onChange();
     }
 
+    const prettifyConsoleMessages = (messages: string[]) => {
+        const prettifiers = [
+            { regex: new RegExp(/\{.*Error using main \(line \d+\)\n(.*)\n\}.*/, "gm"), replacement: "$1" },
+            { regex: new RegExp(/\{.*Error using check\/finalize \(line \d+\)\n(Some of the tests failed!)\n(.*)\n(.*)\n(.*)\n\}.*/, "gm"),
+                replacement: "Some of the tests failed! See output for more details." },
+        ]
+        let text = (messages ?? []).join("\n")
+        prettifiers.forEach(i => {
+            text = text.replaceAll(i.regex, i.replacement);
+        });
+
+        return text.trimEnd().split("\n");
+    }
+
     return (<>
         <Container maxWidth={"lg"} className={extraCls}>
             <div className="solution-result-view">
@@ -169,7 +183,7 @@ export const SolutionResultView = (props: SolutionResultViewProps) => {
                             <div className="key"><PersonIcon/>Author(s)</div>
                             <div className="value">
                                 {groupName && <>{groupName} ({userOrGroupUsers.map(humanizeName).join(", ")})</>}
-                                {!groupName && <>{humanizeName(username)}</>}
+                                {!groupName && <>{humanizeName(username)} {isRoot && <>&nbsp;<code>({username})</code></>}</>}
                             </div>
                         </div>
 
@@ -217,14 +231,6 @@ export const SolutionResultView = (props: SolutionResultViewProps) => {
                                 </div>
                             </div>}
                             
-                        {isRoot &&
-                            <div className="key-value-grid">
-                                <div className="key"><SecurityIcon/>Dbg</div>
-                                <div className="value">
-                                    {result.files.map(i => i.rawPath)[0] ?? ""}
-                                </div>
-                            </div>}
-
                     </div>
                     <div className="sol-sts sol-item">
                         {reviewRequest && <Button className="grade-btn" disabled={!isRoot} onClick={showGradeDialog}>
@@ -238,7 +244,7 @@ export const SolutionResultView = (props: SolutionResultViewProps) => {
                         </Typography>
                         <div className="sol-status-info pretty-scrollbar">
                             {messages?.length > 0 && <ol className="console">
-                                {messages.join("\n").trimEnd().split("\n").map((i, j) => <li key={j}>
+                                {prettifyConsoleMessages(messages).map((i, j) => <li key={j}>
                                     <pre>{i}</pre>
                                 </li>)}
                             </ol>}

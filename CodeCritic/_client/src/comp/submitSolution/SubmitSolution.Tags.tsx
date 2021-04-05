@@ -41,7 +41,7 @@ export const SubmitSolutionGroupTag = (props: SubmitSolutionGroupTagProps) => {
         }
     </Alert>
 
-    return (<LightTooltip interactive title={title}>
+    return (<LightTooltip interactive title={title} enterTouchDelay={0} leaveTouchDelay={10000}>
         <div className="problem-tag info"><GroupIcon/>{minSize} - {maxSize}</div>
     </LightTooltip>)
 }
@@ -103,7 +103,7 @@ export const SubmitSolutionDeadlineTag = (props: SubmitSolutionDeadlineTagProps)
         {desc}
     </Alert>
 
-    return (<LightTooltip interactive title={title}>
+    return (<LightTooltip interactive title={title} enterTouchDelay={0} leaveTouchDelay={10000}>
         <div className={`problem-tag ${cls}`}><AccessTimeIcon/>{msg.rel}</div>
     </LightTooltip>)
 }
@@ -123,7 +123,7 @@ export const SubmitSolutionRequiredFilesTag = (props: SubmitSolutionRequiredFile
         <div><em><small>affected by selected language</small></em></div>
     </Alert>
 
-    return (<LightTooltip interactive title={title}>
+    return (<LightTooltip interactive title={title} enterTouchDelay={0} leaveTouchDelay={10000}>
         <div className="problem-tag info"><DescriptionIcon/>{files.length}</div>
     </LightTooltip>)
 }
@@ -150,7 +150,7 @@ export const SubmitSolutionRequiredLanguageTag = (props: SubmitSolutionRequiredL
             Solution can use any programming language
         </Alert>)
 
-    return (<LightTooltip interactive title={title}>
+    return (<LightTooltip interactive title={title} enterTouchDelay={0} leaveTouchDelay={10000}>
         <div className={`problem-tag ${cls}`}><LanguageIcon/>{isUnittest && <>
             *.{language.extension}
         </>}</div>
@@ -217,7 +217,7 @@ export const SubmitSolutionAssetsTag = (props: SubmitSolutionAssetsTagProps) => 
         <div><em><small>Asset files are automatically available when solution is executed</small></em></div>
     </Alert>);
 
-    return (<LightTooltip interactive title={title}>
+    return (<LightTooltip interactive title={title} enterTouchDelay={0} leaveTouchDelay={10000}>
         <div className="problem-tag success"><AttachFileIcon/>{assets.length}</div>
     </LightTooltip>)
 }
@@ -242,7 +242,7 @@ export const SubmitSolutionOutputTag = (props: SubmitSolutionOutputTagProps) => 
         </div>
     </Alert>);
 
-    return (<LightTooltip interactive title={title}>
+    return (<LightTooltip interactive title={title} enterTouchDelay={0} leaveTouchDelay={10000}>
         <div className="problem-tag warning"><QueuePlayNextIcon/>{output.length}</div>
     </LightTooltip>)
 }

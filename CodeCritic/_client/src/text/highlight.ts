@@ -4,7 +4,7 @@ import { ILanguage } from '../models/DataModel';
 const hljs = (window as any).hljs;
 
 
-const getSyntax = (language: ILanguage | string) => {
+export const getSyntax = (language: ILanguage | string) => {
     const ext = typeof(language) === "string" ? language : language.extension;
 
     switch(ext) {
@@ -52,4 +52,18 @@ export const highlight = (code: string, language: ILanguage | string) => {
 export const highlightLine = (line: string, language: ILanguage | string) => {
     const syntax = getSyntax(language);
     return hljs.highlight(line, {language: syntax}).value;
+}
+
+export const highlightPlainText = (text: string) => {
+
+    const prettifiers = [
+        { regex: new RegExp(/\[PASSED\]:/, "gm"), replacement: `<strong class="success">[PASSED]:</strong>` },
+        { regex: new RegExp(/\[FAILED\]:/, "gm"), replacement: `<strong class="error">[FAILED]:</strong>` },
+        { regex: new RegExp(/\[SUMMARY\]:/, "gm"), replacement: `<strong class="info">[SUMMARY]:</strong>` },
+    ]
+    prettifiers.forEach(i => {
+        text = text.replaceAll(i.regex, i.replacement);
+    });
+
+    return text;
 }

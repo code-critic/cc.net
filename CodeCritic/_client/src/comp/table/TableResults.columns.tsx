@@ -13,26 +13,20 @@ import { languages } from '../../static/languages';
 import { nameof } from 'ts-simple-nameof';
 import { ProcessStatusStatic } from '../../models/Enums';
 import { Tooltip } from '@material-ui/core';
+import { OptionType } from '../../models/CustomModel';
 
 const XS = 80;
 const SM = 100;
 const MD = 140;
 
-type OptionType = {
-    name: string;
-    value: any
-}
 export interface GridColDefEx extends GridColDef {
     options?: OptionType[],
     strict?: boolean,
 }
 
 const convert = (options: string[]) => options.map(i => {
-    return { name: i, value: i }
+    return { name: i, value: i } as OptionType
 })
-const YesNoAll = {
-    options: convert(["yes", "no", "all"])
-}
 const OnlyYesNoAll = {
     strict: true,
     options: convert(["yes", "no", "all"])
@@ -45,7 +39,7 @@ const Languages = {
     strict: true,
     options: languages.map(i => {
         return { name: i.name, value: i.id }
-    })
+    }) as OptionType[]
 }
 const now = moment();
 const DateRange = {
@@ -57,14 +51,14 @@ const DateRange = {
         { name: "2 weeks", value: moment(now).subtract(14, 'days').unix() },
         { name: "month", value: moment(now).subtract(31, 'days').unix() },
         { name: "3 months", value: moment(now).subtract(93, 'days').unix() },
-    ]
+    ] as OptionType[]
 }
 
 const Statuses = {
     strict: true,
     options: ProcessStatusStatic.All.map(i => {
         return { name: i.description, value: i.value }
-    })
+    }) as OptionType[]
 }
 
 const Attempts = {
@@ -73,7 +67,7 @@ const Attempts = {
         { name: "(1) The best solution from each student", value: "1" },
         { name: "(3) Top 3 solutions from each student", value: "3" },
         { name: "(5) Top 5 solutions from each student", value: "5" },
-    ]
+    ] as OptionType[]
 }
 
 export const columns: GridColDefEx[] = [

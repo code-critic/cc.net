@@ -9,3 +9,8 @@ interface IApiListResponse<T> {
     data: T[],
     errors: IApiError[]
 }
+
+export type OptionType = {
+    name: string;
+    value: any;
+};

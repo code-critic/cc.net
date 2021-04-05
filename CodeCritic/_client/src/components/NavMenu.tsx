@@ -244,7 +244,7 @@ export const NavMenu = (props: NavMenuProps) => {
           <IconButton edge="start" color="inherit" component={Link} to="/">
             <CodeIcon />
           </IconButton>
-          <Badge badgeContent={1} variant="dot" color={badgeColor}
+          <Badge className="hide-mobile" badgeContent={1} variant="dot" color={badgeColor}
             anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
             classes={{ badge: `small state-${serverState}` }}>
             {isRoot && <Tooltip title="You are root, student may see things differently">

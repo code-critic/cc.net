@@ -12,7 +12,10 @@ import { useUser } from '../hooks/useUser';
 import { ILineComment } from '../models/DataModel';
 import { converter } from '../renderers/markdown';
 import { getInitials } from '../utils/utils';
-import { highlightLine } from './highlight';
+import { getSyntax, highlightLine, highlightPlainText } from './highlight';
+import { OptionType } from '../models/CustomModel';
+import { API } from '../api';
+import { notifications } from '../utils/notifications';
 
 interface SingleCommentProps {
     comment: ILineComment;
@@ -105,7 +108,7 @@ interface ISourceCodeReview {
 export const SourceCodeReview = (props: ISourceCodeReview) => {
     const { relPath, code, comments: defaultComment, objectId } = props;
 
-    const { user } = useUser();
+    const { user, isRoot } = useUser();
     const [commentsOn, setCommentOn] = useState(true);
     const [editor, setEditor] = useState(-1);
     const [allComments, setComments] = useState(defaultComment);
@@ -144,6 +147,22 @@ export const SourceCodeReview = (props: ISourceCodeReview) => {
         });
         setEditor(-1);
     }
+
+    const rerunSolution = async () => {
+        try {
+            await API.get(`rerun-solution/${objectId}`);
+            notifications.success("Ok, job will be executed again");
+        } catch (e) {
+            notifications.error(`Error while requesting rerun: ${e}`);
+        }
+    }
+
+    const menuItems: OptionType[] = [
+        { name: "Show comments", value: () => setCommentOn(true) },
+        { name: "Hide comments", value: () => setCommentOn(false) },
+        ...(isRoot ? [ { name: "Rerun solution", value: rerunSolution}] : [ ])
+    ];
+
     const toRow = (code: string, ln: number, isOpen: boolean, hasComments: boolean) => {
         const cls = isOpen ? "has-editor" : "";
         const cls2 = hasComments ? "has-comments" : "";
@@ -165,8 +184,9 @@ export const SourceCodeReview = (props: ISourceCodeReview) => {
         <Container maxWidth="lg" style={{position: "relative"}}>
             <div style={{ textAlign: "right", position: "absolute", top: 0, right: 0 }}>
                 <DropDownMenu
-                    onChange={i => setCommentOn(i.includes("Show"))}
-                    options={["Show comments", "Hide comments"]}
+                    onChange={i => i && i.value ? i.value() : void 0}
+                    getLabel={i => i.name}
+                    options={menuItems}
                     title={<MoreVertIcon />}
                 />
             </div>
@@ -183,11 +203,23 @@ export const SourceCodeReview = (props: ISourceCodeReview) => {
                             ? [<LineEditor key={`edit-${j}`} onSave={(value) => addComment(value, j)} />]
                             : [];
 
-                        let trs = [
-                            toRow(highlightLine(i, extension), j, commentsOn && hasEditor, commentsOn && hasComments),
-                            ...commentsTrs,
-                            ...editorTr
-                        ];
+                        const syntax = getSyntax(extension);
+                        let trs: JSX.Element[] = [];
+                        if (syntax === "plaintext") {
+                            trs = [
+                                toRow(highlightPlainText(i), j, commentsOn && hasEditor, commentsOn && hasComments),
+                                ...commentsTrs,
+                                ...editorTr
+                            ];
+                        } else {
+                            trs = [
+                                toRow(highlightLine(i, extension), j, commentsOn && hasEditor, commentsOn && hasComments),
+                                ...commentsTrs,
+                                ...editorTr
+                            ];
+                        }
+                        
+
                         return trs;
                     })}
                 </tbody>

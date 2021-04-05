@@ -1,24 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading;
-using CC.Net.Attributes;
-using CC.Net.Collections;
-using CC.Net.Db;
-using CC.Net.Extensions;
+﻿using CC.Net.Db;
 using Cc.Net.Services;
 using CC.Net.Services;
 using CC.Net.Services.Courses;
 using CC.Net.Services.Languages;
-using CC.Net.Utils;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using MongoDB.Bson;
-using MongoDB.Driver;
-using Newtonsoft.Json;
-using static CC.Net.Collections.CcData;
 
 namespace CC.Net.Controllers
 {
@@ -37,7 +24,7 @@ namespace CC.Net.Controllers
 
         public StudentController(ILogger<StudentController> logger,
             DbService dbService, CourseService courseService, LanguageService languageService,
-            UserService userService, UtilService utilService, ViewResultService viewResultService)
+            UserService userService, UtilService utilService)
         {
             _logger = logger;
             _dbService = dbService;
@@ -45,7 +32,6 @@ namespace CC.Net.Controllers
             _languageService = languageService;
             _userService = userService;
             _utilService = utilService;
-            _viewResultService = viewResultService;
         }
     }
 }

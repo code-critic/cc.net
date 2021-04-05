@@ -2,7 +2,8 @@
     color: #999;
 }
 
-.console, ol.console {
+.console,
+ol.console {
     font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
     font-size: 0.7rem;
 
@@ -34,4 +35,63 @@ footer {
 
 .no-transform {
     text-transform: none !important;
+}
+
+@media (max-width: 800px) {
+    .hide-mobile {
+        display: none !important;
+    }
+    .card-select.card-select-problem .MuiButton-root,
+    .card-select .MuiButton-root
+    {
+        min-height: 50px !important;
+    }
+    .picker .picker-items {
+        margin-bottom: 0 !important;
+    }
+
+    .solution-result-view-grid {
+        grid-template-areas:
+        "sol-inf sol-inf sol-inf"
+        "sol-res sol-res sol-sts"
+        "sol-sub sol-sub sol-sub"
+        "sol-exp sol-exp sol-exp"
+        "sol-src sol-src sol-src"
+        "sol-btn sol-btn sol-btn" !important;
+        overflow: auto;
+
+        .MuiContainer-root {
+            padding: 0;
+        }
+
+        .connector {
+            max-width: 50px !important;
+        }
+        .code-editor-table {
+            .line-number {
+                width: 25px !important;
+            }
+            pre {
+                font-size: 0.6rem;
+            }
+            .MuiButtonBase-root {
+                padding-right: 5px !important;
+                min-width: 32px !important;
+            }
+            .MuiButton-label {
+                line-height: 1;
+            }
+        }
+    }
+}
+
+@media (max-width: 1000px) {
+    .solution-submit {
+        grid-template-areas:
+            "last-results last-results"
+            "problem-tags problem-tags"
+            "info info"
+            "description description"
+            "code code" !important;
+    }
 }
