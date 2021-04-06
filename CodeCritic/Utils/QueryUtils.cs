@@ -48,6 +48,9 @@ namespace CC.Net.Utils
                 case "problem":
                     return filter.FilterRegexProperty();
 
+                case "users":
+                    return filter.FilterRegexProperty("user");
+
                 case "action":
                 case "language":
                     return filter.FilterStringProperty();
@@ -143,6 +146,9 @@ namespace CC.Net.Utils
 
                 case "group":
                     return sort.FilterProperty("groupName");
+
+                case "users":
+                    return sort.FilterProperty("user");
             }
 
             return sort.FilterProperty();

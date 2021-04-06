@@ -1,4 +1,4 @@
-from subprocess import check_output, Popen
+from subprocess import PIPE, check_output, Popen
 from optparse import OptionParser
 import os
 from pathlib import Path
@@ -8,7 +8,7 @@ import subprocess
 parser = OptionParser()
 parser.add_option("-p", "--port", type=str, default="5000")
 parser.add_option("-K", "--no-kill", dest="kill", action="store_false", default=True)
-parser.add_option("-b", "--background", action="store_true", default=False)
+parser.add_option("--dbg", type=str, default=None)
 parser.add_option("-u", "--url", type=str, default='https://github.com/code-critic/cc.net/archive/refs/heads/master.zip')
 options, args = parser.parse_args()
 
@@ -17,6 +17,7 @@ absdir = Path(__file__).parent.absolute()
 srcdir = absdir.parent
 ccdir = srcdir / 'CodeCritic'
 secret =  ccdir / 'appsettings.secret.json'
+secret2 =  ccdir / 'appsettings.json'
 publish = srcdir.parent / 'publish'
 tmp = publish / 'tmp'
 tmpcc = tmp / 'cc.net-master'
@@ -25,16 +26,16 @@ kill_previous = options.kill is True
 port = options.port
 github_zip = options.url
 background = options.background
+dbg = options.dbg
 
-# if background:
-#     # Popen(['./cc.net', '--urls', f'http://0.0.0.0:{port}'],
-#     #     stdin=subprocess.PIPE,
-#     #     cwd="/home/jan-hybs/projects/cc/publish/1.0.12/www")
-#     Popen("/home/jan-hybs/projects/cc/publish/1.0.12/www/cc.net &",
-#         shell=True,
-#         preexec_fn=os.setsid,
-#         cwd="/home/jan-hybs/projects/cc/publish/1.0.12/www")
-#     exit(0)
+if dbg:
+    Popen(['killall', 'cc.net']).wait(1.0)
+    Popen(['killall', '-9', 'cc.net']).wait(1.0)
+    ccpublish = publish / dbg / "www"
+    Popen(['./cc.net', '--urls', f'http://0.0.0.0:{port}'],
+        stdout=PIPE, stderr=subprocess.STDOUT,
+        cwd=str(ccpublish), preexec_fn=os.setsid)
+    exit(0)
 
 
 def next_version(cwd: Path, prefix: str):
@@ -62,6 +63,7 @@ def main():
     target_dir.mkdir(exist_ok=True, parents=True)
     Popen(['cp', '-r', str(tmpcc), str(target_dir)]).wait()
     Popen(['cp', str(secret), f'{cctarget}']).wait()
+    Popen(['cp', str(secret2), f'{cctarget}']).wait()
     Popen(['npm', 'install'], cwd=str(client)).wait()
     Popen(['npm', 'rebuild', 'node-sass'], cwd=str(client)).wait()
     Popen(['npm', 'run', 'build-css'], cwd=str(client)).wait()
@@ -75,7 +77,9 @@ def main():
         Popen(['killall', '-9', 'cc.net']).wait(1.0)
     
     if background:
-        Popen(['./cc.net', '--urls', f'http://0.0.0.0:{port}'], cwd=str(ccpublish), preexec_fn=os.setsid)
+        Popen(['./cc.net', '--urls', f'http://0.0.0.0:{port}'], cwd=str(ccpublish),
+            stdout=PIPE, stderr=subprocess.STDOUT, preexec_fn=os.setsid)
+        exit(0)
     else:
         Popen(['./cc.net', '--urls', f'http://0.0.0.0:{port}'], cwd=str(ccpublish)).wait()
 
