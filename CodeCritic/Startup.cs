@@ -110,19 +110,19 @@ namespace CC.Net
             //     crypto.Encrypt("{\"eppn\": \"foo.bara@tul.cz\", \"affiliation\": \"root@tul.cz;member@tul.cz;employee@tul.cz;alum@tul.cz;faculty@tul.cz\"}")
             // );
             
-            new Thread (async () =>
-            {
-                WaitForKey(ConsoleKey.Escape);
-                logger.LogWarning("Press escape again to shutdown the server");
-                WaitForKey(ConsoleKey.Escape);
+            // new Thread (async () =>
+            // {
+            //     WaitForKey(ConsoleKey.Escape);
+            //     logger.LogWarning("Press escape again to shutdown the server");
+            //     WaitForKey(ConsoleKey.Escape);
                 
-                logger.LogWarning("Application is stopping...");
+            //     logger.LogWarning("Application is stopping...");
                 
-                // restart server in 1 min
-                await hub.Clients.All
-                    .ServerMessageToClient("error", $"Server will be updated soon.", "Server shutting down", 60_000*1);
-                applicationLifetime.StopApplication();
-            }).Start();
+            //     // restart server in 1 min
+            //     await hub.Clients.All
+            //         .ServerMessageToClient("error", $"Server will be updated soon.", "Server shutting down", 60_000*1);
+            //     applicationLifetime.StopApplication();
+            // }).Start();
 
             if (env.IsDevelopment())
             {

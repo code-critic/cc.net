@@ -68,7 +68,6 @@ export const SubmitSolutionImpl = (props: SubmitSolutionProps) => {
     });
 
     useEffect(() => {
-        console.log('useEffect');
         liveConnection.on("OnProcessStart", (item: ICcData) => {
             console.log('hub update', item);
             if (item.courseName == problem.course && item.courseYear == problem.year && item.problem == problem.id) {

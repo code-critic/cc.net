@@ -204,14 +204,34 @@ export const commentService = new CommentService();
 export const appDispatcher = new Dispatcher<IDispatcher>();
 export const liveConnection = new HubConnectionBuilder()
     .withUrl("/live")
-    .configureLogging(LogLevel.None)
+    .configureLogging(LogLevel.Warning)
     .build();
 
+let _wsReconnectId = -1;
+const reconnectWs = () => {
+    if (_wsReconnectId === -1) {
+        _wsReconnectId = setTimeout(() => {
+            startWS();
+            _wsReconnectId = -1;
+        }, 5000) as any;
+    } else {
+        console.debug(`already reconnecting`);
+    }
+}
 const startWS = () => {
     appDispatcher.dispatch({
         actionType: "serverStateChanged",
         data: "connecting",
     });
+
+    try {
+        liveConnection.off("newNotification");
+        liveConnection.off("queueStatus");
+        liveConnection.off("serverMessage");
+    } catch (error) {
+        console.error("error unsubsreibing from events");
+    }
+
     liveConnection.start()
         .then(() => {
             appDispatcher.dispatch({
@@ -265,9 +285,7 @@ const startWS = () => {
                 actionType: "serverStateChanged",
                 data: "closed",
             });
-            setTimeout(() => {
-                startWS();
-            }, 5000);
+            reconnectWs();
         })
 
     liveConnection.onclose(error => {
@@ -275,9 +293,7 @@ const startWS = () => {
             actionType: "serverStateChanged",
             data: "closed",
         });
-        setTimeout(() => {
-            startWS();
-        }, 5000);
+        reconnectWs();
     });
 }
 
