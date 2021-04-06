@@ -22,7 +22,7 @@ $statuses: (answer-correct: #c0f3b3,
     "sol-inf sol-inf sol-sts"
     "sol-exp sol-res sol-res"
     "sol-exp sol-sub sol-sub"
-    "sol-src sol-src sol-src"
+    "sol-exp sol-src sol-src"
     "sol-btn sol-btn sol-btn";
 
 
@@ -30,14 +30,14 @@ $statuses: (answer-correct: #c0f3b3,
     grid-area: sol-inf;
     padding: 10px;
     min-height: 100px;
-    
+
     .key-value-grid {
       display: grid;
       grid-template-columns: 200px auto;
       grid-template-rows: minmax(30px, auto);
       align-items: center;
       margin: 2px 0;
-      
+
       .MuiButtonBase-root {
         font-size: 0.75rem;
         padding: 2px 8px;
@@ -49,18 +49,18 @@ $statuses: (answer-correct: #c0f3b3,
           font-size: 0.85rem;
         }
       }
-      
+
       .key {
         font-weight: bold;
         display: flex;
         align-items: center;
-    
+
         .MuiSvgIcon-root {
           margin-right: 5px;
           font-size: 1rem;
         }
       }
-      
+
       .value {
         display: flex;
         align-items: center;
@@ -131,6 +131,10 @@ $statuses: (answer-correct: #c0f3b3,
     min-height: 400px;
     grid-area: sol-src;
     padding: 10px;
+
+    img {
+      max-width: 100%;
+    }
     // background: green;
   }
 
@@ -212,6 +216,7 @@ $statuses: (answer-correct: #c0f3b3,
 
       .case {
         border-width: 2px;
+
         .MuiSvgIcon-root {
           font-size: 1rem;
         }
@@ -443,22 +448,84 @@ $statuses: (answer-correct: #c0f3b3,
   .dot {
     display: inline-block;
     height: 20px;
-    width:  20px;
+    width: 20px;
     // border-radius: 15% 85% 15% 85% / 85% 15% 85% 15% ;
     // background: #0000001f;
     // border: 2px solid #000000;
   }
 
   .connector {
-      display: inline-block;
-      height: 2px;
-      width: 40px;
-      border-bottom: 2px dotted #00000038;
+    display: inline-block;
+    height: 2px;
+    width: 40px;
+    border-bottom: 2px dotted #00000038;
 
-      &.active {
-        height: 4px;
-        width: 80px;
-        border-bottom: 4px dotted #000000;
+    &.active {
+      height: 4px;
+      width: 80px;
+      border-bottom: 4px dotted #000000;
+    }
+  }
+}
+
+.previous-results {
+  &>span {
+    display: inline-flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .dot {
+    &.MuiButtonBase-root.MuiIconButton-root {
+      padding: 0;
+      margin: 0;
+    }
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 28px;
+    width: 28px;
+    border-radius: 50%;
+    background: #000;
+    border: 2px solid #000;
+
+    @each $status,
+    $color in $statuses {
+      &.#{$status} {
+        background: $color;
+        border-color: darken($color, 20);
+
+
+        &.rr {
+          background: darken($color, 20);
+          border-color: darken($color, 20);
+        }
+
+        &.selected {
+          color: #fff;
+          background: darken($color, 50);
+          border: 2px solid darken($color, 50);
+
+          &.rr {
+            background: darken($color, 50);
+            border-color: darken($color, 50);
+          }
+        }
       }
+    }
+
+
+    .MuiIconButton-label {
+      font-size: 0.9rem;
+    }
+  }
+
+  .connector {
+    display: inline-block;
+    height: 2px;
+    width: 10px;
+    border-bottom: 2px dotted #00000038;
   }
 }

@@ -36,6 +36,7 @@ import { LightTooltip } from '../../renderers/LightTooltip';
 import { ProblemStatus } from '../../models/Enums';
 import AdjustIcon from '@material-ui/icons/Adjust';
 import TodayIcon from '@material-ui/icons/Today';
+import { PreviousResults } from '../previousResults/PreviousResults';
 
 interface IParamsObjectId {
     objectId?: string;
@@ -75,15 +76,19 @@ interface SolutionResultViewProps extends IParamsObjectId {
 export const SolutionResultView = (props: SolutionResultViewProps) => {
     const { onChange = nop, onClose } = props;
     const params = useParams<IParamsObjectId>();
-    const objectId = props.objectId ?? params.objectId;
+    
     const { user, isRoot } = useUser();
     const [ result, setResult ] = useState<ICcData>();
+    const [ selectedResult, setSelectedResult ] = useState<ICcData>();
+
     const { counter, refresh } = useRefresh();
     const [ error, setError ] = useState<IApiError>();
     const [ selectedFile, setSelectedFile ] = useState<ISimpleFile>();
     const [ gradeDialog, setGradeDialog ] = useState(false);
     const { comments, postCommentsAsync } = useComments();
     const [ problemRef, setProblemRef ] = useState<ICourseProblem>();
+
+    const objectId = selectedResult?.objectId ?? props.objectId ?? params.objectId;
     
 
     useEffect(() => {
@@ -96,6 +101,7 @@ export const SolutionResultView = (props: SolutionResultViewProps) => {
                     setResult(result);
                     setSelectedFile(extractSingleSimpleFile(result));
                     setError(undefined);
+                    setSelectedResult(result);
                 } catch (error) {
                     setError({
                         name: "Not found",
@@ -293,6 +299,14 @@ export const SolutionResultView = (props: SolutionResultViewProps) => {
                                     <span className={`connector ${problemRef.statusCode === ProblemStatus.AfterDeadline ? "active" : ""}`} />
                                 </div>
                             </div>}
+
+                            {isRoot && selectedResult != null &&
+                                <div className="key-value-grid">
+                                    <div className="key"><SecurityIcon/>Previous results</div>
+                                    <div className="value">
+                                        <PreviousResults onChange={setSelectedResult} result={result} selectedResult={selectedResult} />
+                                    </div>
+                                </div>}
                             
                     </div>
                     <div className="sol-sts sol-item">
@@ -327,6 +341,9 @@ export const SolutionResultView = (props: SolutionResultViewProps) => {
                         <SolutionResultViewTreeViewRoot onChange={handleFileChange} result={result}/>
                     </div>
                     <div className="sol-src">
+                        {comments.length > 0 && <Button color="secondary" style={{float: "right"}} onClick={postCommentsAndRefresh}>
+                            Send {comments.length} comments
+                        </Button>}
                         {selectedFile && <>
                             <Typography variant="h6" className="sol-status">
                                 <DescriptionIcon/>&nbsp;{selectedFile.filename}
@@ -341,10 +358,10 @@ export const SolutionResultView = (props: SolutionResultViewProps) => {
                     </div>
                     <div className="sol-btn">
                         <span className="filler"/>
-                        {comments.length > 0 && <Button onClick={postCommentsAndRefresh}>
+                        {comments.length > 0 && <Button color="secondary" onClick={postCommentsAndRefresh}>
                             Send {comments.length} comments
                         </Button>}
-                        {onClose && <Button onClick={onClose}>Close</Button>}
+                        {onClose && <Button color="primary" onClick={onClose}>Close</Button>}
                     </div>
                 </div>
             </div>

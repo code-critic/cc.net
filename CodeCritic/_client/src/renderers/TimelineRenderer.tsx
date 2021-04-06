@@ -35,7 +35,7 @@ export const TimelineRenderer = (props: TimelineRendererProps) => {
     const miniCls = miniMode ? "mini" : "";
 
     const minW = miniMode ? 10 : 30;
-    const maxW = miniMode ? 70 : 170;
+    const maxW = miniMode ? 50 : 80;
 
     const guess = N > 0
         ? (maxWidth - N * caseRadius) / (N - 1)
