@@ -42,18 +42,23 @@ interface IParamsObjectId {
 }
 
 const extractSingleSimpleFile = (result: ICcData) => {
-    const f = result.solutions[0];
-    if (!f) {
-        return undefined;
+    if (result.solutions?.length >= 0) {
+        const f = result.solutions.filter(i => i.isMain)[0];
+
+        if (f == undefined) {
+            return undefined;
+        }
+        
+        return {
+            filename: f.filename ?? "empty",
+            content: f.content ?? "",
+            isDir: false,
+            files: [],
+            relPath: `/${f.filename ?? "empty"}`,
+            rawPath: null,
+        } as ISimpleFile;
     }
-    return {
-        filename: f.filename ?? "empty",
-        content: f.content ?? "",
-        isDir: false,
-        files: [],
-        relPath: `/${f.filename ?? "empty"}`,
-        rawPath: null,
-    } as ISimpleFile;
+    return undefined;
 }
 
 const IncongnitoIcon = (props) => {

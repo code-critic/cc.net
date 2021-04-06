@@ -11,7 +11,7 @@ import { useComments } from '../hooks/useComments';
 import { useUser } from '../hooks/useUser';
 import { ILineComment } from '../models/DataModel';
 import { converter } from '../renderers/markdown';
-import { getInitials } from '../utils/utils';
+import { getInitials, normalizePath } from '../utils/utils';
 import { getSyntax, highlightLine, highlightPlainText } from './highlight';
 import { OptionType } from '../models/CustomModel';
 import { API } from '../api';
@@ -114,7 +114,8 @@ export const SourceCodeReview = (props: ISourceCodeReview) => {
     const [allComments, setComments] = useState(defaultComment);
     const { prepareComment } = useComments();
 
-    const comments = allComments.filter(i => i.filename === relPath);
+    const comments = allComments
+        .filter(i => normalizePath(i.filename) === normalizePath(relPath));
 
     const parts = relPath.toLowerCase().split(".");
     const extension = parts[parts.length - 1];
