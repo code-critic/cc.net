@@ -8,6 +8,7 @@ import subprocess
 parser = OptionParser()
 parser.add_option("-p", "--port", type=str, default="5000")
 parser.add_option("-K", "--no-kill", dest="kill", action="store_false", default=True)
+parser.add_option("-b", "--background", action="store_false", default=False)
 parser.add_option("--dbg", type=str, default=None)
 parser.add_option("-u", "--url", type=str, default='https://github.com/code-critic/cc.net/archive/refs/heads/master.zip')
 options, args = parser.parse_args()
