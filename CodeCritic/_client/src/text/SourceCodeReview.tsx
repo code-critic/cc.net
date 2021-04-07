@@ -9,7 +9,7 @@ import MoreVertIcon from '@material-ui/icons/MoreVert';
 import { DropDownMenu } from '../components/DropDownMenu';
 import { useComments } from '../hooks/useComments';
 import { useUser } from '../hooks/useUser';
-import { ILineComment } from '../models/DataModel';
+import { ICommentServiceItem, ILineComment } from '../models/DataModel';
 import { converter } from '../renderers/markdown';
 import { getInitials, normalizePath } from '../utils/utils';
 import { getSyntax, highlightLine, highlightPlainText } from './highlight';
@@ -111,10 +111,15 @@ export const SourceCodeReview = (props: ISourceCodeReview) => {
     const { user, isRoot } = useUser();
     const [commentsOn, setCommentOn] = useState(true);
     const [editor, setEditor] = useState(-1);
-    const [allComments, setComments] = useState(defaultComment);
+    const [extraComment, setExtraComments] = useState<ICommentServiceItem[]>([]);
     const { prepareComment } = useComments();
 
-    const comments = allComments
+    const comments = [
+            ...defaultComment,
+            ...extraComment
+                .filter(i => i.objectId == objectId)
+                .map(i => i.comment)
+        ]
         .filter(i => normalizePath(i.filename) === normalizePath(relPath));
 
     const parts = relPath.toLowerCase().split(".");
@@ -141,11 +146,12 @@ export const SourceCodeReview = (props: ISourceCodeReview) => {
             text: value,
             filename: relPath
         }
-        setComments([...allComments, comment]);
-        prepareComment({
+        const newComment = {
             comment: comment,
             objectId: objectId,
-        });
+        } as ICommentServiceItem;
+        setExtraComments([...extraComment, newComment]);
+        prepareComment(newComment);
         setEditor(-1);
     }
 

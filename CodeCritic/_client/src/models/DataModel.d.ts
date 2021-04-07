@@ -335,6 +335,16 @@ import { ProcessStatus, SubmissionStatus, ProblemType, ProblemStatus, CcEventTyp
 		errors: string[];
 		name: string;
 	}
+	interface ICcDataLight {
+		attempt: number;
+		groupUsers: string[];
+		id: IObjectId;
+		objectId: string;
+		points: number;
+		reviewRequest: Date;
+		status: number;
+		user: string;
+	}
 	interface IDiffPiece {
 		position: number;
 		subPieces: IDiffPiece[];
@@ -343,5 +353,5 @@ import { ProcessStatus, SubmissionStatus, ProblemType, ProblemStatus, CcEventTyp
 	}
 
 
-// generated at 4/3/2021 4:36:17 PM (UTC)
-export const __uuid = 'e795e17c-3a52-4a6c-bb4a-f8ca0eed1acc'
+// generated at 4/7/2021 3:07:17 PM (UTC)
+export const __uuid = '73422776-8e77-418d-8a08-cacf04056baf'

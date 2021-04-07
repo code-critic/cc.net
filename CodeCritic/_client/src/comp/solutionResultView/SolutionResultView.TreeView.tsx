@@ -1,12 +1,13 @@
 import * as React from 'react';
-import CodeIcon from '@material-ui/icons/Code';
-import FolderIcon from '@material-ui/icons/Folder';
-import FolderOpenIcon from '@material-ui/icons/FolderOpen';
 import { ICcData, ISimpleFile } from '../../models/DataModel';
 import { TreeItem, TreeView } from '@material-ui/lab';
 import { useState } from 'react';
 import { useUser } from "../../hooks/useUser";
-
+import { normalizePath } from '../../utils/utils';
+import ChevronRightIcon from '@material-ui/icons/ChevronRight';
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import RateReviewIcon from '@material-ui/icons/RateReview';
+import InsertDriveFileIcon from '@material-ui/icons/InsertDriveFile';
 
 interface SolutionResultViewTreeViewRootProps {
     result: ICcData;
@@ -14,10 +15,11 @@ interface SolutionResultViewTreeViewRootProps {
     onChange(item: ISimpleFile): void;
 }
 
+
 export const SolutionResultViewTreeViewRoot = (props: SolutionResultViewTreeViewRootProps) => {
     const { result, onChange } = props;
     const { isRoot } = useUser();
-    const [ selected, setSelected ] = useState<string>(result.solutions[0]?.filename ?? "");
+    const [selected, setSelected] = useState<string>(result.solutions[0]?.filename ?? "");
 
     const solutionSimpleFiles: ISimpleFile[] = result.solutions
         .filter(i => isRoot || !i.hidden)
@@ -31,6 +33,7 @@ export const SolutionResultViewTreeViewRoot = (props: SolutionResultViewTreeView
                 rawPath: null,
             }
         });
+
     const allFiles = [
         ...solutionSimpleFiles,
         ...result.files
@@ -50,7 +53,7 @@ export const SolutionResultViewTreeViewRoot = (props: SolutionResultViewTreeView
         return undefined;
     }
 
-    const handleSelect = (event: React.ChangeEvent<{}>, nodeId: string) => {
+    const handleSelect = (_event: React.ChangeEvent<{}>, nodeId: string) => {
         setSelected(nodeId);
         const file = findFile(allFiles, nodeId);
 
@@ -66,27 +69,43 @@ export const SolutionResultViewTreeViewRoot = (props: SolutionResultViewTreeView
     ];
 
     return (<TreeView selected={selected} onNodeSelect={handleSelect} defaultExpanded={nodeIds}>
-        <SolutionResultViewTreeView files={allFiles}/>
+        <SolutionResultViewTreeView result={result} files={allFiles} />
     </TreeView>)
 }
 
 
 interface SolutionResultViewTreeViewProps {
     files: ISimpleFile[];
+    result: ICcData;
 }
 
-export const SolutionResultViewTreeView = React.forwardRef((props: SolutionResultViewTreeViewProps, ref) => {
-    const { files, ...rest } = props;
+const SolutionResultViewTreeView = React.forwardRef((props: SolutionResultViewTreeViewProps, _ref) => {
+    const { files, result } = props;
 
     return <>
-        {files.map((i, j) => <TreeItem key={i.filename}
-            nodeId={i.relPath}
-            expandIcon={i.isDir ? <FolderIcon/> : i.filename.startsWith("/") ? null :
-                <CodeIcon/>}
-            collapseIcon={i.isDir ? <FolderOpenIcon/> : i.filename.startsWith("/") ? null :
-                <CodeIcon/>}
-            label={i.filename || "Solution files"}>
-            <SolutionResultViewTreeView files={i.files}/>
-        </TreeItem>)}
+        {files.map((i, _j) => {
+            const hasComment = result.comments
+                ?.find(k => normalizePath(k.filename) === normalizePath(i.relPath))
+                != null;
+
+            const expandCls = i.isDir
+                ? <ChevronRightIcon />
+                : <InsertDriveFileIcon />;
+
+            const collapseCls = i.isDir
+                ? <ExpandMoreIcon />
+                : <InsertDriveFileIcon />;
+
+            return <TreeItem key={i.filename}
+                nodeId={i.relPath}
+                expandIcon={expandCls}
+                collapseIcon={collapseCls}
+                label={<>
+                    {hasComment && <em>{i.filename}&nbsp;<RateReviewIcon fontSize="small" className="file-has-comment" /></em>}
+                    {!hasComment && <>{i.filename}</>}
+                </>}>
+                <SolutionResultViewTreeView result={result} files={i.files} />
+            </TreeItem>
+        })}
     </>
 });

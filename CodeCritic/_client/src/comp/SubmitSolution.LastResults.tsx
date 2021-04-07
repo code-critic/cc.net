@@ -2,18 +2,17 @@ import { Box, Button, Dialog, DialogContent, Typography } from "@material-ui/cor
 import GradeIcon from '@material-ui/icons/Grade';
 import React, { useEffect, useState } from "react";
 import { Link as RouterLink } from "react-router-dom";
-import { API } from "../api";
+import { API, APIResult } from "../api";
 import { SimpleLoader } from "../components/SimpleLoader";
 import { useUser } from "../hooks/useUser";
 import { IApiListResponse } from "../models/CustomModel";
-import { ICcData } from "../models/DataModel";
+import { ICcData, ICcDataLight } from "../models/DataModel";
 import { AbsMoment } from "../renderers/AbsMoment";
-import { IconClass } from "../renderers/IconClass";
+import { IconClass, IconClassGeneric } from "../renderers/IconClass";
 import { LightTooltip } from "../renderers/LightTooltip";
 import { getStatus } from "../utils/StatusUtils";
 import { ProblemPickerExportProps } from "./ProblemPicker";
 import StarOutlineIcon from '@material-ui/icons/StarOutline';
-import { cancelCodeReview, requestCodeReview } from "../utils/api";
 import { useRefresh } from "../hooks/useRefresh";
 import { SolutionResultView } from "./solutionResultView/SolutionResultView";
 import { ProcessStatusStatic } from "../models/Enums";
@@ -24,25 +23,26 @@ interface SubmitSolutionLastResultsProps extends ProblemPickerExportProps {
 }
 export const SubmitSolutionLastResults = (props: SubmitSolutionLastResultsProps) => {
     const { problem, liveResult } = props;
-    const [results, setResults] = useState<ICcData[]>();
+    const [results, setResults] = useState<ICcDataLight[]>();
     const [selectedItem, setSelectedItem] = useState<string>();
-    const { user, isRoot, isStudent, canBeRoot, canBeStudent } = useUser();
+    const { user, isRoot } = useUser();
     const { counter, refresh } = useRefresh();
 
     useEffect(() => {
         (async () => {
-            const url = `user-problem-results/${problem.course}/${problem.year}/${problem.id}/${user.id}`;
-            const axiosResponse = await API.get<IApiListResponse<ICcData>>(url);
+            const url = `user-problem-results-light/${problem.course}/${problem.year}/${problem.id}/${user.id}`;
+            
+            const axiosResponse = await API.get<IApiListResponse<ICcDataLight>>(url);
             const responseData = axiosResponse.data;
             setResults(responseData.data);
         })()
     }, [user.id, counter]);
 
-    const handleClickReview = async (result: ICcData) => {
+    const handleClickReview = async (result: ICcDataLight) => {
         if (result.reviewRequest) {
-            await cancelCodeReview(result);
+            await APIResult.cancelCodeReview(result);
         } else {
-            await requestCodeReview(result);
+            await APIResult.requestCodeReview(result);
         }
         refresh();
     }
@@ -66,10 +66,15 @@ export const SubmitSolutionLastResults = (props: SubmitSolutionLastResultsProps)
             reviewRequest: fromServer?.reviewRequest ?? liveResult.reviewRequest,
             points: fromServer?.points ?? liveResult.points,
         };
+    const hybdridLight = hybrid == null
+        ? null
+        : { id: hybrid.id, objectId: hybrid.objectId,
+            status: hybrid.result.status, user: hybrid.user, groupUsers: hybrid.groupUsers,
+            points: hybrid.points, reviewRequest: hybrid.reviewRequest } as ICcDataLight;
 
-    const allResults = hybrid == null
+    const allResults = hybdridLight == null
         ? results
-        : [hybrid, ...results.filter(i => i.objectId !== liveResult.objectId)];
+        : [hybdridLight, ...results.filter(i => i.objectId !== liveResult.objectId)];
     
     if (allResults.length === 0) {
         return <></>
@@ -80,8 +85,8 @@ export const SubmitSolutionLastResults = (props: SubmitSolutionLastResultsProps)
             <Typography variant="h6">Submission history</Typography>
             <Box display="flex" className="latest-results">
                 {allResults.map((i, j) => {
-                    const status = getStatus(i.result.status);
-                    const IconCls = IconClass(i);
+                    const status = getStatus(i.status);
+                    const IconCls = IconClassGeneric(i.status, i.points);
                     
                     const canEditResult = (user.id == i.user && i.points <= 0) || isRoot;
                     const statusDesc = <>

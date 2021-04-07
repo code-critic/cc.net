@@ -9,11 +9,12 @@ import TimerIcon from '@material-ui/icons/Timer';
 import { ICcData, ICcDataCaseResult } from '../models/DataModel';
 import { ProcessStatusCodes } from '../models/Enums';
 
-export const IconClass = (result: ICcData) => {
-    switch (result.result.status) {
+
+export const IconClassGeneric = (status: number, points: number) => {
+    switch (status) {
         case ProcessStatusCodes.AnswerCorrect:
         case ProcessStatusCodes.Ok:
-            return result.points > 0
+            return points > 0
                 ? DoneAllIcon
                 : DoneIcon;
 
@@ -35,6 +36,10 @@ export const IconClass = (result: ICcData) => {
     }
 
     return PriorityHighIcon;
+}
+
+export const IconClass = (result: ICcData) => {
+    return IconClassGeneric(result.result.status, result.points);
 }
 
 export const IconClassSubresult = (subresult: ICcDataCaseResult) => {

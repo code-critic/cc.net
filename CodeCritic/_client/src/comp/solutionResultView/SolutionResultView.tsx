@@ -6,12 +6,12 @@ import { Button, Container, Typography } from '@material-ui/core';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import DescriptionIcon from '@material-ui/icons/Description';
 
-import { API } from '../../api';
+import { API, APIResult } from '../../api';
 import { SimpleLoader } from '../../components/SimpleLoader';
 import { useComments } from '../../hooks/useComments';
 import { useRefresh } from '../../hooks/useRefresh';
 import { useUser } from '../../hooks/useUser';
-import { IApiListResponse, IApiResponse } from '../../models/CustomModel';
+import { IApiListResponse } from '../../models/CustomModel';
 import { IApiError, ICcData, ICourseProblem, ISimpleFile, ISingleCourse } from '../../models/DataModel';
 import { AbsMoment } from '../../renderers/AbsMoment';
 import { CourseYearProblemHeader } from '../../renderers/CourseYearProblemHeader';
@@ -24,7 +24,6 @@ import { humanizeName } from '../../utils/utils';
 import { SolutionResultViewTreeViewRoot } from './SolutionResultView.TreeView';
 import { SolutionResultViewGradeDialog } from './SolutionResultView.GradeDialog';
 import { nop } from '../../utils/nop';
-import { cancelCodeReview, requestCodeReview } from '../../utils/api';
 import SendIcon from '@material-ui/icons/Send';
 import CancelIcon from '@material-ui/icons/Cancel';
 import PersonIcon from '@material-ui/icons/Person';
@@ -79,7 +78,7 @@ export const SolutionResultView = (props: SolutionResultViewProps) => {
     
     const { user, isRoot } = useUser();
     const [ result, setResult ] = useState<ICcData>();
-    const [ selectedResult, setSelectedResult ] = useState<ICcData>();
+    const [ selectedResultId, setSelectedResultId ] = useState<string>();
 
     const { counter, refresh } = useRefresh();
     const [ error, setError ] = useState<IApiError>();
@@ -88,20 +87,19 @@ export const SolutionResultView = (props: SolutionResultViewProps) => {
     const { comments, postCommentsAsync } = useComments();
     const [ problemRef, setProblemRef ] = useState<ICourseProblem>();
 
-    const objectId = selectedResult?.objectId ?? props.objectId ?? params.objectId;
+    const objectId = selectedResultId ?? props.objectId ?? params.objectId;
     
 
     useEffect(() => {
         (async () => {
             if (objectId) {
                 try {
-                    const axiosResponse = await API.get<IApiResponse<ICcData>>(`result-get/${objectId}`);
-                    const result = axiosResponse.data.data;
+                    const result = await APIResult.get(objectId);
 
                     setResult(result);
                     setSelectedFile(extractSingleSimpleFile(result));
                     setError(undefined);
-                    setSelectedResult(result);
+                    setSelectedResultId(result.objectId);
                 } catch (error) {
                     setError({
                         name: "Not found",
@@ -124,6 +122,10 @@ export const SolutionResultView = (props: SolutionResultViewProps) => {
             }
         })()
     }, [ result?.objectId ]);
+
+    useEffect(() => {
+        setSelectedResultId(undefined);
+    }, [ params?.objectId ]);
 
     const handleFileChange = async (file: ISimpleFile) => {
         if (file.content === null) {
@@ -160,14 +162,14 @@ export const SolutionResultView = (props: SolutionResultViewProps) => {
         : "solution-result-view dialog-page";
 
     const requestCR = async () => {
-        if (await requestCodeReview(result)) {
+        if (await APIResult.requestCodeReview(result)) {
             refresh();
             onChange();
         }
     }
 
     const cancelCR = async () => {
-        if (await cancelCodeReview(result)) {
+        if (await APIResult.cancelCodeReview(result)) {
             refresh();
             onChange();
         }
@@ -300,11 +302,11 @@ export const SolutionResultView = (props: SolutionResultViewProps) => {
                                 </div>
                             </div>}
 
-                            {isRoot && selectedResult != null &&
+                            {isRoot && selectedResultId != null &&
                                 <div className="key-value-grid">
                                     <div className="key"><SecurityIcon/>Previous results</div>
                                     <div className="value">
-                                        <PreviousResults onChange={setSelectedResult} result={result} selectedResult={selectedResult} />
+                                        <PreviousResults onChange={setSelectedResultId} result={result} selectedResultId={selectedResultId} />
                                     </div>
                                 </div>}
                             

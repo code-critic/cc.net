@@ -1,6 +1,6 @@
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Slider, TextField, withStyles } from '@material-ui/core';
 import * as React from 'react';
-import { API } from '../../api';
+import { API, APIResult } from '../../api';
 import { IApiResponse } from '../../models/CustomModel';
 import { ICcData, IMarkSolutionItem } from '../../models/DataModel';
 
@@ -111,8 +111,7 @@ export const SolutionResultViewGradeDialog = (props: SolutionResultViewGradeDial
 
     React.useEffect(() => {
         (async () => {
-            const axiosResponse = await API.get<IApiResponse<ICcData>>(`result-get/${objectId}`);
-            const result = axiosResponse.data.data;
+            const result = await APIResult.get(objectId);
             setPoints(result.points);
             setComment(result.gradeComment);
             setResult(result);

@@ -25,6 +25,7 @@ using TypeLite;
 using TypeLite.TsModels;
 using YamlDotNet.Serialization;
 using cc.net.Auth;
+using static CC.Net.Controllers.ApiConfigController;
 
 namespace CC.Net
 {
@@ -111,6 +112,7 @@ namespace CC.Net
 
                         .For<ApiError>()
                         .For<CcDataDto>()
+                        .For<CcDataLight>()
 
                         .For<DiffResult>()
                         .For<AppUser>()
