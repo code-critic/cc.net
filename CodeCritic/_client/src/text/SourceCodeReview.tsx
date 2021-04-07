@@ -185,7 +185,8 @@ export const SourceCodeReview = (props: ISourceCodeReview) => {
         </tr>
     }
 
-    const lines = code.split("\n");
+    // TODO: remove at the beginingn of the next semester
+    const lines = [...code.split("\n"), ""];
     let id = 0;
     return <div>
         <Container maxWidth="lg" style={{position: "relative"}}>
@@ -225,7 +226,6 @@ export const SourceCodeReview = (props: ISourceCodeReview) => {
                                 ...editorTr
                             ];
                         }
-                        
 
                         return trs;
                     })}
