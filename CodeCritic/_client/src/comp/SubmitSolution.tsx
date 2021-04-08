@@ -5,28 +5,24 @@ import React, { useEffect, useState } from 'react';
 import { Button, Container } from '@material-ui/core';
 import SendIcon from '@material-ui/icons/Send';
 
+import { ICcData, ICourseProblem, ISimpleFile } from '../cc-api';
 import { useOpenClose } from '../hooks/useOpenClose';
 import { useUser } from '../hooks/useUser';
-import { ICcData, ICourseProblem, ILanguage, ISimpleFile, ISimpleFileDto } from '../models/DataModel';
+import { liveConnection } from '../init';
+import { ILanguage, ISimpleFileDto } from '../models/CustomModel';
 import { ProblemStatus, ProblemType } from '../models/Enums';
 import { languages } from '../static/languages';
+import { notifications } from '../utils/notifications';
 import { CodeEditor } from './codeEditor/CodeEditor';
 import { CodeEditorLanguage } from './codeEditor/CodeEditor.Language';
 import { ProblemPicker, ProblemPickerExportProps } from './ProblemPicker';
 import { SubmitSolutionLastResults } from './SubmitSolution.LastResults';
 import { SubmitSolutionGroupSelect } from './submitSolution/SubmitSolution.GroupSelect';
-import {
-    SubmitSolutionAssetsTag,
-    SubmitSolutionDeadlineTag,
-    SubmitSolutionGroupTag,
-    SubmitSolutionOutputTag,
-    SubmitSolutionRequiredFilesTag,
-    SubmitSolutionRequiredLanguageTag
-} from './submitSolution/SubmitSolution.Tags';
 import { hubApi } from './submitSolution/SubmitSolution.Hub';
-import { notifications } from '../utils/notifications';
-import { liveConnection } from '../init';
-
+import {
+    SubmitSolutionAssetsTag, SubmitSolutionDeadlineTag, SubmitSolutionGroupTag,
+    SubmitSolutionOutputTag, SubmitSolutionRequiredFilesTag, SubmitSolutionRequiredLanguageTag,
+} from './submitSolution/SubmitSolution.Tags';
 
 const determineDefaultLanguage = (problem: ICourseProblem) => {
     if (problem.type === ProblemType.Unittest) {

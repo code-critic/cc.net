@@ -1,15 +1,18 @@
-import { Button, Container, Table, TableBody, TableCell, TableHead, TableRow, Tooltip, Typography } from "@material-ui/core";
+import React, { useEffect, useState } from 'react';
+import { Link as RouterLink } from 'react-router-dom';
+
+import {
+    Button, Container, Table, TableBody, TableCell, TableHead, TableRow, Tooltip, Typography,
+} from '@material-ui/core';
 import ClearIcon from '@material-ui/icons/Clear';
 import DoneIcon from '@material-ui/icons/Done';
 import DoneAllIcon from '@material-ui/icons/DoneAll';
 import PriorityHighIcon from '@material-ui/icons/PriorityHigh';
-import React, { useEffect, useState } from "react";
-import { Link as RouterLink } from "react-router-dom";
-import { API } from "../api";
-import { SimpleLoader } from "../components/SimpleLoader";
-import { IStudentScoreboardCourse } from "../models/DataModel";
-import { groupBy } from "../utils/arrayUtils";
 
+import { CodeCritic } from '../api';
+import { IStudentScoreboardCourse } from '../cc-api';
+import { SimpleLoader } from '../components/SimpleLoader';
+import { groupBy } from '../utils/arrayUtils';
 
 interface ScoreBoardIconProps {
     icon: any;
@@ -68,7 +71,7 @@ export const StudentScoreboard = (props: StudentScoreboardProps) => {
 
     useEffect(() => {
         (async () => {
-            const axiosResponse = await API.get<IStudentScoreboardCourse[]>("student-scoreboard");
+            const axiosResponse = await CodeCritic.api.studentScoreboardList();
             setItems(axiosResponse.data);
         })()
     }, [ ]);

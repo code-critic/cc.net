@@ -5,7 +5,7 @@ import NavigateNextIcon from '@material-ui/icons/NavigateNext';
 import SchoolIcon from '@material-ui/icons/School';
 import React from "react";
 import { Link as RouterLink } from "react-router-dom";
-import { ICourseProblem, ISingleCourse } from "../models/DataModel";
+import { ICourseProblem, ISingleCourse } from "../cc-api";
 
 
 interface RenderBreadcrumbsProps {

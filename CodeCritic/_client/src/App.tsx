@@ -7,7 +7,7 @@ import { Container } from '@material-ui/core';
 import { GroupManager } from './comp/GroupManager';
 import { SolutionResultView } from './comp/solutionResultView/SolutionResultView';
 import { NavMenu } from './components/NavMenu';
-import { ICcDataCaseResult } from './models/DataModel';
+import { ICcDataCaseResult } from './cc-api';
 import { ProcessStatusStatic } from './models/Enums';
 import { pageLinks } from './pageLinks';
 import { TimelineRenderer } from './renderers/TimelineRenderer';

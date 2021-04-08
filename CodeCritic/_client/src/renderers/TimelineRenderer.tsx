@@ -8,16 +8,16 @@ import FingerprintIcon from '@material-ui/icons/Fingerprint';
 import SpeakerNotesIcon from '@material-ui/icons/SpeakerNotes';
 import TimerIcon from '@material-ui/icons/Timer';
 
-import { ICcData, ICcDataCaseResult, IDiffResultComposite, IDiffResultLine } from '../models/DataModel';
+import { ICcData, ICcDataCaseResult, IDiffResultComposite, IDiffResultLine } from '../cc-api';
 import { getStatus } from '../utils/StatusUtils';
 import { IconClassSubresult } from './IconClass';
 import { ChangeType, ProcessStatusCodes, ProcessStatusStatic } from '../models/Enums';
 import FlagIcon from '@material-ui/icons/Flag';
 import { LightTooltip } from './LightTooltip';
 import { useOpenClose } from "../hooks/useOpenClose";
-import { API } from "../api";
 import { SimpleLoader, SimplePacmanLoader } from "../components/SimpleLoader";
 import { notifications } from "../utils/notifications";
+import { CodeCritic } from '../api';
 
 interface TimelineRendererProps {
     result: ICcData,
@@ -170,7 +170,7 @@ const DiffView = (props: DiffViewProps) => {
     useEffect(() => {
         (async () => {
             try {
-                const axiosResponse = await API.get<IDiffResultComposite>(`diff/${result.objectId}/${subresult.case}`);
+                const axiosResponse = await CodeCritic.api.diffDetail(result.objectId, subresult.case);
                 const data = axiosResponse.data;
                 setDiff(data);
             } catch (e) {

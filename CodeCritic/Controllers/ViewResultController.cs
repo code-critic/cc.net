@@ -28,7 +28,7 @@ namespace Cc.Net.Controllers
         [HttpPost]
         [Route("view-results")]
         [RequireRole(AppUserRoles.Root)]
-        [ProducesResponseType(typeof(IEnumerable<TableResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse<TableResponse>), StatusCodes.Status200OK)]
         public async Task<IActionResult> ViewResults([FromBody] TableRequest request)
         {
             var items = await _viewResultService.GetResultsAsync(request);

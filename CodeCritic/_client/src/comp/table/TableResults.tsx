@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { debounce } from 'throttle-debounce';
 
 import { IconButton } from '@material-ui/core';
@@ -8,7 +8,7 @@ import {
 } from '@material-ui/data-grid';
 
 import { SimpleLoader } from '../../components/SimpleLoader';
-import { ICcDataDto, ITableResponse } from '../../models/DataModel';
+import { ICcDataDto, ITableResponse } from '../../cc-api';
 import { columns } from './TableResults.columns';
 import { TableResultsFilters } from './TableResults.filters';
 
@@ -40,13 +40,27 @@ interface TableResultsProps {
     mode?: ClientServerMode;
 }
 export const TableResults = (props: TableResultsProps) => {
-    const { tableResponse, onSelected, onChange, isLoading, debounceDuration = 0, mode="server" } = props;
+    const { tableResponse, onSelected, onChange, isLoading, debounceDuration = 0, mode = "server" } = props;
     const [sortModel, setSortModel] = useState<GridSortModel>([]);
     const [filterModel, setFilterModel] = useState<FilterModel>();
     const [pageModel, setPageModel] = useState<PageModel>({ page: 0, pageSize: 20 });
     const [filtersOpen, setFiltersOpen] = useState(false);
 
-    
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === "F3" || (e.ctrlKey && e.key === "f")) {
+                e.preventDefault();
+                setFiltersOpen(true);
+            }
+        }
+
+        window.addEventListener("keydown", handleKeyDown);
+
+        return () => {
+            window.removeEventListener("keydown", handleKeyDown);
+        }
+    }, []);
+
     if (!tableResponse) {
         return <SimpleLoader title="loading results" />
     }

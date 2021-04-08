@@ -1,4 +1,4 @@
-import { ILanguage } from "../models/DataModel";
+import { ILanguage } from '../models/CustomModel';
 
 export const languages: ILanguage[] = [
     {

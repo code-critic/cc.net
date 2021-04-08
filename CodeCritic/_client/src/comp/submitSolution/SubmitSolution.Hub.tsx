@@ -1,9 +1,8 @@
 import * as React from 'react';
-import { useState, useEffect } from 'react';
-import { liveConnection } from '../../init';
-import { ISimpleFileDto } from '../../models/DataModel';
-import { hubException } from '../../utils/utils';
 
+import { liveConnection } from '../../init';
+import { ISimpleFileDto } from '../../models/CustomModel';
+import { hubException } from '../../utils/utils';
 
 // public async Task SubmitSolutionStudent
 //     (string userId, string courseName, string courseYear, string problemId,

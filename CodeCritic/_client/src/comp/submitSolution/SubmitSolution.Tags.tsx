@@ -1,7 +1,7 @@
 import * as React from 'react';
 import {useState, useEffect} from 'react';
 import GroupIcon from '@material-ui/icons/Group';
-import {ICourseProblem, ILanguage} from '../../models/DataModel';
+import {ICourseProblem } from '../../cc-api';
 import {Alert, AlertTitle} from '@material-ui/lab';
 import {LightTooltip} from '../../renderers/LightTooltip';
 import AccessTimeIcon from '@material-ui/icons/AccessTime';
@@ -17,6 +17,7 @@ import AudiotrackIcon from '@material-ui/icons/Audiotrack';
 import ImageIcon from '@material-ui/icons/Image';
 import ViewListIcon from '@material-ui/icons/ViewList';
 import QueuePlayNextIcon from '@material-ui/icons/QueuePlayNext';
+import { ILanguage } from '../../models/CustomModel';
 
 interface SubmitSolutionGroupTagProps {
     problem: ICourseProblem;
@@ -52,7 +53,7 @@ interface Dt {
     abs: string;
 }
 
-const dt = (date: Date) => {
+const dt = (date: Date | string) => {
     const m = moment(date)
     return {rel: m.fromNow(), abs: m.format("llll")} as Dt;
 }

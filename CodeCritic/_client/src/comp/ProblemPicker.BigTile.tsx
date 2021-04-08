@@ -1,7 +1,7 @@
 import { Button, Card, Grid, Typography } from "@material-ui/core";
 import React, { useState } from "react";
 import { Link as RouterLink } from "react-router-dom";
-import { ICourseProblem, ISingleCourse } from "../models/DataModel";
+import { ICourseProblem, ISingleCourse } from "../cc-api";
 import { StatusMessage } from "../renderers/StatusMessageRenderer";
 import { randomColorCss } from "../utils/randomcolor";
 

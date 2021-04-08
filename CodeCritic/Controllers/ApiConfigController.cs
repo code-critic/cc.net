@@ -57,6 +57,7 @@ namespace CC.Net.Controllers
 
         [HttpPost("save-grade")]
         [RequireRole(AppUserRoles.Root)]
+        [ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
         public async Task<object> SaveGrade(MarkSolutionItem item)
         {
             var oid = new ObjectId(item.objectId);
@@ -94,7 +95,7 @@ namespace CC.Net.Controllers
 
         [HttpGet("diff/{objectId}/{caseId}")]
         [UseCache(timeToLiveSeconds: 60)]
-        [ProducesResponseType(typeof(IEnumerable<DiffResultComposite>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(DiffResultComposite), StatusCodes.Status200OK)]
         public async Task<IActionResult> ViewDiff(string objectId, string caseId)
         {
             var data = await _dbService.DataSingleAsync(new ObjectId(objectId));

@@ -4,7 +4,7 @@ import { NotificationManager } from 'react-notifications';
 import { HubConnectionBuilder, LogLevel } from '@aspnet/signalr';
 
 import { auth } from './auth';
-import { IAppUser, ICcEvent, ICommentServiceItem } from './models/DataModel';
+import { IAppUser, ICcEvent, ICommentServiceItem } from './cc-api';
 import { getLocalStorageUserOrDefault, isUserEqual } from './security/security';
 import { sleep } from './utils/utils';
 

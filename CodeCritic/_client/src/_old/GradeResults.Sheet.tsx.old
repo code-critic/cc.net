@@ -2,7 +2,7 @@ import moment from 'moment';
 import React from 'react';
 import Spreadsheet from 'react-spreadsheet';
 import XLSX from 'xlsx';
-import { IGradeDto } from '../models/DataModel';
+import { IGradeDto } from '../cc-api';
 import { ProcessStatusStatic } from '../models/Enums';
 import { DropDownMenu } from '../components/DropDownMenu';
 

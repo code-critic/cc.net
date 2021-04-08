@@ -1,18 +1,19 @@
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Slider, TextField, withStyles } from '@material-ui/core';
 import * as React from 'react';
-import { API, APIResult } from '../../api';
-import { IApiResponse } from '../../models/CustomModel';
-import { ICcData, IMarkSolutionItem } from '../../models/DataModel';
 
+import {
+    Button, Dialog, DialogActions, DialogContent, DialogTitle, Slider, TextField, withStyles,
+} from '@material-ui/core';
 import MoodBadIcon from '@material-ui/icons/MoodBad';
-import SentimentVeryDissatisfiedIcon from '@material-ui/icons/SentimentVeryDissatisfied';
 import SentimentDissatisfiedIcon from '@material-ui/icons/SentimentDissatisfied';
 import SentimentSatisfiedIcon from '@material-ui/icons/SentimentSatisfied';
+import SentimentVeryDissatisfiedIcon from '@material-ui/icons/SentimentVeryDissatisfied';
 import SentimentVerySatisfiedIcon from '@material-ui/icons/SentimentVerySatisfied';
 import StarIcon from '@material-ui/icons/Star';
+
+import { CodeCritic } from '../../api';
+import { ICcData, IMarkSolutionItem } from '../../cc-api';
 import { SubmissionStatus } from '../../models/Enums';
 import { notifications } from '../../utils/notifications';
-
 
 const marks = [
     {
@@ -111,7 +112,8 @@ export const SolutionResultViewGradeDialog = (props: SolutionResultViewGradeDial
 
     React.useEffect(() => {
         (async () => {
-            const result = await APIResult.get(objectId);
+            const response = await CodeCritic.api.resultGetDetail(objectId);
+            const result = response.data.data;
             setPoints(result.points);
             setComment(result.gradeComment);
             setResult(result);
@@ -133,7 +135,7 @@ export const SolutionResultViewGradeDialog = (props: SolutionResultViewGradeDial
     const saveGrade = async () => {
         const grade:IMarkSolutionItem = { comment, points, objectId }
         try {
-            const data = await API.post<IMarkSolutionItem, any>("save-grade", grade);
+            const data = await CodeCritic.api.saveGradeCreate(grade);
             notifications.success(`Saved! ${data.data.count} notification(s) sent`);
             onClose();
         } catch (error) {
@@ -165,7 +167,7 @@ export const SolutionResultViewGradeDialog = (props: SolutionResultViewGradeDial
                     multiline
                     rows={3}
                     rowsMax={4}
-                    value={comment}
+                    value={comment ?? ""}
                     onChange={e => setComment(e.target.value)}
                 />
             </div>

@@ -1,4 +1,4 @@
-import { IAppUser } from "../models/DataModel";
+import { IAppUser } from "../cc-api";
 
 export const guest: IAppUser = {
     affiliation: "guest",

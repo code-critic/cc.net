@@ -1,4 +1,4 @@
-import { ICcEvent } from "../models/DataModel";
+import { ICcEvent } from "../cc-api";
 import { groupBy } from "./arrayUtils";
 
 export const reduceNotifications = (data: ICcEvent[]) => {

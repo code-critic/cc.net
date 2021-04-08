@@ -1,14 +1,17 @@
-import { Button, ButtonGroup, Dialog, DialogActions, DialogContent, DialogTitle, FormControlLabel, IconButton, TextField } from '@material-ui/core';
-import * as React from 'react';
-import { useState } from 'react';
-import { ISimpleFile } from '../../models/DataModel';
+import React, { useEffect, useState } from 'react';
+
+import {
+    Button, ButtonGroup, Dialog, DialogActions, DialogContent, DialogTitle, TextField,
+} from '@material-ui/core';
 import AddIcon from '@material-ui/icons/Add';
-import { useOpenClose } from "../../hooks/useOpenClose";
-import { onEnter } from '../../utils/onEnter';
-import { supportedExtensions, isFiletypeSupported } from '../../utils/LanguageMap';
-import { notifications } from '../../utils/notifications';
 import CloseIcon from '@material-ui/icons/Close';
 import FullscreenIcon from '@material-ui/icons/Fullscreen';
+
+import { ISimpleFile } from '../../cc-api';
+import { useOpenClose } from '../../hooks/useOpenClose';
+import { isFiletypeSupported, supportedExtensions } from '../../utils/LanguageMap';
+import { notifications } from '../../utils/notifications';
+import { onEnter } from '../../utils/onEnter';
 
 interface CodeEditorFileBarProps {
     files: ISimpleFile[];

@@ -8,7 +8,7 @@ import TimerIcon from '@material-ui/icons/Timer';
 import TodayIcon from '@material-ui/icons/Today';
 import { AbsMoment } from '../../renderers/AbsMoment';
 import { GridCellClassParams, GridCellParams, GridCellValue, GridColDef } from '@material-ui/data-grid';
-import { ICcDataDto } from '../../models/DataModel';
+import { ICcDataDto } from '../../cc-api';
 import { languages } from '../../static/languages';
 import { nameof } from 'ts-simple-nameof';
 import { ProcessStatusStatic } from '../../models/Enums';

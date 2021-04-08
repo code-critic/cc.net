@@ -1,22 +1,23 @@
-import { Box, Button, Dialog, DialogContent, Typography } from "@material-ui/core";
+import React, { useEffect, useState } from 'react';
+import { Link as RouterLink } from 'react-router-dom';
+
+import { Box, Button, Dialog, DialogContent, Typography } from '@material-ui/core';
 import GradeIcon from '@material-ui/icons/Grade';
-import React, { useEffect, useState } from "react";
-import { Link as RouterLink } from "react-router-dom";
-import { API, APIResult } from "../api";
-import { SimpleLoader } from "../components/SimpleLoader";
-import { useUser } from "../hooks/useUser";
-import { IApiListResponse } from "../models/CustomModel";
-import { ICcData, ICcDataLight } from "../models/DataModel";
-import { AbsMoment } from "../renderers/AbsMoment";
-import { IconClass, IconClassGeneric } from "../renderers/IconClass";
-import { LightTooltip } from "../renderers/LightTooltip";
-import { getStatus } from "../utils/StatusUtils";
-import { ProblemPickerExportProps } from "./ProblemPicker";
 import StarOutlineIcon from '@material-ui/icons/StarOutline';
-import { useRefresh } from "../hooks/useRefresh";
-import { SolutionResultView } from "./solutionResultView/SolutionResultView";
-import { ProcessStatusStatic } from "../models/Enums";
-import { TimelineRenderer } from "../renderers/TimelineRenderer";
+
+import { CodeCritic } from '../api';
+import { ICcData, ICcDataLight } from '../cc-api';
+import { SimpleLoader } from '../components/SimpleLoader';
+import { useRefresh } from '../hooks/useRefresh';
+import { useUser } from '../hooks/useUser';
+import { ProcessStatusStatic } from '../models/Enums';
+import { AbsMoment } from '../renderers/AbsMoment';
+import { IconClassGeneric } from '../renderers/IconClass';
+import { LightTooltip } from '../renderers/LightTooltip';
+import { TimelineRenderer } from '../renderers/TimelineRenderer';
+import { getStatus } from '../utils/StatusUtils';
+import { ProblemPickerExportProps } from './ProblemPicker';
+import { SolutionResultView } from './solutionResultView/SolutionResultView';
 
 interface SubmitSolutionLastResultsProps extends ProblemPickerExportProps {
     liveResult: ICcData;
@@ -30,9 +31,9 @@ export const SubmitSolutionLastResults = (props: SubmitSolutionLastResultsProps)
 
     useEffect(() => {
         (async () => {
-            const url = `user-problem-results-light/${problem.course}/${problem.year}/${problem.id}/${user.id}`;
-            
-            const axiosResponse = await API.get<IApiListResponse<ICcDataLight>>(url);
+            const axiosResponse = await CodeCritic.api.userProblemResultsLightDetail(
+                problem.course, problem.year, problem.id, user.id
+            )
             const responseData = axiosResponse.data;
             setResults(responseData.data);
         })()
@@ -40,9 +41,9 @@ export const SubmitSolutionLastResults = (props: SubmitSolutionLastResultsProps)
 
     const handleClickReview = async (result: ICcDataLight) => {
         if (result.reviewRequest) {
-            await APIResult.cancelCodeReview(result);
+            await CodeCritic.api.reviewrequestDelete(result.objectId);
         } else {
-            await APIResult.requestCodeReview(result);
+            await CodeCritic.api.reviewrequestDetail(result.objectId);
         }
         refresh();
     }

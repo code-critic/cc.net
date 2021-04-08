@@ -1,9 +1,14 @@
-import { FormControl, InputLabel, Select, MenuItem, Tooltip, IconButton, Dialog, DialogTitle, DialogActions, DialogContent, Button } from '@material-ui/core';
 import React from 'react';
-import { languages } from '../../static/languages';
+
+import {
+    Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, IconButton, InputLabel,
+    MenuItem, Select, Tooltip,
+} from '@material-ui/core';
 import LiveHelpIcon from '@material-ui/icons/LiveHelp';
-import { ILanguage } from '../../models/DataModel';
+
 import { useOpenClose } from '../../hooks/useOpenClose';
+import { ILanguage } from '../../models/CustomModel';
+import { languages } from '../../static/languages';
 import { highlightLine } from '../../text/highlight';
 import LanguageExamples from '../../utils/LanguageExamples';
 

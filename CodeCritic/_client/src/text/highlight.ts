@@ -1,5 +1,4 @@
-import React, { useEffect, useState } from 'react';
-import { ILanguage } from '../models/DataModel';
+import { ILanguage } from '../models/CustomModel';
 
 const hljs = (window as any).hljs;
 

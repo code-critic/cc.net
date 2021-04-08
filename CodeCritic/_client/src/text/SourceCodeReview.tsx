@@ -9,13 +9,13 @@ import MoreVertIcon from '@material-ui/icons/MoreVert';
 import { DropDownMenu } from '../components/DropDownMenu';
 import { useComments } from '../hooks/useComments';
 import { useUser } from '../hooks/useUser';
-import { ICommentServiceItem, ILineComment } from '../models/DataModel';
+import { ICommentServiceItem, ILineComment } from '../cc-api';
 import { converter } from '../renderers/markdown';
 import { getInitials, normalizePath } from '../utils/utils';
 import { getSyntax, highlightLine, highlightPlainText } from './highlight';
 import { OptionType } from '../models/CustomModel';
-import { API } from '../api';
 import { notifications } from '../utils/notifications';
+import { CodeCritic } from '../api';
 
 interface SingleCommentProps {
     comment: ILineComment;
@@ -157,7 +157,7 @@ export const SourceCodeReview = (props: ISourceCodeReview) => {
 
     const rerunSolution = async () => {
         try {
-            await API.get(`rerun-solution/${objectId}`);
+            await CodeCritic.api.rerunSolutionDetail(objectId);
             notifications.success("Ok, job will be executed again");
         } catch (e) {
             notifications.error(`Error while requesting rerun: ${e}`);

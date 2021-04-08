@@ -1,5 +1,5 @@
 import Card from '@material-ui/core/Card';
-import { IApiError } from '../models/DataModel';
+import { IApiError } from '../cc-api';
 import React from 'react';
 
 export const renderError = (i: IApiError, j?: number, adminOnly: boolean=true) => {

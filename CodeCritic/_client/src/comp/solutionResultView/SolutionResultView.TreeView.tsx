@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ICcData, ISimpleFile } from '../../models/DataModel';
+import { ICcData, ISimpleFile } from '../../cc-api';
 import { TreeItem, TreeView } from '@material-ui/lab';
 import { useState } from 'react';
 import { useUser } from "../../hooks/useUser";

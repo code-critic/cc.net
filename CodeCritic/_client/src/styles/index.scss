@@ -1205,6 +1205,10 @@ a.notification-item {
         margin: 4px 4px;
         box-shadow: 0 0 4px 0 rgba(0, 0, 0, 0.2);
         animation: fadeIn ease .5s;
+
+        &.picker-old {
+          animation: fadeInHalf ease .5s;
+        }
       }
     }
   }
@@ -1215,6 +1219,10 @@ a.notification-item {
         margin: 4px 4px;
         box-shadow: 0 0 4px 0 rgba(0, 0, 0, 0.2);
         animation: fadeIn ease .5s;
+        
+        &.picker-old {
+          animation: fadeInHalf ease .5s;
+        }
       }
     }
   }
@@ -1231,6 +1239,15 @@ a.notification-item {
 
   100% {
     opacity: 1;
+  }
+}
+@keyframes fadeInHalf {
+  0% {
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 0.5;
   }
 }
 

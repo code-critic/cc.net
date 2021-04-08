@@ -1,29 +1,30 @@
-import { AppBar, Avatar, Badge, Box, Container, IconButton, Menu, MenuItem, Toolbar, Tooltip, Typography } from '@material-ui/core';
 import React, { useEffect, useState } from 'react';
-import { appDispatcher, commentService, getUser, httpClient, updateUser } from '../init';
+import { Link } from 'react-router-dom';
+import { CircleLoader } from 'react-spinners';
 
+import {
+    AppBar, Avatar, Badge, Box, Container, IconButton, Menu, MenuItem, Toolbar, Tooltip, Typography,
+} from '@material-ui/core';
 import AccountCircleIcon from '@material-ui/icons/AccountCircle';
 import CancelIcon from '@material-ui/icons/Cancel';
-import { CcEventType } from '../models/Enums';
-import { CircleLoader } from 'react-spinners';
 import CodeIcon from '@material-ui/icons/Code';
 import FormatSizeIcon from '@material-ui/icons/FormatSize';
 import GroupIcon from '@material-ui/icons/Group';
-import { ICcEvent } from '../models/DataModel';
-import { Link } from 'react-router-dom';
-import Moment from 'react-moment';
 import NotificationsIcon from '@material-ui/icons/Notifications';
 import SecurityIcon from '@material-ui/icons/Security';
-import { SimpleLoader } from './SimpleLoader';
-import { getInitials } from '../utils/utils';
-import { groupBy } from '../utils/arrayUtils';
-import { pageLinks } from '../pageLinks';
+
+import { ICcEvent } from '../cc-api';
 import { useUser } from '../hooks/useUser';
-import { converter } from "../renderers/markdown";
-import { API } from '../api';
+import { appDispatcher, commentService, getUser, httpClient, updateUser } from '../init';
 import { IApiListResponse } from '../models/CustomModel';
-import { reduceNotifications } from '../utils/notificationUtils';
+import { CcEventType } from '../models/Enums';
+import { pageLinks } from '../pageLinks';
 import { AbsMoment } from '../renderers/AbsMoment';
+import { converter } from '../renderers/markdown';
+import { reduceNotifications } from '../utils/notificationUtils';
+import { getInitials } from '../utils/utils';
+import { SimpleLoader } from './SimpleLoader';
+import { CodeCritic } from '../api';
 
 interface NavMenuProps {
 
@@ -106,7 +107,7 @@ export const NavMenu = (props: NavMenuProps) => {
       }
     });
     (async () => {
-      const axiosResponse = await API.get<IApiListResponse<ICcEvent>>('notifications-get');
+      const axiosResponse = await CodeCritic.api.notificationsGetList();
       const newNotifications = axiosResponse.data.data;
       setNotifications(newNotifications);
     })();

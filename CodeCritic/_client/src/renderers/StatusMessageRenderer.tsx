@@ -5,7 +5,7 @@ import TimerIcon from '@material-ui/icons/Timer';
 import Alert from '@material-ui/lab/Alert';
 import React from "react";
 import Moment from "react-moment";
-import { ICourseProblem } from "../models/DataModel";
+import { ICourseProblem } from "../cc-api";
 import { ProblemStatus } from "../models/Enums";
 
 interface StatusMessageProps {

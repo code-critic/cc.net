@@ -35,7 +35,7 @@ namespace Cc.Net.Controllers
         
         
         [HttpGet("result-get/{objectId}")]
-        [ProducesResponseType(typeof(CcData), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse<CcData>), StatusCodes.Status200OK)]
         public async Task<IActionResult> ResultGet(string objectId)
         {
             var user = _userService.CurrentUser;
@@ -114,7 +114,7 @@ namespace Cc.Net.Controllers
         }
         
         [HttpGet("user-problem-results/{courseName}/{courseYear}/{problem}/{user}")]
-        [ProducesResponseType(typeof(IEnumerable<CcData>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiListResponse<CcData>), StatusCodes.Status200OK)]
         public IActionResult UserProblemResults(string courseName, string courseYear, string problem, string user)
         {
             var results = _dbService.Data
@@ -142,7 +142,7 @@ namespace Cc.Net.Controllers
 
 
         [HttpGet("user-problem-results-light/{courseName}/{courseYear}/{problem}/{user}")]
-        [ProducesResponseType(typeof(IEnumerable<CcDataLight>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiListResponse<CcDataLight>), StatusCodes.Status200OK)]
         public IActionResult UserProblemResultsLight(string courseName, string courseYear, string problem, string user)
         {
             var results = _dbService.Data

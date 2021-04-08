@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 
 import { appDispatcher, commentService } from '../init';
-import { ICommentServiceItem } from '../models/DataModel';
+import { ICommentServiceItem } from '../cc-api';
 
 export const useComments = () => {
     const [serviceItems, setServiceItems] = useState<ICommentServiceItem[]>([]);

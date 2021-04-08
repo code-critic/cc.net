@@ -48,7 +48,7 @@ namespace cc.net.Controllers
         
         [HttpGet("course-list")]
         [UseCache(timeToLiveSeconds: 30, perUser: true)]
-        [ProducesResponseType(typeof(IEnumerable<SingleCourse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiListResponse<SingleCourse>), StatusCodes.Status200OK)]
         public IActionResult CourseList()
         {
             var courses = _courseService
@@ -85,7 +85,7 @@ namespace cc.net.Controllers
 
 
         [HttpGet("course-problem-list/{courseName}/{courseYear}")]
-        [ProducesResponseType(typeof(IEnumerable<CourseProblem>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiListResponse<CourseProblem>), StatusCodes.Status200OK)]
         public IActionResult CourseProblem(string courseName, string courseYear)
         {
             var course = _courseService.GetCourseForUser(_userService.CurrentUser, courseName);

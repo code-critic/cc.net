@@ -1,18 +1,19 @@
-import { Button, Typography } from "@material-ui/core";
-import { ICourseProblem, ISingleCourse } from "../models/DataModel";
-import { PickerCourseBigTile, PickerProblemBigTile } from "./ProblemPicker.BigTile";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from 'react';
+import { useParams } from 'react-router';
+import { Link } from 'react-router-dom';
 
-import { API } from "../api";
-import { IApiListResponse } from "../models/CustomModel";
-import { Link } from "react-router-dom";
-import { RenderBreadcrumbs } from "../renderers/BreadcrumbsRenderer";
-import { SimpleLoader } from "../components/SimpleLoader";
-import { StatusMessage } from "../renderers/StatusMessageRenderer";
-import { groupBy } from "../utils/arrayUtils";
-import { renderErrorForAdmin } from "../renderers/renderErrors";
-import { useParams } from "react-router";
-import { useUser } from "../hooks/useUser";
+import { Button } from '@material-ui/core';
+
+import { CodeCritic } from '../api';
+import {
+    ICourseProblem, ICourseProblemApiListResponse, ISingleCourse, ISingleCourseApiListResponse,
+} from '../cc-api';
+import { SimpleLoader } from '../components/SimpleLoader';
+import { useUser } from '../hooks/useUser';
+import { RenderBreadcrumbs } from '../renderers/BreadcrumbsRenderer';
+import { renderErrorForAdmin } from '../renderers/renderErrors';
+import { groupBy } from '../utils/arrayUtils';
+import { PickerCourseBigTile, PickerProblemBigTile } from './ProblemPicker.BigTile';
 
 export interface ProblemPickerExportProps {
     course: ISingleCourse;
@@ -33,8 +34,8 @@ interface ProblemPickerProps {
 export const ProblemPicker = (props: ProblemPickerProps) => {
     const { baseUrl, tileStyle = 'small', displayAlways = false, withBreadcrumbs = false, home, whereUserIsTeacher = false } = props;
     const Component = props.component as any;
-    const [coursesResponse, setCoursesResponse] = useState<IApiListResponse<ISingleCourse>>();
-    const [courseResponse, setCourseResponse] = useState<IApiListResponse<ICourseProblem>>();
+    const [coursesResponse, setCoursesResponse] = useState<ISingleCourseApiListResponse>();
+    const [courseResponse, setCourseResponse] = useState<ICourseProblemApiListResponse>();
     const [courseProblem, setCourseProblem] = useState<ICourseProblem>();
     const [isLoading, setIsLoading] = useState(false);
 
@@ -47,7 +48,7 @@ export const ProblemPicker = (props: ProblemPickerProps) => {
 
             if (!coursesResponse) {
                 setIsLoading(true);
-                const axiosResponse = await API.get<IApiListResponse<ISingleCourse>>(`course-list`);
+                const axiosResponse = await CodeCritic.api.courseListList();
                 setIsLoading(false);
                 setCoursesResponse(axiosResponse.data);
             }
@@ -57,7 +58,7 @@ export const ProblemPicker = (props: ProblemPickerProps) => {
 
                 if (!courseResponse) {
                     setIsLoading(true);
-                    const axiosResponse = await API.get<IApiListResponse<ICourseProblem>>(`course-problem-list/${course}/${year}`);
+                    const axiosResponse = await CodeCritic.api.courseProblemListDetail(course, year);
                     setIsLoading(false);
                     tmpCourseResponse = axiosResponse.data;
                     setCourseResponse(axiosResponse.data);

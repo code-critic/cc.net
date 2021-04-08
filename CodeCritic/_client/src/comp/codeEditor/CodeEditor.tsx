@@ -1,19 +1,17 @@
-import * as React from 'react';
-import { useState, useEffect } from 'react';
-import { ICourseProblem, ILanguage, ISimpleFile } from '../../models/DataModel';
-
-import { Controlled as CodeMirror } from 'react-codemirror2';
-import { isFiletypeSupported, mapByExtension } from '../../utils/LanguageMap';
-
 import 'codemirror/lib/codemirror.css';
 import 'codemirror/theme/neat.css';
 import 'codemirror/mode/python/python.js';
 import 'codemirror/mode/javascript/javascript.js';
-import { CodeEditorFileBar } from './CodeEditor.FileBar';
-import { notifications } from '../../utils/notifications';
+
+import React, { useEffect, useState } from 'react';
+import { Controlled as CodeMirror } from 'react-codemirror2';
+
+import { ICourseProblem, ISimpleFile } from '../../cc-api';
 import { useDnD } from '../../hooks/useDnD';
-
-
+import { ILanguage } from '../../models/CustomModel';
+import { isFiletypeSupported, mapByExtension } from '../../utils/LanguageMap';
+import { notifications } from '../../utils/notifications';
+import { CodeEditorFileBar } from './CodeEditor.FileBar';
 
 export const determineRequiredFiles = (problem: ICourseProblem, language: ILanguage) => {
     let result: ISimpleFile[] = [];

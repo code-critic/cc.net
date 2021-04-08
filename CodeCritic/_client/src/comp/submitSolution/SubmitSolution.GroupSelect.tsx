@@ -1,7 +1,7 @@
 import { Dialog, DialogTitle, DialogContent, Grid, Button, DialogActions, Typography } from '@material-ui/core';
 import * as React from 'react';
 import { useState, useEffect } from 'react';
-import { IAppUser, ICcGroup, ICcUserGroup, ICourseProblem } from '../../models/DataModel';
+import { IAppUser, ICcGroup, ICcUserGroup, ICourseProblem } from '../../cc-api';
 
 
 interface ISimpleGroup {

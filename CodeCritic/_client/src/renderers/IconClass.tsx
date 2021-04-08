@@ -6,7 +6,7 @@ import HourglassEmptyIcon from '@material-ui/icons/HourglassEmpty';
 import PlayArrowIcon from '@material-ui/icons/PlayArrow';
 import PriorityHighIcon from '@material-ui/icons/PriorityHigh';
 import TimerIcon from '@material-ui/icons/Timer';
-import { ICcData, ICcDataCaseResult } from '../models/DataModel';
+import { ICcData, ICcDataCaseResult } from '../cc-api';
 import { ProcessStatusCodes } from '../models/Enums';
 
 

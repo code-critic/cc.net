@@ -1,13 +1,17 @@
-import { Button, Container, Dialog, DialogActions, DialogContent, DialogTitle, FormControlLabel, Radio, RadioGroup, Table, TableBody, TableCell, TableHead, TableRow, TextField } from '@material-ui/core';
 import React, { useEffect, useState } from 'react';
-import { API } from '../api';
+
+import {
+    Button, Container, Dialog, DialogActions, DialogContent, DialogTitle, FormControlLabel, Radio,
+    RadioGroup, Table, TableBody, TableCell, TableHead, TableRow, TextField,
+} from '@material-ui/core';
+
+import { CodeCritic } from '../api';
+import { ICcGroup, ICcUserGroup } from '../cc-api';
 import { SimpleLoader } from '../components/SimpleLoader';
+import { useOpenClose } from '../hooks/useOpenClose';
 import { useRefresh } from '../hooks/useRefresh';
 import { useUser } from '../hooks/useUser';
-import { ICcGroup, ICcUserGroup } from '../models/DataModel';
 import { CcUserGroupStatus } from '../models/Enums';
-import { useOpenClose } from "../hooks/useOpenClose";
-
 
 // const model = Schema.ObjectType({
 //     name: Schema.StringType(),
@@ -46,7 +50,7 @@ export const GroupManager = (props: GroupManagerProps) => {
 
     useEffect(() => {
         (async () => {
-            const axiosReponse = await API.get<ICcGroup[]>(`student/group`);
+            const axiosReponse = await CodeCritic.api.studentGroupList();
             setGroups(axiosReponse.data);
         })()
     }, [ counter ]);
@@ -77,26 +81,26 @@ export const GroupManager = (props: GroupManagerProps) => {
     }
 
     const saveNewGroup = async () => {
-        await API.post("student/group-new", newGroup);
+        await CodeCritic.api.studentGroupNewCreate(newGroup);
         refresh();
         closeEdit();
     }
 
     const editGroup = async () => {
         newGroup.oid = newGroup.objectId;
-        await API.post("student/group-edit", newGroup);
+        await CodeCritic.api.studentGroupEditCreate(newGroup);
         refresh();
         closeEdit();
     }
 
     const deleteGroup = async () => {
-        await API.get(`student/group-delete/${newGroup.objectId}`);
+        await CodeCritic.api.studentGroupDeleteDetail(newGroup.objectId);
         refresh();
         closeEdit();
     }
 
     const updateStatus = async (objectId: string, myGrp: ICcUserGroup) => {
-        await API.post(`student/group-status`, { oid: objectId, ...myGrp });
+        await CodeCritic.api.studentGroupStatusCreate({ oid: objectId, ...myGrp });
         refresh();
     }
 

@@ -3,10 +3,10 @@ import React, { useEffect, useState } from 'react';
 import { Dialog, DialogContent } from '@material-ui/core';
 import InsertChartIcon from '@material-ui/icons/InsertChart';
 
-import { API } from '../api';
+import { CodeCritic } from '../api';
 import { SimpleLoader } from '../components/SimpleLoader';
 import { useRefresh } from '../hooks/useRefresh';
-import { ICcDataDto, IGradeDto, ITableResponse } from '../models/DataModel';
+import { ICcDataDto, ITableResponse } from '../cc-api';
 import { ProcessStatusStatic } from '../models/Enums';
 import { ProblemPicker, ProblemPickerExportProps } from './ProblemPicker';
 import { SolutionResultView } from './solutionResultView/SolutionResultView';
@@ -36,8 +36,7 @@ const GraderesultsImpl = (props: GraderesultsImplProps) => {
 
     useEffect(() => {
         (async () => {
-            const axiosResponse = await API
-                .get<IGradeDto[]>(`grade-stats/${course.course}/${course.year}/${problem.id}`);
+            const axiosResponse = await CodeCritic.api.gradeStatsDetail(course.course, course.year, problem.id);
             const data = axiosResponse.data.map(i => i.result);
             setData(data);
         })();

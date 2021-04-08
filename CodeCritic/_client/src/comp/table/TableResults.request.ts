@@ -1,4 +1,4 @@
-import { ITableRequest, ITableRequestFilter, ITableRequestSort } from '../../models/DataModel';
+import { ITableRequest, ITableRequestFilter, ITableRequestSort } from '../../cc-api';
 import { TableModel } from './TableResults';
 
 export const createTableRequest = (model: TableModel, course?: string, year?: string, problem?: string) => {

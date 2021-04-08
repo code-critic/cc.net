@@ -9,6 +9,11 @@
  * ---------------------------------------------------------------
  */
 
+export interface IApiError {
+  name?: string | null;
+  errors?: string[] | null;
+}
+
 export interface IAppUser {
   eppn?: string | null;
   affiliation?: string | null;
@@ -57,6 +62,16 @@ export interface ICcData {
   reviewRequest?: string | null;
   comments?: ILineComment[] | null;
   files?: ISimpleFile[] | null;
+}
+
+export interface ICcDataApiListResponse {
+  data?: ICcData[] | null;
+  errors?: IApiError[] | null;
+}
+
+export interface ICcDataApiResponse {
+  data?: ICcData;
+  errors?: IApiError[] | null;
 }
 
 export interface ICcDataCaseResult {
@@ -129,6 +144,11 @@ export interface ICcDataLight {
   groupUsers?: string[] | null;
 }
 
+export interface ICcDataLightApiListResponse {
+  data?: ICcDataLight[] | null;
+  errors?: IApiError[] | null;
+}
+
 export interface ICcDataResult {
   /** @format int32 */
   status?: number;
@@ -167,6 +187,11 @@ export interface ICcEvent {
   content?: string | null;
   type?: ICcEventType;
   isNew?: boolean;
+}
+
+export interface ICcEventApiListResponse {
+  data?: ICcEvent[] | null;
+  errors?: IApiError[] | null;
 }
 
 /**
@@ -262,6 +287,11 @@ export interface ICourseProblem {
   description?: string | null;
   course?: string | null;
   year?: string | null;
+}
+
+export interface ICourseProblemApiListResponse {
+  data?: ICourseProblem[] | null;
+  errors?: IApiError[] | null;
 }
 
 export interface ICourseProblemCase {
@@ -409,6 +439,11 @@ export interface ISingleCourse {
   settingsConfig?: ISettingsConfig;
 }
 
+export interface ISingleCourseApiListResponse {
+  data?: ISingleCourse[] | null;
+  errors?: IApiError[] | null;
+}
+
 export interface IStudentScoreboardCourse {
   problem?: string | null;
   courseName?: string | null;
@@ -456,6 +491,11 @@ export interface ITableResponse {
   /** @format int64 */
   count?: number;
   data?: ICcDataDto[] | null;
+}
+
+export interface ITableResponseApiResponse {
+  data?: ITableResponse;
+  errors?: IApiError[] | null;
 }
 
 export interface IUser {
@@ -674,11 +714,12 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @request POST:/api/save-grade
      */
     saveGradeCreate: (data: IMarkSolutionItem, params: RequestParams = {}) =>
-      this.request<void, any>({
+      this.request<any, any>({
         path: `/api/save-grade`,
         method: "POST",
         body: data,
         type: ContentType.Json,
+        format: "json",
         ...params,
       }),
 
@@ -690,7 +731,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @request GET:/api/diff/{objectId}/{caseId}
      */
     diffDetail: (objectId: string, caseId: string, params: RequestParams = {}) =>
-      this.request<IDiffResultComposite[], any>({
+      this.request<IDiffResultComposite, any>({
         path: `/api/diff/${objectId}/${caseId}`,
         method: "GET",
         format: "json",
@@ -735,7 +776,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @request GET:/api/course-list
      */
     courseListList: (params: RequestParams = {}) =>
-      this.request<ISingleCourse[], any>({
+      this.request<ISingleCourseApiListResponse, any>({
         path: `/api/course-list`,
         method: "GET",
         format: "json",
@@ -750,7 +791,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @request GET:/api/course-problem-list/{courseName}/{courseYear}
      */
     courseProblemListDetail: (courseName: string, courseYear: string, params: RequestParams = {}) =>
-      this.request<ICourseProblem[], any>({
+      this.request<ICourseProblemApiListResponse, any>({
         path: `/api/course-problem-list/${courseName}/${courseYear}`,
         method: "GET",
         format: "json",
@@ -885,7 +926,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @request GET:/api/notifications-get
      */
     notificationsGetList: (query?: { objectId?: string; path?: string }, params: RequestParams = {}) =>
-      this.request<ICcEvent[], any>({
+      this.request<ICcEventApiListResponse, any>({
         path: `/api/notifications-get`,
         method: "GET",
         query: query,
@@ -901,7 +942,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @request GET:/api/result-get/{objectId}
      */
     resultGetDetail: (objectId: string, params: RequestParams = {}) =>
-      this.request<ICcData, any>({
+      this.request<ICcDataApiResponse, any>({
         path: `/api/result-get/${objectId}`,
         method: "GET",
         format: "json",
@@ -965,7 +1006,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       user: string,
       params: RequestParams = {},
     ) =>
-      this.request<ICcData[], any>({
+      this.request<ICcDataApiListResponse, any>({
         path: `/api/user-problem-results/${courseName}/${courseYear}/${problem}/${user}`,
         method: "GET",
         format: "json",
@@ -986,7 +1027,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       user: string,
       params: RequestParams = {},
     ) =>
-      this.request<ICcDataLight[], any>({
+      this.request<ICcDataLightApiListResponse, any>({
         path: `/api/user-problem-results-light/${courseName}/${courseYear}/${problem}/${user}`,
         method: "GET",
         format: "json",
@@ -1044,7 +1085,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @request POST:/api/view-results
      */
     viewResultsCreate: (data: ITableRequest, params: RequestParams = {}) =>
-      this.request<ITableResponse[], any>({
+      this.request<ITableResponseApiResponse, any>({
         path: `/api/view-results`,
         method: "POST",
         body: data,

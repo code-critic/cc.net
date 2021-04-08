@@ -1,4 +1,4 @@
-import { ICcData, ICourse, ISingleCourse, ICourseYearConfig } from "../models/DataModel";
+import { ICcData, ICourse, ISingleCourse, ICourseYearConfig } from "../cc-api";
 
 export function getPoints(data: ICcData, defaultValue: number=0) {
     if (!data) {

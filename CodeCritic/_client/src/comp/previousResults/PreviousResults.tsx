@@ -1,17 +1,18 @@
-import { Button, IconButton } from "@material-ui/core";
-import { useEffect, useState } from "react";
-import { API } from "../../api";
-import { SimpleLoader } from "../../components/SimpleLoader";
-import { IApiListResponse } from "../../models/CustomModel";
-import { ICcData, ICcDataLight } from "../../models/DataModel"
-import { AbsMoment } from "../../renderers/AbsMoment";
-import { LightTooltip } from "../../renderers/LightTooltip";
-import { getStatus } from "../../utils/StatusUtils";
+import React, { useEffect, useState } from 'react';
+
+import { IconButton } from '@material-ui/core';
+
+import { CodeCritic } from '../../api';
+import { ICcData, ICcDataLight } from '../../cc-api';
+import { SimpleLoader } from '../../components/SimpleLoader';
+import { AbsMoment } from '../../renderers/AbsMoment';
+import { LightTooltip } from '../../renderers/LightTooltip';
+import { getStatus } from '../../utils/StatusUtils';
 
 interface PreviousResultsProps {
     result: ICcData;
     selectedResultId: string;
-    onChange(objectId: string);
+    onChange(objectId: string): void;
 }
 export const PreviousResults = (props: PreviousResultsProps) => {
     const { result, selectedResultId, onChange } = props;
@@ -19,9 +20,10 @@ export const PreviousResults = (props: PreviousResultsProps) => {
 
     useEffect(() => {
         (async () => {
-            const author = result.userOrGroupUsers[0]
-            const url = `user-problem-results-light/${result.courseName}/${result.courseYear}/${result.problem}/${author}`;
-            const axiosResponse = await API.get<IApiListResponse<ICcDataLight>>(url);
+            const author = result.userOrGroupUsers[0];
+            const axiosResponse = await CodeCritic.api.userProblemResultsLightDetail(
+                result.courseName, result.courseYear, result.problem, author
+            );
             const responseData = axiosResponse.data;
             setResults(responseData.data);
         })();

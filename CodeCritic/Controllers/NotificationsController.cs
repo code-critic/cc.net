@@ -34,7 +34,7 @@ namespace CC.Net.Controllers
         }
         
         [HttpGet("notifications-get")]
-        [ProducesResponseType(typeof(IEnumerable<CcEvent>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiListResponse<CcEvent>), StatusCodes.Status200OK)]
         public async Task<IActionResult> NotificationsGet(string objectId, string path)
         {
             var user = _userService.CurrentUser;

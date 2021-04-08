@@ -76,10 +76,6 @@ export const TableResultsFilters = (props: TableResultsFiltersProps) => {
                 const { field } = i;
 
                 const { value = "", human = "" } = filters.get(field) ?? {};
-                // const value = getFilter(field);
-                // const human = getFilterHuman(field);
-                // const isValidValue = value !== "" && value !== "all";
-                // const isValidHuman = human !== "" && human !== "all";
 
                 return (<div key={j} className="filter-row">
                     <FormControlLabel
@@ -99,7 +95,7 @@ export const TableResultsFilters = (props: TableResultsFiltersProps) => {
                             }
                             {i.strict !== true && <TextField
                                 variant="filled"
-                                autoFocus
+                                autoFocus={i.field === "users"}
                                 type={i.type ?? "text"}
                                 value={value}
                                 onChange={e => editFilter(field, e.target.value)} />

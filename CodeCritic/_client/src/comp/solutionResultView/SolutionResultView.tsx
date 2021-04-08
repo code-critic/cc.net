@@ -3,39 +3,38 @@ import { useParams } from 'react-router';
 import { Link as RouterLink } from 'react-router-dom';
 
 import { Button, Container, Typography } from '@material-ui/core';
+import AdjustIcon from '@material-ui/icons/Adjust';
+import CancelIcon from '@material-ui/icons/Cancel';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import DescriptionIcon from '@material-ui/icons/Description';
+import GradeIcon from '@material-ui/icons/Grade';
+import PersonIcon from '@material-ui/icons/Person';
+import SecurityIcon from '@material-ui/icons/Security';
+import SendIcon from '@material-ui/icons/Send';
+import TimelineIcon from '@material-ui/icons/Timeline';
+import TimerIcon from '@material-ui/icons/Timer';
+import TodayIcon from '@material-ui/icons/Today';
 
-import { AApi, API, APIResult } from '../../api';
+import { CodeCritic } from '../../api';
+import { IApiError, ICcData, ICourseProblem, ISimpleFile } from '../../cc-api';
 import { SimpleLoader } from '../../components/SimpleLoader';
 import { useComments } from '../../hooks/useComments';
 import { useRefresh } from '../../hooks/useRefresh';
 import { useUser } from '../../hooks/useUser';
-import { IApiListResponse } from '../../models/CustomModel';
-import { IApiError, ICcData, ICourseProblem, ISimpleFile, ISingleCourse } from '../../models/DataModel';
+import { ProblemStatus } from '../../models/Enums';
 import { AbsMoment } from '../../renderers/AbsMoment';
 import { CourseYearProblemHeader } from '../../renderers/CourseYearProblemHeader';
 import { IconClass } from '../../renderers/IconClass';
+import { LightTooltip } from '../../renderers/LightTooltip';
 import { renderError } from '../../renderers/renderErrors';
 import { TimelineRenderer } from '../../renderers/TimelineRenderer';
 import { SourceCodeReview } from '../../text/SourceCodeReview';
+import { nop } from '../../utils/nop';
 import { getStatus } from '../../utils/StatusUtils';
 import { humanizeName } from '../../utils/utils';
-import { SolutionResultViewTreeViewRoot } from './SolutionResultView.TreeView';
-import { SolutionResultViewGradeDialog } from './SolutionResultView.GradeDialog';
-import { nop } from '../../utils/nop';
-import SendIcon from '@material-ui/icons/Send';
-import CancelIcon from '@material-ui/icons/Cancel';
-import PersonIcon from '@material-ui/icons/Person';
-import TimerIcon from '@material-ui/icons/Timer';
-import GradeIcon from '@material-ui/icons/Grade';
-import SecurityIcon from '@material-ui/icons/Security';
-import TimelineIcon from '@material-ui/icons/Timeline';
-import { LightTooltip } from '../../renderers/LightTooltip';
-import { ProblemStatus } from '../../models/Enums';
-import AdjustIcon from '@material-ui/icons/Adjust';
-import TodayIcon from '@material-ui/icons/Today';
 import { PreviousResults } from '../previousResults/PreviousResults';
+import { SolutionResultViewGradeDialog } from './SolutionResultView.GradeDialog';
+import { SolutionResultViewTreeViewRoot } from './SolutionResultView.TreeView';
 
 interface IParamsObjectId {
     objectId?: string;
@@ -94,7 +93,8 @@ export const SolutionResultView = (props: SolutionResultViewProps) => {
         (async () => {
             if (objectId) {
                 try {
-                    const result = await APIResult.get(objectId);
+                    const response = await CodeCritic.api.resultGetDetail(objectId);
+                    const result = response.data.data;
 
                     setResult(result);
                     setSelectedFile(extractSingleSimpleFile(result));
@@ -113,7 +113,7 @@ export const SolutionResultView = (props: SolutionResultViewProps) => {
     useEffect(() => {
         (async () => {
             if (isRoot && result) {
-                const axiosResponse = await API.get<IApiListResponse<ISingleCourse>>(`course-list`);
+                const axiosResponse = await CodeCritic.api.courseListList();
                 const courses = axiosResponse.data.data;
                 const problemRef = courses
                     .find(i => i.course === result.courseName && i.year === result.courseYear)?.problems
@@ -125,14 +125,14 @@ export const SolutionResultView = (props: SolutionResultViewProps) => {
 
     useEffect(() => {
         setSelectedResultId(undefined);
-    }, [ params?.objectId ]);
-
+    }, [ params?.objectId, props.objectId ]);
+    
     const handleFileChange = async (file: ISimpleFile) => {
         if (file.content === null) {
             file.content = <SimpleLoader/>
             setSelectedFile(file);
 
-            const response = await API.get(`file-get/${objectId}/${file.relPath}`);
+            const response = await CodeCritic.api.fileGetDetail(objectId, file.relPath);
             console.log(response);
             const { content } = response.data as any;
             file.content = content ?? "";
@@ -162,13 +162,13 @@ export const SolutionResultView = (props: SolutionResultViewProps) => {
         : "solution-result-view dialog-page";
 
     const requestCR = async () => {
-        await AApi.api.reviewrequestDetail(result.objectId);
+        await CodeCritic.api.reviewrequestDetail(result.objectId);
         refresh();
         onChange();
     }
 
     const cancelCR = async () => {
-        await AApi.api.reviewrequestDelete(result.objectId);
+        await CodeCritic.api.reviewrequestDelete(result.objectId);
         refresh();
         onChange();
     }
