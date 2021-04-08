@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Cc.Net.Apis;
 using CC.Net.Attributes;
@@ -6,9 +7,10 @@ using Cc.Net.Services;
 using CC.Net.Services;
 using CC.Net.Utils;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
-namespace cc.net.Controllers
+namespace Cc.Net.Controllers
 {
     [ApiController]
     [Route("api")]
@@ -26,6 +28,7 @@ namespace cc.net.Controllers
         [HttpPost]
         [Route("view-results")]
         [RequireRole(AppUserRoles.Root)]
+        [ProducesResponseType(typeof(IEnumerable<TableResponse>), StatusCodes.Status200OK)]
         public async Task<IActionResult> ViewResults([FromBody] TableRequest request)
         {
             var items = await _viewResultService.GetResultsAsync(request);

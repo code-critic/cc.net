@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
-using cc.net.Collections;
+using Cc.Net.Collections;
 using CC.Net.Extensions;
 using CC.Net.Services;
 using CC.Net.Services.Courses;

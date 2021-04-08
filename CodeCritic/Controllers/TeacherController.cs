@@ -9,7 +9,7 @@ using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using CC.Net.Attributes;
-using cc.net.Extensions;
+using Cc.Net.Extensions;
 using System.Collections.Generic;
 using CC.Net.Dto;
 using System.Linq;

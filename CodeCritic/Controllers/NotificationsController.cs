@@ -1,22 +1,40 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Cc.Net;
 using Cc.Net.Apis;
 using CC.Net.Collections;
-using cc.net.Utils;
+using CC.Net.Db;
+using CC.Net.Entities;
+using CC.Net.Services;
+using Cc.Net.Utils;
 using CC.Net.Services.Courses;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Bson;
 using MongoDB.Driver;
 
 namespace CC.Net.Controllers
 {
-    public partial class ApiConfigController
+    [ApiController]
+    [Route("api")]
+    [Authorize]
+    public class NotificationsController: ControllerBase
     {
-        public const string NotificationsGetUrl = "notificatons-get";
 
-        [HttpGet(NotificationsGetUrl)]
+        private readonly UserService _userService;
+        private readonly DbService _dbService;
+        
+        public NotificationsController(UserService userService, DbService dbService)
+        {
+            _userService = userService;
+            _dbService = dbService;
+        }
+        
+        [HttpGet("notifications-get")]
+        [ProducesResponseType(typeof(IEnumerable<CcEvent>), StatusCodes.Status200OK)]
         public async Task<IActionResult> NotificationsGet(string objectId, string path)
         {
             var user = _userService.CurrentUser;

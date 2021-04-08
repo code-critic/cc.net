@@ -11,7 +11,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace cc.net.Utils
+namespace Cc.Net.Utils
 {
     [AttributeUsage(AttributeTargets.Method)]
     public class UseCacheAttribute : Attribute, IAsyncActionFilter

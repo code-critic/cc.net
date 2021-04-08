@@ -57,7 +57,7 @@ export const ProblemPicker = (props: ProblemPickerProps) => {
 
                 if (!courseResponse) {
                     setIsLoading(true);
-                    const axiosResponse = await API.get<IApiListResponse<ICourseProblem>>(`course-problem/${course}/${year}`);
+                    const axiosResponse = await API.get<IApiListResponse<ICourseProblem>>(`course-problem-list/${course}/${year}`);
                     setIsLoading(false);
                     tmpCourseResponse = axiosResponse.data;
                     setCourseResponse(axiosResponse.data);

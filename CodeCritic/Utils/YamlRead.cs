@@ -1,9 +1,9 @@
 using System;
 using System.IO;
 using System.Linq;
-using cc.net.Exceptions;
+using Cc.Net.Exceptions;
 using CC.Net.Extensions;
-using cc.net.Services.Yaml;
+using Cc.Net.Services.Yaml;
 using YamlDotNet.Core;
 
 namespace CC.Net.Utils

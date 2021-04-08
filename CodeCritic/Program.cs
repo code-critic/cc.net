@@ -19,13 +19,10 @@ using DiffPlex.DiffBuilder.Model;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
 using Serilog;
 using TypeLite;
 using TypeLite.TsModels;
-using YamlDotNet.Serialization;
-using cc.net.Auth;
-using static CC.Net.Controllers.ApiConfigController;
+using Cc.Net.Auth;
 
 namespace CC.Net
 {
@@ -37,12 +34,12 @@ namespace CC.Net
         {
             var sg = fluent.ScriptGenerator;
             var flags = BindingFlags.NonPublic | BindingFlags.GetField | BindingFlags.Instance;
-            var _typeConvertorsField = typeof(TsGenerator).GetField("_typeConvertors", flags);
-            var _typeConvertors = (TypeConvertorCollection) _typeConvertorsField.GetValue(sg);
+            var typeConvertorsField = typeof(TsGenerator).GetField("_typeConvertors", flags);
+            var typeConvertors = (TypeConvertorCollection) typeConvertorsField?.GetValue(sg);
 
-            var _convertorsField = typeof(TypeConvertorCollection).GetField("_convertors", flags);
-            var _convertors = (Dictionary<Type, TypeConvertor>) _convertorsField.GetValue(_typeConvertors);
-            _convertors.Add(a, b);
+            var convertorsField = typeof(TypeConvertorCollection).GetField("_convertors", flags);
+            var convertors = (Dictionary<Type, TypeConvertor>) convertorsField?.GetValue(typeConvertors);
+            convertors?.Add(a, b);
 
             return fluent;
         }

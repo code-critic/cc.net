@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using CC.Net.Attributes;
-using cc.net.Services.Yaml;
+using Cc.Net.Services.Yaml;
 using YamlDotNet.Serialization;
 
 namespace CC.Net.Services.Courses

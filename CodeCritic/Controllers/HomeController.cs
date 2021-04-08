@@ -7,7 +7,7 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
-using cc.net.Auth;
+using Cc.Net.Auth;
 using CC.Net.Config;
 using CC.Net.Db;
 using CC.Net.Services;
@@ -20,7 +20,7 @@ using MongoDB.Driver;
 
 // For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
-namespace cc.net.Controllers
+namespace Cc.Net.Controllers
 {
     [Authorize]
     [Route("home")]
@@ -48,6 +48,7 @@ namespace cc.net.Controllers
 
         [HttpGet("whoami")]
         [AllowAnonymous]
+        [ProducesResponseType(typeof(AppUser), StatusCodes.Status200OK)]
         public async Task<IActionResult> Whoami()
         {
             var user = _userService.CurrentUser;
@@ -65,6 +66,7 @@ namespace cc.net.Controllers
         }
 
         [Route("index")]
+        [HttpGet]
         public IActionResult Index()
         {
             // https://localhost:5001/home/index
@@ -74,6 +76,7 @@ namespace cc.net.Controllers
         
         [AllowAnonymous]
         [Route("login")]
+        [HttpGet]
         public IActionResult Login()
         {
             _logger.LogError(LoginUrl);
@@ -82,6 +85,7 @@ namespace cc.net.Controllers
         }
         
         [Route("logout")]
+        [HttpGet]
         public bool Logout()
         {
             // https://localhost:5001/Home/Logout
@@ -92,6 +96,7 @@ namespace cc.net.Controllers
 
         [AllowAnonymous]
         [Route("login/{*path}")]
+        [HttpGet]
         public async Task<IActionResult> LoginRequestAsync()
         {
             var data = Request.RouteValues["path"].ToString();

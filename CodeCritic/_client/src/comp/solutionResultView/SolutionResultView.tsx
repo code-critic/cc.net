@@ -6,7 +6,7 @@ import { Button, Container, Typography } from '@material-ui/core';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import DescriptionIcon from '@material-ui/icons/Description';
 
-import { API, APIResult } from '../../api';
+import { AApi, API, APIResult } from '../../api';
 import { SimpleLoader } from '../../components/SimpleLoader';
 import { useComments } from '../../hooks/useComments';
 import { useRefresh } from '../../hooks/useRefresh';
@@ -162,17 +162,15 @@ export const SolutionResultView = (props: SolutionResultViewProps) => {
         : "solution-result-view dialog-page";
 
     const requestCR = async () => {
-        if (await APIResult.requestCodeReview(result)) {
-            refresh();
-            onChange();
-        }
+        await AApi.api.reviewrequestDetail(result.objectId);
+        refresh();
+        onChange();
     }
 
     const cancelCR = async () => {
-        if (await APIResult.cancelCodeReview(result)) {
-            refresh();
-            onChange();
-        }
+        await AApi.api.reviewrequestDelete(result.objectId);
+        refresh();
+        onChange();
     }
 
     const postCommentsAndRefresh = async () => {

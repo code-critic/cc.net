@@ -1,13 +1,13 @@
-﻿using cc.net.Collections;
-using CC.Net.Collections;
+﻿using CC.Net.Collections;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Cc.Net.Collections;
 
-namespace cc.net.Extensions
+namespace Cc.Net.Extensions
 {
     public static class MongoCollectionExtensions
     {

@@ -4,7 +4,7 @@ using YamlDotNet.Core;
 using YamlDotNet.Core.Events;
 using YamlDotNet.Serialization;
 
-namespace cc.net.Services.Yaml
+namespace Cc.Net.Services.Yaml
 {
     public class YamlDateTimeConverter : IYamlTypeConverter
     {

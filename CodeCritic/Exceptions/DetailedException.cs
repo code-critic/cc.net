@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace cc.net.Exceptions
+namespace Cc.Net.Exceptions
 {
     public class DetailedException: Exception
     {

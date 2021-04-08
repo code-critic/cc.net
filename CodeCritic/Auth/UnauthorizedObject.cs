@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
-namespace cc.net.Auth
+namespace Cc.Net.Auth
 {
 
     public class UnauthorizedObjectIface {

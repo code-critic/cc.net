@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using CC.Net.Attributes;
 using CC.Net.Collections;
+using CC.Net.Config;
 using CC.Net.Db;
 using CC.Net.Services;
 using CC.Net.Services.Courses;
@@ -17,13 +18,11 @@ using MongoDB.Driver;
 
 namespace CC.Net.Controllers
 {
-    
-    
     [ApiController]
-    [Route("dev")]
+    [Route("api")]
     [Authorize]
     
-    public class DeveloperController
+    public class DeveloperController: ControllerBase
     {
         private readonly CourseService _courseService;
         private readonly LanguageService _languageService;
@@ -31,13 +30,14 @@ namespace CC.Net.Controllers
         private readonly ProblemDescriptionService _problemDescriptionService;
         private readonly CompareService _compareService;
         private readonly ILogger<DeveloperController> _logger;
+        private readonly UserService _userService;
+        private readonly AppOptions _appOptions;
 
         public DeveloperController(
             CourseService courseService, LanguageService languageService, DbService dbService,
             ProblemDescriptionService problemDescriptionService,
             CompareService compareService, IHttpContextAccessor httpContextAccessor,
-            ILogger<DeveloperController> logger
-            )
+            ILogger<DeveloperController> logger, UserService userService, AppOptions appOptions)
         {
             _courseService = courseService;
             _languageService = languageService;
@@ -45,86 +45,36 @@ namespace CC.Net.Controllers
             _problemDescriptionService = problemDescriptionService;
             _compareService = compareService;
             _logger = logger;
+            _userService = userService;
+            _appOptions = appOptions;
         }
 
-        [HttpGet("submission-status")]
+        [HttpGet("rename/{id}")]
         [RequireRole(AppUserRoles.Root)]
-        public async Task<object> FixSubmissionStatus()
+        public async Task<object> ChangeUser(string id)
         {
-            foreach(var item in _dbService.Data.AsQueryable())
+            var user = _userService.CurrentUser;
+            if (_appOptions.Admins.Contains(user.Id) || user.IsRoot)
             {
-                _logger.LogWarning(item.ToString());
-                try
+                var newUser = user.Copy();
+                newUser.Eppn = $"{id}@tul.cz";
+                newUser.Elevate();
+                await _userService.SignInAsync(HttpContext, newUser);
+
+                return new
                 {
-                    var course = _courseService[item.CourseName];
-                    var courseYearConfig = course[item.CourseYear];
-                    var problem = courseYearConfig[item.Problem];
-
-                    var dt = item.Id.CreationTime;
-                    item.SubmissionStatus = 
-                        dt <= problem.Avail
-                            ? SubmissionStatus.Intime
-                            : dt <= problem.Deadline
-                                ? SubmissionStatus.Late
-                                : SubmissionStatus.None;
-
-                    await ResultsUtils.SaveItemAsync(_dbService, item);
-                    
-                }catch(Exception ex) {
-                    _logger.LogError(ex, "Error");
-                }
+                    code = 200,
+                    status = "ok",
+                    message = "user changed",
+                };
             }
 
-            return "ok";
-        }
-
-        [HttpGet("fix-scores")]
-        [RequireRole(AppUserRoles.Root)]
-        public async Task<object> FixScores()
-        {
-            var result = new List<string>();
-            foreach(var item in _dbService.Data.AsQueryable())
+            return new
             {
-                try
-                {
-                    var score = ResultsUtils.ComputeScore(item.Result.Scores);
-                    result.Add($"Ok: {item.ObjectId}, {score}/{item.Result.Score}");
-                    item.Result.Score = score;
-                    await ResultsUtils.SaveItemAsync(_dbService, item);
-                }
-                catch(Exception ex)
-                {
-                    result.Add($"Error: {item.ObjectId}, {ex.ToString()}");
-                }
-            }
-            return result;
-        }
-
-        [HttpGet("fix-notifications")]
-        [RequireRole(AppUserRoles.Root)]
-        public async Task<object> FixNotifications()
-        {
-            var notifications = await _dbService.Events
-                .AsQueryable()
-                .ToListAsync();
-
-            notifications = notifications
-                .Where(i => i.Reciever == "jan.hybs")
-                .ToList();
-
-            var total = 0;
-            notifications
-                .ForEach(i =>
-                {
-                    var course = _dbService.Data.Find(j => j.Id == i.ResultId).ToList().FirstOrDefault()?.CourseName;
-                    if (course?.ToUpper() != "ALD")
-                    {
-                        _dbService.Events.DeleteOne(j => j.Id == i.Id);
-                        total++;
-                    }
-                });
-
-            return $"Deleted {total} notifications";
+                code = 401,
+                status = "error",
+                message = "access denied",
+            };
         }
     }
 }

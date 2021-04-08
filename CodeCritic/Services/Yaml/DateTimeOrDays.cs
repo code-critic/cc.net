@@ -2,7 +2,7 @@ using System;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
 
-namespace cc.net.Services.Yaml
+namespace Cc.Net.Services.Yaml
 {
     public class DateTimeOrDays
     {

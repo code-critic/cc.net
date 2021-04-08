@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { Api } from './cc-api';
 import { IApiListResponse, IApiResponse } from './models/CustomModel';
 import { ICcData, ICcDataLight } from './models/DataModel';
 import { notifications } from './utils/notifications';
@@ -18,6 +19,8 @@ const ErrorResponse = (error: any) => {
         error, hasError: true
     };
 }
+
+export const AApi = new Api();
 
 
 const _resultCache = new Map<string, any>();
@@ -42,7 +45,7 @@ export const APIResult = {
                 try {
                     const axiosReponse = await API.get<IApiResponse<ICcData>>(`result-get/${objectId}`);
                     const result = axiosReponse.data.data;
-                    _resultCache.set(objectId, result);
+                    // _resultCache.set(objectId, result);
                     resolve(result);
                 } catch (error) {
                     notifications.error(`Error while loading data: ${error}`);
@@ -55,12 +58,13 @@ export const APIResult = {
     cancelCodeReview: async (result: ICcData | ICcDataLight) => {
         const resp = await _catchPromise(API.delete(`reviewrequest/${result.objectId}`));
         _resultCache.delete(result.objectId);
+        
 
         if (!('hasError' in resp)) {
             notifications.success(`Ok, cancelled`);
-            return false;
+            return true;
         }
-        return true;
+        return false;
     },
 
     requestCodeReview: async (result: ICcData | ICcDataLight) => {
@@ -69,9 +73,9 @@ export const APIResult = {
 
         if (!('hasError' in resp)) {
             notifications.success(`Ok, teacher notified!`);
-            return false;
+            return true;
         }
-        return true;
+        return false;
     },
 
     set: (objectId: string, result: ICcData) => {

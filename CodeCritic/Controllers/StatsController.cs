@@ -4,9 +4,8 @@ using System.IO;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using cc.net.Dto;
-using cc.net.Extensions;
-using cc.net.Utils;
+using Cc.Net.Dto;
+using Cc.Net.Extensions;
 using CC.Net.Attributes;
 using CC.Net.Collections;
 using CC.Net.Config;
@@ -17,6 +16,7 @@ using CC.Net.Extensions;
 using CC.Net.Services;
 using CC.Net.Services.Courses;
 using CC.Net.Services.Languages;
+using Cc.Net.Utils;
 using CC.Net.Utils;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -27,7 +27,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver;
 
-namespace cc.net.Controllers
+namespace Cc.Net.Controllers
 {
     [ApiController]
     [Route("api/stats")]
@@ -188,7 +188,7 @@ namespace cc.net.Controllers
             return Ok(content);
         }
 
-        public double Percentile(double[] sequence, double excelPercentile)
+        private double Percentile(double[] sequence, double excelPercentile)
         {
             Array.Sort(sequence);
             int N = sequence.Length;

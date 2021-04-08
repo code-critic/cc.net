@@ -47,58 +47,6 @@ namespace CC.Net.Controllers
             };
         }
 
-        [HttpGet("reviewrequest/{objectId}")]
-        public async Task<object> RequestCodeReview(string objectId)
-        {
-            var oid = new ObjectId(objectId);
-            var user = _userService.CurrentUser;
-            var sender = user.Id;
-
-            // generate notifications
-            var ccData = await _dbService.DataSingleAsync(oid);
-            _utilService.RequireAccess(ccData);
-
-            var recipients = _utilService.GetUsersRelatedToResult(ccData);
-
-            await _utilService.SendNotificationAsync(recipients,
-                new CcEvent
-                {
-                    ResultId = oid,
-                    Type = CcEventType.NewCodeReview,
-                    IsNew = true,
-                    Sender = sender,
-                });
-
-            ccData.ReviewRequest = System.DateTime.Now;
-            var result = await _dbService.Data.ReplaceOneAsync(i => i.Id == oid, ccData);
-            var updated = (int) result.ModifiedCount;
-
-            return new
-            {
-                status = "ok",
-                updated
-            };
-        }
-
-        [HttpDelete("reviewrequest/{objectId}")]
-        public async Task<object> CancelCodeReview(string objectId)
-        {
-            var oid = new ObjectId(objectId);
-            var ccData = await _dbService.DataSingleAsync(oid);
-            _utilService.RequireAccess(ccData);
-            var user = _userService.CurrentUser;
-
-            ccData.ReviewRequest = null;
-            var result = await _dbService.Data.ReplaceOneAsync(i => i.Id == oid, ccData);
-            var updated = (int) result.ModifiedCount;
-
-            return new
-            {
-                status = "ok",
-                updated
-            };
-        }
-
         [HttpPost("comments")]
         public async Task<object> PostComments(IList<CommentServiceItem> items)
         {

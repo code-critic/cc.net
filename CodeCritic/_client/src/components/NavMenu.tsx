@@ -106,7 +106,7 @@ export const NavMenu = (props: NavMenuProps) => {
       }
     });
     (async () => {
-      const axiosResponse = await API.get<IApiListResponse<ICcEvent>>('notificatons-get');
+      const axiosResponse = await API.get<IApiListResponse<ICcEvent>>('notifications-get');
       const newNotifications = axiosResponse.data.data;
       setNotifications(newNotifications);
     })();

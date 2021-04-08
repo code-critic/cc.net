@@ -10,7 +10,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using cc.net.Extensions;
+using Cc.Net.Extensions;
 using Cc.Net.Services;
 using static CC.Net.Collections.CcData;
 using Cc.Net.Exceptions;

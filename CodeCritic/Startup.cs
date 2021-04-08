@@ -1,5 +1,5 @@
-using cc.net;
-using cc.net.Controllers;
+using Cc.Net;
+using Cc.Net.Controllers;
 using CC.Net.Config;
 using CC.Net.Db;
 using CC.Net.Hubs;
@@ -74,6 +74,7 @@ namespace CC.Net
 
             services.AddControllersWithViews();
             services.AddSignalR();
+            services.AddSwaggerGen();
 
             // In production, the React files will be served from this directory
             services.AddSpaStaticFiles(configuration =>
@@ -97,32 +98,17 @@ namespace CC.Net
         {
             ServiceProvider = serviceProvider;
             app.UseSerilogRequestLogging();
-            var logger = serviceProvider.GetService<ILogger<Startup>>();
-            var hub = serviceProvider.GetService<IHubContext<LiveHub>>();
+            app.UseSwagger();
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
+            });
+            
             var dbService = serviceProvider.GetService<DbService>();
-
             var filter = Builders<CcData>.Filter.Eq("result.status", (int) ProcessStatusCodes.Running);
             var update = Builders<CcData>.Update.Set("result.status", (int) ProcessStatusCodes.InQueue);
-            var items = dbService.Data.UpdateMany(filter, update);
+            dbService.Data.UpdateMany(filter, update);
 
-            // var crypto = serviceProvider.GetService<CryptoService>();
-            // Console.WriteLine(
-            //     crypto.Encrypt("{\"eppn\": \"foo.bara@tul.cz\", \"affiliation\": \"root@tul.cz;member@tul.cz;employee@tul.cz;alum@tul.cz;faculty@tul.cz\"}")
-            // );
-            
-            // new Thread (async () =>
-            // {
-            //     WaitForKey(ConsoleKey.Escape);
-            //     logger.LogWarning("Press escape again to shutdown the server");
-            //     WaitForKey(ConsoleKey.Escape);
-                
-            //     logger.LogWarning("Application is stopping...");
-                
-            //     // restart server in 1 min
-            //     await hub.Clients.All
-            //         .ServerMessageToClient("error", $"Server will be updated soon.", "Server shutting down", 60_000*1);
-            //     applicationLifetime.StopApplication();
-            // }).Start();
 
             if (env.IsDevelopment())
             {

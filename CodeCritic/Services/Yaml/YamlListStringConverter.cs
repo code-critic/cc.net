@@ -7,7 +7,7 @@ using YamlDotNet.Core.Events;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.Utilities;
 
-namespace cc.net.Services.Yaml
+namespace Cc.Net.Services.Yaml
 {
     public class YamlListStringConverter : IYamlTypeConverter
     {

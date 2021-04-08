@@ -1,33 +1,39 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Threading;
-using cc.net.Utils;
-using CC.Net.Attributes;
+using Cc.Net.Utils;
 using CC.Net.Collections;
 using CC.Net.Db;
-using CC.Net.Extensions;
 using CC.Net.Services;
 using CC.Net.Services.Courses;
-using CC.Net.Services.Languages;
-using CC.Net.Utils;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using MongoDB.Bson;
 using MongoDB.Driver;
 using Newtonsoft.Json;
-using static CC.Net.Collections.CcData;
 
 namespace CC.Net.Controllers
 {
-    public partial class StudentController : ControllerBase
+    [ApiController]
+    [Route("api")]
+    [Authorize]
+    public class ScoreboardController : ControllerBase
     {
-
+        private readonly UserService _userService;
+        private readonly DbService _dbService;
+        private readonly CourseService _courseService;
+        
+        public ScoreboardController(UserService userService, DbService dbService, CourseService courseService)
+        {
+            _userService = userService;
+            _dbService = dbService;
+            _courseService = courseService;
+        }
+        
         [HttpGet]
         [Route("student-scoreboard")]
         [UseCache(timeToLiveSeconds: 10, perUser: true)]
+        [ProducesResponseType(typeof(IEnumerable<StudentScoreboardCourse>), StatusCodes.Status200OK)]
         public IActionResult GetStudentScoreboard()
         {
             var user = _userService.CurrentUser.Id;

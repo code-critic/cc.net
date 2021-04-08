@@ -1,29 +1,54 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
-using Cc.Net;
 using Cc.Net.Apis;
-using cc.net.Utils;
+using CC.Net.Config;
+using CC.Net.Db;
+using CC.Net.Services;
 using CC.Net.Services.Courses;
+using CC.Net.Services.Languages;
+using Cc.Net.Utils;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
-namespace CC.Net.Controllers
+namespace cc.net.Controllers
 {
-    public partial class ApiConfigController
+    [ApiController]
+    [Route("api")]
+    [Authorize]
+    public class CoursesController : ControllerBase
     {
-        public const string CourseListUrl = "course-list"; 
-        public const string CourseProblemUrl = "course-problem"; 
-    
-        [HttpGet("courses")]
-        [UseCache(timeToLiveSeconds: 30, perUser: true)]
-        [Obsolete("Use course-list")]
-        public IActionResult Courses()
+        private readonly CourseService _courseService;
+        private readonly LanguageService _languageService;
+        private readonly DbService _dbService;
+        private readonly ProblemDescriptionService _problemDescriptionService;
+        private readonly AppOptions _appOptions;
+        private readonly CompareService _compareService;
+        private readonly UserService _userService;
+        private readonly UtilService _utilService;
+
+        public CoursesController(
+            CourseService courseService, LanguageService languageService, DbService dbService,
+            ProblemDescriptionService problemDescriptionService, AppOptions appOptions,
+            CompareService compareService, IHttpContextAccessor httpContextAccessor, UserService userService,
+            UtilService utilService
+        )
         {
-            return Ok(_courseService.GetAllowedCoursesForUser(_userService.CurrentUser));
+            _courseService = courseService;
+            _languageService = languageService;
+            _dbService = dbService;
+            _problemDescriptionService = problemDescriptionService;
+            _appOptions = appOptions;
+            _compareService = compareService;
+            _userService = userService;
+            _utilService = utilService;
         }
 
-        [HttpGet(CourseListUrl)]
+        
+        [HttpGet("course-list")]
         [UseCache(timeToLiveSeconds: 30, perUser: true)]
+        [ProducesResponseType(typeof(IEnumerable<SingleCourse>), StatusCodes.Status200OK)]
         public IActionResult CourseList()
         {
             var courses = _courseService
@@ -57,9 +82,10 @@ namespace CC.Net.Controllers
             };
             return Ok(response);
         }
-        
-        
-        [HttpGet(CourseProblemUrl + "/{courseName}/{courseYear}")]
+
+
+        [HttpGet("course-problem-list/{courseName}/{courseYear}")]
+        [ProducesResponseType(typeof(IEnumerable<CourseProblem>), StatusCodes.Status200OK)]
         public IActionResult CourseProblem(string courseName, string courseYear)
         {
             var course = _courseService.GetCourseForUser(_userService.CurrentUser, courseName);
@@ -79,12 +105,22 @@ namespace CC.Net.Controllers
                 .Problems
                 .Select(i => i.AddDescription(_problemDescriptionService, singleCourse))
                 .ToList();
-            
+
             problems.ForEach(i => i.UpdateRefs(yearConfig));
 
             var response = new ApiListResponse<CourseProblem>(problems);
 
             return Ok(response);
+        }
+
+
+        [HttpGet("test-config/{courseName}/{courseYear}")]
+        [Obsolete]
+        public object GetTestYaml(string courseName, string courseYear)
+        {
+            var course = _courseService.GetCourseForUser(_userService.CurrentUser, courseName);
+            var yearConfig = course[courseYear];
+            return new {data = yearConfig.Yaml};
         }
     }
 }

@@ -1,8 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using cc.net.Extensions;
+using Cc.Net.Extensions;
 using CC.Net.Collections;
+using CC.Net.Db;
+using CC.Net.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Bson;
 using MongoDB.Driver;
@@ -10,8 +13,19 @@ using MongoDB.Driver;
 namespace CC.Net.Controllers
 {
 
-    public partial class StudentController
+    [ApiController]
+    [Route("api")]
+    [Authorize]
+    public class GroupsController: ControllerBase
     {
+
+        private readonly UserService _userService;
+        private readonly DbService _dbService;
+        public GroupsController(UserService userService, DbService dbService)
+        {
+            _userService = userService;
+            _dbService = dbService;
+        }
 
         private CcGroup CheckGroup(CcGroup request)
         {

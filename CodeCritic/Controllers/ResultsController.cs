@@ -1,0 +1,164 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Cc.Net.Apis;
+using CC.Net.Collections;
+using CC.Net.Db;
+using Cc.Net.Dto;
+using Cc.Net.Exceptions;
+using CC.Net.Services;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using MongoDB.Bson;
+using MongoDB.Driver;
+
+namespace Cc.Net.Controllers
+{
+    
+    [ApiController]
+    [Route("api")]
+    [Authorize]
+    public class ResultsController : ControllerBase
+    {
+        private readonly DbService _dbService;
+        private readonly UserService _userService;
+        private readonly UtilService _utilService;
+
+        public ResultsController(DbService dbService, UserService userService, UtilService utilService)
+        {
+            _dbService = dbService;
+            _userService = userService;
+            _utilService = utilService;
+        }
+        
+        
+        [HttpGet("result-get/{objectId}")]
+        [ProducesResponseType(typeof(CcData), StatusCodes.Status200OK)]
+        public async Task<IActionResult> ResultGet(string objectId)
+        {
+            var user = _userService.CurrentUser;
+            await _utilService.MarkNotificationAsReadAsync(new ObjectId(objectId), user.Id);
+
+            var id = new ObjectId(objectId);
+            var item = (await _dbService.DataSingleAsync(id))
+                .IncludeDirectories(_utilService)
+                .HideHiddenFiles(user.IsRoot);
+            
+            var result = new ApiResponse<CcData>(item);
+            return Ok(result);
+        }
+        
+               
+        [HttpGet("file-get/{objectId}/{*path}")]
+        [ProducesResponseType(typeof(IEnumerable<object>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> FileGet(string objectId, string path)
+        {
+            var id = new ObjectId(objectId);
+            var item = await _dbService.DataSingleAsync(id);
+            var result = _utilService.GetFileContent(item, path);
+            return Ok(result);
+        }
+        
+        [HttpGet("reviewrequest/{objectId}")]
+        public async Task<object> RequestCodeReview(string objectId)
+        {
+            var oid = new ObjectId(objectId);
+            var user = _userService.CurrentUser;
+            var sender = user.Id;
+
+            // generate notifications
+            var ccData = await _dbService.DataSingleAsync(oid);
+            _utilService.RequireAccess(ccData);
+
+            var recipients = _utilService.GetUsersRelatedToResult(ccData);
+
+            await _utilService.SendNotificationAsync(recipients,
+                new CcEvent
+                {
+                    ResultId = oid,
+                    Type = CcEventType.NewCodeReview,
+                    IsNew = true,
+                    Sender = sender,
+                });
+
+            ccData.ReviewRequest = System.DateTime.Now;
+            var result = await _dbService.Data.ReplaceOneAsync(i => i.Id == oid, ccData);
+            var updated = (int) result.ModifiedCount;
+
+            return new
+            {
+                status = "ok",
+                updated
+            };
+        }
+
+        [HttpDelete("reviewrequest/{objectId}")]
+        public async Task<object> CancelCodeReview(string objectId)
+        {
+            var oid = new ObjectId(objectId);
+            var ccData = await _dbService.DataSingleAsync(oid);
+            _utilService.RequireAccess(ccData);
+            var user = _userService.CurrentUser;
+
+            ccData.ReviewRequest = null;
+            var result = await _dbService.Data.ReplaceOneAsync(i => i.Id == oid, ccData);
+            var updated = (int) result.ModifiedCount;
+
+            return new
+            {
+                status = "ok",
+                updated
+            };
+        }
+        
+        [HttpGet("user-problem-results/{courseName}/{courseYear}/{problem}/{user}")]
+        [ProducesResponseType(typeof(IEnumerable<CcData>), StatusCodes.Status200OK)]
+        public IActionResult UserProblemResults(string courseName, string courseYear, string problem, string user)
+        {
+            var results = _dbService.Data
+                .Find(i => i.CourseName == courseName
+                           && i.CourseYear == courseYear
+                           && i.Problem == problem
+                           && (i.User == user || i.GroupUsers.Contains(user))
+                    //  && i.Action == "solve"
+                )
+                .SortByDescending(i => i.Id)
+                .Limit(25)
+                .ToEnumerable()
+                .Select(_utilService.ConvertToExtended)
+                .ToList();
+
+            // var rng = new Random();
+            // var options = (ProcessStatusCodes[]) Enum.GetValues(typeof(ProcessStatusCodes));
+            // results.ForEach(i => i.Result.Status = (int) options[rng.Next(0, options.Length-1)]);
+
+            var response = new ApiListResponse<CcData>(results);
+            return Ok(response);
+        }
+
+
+
+
+        [HttpGet("user-problem-results-light/{courseName}/{courseYear}/{problem}/{user}")]
+        [ProducesResponseType(typeof(IEnumerable<CcDataLight>), StatusCodes.Status200OK)]
+        public IActionResult UserProblemResultsLight(string courseName, string courseYear, string problem, string user)
+        {
+            var results = _dbService.Data
+                .Find(i => i.CourseName == courseName
+                           && i.CourseYear == courseYear
+                           && i.Problem == problem
+                           && (i.User == user || i.GroupUsers.Contains(user))
+                )
+                .SortByDescending(i => i.Id)
+                .Limit(25)
+                .Project(ProjectionDefinitions.CcData2CcDataLight)
+                .ToEnumerable()
+                .ToList();
+
+            var response = new ApiListResponse<CcDataLight>(results);
+            return Ok(response);
+        }
+    }
+}

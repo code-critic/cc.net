@@ -2,7 +2,7 @@ using System.Linq;
 using CC.Net.Collections;
 using CC.Net.Services;
 
-namespace cc.net.Exceptions
+namespace Cc.Net.Exceptions
 {
     public static class CcDataExtensions
     {

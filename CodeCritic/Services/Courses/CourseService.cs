@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using CC.Net.Config;
-using cc.net.Exceptions;
+using Cc.Net.Exceptions;
 using CC.Net.Utils;
 using Microsoft.Extensions.Logging;
 
