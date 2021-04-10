@@ -7,6 +7,7 @@ using CC.Net.Collections;
 using CC.Net.Extensions;
 using CC.Net.Hubs;
 using CC.Net.Services.Courses;
+using Cc.Net.Services.Execution;
 using CC.Net.Services.Languages;
 using CC.Net.Utils;
 using Microsoft.AspNetCore.SignalR;
@@ -56,7 +57,7 @@ namespace CC.Net.Services
             }
         }
         
-        private ProcessResult CompileReferenceForVerification()
+        private ExecutionResult CompileReferenceForVerification()
         {
             var reference = Context.CourseProblem.Reference
                 ?? throw new ArgumentException("Reference file missing");
@@ -170,26 +171,25 @@ namespace CC.Net.Services
         }
 
 
-        private ProcessResult CompileIfNeeded()
+        private ExecutionResult CompileIfNeeded()
         {
             return CompileIfNeeded(Context.Language, Context.MainFileName, Context.DockerTmpWorkdir);
         } 
         
-        private static ProcessResult CompileIfNeeded(Language language, string filename, string dockerWorkDir)
+        private static ExecutionResult CompileIfNeeded(Language language, string filename, string dockerWorkDir)
         {
             if (!language.CompilationNeeded)
             {
                 return null;
             }
 
-            return RunPipeline(
-                $"{string.Join(" ", language.Compile)}".ReplaceCommon(filename),
-                dockerWorkDir,
-                30, // fixed compilation timeout
-                null,
-                CourseContext.CompilationFileName,
-                CourseContext.CompilationFileName
-            );
+            return ExecuteCommand(new ExecutionCommand
+            {
+                Command = $"{string.Join(" ", language.Compile)}".ReplaceCommon(filename),
+                Workdir = dockerWorkDir,
+                OPath = CourseContext.CompilationFileName,
+                EPath = CourseContext.CompilationFileName,
+            });
         }
 
         public ProcessResult CopyOutputFromDocker(CourseProblemCase @case)
@@ -202,7 +202,8 @@ namespace CC.Net.Services
         {
             var cpCommand = $"docker cp \"{ProcessService.ContainerName}:{Context.DockerTmpWorkdir}/error/{@case.Id}\" \"{Context.TmpDir.ErrorDir}\"";
             return ProcessUtils.Popen(cpCommand);
-        }    
+        }
+        
         public void CopyVerificationFromDocker(CourseProblemCase @case)
         {
             var dFile = Context.DockerDir.VerificationFile(@case.Id);

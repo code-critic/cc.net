@@ -1,23 +1,22 @@
-import * as React from 'react';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { Dialog, DialogContent, Fade, IconButton, makeStyles } from '@material-ui/core';
 import AttachMoneyIcon from '@material-ui/icons/AttachMoney';
 import DeveloperModeIcon from '@material-ui/icons/DeveloperMode';
 import FingerprintIcon from '@material-ui/icons/Fingerprint';
+import FlagIcon from '@material-ui/icons/Flag';
 import SpeakerNotesIcon from '@material-ui/icons/SpeakerNotes';
 import TimerIcon from '@material-ui/icons/Timer';
 
+import { CodeCritic } from '../api';
 import { ICcData, ICcDataCaseResult, IDiffResultComposite, IDiffResultLine } from '../cc-api';
+import { SimpleLoader, SimplePacmanLoader } from '../components/SimpleLoader';
+import { useOpenClose } from '../hooks/useOpenClose';
+import { ChangeType, ProcessStatusCodes, ProcessStatusStatic } from '../models/Enums';
+import { notifications } from '../utils/notifications';
 import { getStatus } from '../utils/StatusUtils';
 import { IconClassSubresult } from './IconClass';
-import { ChangeType, ProcessStatusCodes, ProcessStatusStatic } from '../models/Enums';
-import FlagIcon from '@material-ui/icons/Flag';
 import { LightTooltip } from './LightTooltip';
-import { useOpenClose } from "../hooks/useOpenClose";
-import { SimpleLoader, SimplePacmanLoader } from "../components/SimpleLoader";
-import { notifications } from "../utils/notifications";
-import { CodeCritic } from '../api';
 
 interface TimelineRendererProps {
     result: ICcData,
@@ -31,7 +30,7 @@ export const TimelineRenderer = (props: TimelineRendererProps) => {
     const subresults = result.results;
     const N = subresults.length;
     const caseRadius = miniMode ? 25 : 40;
-    const maxWidth = miniMode ? 300 : 800;
+    const maxWidth = miniMode ? 315 : 800;
     const miniCls = miniMode ? "mini" : "";
 
     const minW = miniMode ? 10 : 30;
@@ -111,6 +110,14 @@ const SubresultDot = (props: SubresultDotProps) => {
                 <code>{subresult.duration?.toFixed(3) ?? "??"} sec</code>
             </div>
 
+            {subresult.timeLimit > 0 && <div className="subresult-tooltip-item">
+                <span className="subresult-tooltip-item-key">
+                    <TimerIcon/>&nbsp;Time Limit:
+                    </span>
+                <code>{subresult.timeLimit?.toFixed(3) ?? "??"} sec</code>
+            </div>}
+            
+
             {subresult.message && <div className="subresult-tooltip-item">
                 <span className="subresult-tooltip-item-key">
                     <SpeakerNotesIcon/>&nbsp;Output:
@@ -118,21 +125,28 @@ const SubresultDot = (props: SubresultDotProps) => {
                 <code>{subresult.message}</code>
             </div>}
 
-            {showExtra && <>
-                {subresult.messages?.length > 0 && <div className="subresult-tooltip-item">
-                    <span className="subresult-tooltip-item-key">
-                        <DeveloperModeIcon/>&nbsp;Log:
-                        </span>
-                    <pre>{subresult.messages.join("\n")}</pre>
-                </div>}
+            {subresult.messages?.length > 0 && <div className="subresult-tooltip-item">
+                <span className="subresult-tooltip-item-key">
+                    <DeveloperModeIcon/>&nbsp;Log:
+                    </span>
+                <pre>{subresult.messages.join("\n")}</pre>
+            </div>}
 
+            {showExtra && <>
                 {subresult.command && <div className="subresult-tooltip-item">
                     <span className="subresult-tooltip-item-key">
                         <AttachMoneyIcon/>&nbsp;Command:
                         </span>
                     <pre>{subresult.command}</pre>
                 </div>}
+                {subresult.fullCommand && <div className="subresult-tooltip-item">
+                    <span className="subresult-tooltip-item-key">
+                        <AttachMoneyIcon/>&nbsp;Full cmd:
+                        </span>
+                    <pre>{subresult.fullCommand}</pre>
+                </div>}
             </>}
+
         </span>}>
             <IconButton
                 onClick={openDiff}

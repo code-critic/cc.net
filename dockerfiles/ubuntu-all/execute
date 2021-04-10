@@ -1,0 +1,183 @@
+#!/usr/bin/env python3
+
+import subprocess
+import argparse
+import os
+import sys
+import time
+import enum
+import traceback
+from pathlib import Path
+from types import TracebackType
+import json
+
+mb = 1000000
+dev_null = '/dev/null'
+parser = argparse.ArgumentParser()
+parser.add_argument('---l', '---lPath',     dest="lPath", type=str, default='')
+parser.add_argument('---i', '---iPath',     dest="iPath", type=str, default=None)
+parser.add_argument('---o', '---oPath',     dest="oPath", type=str, default=dev_null)
+parser.add_argument('---e', '---ePath',     dest="ePath", type=str, default=dev_null)
+parser.add_argument('---d', '---deadline',  dest="deadline", type=float, default=120.0)
+parser.add_argument('---t', '---timeout',   dest="timeout", type=float, default=60.0)
+parser.add_argument('---w', '---workdir',   dest="workdir", type=str, default=None)
+
+class ExecuteStatus(enum.Enum):
+    FATAL_ERROR = 1
+    NO_SUCH_FILE = 2
+    OK = 3
+    OK_TIMEOUT = 4
+    ERROR = 5
+    ERROR_TIMEOUT = 6
+
+    GLOBAL_TIMEOUT = 7
+
+    def human_name(self):
+        return "".join(map(str.capitalize, self.name.split("_")))
+    
+    @classmethod
+    def to_json(cls):
+        values = "\n    ".join([f"{c.human_name()} = {c.value}," for c in cls])
+        return f"""
+public enum ExecuteStatus
+{{
+    {values}
+}}
+"""
+
+# print(ExecuteStatus.to_json())
+
+def get_tb_lines(tb: TracebackType):
+    return "\n".join(traceback.format_tb(tb)).splitlines()
+
+def first_valid_value(*args):
+    for i in args:
+        try:
+            if i == dev_null:
+                continue
+
+            limit = 1
+            lines = []
+            fp = open(i, "r")
+            for line in fp:
+                lines.append(line)
+                limit += 1
+                if limit > 1000:
+                    break
+            
+            fp.close()
+            txt = "\n".join(lines)
+
+            if len(txt) > 0:
+                return txt
+        except:
+            pass
+
+def generate_result(status: ExecuteStatus, duration=0.0, message=None, messages=None, returncode=-1, **kwargs):
+    return {
+        "code": status.value,
+        "status": status.human_name(),
+        "duration": duration,
+        "message": message,
+        "messages": messages or [],
+        "returncode": returncode,
+        **kwargs
+    }
+
+
+def main():
+    try:
+        args, rest = parser.parse_known_args()
+        iPath, oPath, ePath = args.iPath, args.oPath, args.ePath
+        timeout, workdir, deadline = args.timeout, args.workdir, args.deadline
+
+        # change dir
+        if workdir:
+            os.chdir(workdir)
+        
+        def open_streams():
+            # check input stream
+            
+            i_fp = None if not iPath else Path(iPath).open('r')
+            o_fp = None if not oPath else Path(oPath).open('w')
+            e_fp = None if not ePath else (
+                subprocess.STDOUT if oPath == ePath else Path(ePath).open('w')
+            )
+
+            return i_fp, o_fp, e_fp
+        
+        def close_streams(i_fp, o_fp, e_fp):
+            try:
+                if e_fp is not None and e_fp != subprocess.STDOUT:
+                    e_fp.close()
+
+                if o_fp:
+                    o_fp.close()
+
+                if i_fp:
+                    i_fp.close()
+            except:
+                pass
+        
+
+        i_fp, o_fp, e_fp = open_streams()
+
+        try:
+            process = subprocess.Popen(rest, stdin=i_fp, stdout=o_fp, stderr=e_fp)
+
+        except OSError as ex:
+            close_streams(i_fp, o_fp, e_fp)
+            return generate_result(
+                ExecuteStatus.NO_SUCH_FILE,
+                message=str(ex),
+                messages=get_tb_lines(ex.__traceback__)
+            )
+        
+        st = time.time()
+        try:
+            rc = process.wait(deadline)
+        except subprocess.TimeoutExpired as ex:
+            et = time.time()
+            duration = et - st
+            process.kill()
+            close_streams(i_fp, o_fp, e_fp)
+
+            return generate_result(
+                ExecuteStatus.GLOBAL_TIMEOUT,
+                duration=duration,
+                message="Program did not finish in time",
+                messages=[f"Allowed duration {deadline} sec"]
+            )
+        
+        et = time.time()
+        duration = et - st
+
+        if rc == 0:
+            return generate_result(
+                ExecuteStatus.OK if duration < timeout else ExecuteStatus.OK_TIMEOUT,
+                returncode=rc,
+                duration=duration
+            )
+        else:
+            error = first_valid_value(ePath, oPath) or "Could not determine any error"
+
+            return generate_result(
+                ExecuteStatus.ERROR if duration < timeout else ExecuteStatus.ERROR_TIMEOUT,
+                returncode=rc,
+                duration=duration,
+                message="Error while running",
+                messages=str(error).strip().splitlines()
+            )
+    except:
+        type, value, tb = sys.exc_info()
+        return generate_result(
+            status=ExecuteStatus.FATAL_ERROR,
+            error=True,
+            message=f" [{type.__name__}]: {value}",
+            messages=get_tb_lines(tb),
+        )
+
+
+if __name__ == "__main__":
+    result = main()
+    print(json.dumps(result, indent=4))

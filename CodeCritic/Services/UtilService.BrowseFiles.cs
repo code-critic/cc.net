@@ -70,29 +70,40 @@ namespace CC.Net.Services
         private IEnumerable<SimpleFile> BrowseFiles(CcData item, CourseProblem problem)
         {
             var context = new CourseContext(_courseService, _languageService, item);
-            var studentDir = new DirectoryInfo(context.StudentDir.Root);
-            var referenceDir = new DirectoryInfo(context.ProblemDir.OutputDir);
+            var referenceRootDir = new DirectoryInfo(context.ProblemDir.Root);
+            var referenceOutputDir = new DirectoryInfo(context.ProblemDir.OutputDir);
             var allowedDirs = new List<string> { "output", "input", "error", ".verification" };
             var resultDir = item.ResultDir(problem.CourseYearConfig.Course.CourseDir);
+            var studentDir = new DirectoryInfo(context.StudentDir.Root);
 
             var files = new List<SimpleFile>();
-            files.AddRange(problem.Export.Select(i => ToSimpleFile(new FileInfo($"{resultDir}/{i}"))));
-            files.Add(new SimpleFile
+            
+            if (item.Action == "solve")
             {
-                RawPath = studentDir.FullName,
-                Filename = "generated",
-                IsDir = true,
-                Files = studentDir.Exists
-                        ? studentDir.GetDirectories()
-                            .Where(i => allowedDirs.Contains(i.Name))
-                            .Select(i => ToSimpleFile(i)).ToList()
-                        : new List<SimpleFile>()
-            });
-            files.Add(ToSimpleFile(referenceDir, "reference"));
-            files.ForEach(i => PopulateRelPath(i));
-            files = FilterEmptyFiles(files);
-
-            return files;
+                files.AddRange(problem.Export.Select(i => ToSimpleFile(new FileInfo($"{resultDir}/{i}"))));
+                files.Add(new SimpleFile
+                {
+                    RawPath = studentDir.FullName,
+                    Filename = "generated",
+                    IsDir = true,
+                    Files = studentDir.Exists
+                            ? studentDir.GetDirectories()
+                                .Where(i => allowedDirs.Contains(i.Name))
+                                .Select(i => ToSimpleFile(i)).ToList()
+                            : new List<SimpleFile>()
+                });
+                
+                files.Add(ToSimpleFile(referenceOutputDir, "reference"));
+                files.ForEach(i => PopulateRelPath(i));
+                
+                return FilterEmptyFiles(files);
+            }
+            else
+            {
+                files.Add(ToSimpleFile(referenceRootDir, "reference"));
+                files.ForEach(i => PopulateRelPath(i));
+                return FilterEmptyFiles(files);
+            }
         }
 
         private static List<SimpleFile> FilterEmptyFiles(List<SimpleFile> files)

@@ -20,7 +20,11 @@ export const getSyntax = (language: ILanguage | string) => {
         case "cs":
             return "csharp";
         case "c":
+        case "h":
             return "c";
+        case "cc":
+        case "hh":
+        case "hpp":
         case "cpp":
             return "cpp";
         case "md":

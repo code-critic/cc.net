@@ -13,6 +13,7 @@ using Cc.Net.Services;
 using CC.Net.Services.Courses;
 using CC.Net.Services.Languages;
 using CC.Net.Services.Matlab;
+using Cc.Net.Services.Processing.Evaluation;
 using CC.Net.Utils;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.DependencyInjection;
@@ -103,6 +104,7 @@ namespace CC.Net.Services
                             provider.GetService<IHubContext<LiveHub>>(),
                             provider.GetService<CompareService>(),
                             provider.GetService<MatlabServer>(),
+                            provider.GetService<EvaluationService>(),
                             item
                         );
 

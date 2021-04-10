@@ -1,13 +1,14 @@
-import * as React from 'react';
-import { ICcData, ISimpleFile } from '../../cc-api';
-import { TreeItem, TreeView } from '@material-ui/lab';
-import { useState } from 'react';
-import { useUser } from "../../hooks/useUser";
-import { normalizePath } from '../../utils/utils';
+import React, { useEffect, useState } from 'react';
+
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-import RateReviewIcon from '@material-ui/icons/RateReview';
 import InsertDriveFileIcon from '@material-ui/icons/InsertDriveFile';
+import RateReviewIcon from '@material-ui/icons/RateReview';
+import { TreeItem, TreeView } from '@material-ui/lab';
+
+import { ICcData, ISimpleFile } from '../../cc-api';
+import { useUser } from '../../hooks/useUser';
+import { normalizePath } from '../../utils/utils';
 
 interface SolutionResultViewTreeViewRootProps {
     result: ICcData;
@@ -69,7 +70,7 @@ export const SolutionResultViewTreeViewRoot = (props: SolutionResultViewTreeView
     ];
 
     return (<TreeView selected={selected} onNodeSelect={handleSelect} defaultExpanded={nodeIds}>
-        <SolutionResultViewTreeView result={result} files={allFiles} />
+        {allFiles.length > 0 && <SolutionResultViewTreeView result={result} files={allFiles} />}
     </TreeView>)
 }
 
@@ -98,13 +99,14 @@ const SolutionResultViewTreeView = React.forwardRef((props: SolutionResultViewTr
 
             return <TreeItem key={i.filename}
                 nodeId={i.relPath}
+                icon={expandCls}
                 expandIcon={expandCls}
                 collapseIcon={collapseCls}
                 label={<>
                     {hasComment && <em>{i.filename}&nbsp;<RateReviewIcon fontSize="small" className="file-has-comment" /></em>}
                     {!hasComment && <>{i.filename}</>}
                 </>}>
-                <SolutionResultViewTreeView result={result} files={i.files} />
+                {i.files.length > 0 && <SolutionResultViewTreeView result={result} files={i.files} />}
             </TreeItem>
         })}
     </>

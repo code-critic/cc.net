@@ -65,6 +65,10 @@ namespace CC.Net.Controllers
 
             newData.Solutions = newSolutions;
             newData.Id = data.Id;
+            newData.ReviewRequest = data.ReviewRequest;
+            newData.Points = data.Points;
+            newData.GradeComment = data.GradeComment;
+            newData.Comments = data.Comments;
             await _dbService.Data.UpdateDocumentAsync(newData);
             return Ok();
         }

@@ -20,6 +20,7 @@ using System.Threading;
 using CC.Net.Collections;
 using Cc.Net.Middlewares;
 using Cc.Net.Services;
+using Cc.Net.Services.Processing.Evaluation;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using Serilog;
@@ -59,6 +60,7 @@ namespace CC.Net
             services.AddScoped<UtilService>();
             services.AddScoped<ViewResultService>();
             services.AddScoped<SubmitSolutionService>();
+            services.AddScoped<EvaluationService>();
             services.AddSingleton<CacheContentService>();
             services.AddSingleton<NotificationFlag>();
             services.AddHostedService<ProcessService>();

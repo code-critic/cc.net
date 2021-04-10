@@ -4,20 +4,19 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using CC.Net.Collections;
+using Cc.Net.Extensions;
 using CC.Net.Extensions;
 using CC.Net.Hubs;
 using CC.Net.Services.Courses;
+using Cc.Net.Services.Execution;
 using CC.Net.Utils;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
 
 namespace CC.Net.Services
 {
-
     public partial class ProcessItem
     {
-
-
         public async Task<CcData> GenerateInput()
         {
             var prepareResult = await PrepareItem();
@@ -35,7 +34,7 @@ namespace CC.Net.Services
             await prepareResult.Channel.ItemChanged(Item);
             return Item;
         }
-        
+
         public async Task<CcData> GenerateOutput()
         {
             var prepareResult = await PrepareItem();
@@ -67,54 +66,39 @@ namespace CC.Net.Services
             {
                 subcase.Status = ProcessStatus.Skipped.Value;
                 subcase.Message = "Skipping static input file";
+                subcase.TimeLimit = 0;
                 return;
             }
-            
+
+            // skip global timeouts
+            if (TimeBank.IsBusted())
+            {
+                subcase.SetStatus(ProcessStatus.Skipped);
+                subcase.Messages = new[] {"No time left"};
+                subcase.TimeLimit = 0;
+                return;
+            }
+
             subcase.Status = ProcessStatus.Running.Value;
-            var timeout = (int) IncreaseTimeoutForInput(@case.Timeout < 0.01 ? 120 : (int) Math.Ceiling(@case.Timeout));
+            subcase.TimeLimit = @case.Timeout.ScaleTo(Context.Language);
+            
             var baseCommand = $"{string.Join(" ", Context.Language.Run)}".ReplaceCommon(Context.MainFileName);
             var fullCommand = $"{baseCommand} {@case.GetArguments()}";
-            var result = RunPipeline(
-                fullCommand,
-                Context.DockerTmpWorkdir,
-                timeout,
-                null,
-                $"output/{@case.Id}",
-                $"error/{@case.Id}"
-            );
-
-            TimeRemaining -= result.Duration;
-            subcase.Duration = result.Duration;
-            subcase.Returncode = result.ReturnCode;
-            subcase.FullCommand = result.FullCommand;
-            subcase.Command = result.Command;
+            var generateResult = ExecuteCommand(new ExecutionCommand
+            {
+                Command = fullCommand,
+                Workdir = Context.DockerTmpWorkdir,
+                Timeout = @case.Timeout.ScaleTo(Context.Language),
+                Deadline = TimeBank.TimeLeft,
+                OPath = $"output/{@case.Id}",
+                EPath = $"error/{@case.Id}",
+            });
 
             CopyOutputFromDocker(@case);
             CopyErrorFromDocker(@case);
             CopyToResultDir(Context.TmpDir.OutputDir, Context.ProblemDir.InputDir, false);
 
-            var inputFile = Context.ProblemDir.InputFile(@case.Id);
-
-            if (result.isOk && File.Exists(inputFile))
-            {
-                subcase.Status = ProcessStatus.Ok.Value;
-                subcase.Message = $"Input generated ({inputFile.ReadLines().Count()} lines)";
-            }
-            else
-            {
-                if (result.ReturnCode == 666)
-                {
-                    subcase.Status = ProcessStatus.GlobalTimeout.Value;
-                    subcase.Message = ProcessStatus.GlobalTimeout.Description;
-                    subcase.Messages = Context.GetTmpDirErrorMessage(@case.Id).SplitLines();
-                }
-                else
-                {
-                    subcase.Status = ProcessStatus.ErrorWhileRunning.Value;
-                    subcase.Message = ProcessStatus.ErrorWhileRunning.Description;
-                    subcase.Messages = Context.GetTmpDirErrorMessage(@case.Id).SplitLines();
-                }
-            }
+            _evaluationService.EvaluateTypeGenerate(generateResult, this, @case);
         }
     }
 }

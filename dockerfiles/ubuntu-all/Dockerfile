@@ -30,3 +30,5 @@ RUN rm -rf /var/cache/apt/* \
 USER jan-hybs
 
 ENV PATH="/matlab/bin:${PATH}"
+
+COPY execute /bin/

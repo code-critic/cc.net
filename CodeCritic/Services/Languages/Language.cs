@@ -38,7 +38,7 @@ namespace CC.Net.Services.Languages
         [YamlMember(Alias="unittest")]
         public List<string> Unittest { get; set; } = new List<string>();
 
-        override public String ToString()
+        public override String ToString()
         {
             return $"<{Id}({Name})>";
         }

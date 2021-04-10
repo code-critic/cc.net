@@ -80,6 +80,9 @@ export interface ICcDataCaseResult {
 
   /** @format double */
   duration?: number;
+
+  /** @format double */
+  timeLimit?: number;
   message?: string | null;
 
   /** @format int32 */
@@ -155,6 +158,9 @@ export interface ICcDataResult {
 
   /** @format double */
   duration?: number;
+
+  /** @format double */
+  timeLimit?: number;
   message?: string | null;
 
   /** @format int32 */

@@ -1,19 +1,23 @@
+import moment from 'moment';
+import React from 'react';
+import { nameof } from 'ts-simple-nameof';
+
+import { Tooltip } from '@material-ui/core';
+import {
+    GridCellClassParams, GridCellParams, GridCellValue, GridColDef,
+} from '@material-ui/data-grid';
 import AssessmentIcon from '@material-ui/icons/Assessment';
 import CommentIcon from '@material-ui/icons/Comment';
 import FingerprintIcon from '@material-ui/icons/Fingerprint';
-import moment from 'moment';
 import RateReviewIcon from '@material-ui/icons/RateReview';
-import React from 'react';
 import TimerIcon from '@material-ui/icons/Timer';
 import TodayIcon from '@material-ui/icons/Today';
-import { AbsMoment } from '../../renderers/AbsMoment';
-import { GridCellClassParams, GridCellParams, GridCellValue, GridColDef } from '@material-ui/data-grid';
+
 import { ICcDataDto } from '../../cc-api';
-import { languages } from '../../static/languages';
-import { nameof } from 'ts-simple-nameof';
-import { ProcessStatusStatic } from '../../models/Enums';
-import { Tooltip } from '@material-ui/core';
 import { OptionType } from '../../models/CustomModel';
+import { ProcessStatusStatic } from '../../models/Enums';
+import { AbsMoment } from '../../renderers/AbsMoment';
+import { languages } from '../../static/languages';
 
 const XS = 80;
 const SM = 100;
@@ -22,6 +26,7 @@ const MD = 140;
 export interface GridColDefEx extends GridColDef {
     options?: OptionType[],
     strict?: boolean,
+    isHiddenOnSmallScreen?: boolean,
 }
 
 const convert = (options: string[]) => options.map(i => {
@@ -74,24 +79,38 @@ export const columns: GridColDefEx[] = [
     {
         field: nameof<ICcDataDto>(i => i.attempt), headerName: '#', width: XS, ...Attempts,
         renderHeader: () => <Tooltip title="Attempt no." ><FingerprintIcon /></Tooltip>,
+        isHiddenOnSmallScreen: true,
     },
     {
         field: nameof<ICcDataDto>(i => i.date), headerName: 'Date', width: MD,
-        renderCell: (params) => <AbsMoment date={params.row.date} />,
+        renderCell: (params: any) => <AbsMoment date={params.row.date} />,
         renderHeader: () => <><TodayIcon />&nbsp;Date</>,
-        sortComparator: (v1: GridCellValue, v2: GridCellValue, cellParams1: GridCellParams, cellParams2: GridCellParams) =>
-            new Date(cellParams2.row.date).getTime() -  new Date(cellParams1.row.date).getTime(),
+        sortComparator: (_v1: GridCellValue, _v2: GridCellValue, cellParams1: GridCellParams, cellParams2: GridCellParams) =>
+            new Date(cellParams2.row.date).getTime() - new Date(cellParams1.row.date).getTime(),
         ...DateRange
     },
     { field: nameof<ICcDataDto>(i => i.isLate), headerName: 'is Late', width: SM, ...InLateAll },
-    { field: nameof<ICcDataDto>(i => i.users), headerName: 'User', width: MD },
-    { field: nameof<ICcDataDto>(i => i.language), headerName: 'Lang', width: SM, ...Languages },
-    { field: nameof<ICcDataDto>(i => i.course), headerName: 'Course', width: SM },
-    { field: nameof<ICcDataDto>(i => i.year), headerName: 'Year', width: SM },
-    { field: nameof<ICcDataDto>(i => i.problem), headerName: 'Problem', width: MD },
+    { field: nameof<ICcDataDto>(i => i.users), headerName: 'User', width: MD, },
+    {
+        field: nameof<ICcDataDto>(i => i.language), headerName: 'Lang', width: SM,
+        isHiddenOnSmallScreen: true,
+        ...Languages
+    },
+    {
+        field: nameof<ICcDataDto>(i => i.course), headerName: 'Course', width: SM,
+        isHiddenOnSmallScreen: true
+    },
+    {
+        field: nameof<ICcDataDto>(i => i.year), headerName: 'Year', width: SM,
+        isHiddenOnSmallScreen: true
+    },
+    {
+        field: nameof<ICcDataDto>(i => i.problem), headerName: 'Problem', width: MD,
+        isHiddenOnSmallScreen: true
+    },
     {
         field: nameof<ICcDataDto>(i => i.reviewRequest), headerName: 'RR', width: MD, ...OnlyYesNoAll,
-        renderCell: (params) => <AbsMoment date={params.row.reviewRequest} />,
+        renderCell: (params: any) => <AbsMoment date={params.row.reviewRequest} />,
         renderHeader: () => <><RateReviewIcon />&nbsp;Review</>,
     },
     {
@@ -107,7 +126,7 @@ export const columns: GridColDefEx[] = [
     { field: nameof<ICcDataDto>(i => i.group), headerName: 'Group', width: SM },
     {
         field: nameof<ICcDataDto>(i => i.duration), headerName: 'Duration', width: SM,
-        renderCell: i => i.row.duration?.toFixed(3),
+        renderCell: (i: any) => i.row.duration?.toFixed(3),
         renderHeader: () => <Tooltip title="Duration" ><TimerIcon /></Tooltip>,
     },
 ].map(i => {

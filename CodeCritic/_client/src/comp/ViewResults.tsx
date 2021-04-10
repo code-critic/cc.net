@@ -6,11 +6,11 @@ import AssignmentIndIcon from '@material-ui/icons/AssignmentInd';
 
 import { CodeCritic } from '../api';
 import { ICcDataDto, ITableResponse } from '../cc-api';
+import { notifications } from '../utils/notifications';
 import { ProblemPicker, ProblemPickerExportProps } from './ProblemPicker';
 import { SolutionResultView } from './solutionResultView/SolutionResultView';
 import { TableModel, TableResults } from './table/TableResults';
 import { createTableRequest } from './table/TableResults.request';
-import { notifications } from '../utils/notifications';
 
 export const ViewResults = () => {
     return <div>
@@ -108,6 +108,7 @@ const ViewResultsImpl = (props: ViewResultsImplProps) => {
             onChange={handleHandle}
             onSelected={handleSelected}
             isLoading={isLoading} />
+            
         {selectedItem && <>
             <Dialog className="solution-result-view-dialog"
                     open={!!selectedItem} 

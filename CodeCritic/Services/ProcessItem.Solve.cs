@@ -5,9 +5,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using CC.Net.Collections;
 using CC.Net.Dto.UnitTest;
+using Cc.Net.Extensions;
 using CC.Net.Extensions;
 using CC.Net.Hubs;
 using CC.Net.Services.Courses;
+using Cc.Net.Services.Execution;
 using CC.Net.Services.Languages;
 using CC.Net.Utils;
 using Microsoft.Extensions.Logging;
@@ -64,72 +66,52 @@ namespace CC.Net.Services
         }
 
 
-        private async Task<ProcessResult> SolveCaseBaseAsync(CourseProblemCase @case)
+        private async Task<ExecutionResult> SolveCaseBaseAsync(CourseProblemCase @case)
         {
             var caseId = @case.Id;
             var subcase = Item.Results.First(i => i.Case == caseId);
-            var timeout = @case.Timeout < 0.001 ? 5 : @case.Timeout;
-            var language = Context.Language;
 
-            // ran out of time
-            if (TimeRemaining < 0)
+            // skip global timeouts
+            if (TimeBank.IsBusted())
             {
-                subcase.Status = ProcessStatus.Skipped.Value;
-                subcase.Message = "Ran out of time";
-                return new ProcessResult
+                subcase.SetStatus(ProcessStatus.Skipped);
+                subcase.TimeLimit = 0;
+                subcase.Messages = new[] {"No time left"};
+                return new ExecutionResult
                 {
-                    ReturnCode = 666
+                    Code = ExecutionStatus.GlobalTimeout,
+                    Status = ExecutionStatus.GlobalTimeout.ToString(),
+                    Duration = 0,
+                    ReturnCode = -1,
                 };
             }
 
             // copy test assets
             CopyInDocker($"assets/{caseId}/*");
 
-
             subcase.Status = ProcessStatus.Running.Value;
+            subcase.TimeLimit = @case.Timeout.ScaleTo(Context.Language);
+            
+            var language = Context.Language;
             var isUnitTest = Context.CourseProblem.Type == ProblemType.Unittest;
-
             var pipeline = isUnitTest && language.Unittest.Any()
                 ? language.Unittest
                 : language.Run;
 
 
             SetPermissions();
-            var result = RunPipeline(
-                $"{string.Join(" ", pipeline)}".ReplaceCommon(Context.MainFileName),
-                Context.DockerTmpWorkdir,
-                (int)Math.Ceiling(TimeRemaining),
-                isUnitTest ? null : $"input/{@case.Id}",
-                $"output/{@case.Id}",
-                $"error/{@case.Id}"
-            );
-
-            // ProcessResult result;
-            // if (Context.Language.Id.ToLower() == "matlab")
-            // {
-            //     result = await ProcessCaseMatlabAsync(@case, filename);
-            //     await File.WriteAllTextAsync(Context.TmpDir.OutputFile(caseId), result.Output.AsString());
-            //     await File.WriteAllTextAsync(Context.TmpDir.ErrorFile(caseId), result.Error.AsString());
-            // }
-            // else
-            // {
-            //     SetPermissions();
-            //     result = RunPipeline(
-            //         $"{string.Join(" ", pipeline)}".ReplaceCommon(filename),
-            //         Context.DockerTmpWorkdir,
-            //         (int) Math.Ceiling(TimeRemaining),
-            //         isUnitTest ? null : $"input/{@case.Id}",
-            //         $"{Context.TmpDir.OutputDir.Dirname()}/{@case.Id}",
-            //         $"{Context.TmpDir.ErrorDir.Dirname()}/{@case.Id}"
-            //     );
-            // }
-
-            TimeRemaining -= result.Duration;
-            subcase.Duration = result.Duration;
-            subcase.Returncode = result.ReturnCode;
-            subcase.FullCommand = result.FullCommand;
-            subcase.Command = result.Command;
-
+            var executionResult = ExecuteCommand(new ExecutionCommand
+            {
+                Command = $"{string.Join(" ", pipeline)}".ReplaceCommon(Context.MainFileName),
+                Workdir = Context.DockerTmpWorkdir,
+                Timeout = @case.Timeout.ScaleTo(language),
+                Deadline = TimeBank.TimeLeft,
+                IPath = isUnitTest ? null : $"input/{@case.Id}",
+                OPath = $"output/{@case.Id}",
+                EPath = $"error/{@case.Id}"
+            });
+            
+            
             CopyOutputFromDocker(@case);
             CopyErrorFromDocker(@case);
             CopyFromDocker(".report.json");
@@ -137,50 +119,10 @@ namespace CC.Net.Services
             {
                 CopyFromDocker(f);
             }
-
-            var reportJson = Context.TmpDir.RootFile(".report.json");
-            if (File.Exists(reportJson))
-            {
-                var report = PythonReport.FromJson(reportJson.ReadAllText());
-                Item.Results.AddRange(
-                    report.Report.Tests.Select(i => new CcDataCaseResult
-                    {
-                        Case = i.Name,
-                        Duration = i.Duration,
-                        Status = i.Outcome == "passed"
-                            ? (int) ProcessStatusCodes.AnswerCorrect
-                            : (int) ProcessStatusCodes.AnswerWrong
-                    })
-                );
-            }
-
-
-            if (result.isOk)
-            {
-                subcase.Status = ProcessStatus.Ok.Value;
-                subcase.Message = ProcessStatus.Ok.Description;
-            }
-            else
-            {
-                if (result.ReturnCode == 666)
-                {
-                    subcase.Status = ProcessStatus.GlobalTimeout.Value;
-                    subcase.Message = ProcessStatus.GlobalTimeout.Description;
-                    subcase.Messages = new[]
-                    {
-                        $"Available time: {TimeAvailable} sec",
-                        $"Time Remaining: {TimeRemaining} sec",
-                    };
-                }
-                else
-                {
-                    subcase.Status = ProcessStatus.ErrorWhileRunning.Value;
-                    subcase.Message = ProcessStatus.ErrorWhileRunning.Description;
-                    subcase.Messages = Context.GetTmpDirErrorMessage(@case.Id).SplitLines();
-                }
-            }
-
-            return result;
+            
+            // determine messages and statuses
+            _evaluationService.EvaluateTypeSolve(executionResult, this, @case);
+            return executionResult;
         }
 
         private void SetPermissions()
@@ -213,13 +155,9 @@ namespace CC.Net.Services
             }
         }
 
-        private void HandleTypeProgram(CourseProblemCase @case, ProcessResult result)
+        private void HandleTypeProgram(CourseProblemCase @case, ExecutionResult result)
         {
             var caseResult = Item.Results.First(i => i.Case == @case.Id);
-            var timeout = @case.Timeout < 0.001 ? 5 : @case.Timeout;
-            var language = Context.Language;
-            var scaledTimeout = language.ScalledTimeout(timeout);
-            // var referenceFile = Context.ProblemDir.OutputFile(@case.Id);
 
             // reference solution
             var reference = Context.CourseProblem.Reference;
@@ -235,17 +173,17 @@ namespace CC.Net.Services
                 .Concat(refLanguage.Run)
                 .Concat(args)
                 .ToList();
-            
-            var runResult = RunPipeline(
-                command: $"{string.Join(" ", pipeline)}".ReplaceCommon(reference.Name),
-                workdir: Context.DockerDir.VerificationDir,
-                timeout: 0,
-                input: null,
-                output: $"{@case.Id}.o",
-                error: $"{@case.Id}.e"
-            );
 
-            if (runResult.IsBroken)
+            var verifyResult = ExecuteCommand(new ExecutionCommand
+            {
+                Command = $"{string.Join(" ", pipeline)}".ReplaceCommon(reference.Name),
+                Workdir = Context.DockerDir.VerificationDir,
+                OPath = $"{@case.Id}.o",
+                EPath = $"{@case.Id}.e",
+            });
+            
+
+            if (verifyResult.IsBroken)
             {
                 // copy files from tmp
                 CopyVerificationFromDocker(@case);
@@ -272,17 +210,14 @@ namespace CC.Net.Services
             }
         }
 
-        private void HandleTypeLineByLine(CourseProblemCase @case, ProcessResult result)
+        private void HandleTypeLineByLine(CourseProblemCase @case, ExecutionResult result)
         {
             var caseResult = Item.Results.First(i => i.Case == @case.Id);
-            var timeout = @case.Timeout < 0.001 ? 5 : @case.Timeout;
-            var language = Context.Language;
-            var scalledTimeout = language.ScalledTimeout(timeout);
             var referenceFile = Context.ProblemDir.OutputFile(@case.Id);
             
             if (!File.Exists(referenceFile))
             {
-                caseResult.Status = ProcessStatus.Skipped.Value;
+                caseResult.SetStatus(ProcessStatus.Skipped);
                 caseResult.Message = "Reference file is missing";
                 caseResult.Messages = new []
                 {
@@ -295,48 +230,29 @@ namespace CC.Net.Services
 
             if (diffResult.isOk)
             {
-                if (result.Duration > scalledTimeout)
-                {
-                    caseResult.Status = ProcessStatus.AnswerCorrectTimeout.Value;
-                    caseResult.Message = ProcessStatus.AnswerCorrectTimeout.Description;
-                    caseResult.Messages = new []
-                    {
-                        $"Allowed time for {caseResult.Case}: {scalledTimeout} sec (scalling: {language.ScaleInfo})",
-                        $"Actual solution walltime: {result.Duration} sec",
-                    };
-                }
-                else
-                {
-                    caseResult.Status = ProcessStatus.AnswerCorrect.Value;
-                    caseResult.Message = ProcessStatus.AnswerCorrect.Description;
-                }
+                caseResult.SetStatus(result.IsTimeOuted
+                    ? ProcessStatus.AnswerCorrectTimeout
+                    : ProcessStatus.AnswerCorrect);
             }
             else
             {
-                caseResult.Status = ProcessStatus.AnswerWrong.Value;
-                caseResult.Message = ProcessStatus.AnswerWrong.Description;
+                caseResult.SetStatus(result.IsTimeOuted
+                    ? ProcessStatus.AnswerWrongTimeout
+                    : ProcessStatus.AnswerWrong);
             }
         }
 
-        private void HandleTypeUnittest(CourseProblemCase @case, ProcessResult result)
+        private void HandleTypeUnittest(CourseProblemCase @case, ExecutionResult result)
         {
             var caseResult = Item.Results.First(i => i.Case == @case.Id);
-            var timeout = @case.Timeout < 0.001 ? 5 : @case.Timeout;
-            var language = Context.Language;
-            var scalledTimeout = language.ScalledTimeout(timeout);
             var errorText = Context.TmpDir.ErrorFile(@case.Id).ReadAllText();
             
             if (string.IsNullOrEmpty(errorText))
             {
-                if (result.Duration > scalledTimeout)
+                if (result.IsTimeOuted)
                 {
                     caseResult.Status = ProcessStatus.AnswerCorrectTimeout.Value;
                     caseResult.Message = ProcessStatus.AnswerCorrectTimeout.Description;
-                    caseResult.Messages = new []
-                    {
-                        $"Allowed time for {caseResult.Case}: {scalledTimeout} sec (scalling: {language.ScaleInfo})",
-                        $"Actual solution walltime: {result.Duration} sec",
-                    };
                 }
                 else
                 {

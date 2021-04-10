@@ -22,6 +22,7 @@ import { hubApi } from './submitSolution/SubmitSolution.Hub';
 import {
     SubmitSolutionAssetsTag, SubmitSolutionDeadlineTag, SubmitSolutionGroupTag,
     SubmitSolutionOutputTag, SubmitSolutionRequiredFilesTag, SubmitSolutionRequiredLanguageTag,
+    SubmitSolutionTimeTag,
 } from './submitSolution/SubmitSolution.Tags';
 
 const determineDefaultLanguage = (problem: ICourseProblem) => {
@@ -146,6 +147,7 @@ export const SubmitSolutionImpl = (props: SubmitSolutionProps) => {
             <SubmitSolutionDeadlineTag problem={problem} />
             <SubmitSolutionRequiredLanguageTag problem={problem} />
             <SubmitSolutionRequiredFilesTag problem={problem} language={language} />
+            <SubmitSolutionTimeTag problem={problem} language={language} />
             {problem.assets?.length > 0 && <SubmitSolutionAssetsTag problem={problem} />}
             {problem.export?.length > 0 && <SubmitSolutionOutputTag problem={problem} />}
             {problem.groupsAllowed && <SubmitSolutionGroupTag problem={problem} />}

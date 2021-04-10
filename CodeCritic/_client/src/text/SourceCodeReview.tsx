@@ -2,30 +2,32 @@ import React, { useState } from 'react';
 import ReactMde from 'react-mde';
 import Moment from 'react-moment';
 
-import { Button, Container, Typography } from '@material-ui/core';
+import { Button, Container, IconButton, Typography } from '@material-ui/core';
 import ClearIcon from '@material-ui/icons/Clear';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
 
+import { CodeCritic } from '../api';
+import { ICommentServiceItem, ILineComment } from '../cc-api';
 import { DropDownMenu } from '../components/DropDownMenu';
 import { useComments } from '../hooks/useComments';
 import { useUser } from '../hooks/useUser';
-import { ICommentServiceItem, ILineComment } from '../cc-api';
+import { OptionType } from '../models/CustomModel';
 import { converter } from '../renderers/markdown';
+import { notifications } from '../utils/notifications';
 import { getInitials, normalizePath } from '../utils/utils';
 import { getSyntax, highlightLine, highlightPlainText } from './highlight';
-import { OptionType } from '../models/CustomModel';
-import { notifications } from '../utils/notifications';
-import { CodeCritic } from '../api';
 
 interface SingleCommentProps {
     comment: ILineComment;
+    onDelete(): void;
 }
 const SingleComment = (props: SingleCommentProps) => {
-    const { comment } = props;
+    const { comment, onDelete } = props;
     const initials = getInitials(comment.user);
-    const pending = comment.time <= 0 ? "pending" : 0;
+    const isPending = comment.time <= 0;
+    const pendingCls = isPending ? "pending" : "";
 
-    return <tr className={`comment-row ${pending}`}>
+    return <tr className={`comment-row ${pendingCls}`}>
         <td colSpan={2}>
             <div className="comment-grid">
 
@@ -33,12 +35,18 @@ const SingleComment = (props: SingleCommentProps) => {
                     <div className="avatar" >{initials}</div>
                 </div>
 
+                {isPending && <div className="cls">
+                    <IconButton size="small" className="remove-comment" onClick={onDelete}>
+                        <ClearIcon />
+                    </IconButton>
+                </div>}
+
                 <div className="inf">
                     <Typography component="span">{comment.user}</Typography>
                     <Typography component="span" color="textSecondary">
                         <small>&nbsp;
-                            {comment.time > 0 && (<Moment fromNow>{comment.time * 1000}</Moment>)}
-                            {comment.time <= 0 && <span>pending</span>}
+                            {!isPending && (<Moment fromNow>{comment.time * 1000}</Moment>)}
+                            {isPending && <span>pending</span>}
                         </small>
                     </Typography>
                 </div>
@@ -111,16 +119,15 @@ export const SourceCodeReview = (props: ISourceCodeReview) => {
     const { user, isRoot } = useUser();
     const [commentsOn, setCommentOn] = useState(true);
     const [editor, setEditor] = useState(-1);
-    const [extraComment, setExtraComments] = useState<ICommentServiceItem[]>([]);
-    const { prepareComment } = useComments();
+    // const [extraComment, setExtraComments] = useState<ICommentServiceItem[]>([]);
+    const { serviceItems, prepareComment, cancelComment } = useComments();
 
     const comments = [
-            ...defaultComment,
-            ...extraComment
-                .filter(i => i.objectId == objectId)
-                .map(i => i.comment)
-        ]
-        .filter(i => normalizePath(i.filename) === normalizePath(relPath));
+        ...defaultComment,
+        ...serviceItems
+            .filter(i => i.objectId == objectId)
+            .map(i => i.comment)
+    ].filter(i => normalizePath(i.filename) === normalizePath(relPath));
 
     const parts = relPath.toLowerCase().split(".");
     const extension = parts[parts.length - 1];
@@ -150,7 +157,8 @@ export const SourceCodeReview = (props: ISourceCodeReview) => {
             comment: comment,
             objectId: objectId,
         } as ICommentServiceItem;
-        setExtraComments([...extraComment, newComment]);
+
+        // setExtraComments([...extraComment, newComment]);
         prepareComment(newComment);
         setEditor(-1);
     }
@@ -167,7 +175,7 @@ export const SourceCodeReview = (props: ISourceCodeReview) => {
     const menuItems: OptionType[] = [
         { name: "Show comments", value: () => setCommentOn(true) },
         { name: "Hide comments", value: () => setCommentOn(false) },
-        ...(isRoot ? [ { name: "Rerun solution", value: rerunSolution}] : [ ])
+        ...(isRoot ? [{ name: "Rerun solution", value: rerunSolution }] : [])
     ];
 
     const toRow = (code: string, ln: number, isOpen: boolean, hasComments: boolean) => {
@@ -185,11 +193,15 @@ export const SourceCodeReview = (props: ISourceCodeReview) => {
         </tr>
     }
 
+    const deleteComment = (comment: ILineComment) => {
+        cancelComment({ objectId: objectId, comment });
+    }
+
     // TODO: remove at the beginingn of the next semester
     const lines = [...code.split("\n"), ""];
     let id = 0;
     return <div>
-        <Container maxWidth="lg" style={{position: "relative"}}>
+        <Container maxWidth="lg" style={{ position: "relative" }}>
             <div style={{ textAlign: "right", position: "absolute", top: 0, right: 0 }}>
                 <DropDownMenu
                     onChange={i => i && i.value ? i.value() : void 0}
@@ -204,7 +216,8 @@ export const SourceCodeReview = (props: ISourceCodeReview) => {
                         const hasEditor = editor == j;
                         const hasComments = comments.filter(c => c.line == j).length > 0;
                         const commentsTrs = commentsOn
-                            ? comments.filter(c => c.line == j).map((c, k) => <SingleComment key={id++} comment={c} />)
+                            ? comments.filter(c => c.line == j).map((c, k) => 
+                                <SingleComment key={id++} onDelete={() => deleteComment(c)} comment={c} />)
                             : [];
 
                         const editorTr = commentsOn && hasEditor

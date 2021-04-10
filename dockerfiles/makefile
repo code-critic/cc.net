@@ -8,6 +8,7 @@ ubuntu-build:
 .PHONY: ubuntu-all
 ubuntu-all:
 	docker build -t automatest/ubuntu-all ubuntu-all
+	docker push automatest/ubuntu-all
 
 build:
 	docker build -t automatest/base base

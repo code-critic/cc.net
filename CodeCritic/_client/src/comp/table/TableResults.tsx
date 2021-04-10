@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { debounce } from 'throttle-debounce';
 
 import { IconButton } from '@material-ui/core';
@@ -7,8 +7,8 @@ import {
     GridSortModelParams,
 } from '@material-ui/data-grid';
 
-import { SimpleLoader } from '../../components/SimpleLoader';
 import { ICcDataDto, ITableResponse } from '../../cc-api';
+import { SimpleLoader } from '../../components/SimpleLoader';
 import { columns } from './TableResults.columns';
 import { TableResultsFilters } from './TableResults.filters';
 
@@ -31,6 +31,18 @@ export interface TableModel {
 
 type ClientServerMode = "server" | "client";
 
+
+const getColumns = () => {
+    const isSmall = window.innerWidth < 1025;
+    const newCols = columns.map(i => {
+        if (i.isHiddenOnSmallScreen) {
+            i.hide = isSmall;
+        }
+        return i;
+    });
+    return newCols;
+}
+
 interface TableResultsProps {
     isLoading: boolean;
     tableResponse: ITableResponse;
@@ -45,6 +57,10 @@ export const TableResults = (props: TableResultsProps) => {
     const [filterModel, setFilterModel] = useState<FilterModel>();
     const [pageModel, setPageModel] = useState<PageModel>({ page: 0, pageSize: 20 });
     const [filtersOpen, setFiltersOpen] = useState(false);
+    const [ dynamicColumns, setDynamicColumns ] = useState(getColumns());
+    const [ gridHeight, setGridHeight ] = useState(Math.max(400, window.innerHeight - 220));
+    const divHref = useRef<HTMLDivElement>(null);
+    
 
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
@@ -54,10 +70,20 @@ export const TableResults = (props: TableResultsProps) => {
             }
         }
 
+        const handleResize = (e: UIEvent) => {
+            setTimeout(() => {
+                setDynamicColumns([...getColumns()]);
+                const offset = (divHref.current?.offsetTop ?? 170) + 50;
+                setGridHeight(Math.max(400, window.innerHeight - offset));
+            }, 1);
+        }
+
         window.addEventListener("keydown", handleKeyDown);
+        window.addEventListener("resize", handleResize);
 
         return () => {
             window.removeEventListener("keydown", handleKeyDown);
+            window.removeEventListener("resize", handleResize);
         }
     }, []);
 
@@ -113,14 +139,14 @@ export const TableResults = (props: TableResultsProps) => {
                 onChange={changeFilter}
                 onClose={closeDialog} />
         </>}
-        <div className="data-grid-wrapper">
+        <div className="data-grid-wrapper" style={{height: gridHeight}} ref={divHref}>
             <IconButton onClick={showFilters} className="data-grid-filter-btn">
                 <FilterIcon />
             </IconButton>
             <DataGrid
                 className={`${isLoading ? "is-loading" : ""}`}
                 rows={rows}
-                columns={columns}
+                columns={dynamicColumns}
                 density={"compact"}
                 loading={isLoading}
 

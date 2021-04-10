@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
 
-import { appDispatcher, commentService } from '../init';
 import { ICommentServiceItem } from '../cc-api';
+import { appDispatcher, commentService } from '../init';
 
 export const useComments = () => {
-    const [serviceItems, setServiceItems] = useState<ICommentServiceItem[]>([]);
+    const [ serviceItems, setServiceItems ] = useState<ICommentServiceItem[]>([]);
 
     useEffect(() => {
         const id = appDispatcher.register(payload => {
@@ -20,12 +20,26 @@ export const useComments = () => {
         }
     }, []);
 
+    const cancelComment = (item: ICommentServiceItem) => {
+        const newItems = commentService.items
+            .filter(i => !(i.objectId == item.objectId
+                && i.comment.filename == item.comment.filename
+                && i.comment.text == item.comment.text
+                && i.comment.line == item.comment.line));
+
+                
+        commentService.items = newItems;
+        appDispatcher.dispatch({
+            actionType: "commentServiceChanged"
+        });
+    }
+
 
     // const { comments, prepareComment, postComments, postCommentsAsync } = useComments();
     return {
-        serviceItems,
+        serviceItems, cancelComment,
         comments: serviceItems.map(i => i.comment),
-        prepareComment: (item:ICommentServiceItem) => commentService.prepareComment(item), 
+        prepareComment: (item: ICommentServiceItem) => commentService.prepareComment(item), 
         postComments: () => commentService.postComments(),
         postCommentsAsync: () => commentService.postCommentsAsync()
      };
