@@ -24,7 +24,7 @@ namespace Cc.Net.Services.Execution
         public List<string> Messages { get; set; } = new List<string>();
 
         [JsonProperty("returncode")]
-        public int ReturnCode { get; set; }
+        public int ReturnCode { get; set; } = -1;
 
 
         [JsonIgnore]
@@ -41,7 +41,7 @@ namespace Cc.Net.Services.Execution
             yield return "Solution ran out of global time!";
             yield return $"Allowed global walltime  : {bank.LanguageDeadline:0.000}";
             yield return $"Solution global walltime : {bank.WallTime:0.000}";
-            yield return $"Global baseline timeout  : {bank.LanguageDeadline:0.000}";
+            yield return $"Global baseline timeout  : {bank.Deadline:0.000}";
             yield return $"Language compensation    : [{bank.Language.ScaleInfo}] for {bank.Language.Name}";
         }
         

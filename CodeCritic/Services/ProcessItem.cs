@@ -169,6 +169,7 @@ namespace CC.Net.Services
                     Messages = ex.StackTrace?.Split("\n").ToList() ??
                                new List<string> {"Could not determine stacktrace"},
                     ExecutionCommand = command,
+                    ReturnCode = 666,
                 };
             }
         }
