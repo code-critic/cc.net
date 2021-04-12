@@ -77,7 +77,7 @@ def main():
     local_bin.mkdir(exist_ok=True, parents=True)
     latest_link = local_bin / 'cc.latest'
     latest_link.write_text(f"""
-#!/bin/bash
+#!/usr/bin/env bash
 cd {ccpublish}
 ./cc.net --urls http://0.0.0.0:{port}
 """)
