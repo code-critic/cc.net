@@ -8,7 +8,8 @@
   extension: py
   style: python
   run: [python3, <filename>]
-  unittest: [python3, -m, pytest, --json=.report.json, -rA, <filename>]
+  # unittest: [python3, -m, pytest, --json=.report.json, -rA, <filename>]
+  unittest: [python3, -m, pytest, --json=.report.json, --tb=line, <filename>]
 
 - id: C
   name: C

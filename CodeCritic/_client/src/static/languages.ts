@@ -19,7 +19,7 @@ export const languages: ILanguage[] = [
             "-m",
             "pytest",
             "--json=.report.json",
-            "-rA",
+            "--tb=line",
             "<filename>"
         ],
         "compilationNeeded": false,

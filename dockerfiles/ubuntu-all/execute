@@ -48,7 +48,7 @@ public enum ExecuteStatus
 # print(ExecuteStatus.to_json())
 
 def get_tb_lines(tb: TracebackType):
-    return "\n".join(traceback.format_tb(tb)).splitlines()
+    return [l for l in "\n".join(traceback.format_tb(tb)).splitlines() if l]
 
 def first_valid_value(*args):
     for i in args:
@@ -60,7 +60,7 @@ def first_valid_value(*args):
             lines = []
             fp = open(i, "r")
             for line in fp:
-                lines.append(line)
+                lines.append(line.rstrip())
                 limit += 1
                 if limit > 1000:
                     break
