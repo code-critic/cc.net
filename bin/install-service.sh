@@ -16,7 +16,7 @@ Restart=always
 RestartSec=3
 User=jan-hybs
 WorkingDirectory=$workdir
-ExecStart=/usr/bin/bash $DIR/cc.sh
+ExecStart=/usr/bin/env bash $DIR/cc.sh
 
 [Install]
 WantedBy=multi-user.target
