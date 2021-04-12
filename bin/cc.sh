@@ -30,4 +30,4 @@ killall -9 cc.net
 
 
 echo $(date --rfc-3339=seconds) "Starting new version" >> $logfile
-nohup cc.latest
+cc.latest
