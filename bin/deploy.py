@@ -1,6 +1,6 @@
 from subprocess import PIPE, check_output, Popen
 from optparse import OptionParser
-import os
+import os, sys
 from pathlib import Path
 import subprocess
 
@@ -9,6 +9,7 @@ parser = OptionParser()
 parser.add_option("-p", "--port", type=str, default="5000")
 parser.add_option("-K", "--no-kill", dest="kill", action="store_false", default=True)
 parser.add_option("-b", "--background", action="store_false", default=False)
+parser.add_option("-e", "--execute", action="store_True", default=False)
 parser.add_option("--dbg", type=str, default=None)
 parser.add_option("-u", "--url", type=str, default='https://github.com/code-critic/cc.net/archive/refs/heads/master.zip')
 options, args = parser.parse_args()
@@ -72,17 +73,27 @@ def main():
 
     print("")
     print(f"new release {ccpublish}")
+    local_bin = Path(os.environ.get("HOME")) / '.local' / 'bin'
+    local_bin.mkdir(exist_ok=True, parents=True)
+    latest_link = local_bin / 'cc.latest'
+    latest_link.write_text(f"""
+#!/bin/bash
+cd {ccpublish}
+./cc.net --urls http://0.0.0.0:{port}
+""")
+    os.chmod(latest_link, 0o775)
 
-    if kill_previous:
-        Popen(['killall', 'cc.net']).wait(1.0)
-        Popen(['killall', '-9', 'cc.net']).wait(1.0)
-    
-    if background:
-        Popen(['./cc.net', '--urls', f'http://0.0.0.0:{port}'], cwd=str(ccpublish),
-            stdout=PIPE, stderr=subprocess.STDOUT, preexec_fn=os.setsid)
-        exit(0)
-    else:
-        Popen(['./cc.net', '--urls', f'http://0.0.0.0:{port}'], cwd=str(ccpublish)).wait()
+    if options.execute:
+        if kill_previous:
+            Popen(['killall', 'cc.net']).wait(1.0)
+            Popen(['killall', '-9', 'cc.net']).wait(1.0)
+        
+        if background:
+            Popen(['./cc.net', '--urls', f'http://0.0.0.0:{port}'], cwd=str(ccpublish),
+                stdout=PIPE, stderr=subprocess.STDOUT, preexec_fn=os.setsid)
+            exit(0)
+        else:
+            Popen(['./cc.net', '--urls', f'http://0.0.0.0:{port}'], cwd=str(ccpublish)).wait()
 
 if __name__ == '__main__':
     main()
