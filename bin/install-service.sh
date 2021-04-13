@@ -19,7 +19,7 @@ Type=simple
 User=jan-hybs
 Restart=always
 RestartSec=3
-ExecStart=/home/jan-hybs/.local/bin/cc.latest --prod --urls http://0.0.0.0:5000
+ExecStart=/home/jan-hybs/.local/bin/cc.latest --prod true --urls http://0.0.0.0:5000
 
 [Install]
 WantedBy=multi-user.target
