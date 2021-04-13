@@ -63,6 +63,7 @@ namespace CC.Net
             services.AddScoped<EvaluationService>();
             services.AddSingleton<CacheContentService>();
             services.AddSingleton<NotificationFlag>();
+            services.AddSingleton<ServerStatus>();
             services.AddHostedService<ProcessService>();
             services.AddHostedService<NotificationService>();
             services.AddHttpContextAccessor();

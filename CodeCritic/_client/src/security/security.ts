@@ -13,6 +13,7 @@ export const guest: IAppUser = {
     username: "guest",
     groups: [],
     isCurrentlyRoot: false,
+    serverStatus: null,
 }
 
 export const getLocalStorageUserOrDefault = () => {

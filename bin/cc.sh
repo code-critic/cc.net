@@ -7,11 +7,6 @@ logfile=$DIR/service.log
 cd $DIR
 echo "------------------------------------------- cc.service" >> $logfile
 
-
-echo $(date --rfc-3339=seconds) "Starting previous version" >> $logfile
-nohup cc.latest &
-
-
 echo $(date --rfc-3339=seconds) "Updating docker file" >> $logfile
 docker pull automatest/ubuntu-all >> $logfile 2>&1
 

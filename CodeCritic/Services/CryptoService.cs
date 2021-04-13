@@ -27,6 +27,9 @@ namespace CC.Net.Services
         public string Datetime { get; set; }
 
         public string Role { get; set; } = "student";
+        
+        public string ServerStatus { get; set; } = "running";
+        public string ServerMessage { get; set; }
 
         public string Id => Eppn.Split('@').First();
         public bool IsRoot => Roles.Contains("root");
@@ -59,7 +62,7 @@ namespace CC.Net.Services
 
         public AppUser Copy()
         {
-            return new AppUser{
+            return new AppUser {
                 Eppn = Eppn,
                 Affiliation = Affiliation,
                 Datetime = Datetime,

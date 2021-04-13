@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { CircleLoader } from 'react-spinners';
 
 import {
-    AppBar, Avatar, Badge, Box, Container, IconButton, Menu, MenuItem, Toolbar, Tooltip, Typography,
+  AppBar, Avatar, Badge, Box, Container, IconButton, Menu, MenuItem, Toolbar, Tooltip, Typography,
 } from '@material-ui/core';
 import AccountCircleIcon from '@material-ui/icons/AccountCircle';
 import CancelIcon from '@material-ui/icons/Cancel';
@@ -15,7 +15,7 @@ import SecurityIcon from '@material-ui/icons/Security';
 
 import { ICcEvent } from '../cc-api';
 import { useUser } from '../hooks/useUser';
-import { appDispatcher, commentService, getUser, httpClient, updateUser } from '../init';
+import { appDispatcher, commentService, getUser, httpClient, superAdmin, updateUser } from '../init';
 import { IApiListResponse } from '../models/CustomModel';
 import { CcEventType } from '../models/Enums';
 import { pageLinks } from '../pageLinks';
@@ -25,6 +25,7 @@ import { reduceNotifications } from '../utils/notificationUtils';
 import { getInitials } from '../utils/utils';
 import { SimpleLoader } from './SimpleLoader';
 import { CodeCritic } from '../api';
+import { NavMenuAdmin } from './NavMenu.Admin';
 
 interface NavMenuProps {
 
@@ -36,7 +37,7 @@ interface EventNotificationProps {
 }
 
 const EventNotification = (props: EventNotificationProps) => {
-  const { event, groupCount=0 } = props;
+  const { event, groupCount = 0 } = props;
   const { sender } = event;
   const initials = getInitials(sender);
 
@@ -136,7 +137,7 @@ export const NavMenu = (props: NavMenuProps) => {
     handleMenuClose();
   }
 
-  const handleProfileMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
+  const openMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
     setMenuId(event.currentTarget.attributes["aria-controls"].value);
   };
@@ -145,7 +146,7 @@ export const NavMenu = (props: NavMenuProps) => {
 
   const accountMenuId = 'primary-search-account-menu';
   const notificationsMenuId = 'primary-search-notifications-menu';
-  const onlineUserMenuId = 'online-user-menu';
+  const superAdminMenuId = 'super-admin-menu';
 
   const renderMenu = (
     <>
@@ -160,6 +161,7 @@ export const NavMenu = (props: NavMenuProps) => {
       >
         <MenuItem disabled>{user.username} (<small>{user.id}:<code>{user.role}</code></small>)</MenuItem>
         <MenuItem disabled>roles: (<small>{user.roles.join(", ")}</small>)</MenuItem>
+
         {isRoot &&
           <MenuItem onClick={() => {
             user.role = "student";
@@ -167,8 +169,8 @@ export const NavMenu = (props: NavMenuProps) => {
             handleMenuClose();
           }}>
             <SecurityIcon />Switch to role student
-        </MenuItem>
-        }
+        </MenuItem>}
+
         {isRoot &&
           <MenuItem onClick={() => {
             const newName = prompt("Enter new name", "foo.bar") || user.id;
@@ -195,6 +197,7 @@ export const NavMenu = (props: NavMenuProps) => {
         <MenuItem component={Link} to={"/manage-groups"} onClick={handleMenuClose}>
           <GroupIcon /> Manage Groups
         </MenuItem>
+
         <MenuItem onClick={() => {
           fetch("home/logout")
             .then(data => {
@@ -202,7 +205,7 @@ export const NavMenu = (props: NavMenuProps) => {
             })
         }}>
           <CancelIcon />Logout
-      </MenuItem>
+        </MenuItem>
       </Menu>
 
       <Menu
@@ -224,14 +227,10 @@ export const NavMenu = (props: NavMenuProps) => {
         })}
       </Menu>
 
-      <Menu
+      <NavMenuAdmin
+        open={menuId === superAdminMenuId}
         anchorEl={anchorEl}
-        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-        id={onlineUserMenuId}
-        open={menuId === onlineUserMenuId}
-        keepMounted
-        onClose={handleMenuClose}>
-      </Menu>
+        onClose={handleMenuClose} />
     </>
   );
 
@@ -257,17 +256,11 @@ export const NavMenu = (props: NavMenuProps) => {
           <div style={{ flexGrow: 1 }} />
 
 
+          {/* links */}
           {availLinks.map(i =>
             <MenuItem key={i.path} component={Link} to={i.to}>{i.title}</MenuItem>
           )}
 
-          {/* online users */}
-          {/* {isRoot && <IconButton
-          aria-haspopup="true"
-          aria-controls={onlineUserMenuId}
-          onClick={handleProfileMenuOpen}>
-
-        </IconButton>} */}
 
           {/* queue status */}
           {queue.length > 0 && <Tooltip title={`Server is running. Currently ${queue.length} item${(queue.length == 1 ? "" : "s")} in queue.`}>
@@ -281,24 +274,34 @@ export const NavMenu = (props: NavMenuProps) => {
           {/* notifications */}
           <IconButton
             disabled={notifications.length === 0}
-            edge="end"
             color="inherit"
             aria-haspopup="true"
             aria-controls={notificationsMenuId}
-            onClick={handleProfileMenuOpen}>
+            onClick={openMenu}>
             <Badge badgeContent={newCount} color={badgeColor}>
               <NotificationsIcon />
             </Badge>
           </IconButton>
+
+
+          {/* super admin */}
+          {isRoot && user.id === superAdmin && <IconButton
+            color="inherit"
+            aria-haspopup="true"
+            aria-controls={superAdminMenuId}
+            onClick={openMenu}>
+            <SecurityIcon />
+          </IconButton>}
 
           {/* user menu */}
           <IconButton
             color="inherit"
             aria-haspopup="true"
             aria-controls={accountMenuId}
-            onClick={handleProfileMenuOpen}>
+            onClick={openMenu}>
             <AccountCircleIcon />
           </IconButton>
+
         </Toolbar>
       </Container>
     </AppBar>

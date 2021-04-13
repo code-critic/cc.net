@@ -49,6 +49,15 @@ namespace CC.Net
     {
         public static void Main(string[] args)
         {
+            if (args.Length > 1 && args[0] == "--prod")
+            {
+                Console.WriteLine($"Assembly      = {Directory.GetParent(typeof(Program).Assembly.Location).FullName}");
+                Console.WriteLine($"BaseDirectory = {AppDomain.CurrentDomain.BaseDirectory}");
+                Console.WriteLine($"GetCurrentDir = {Directory.GetCurrentDirectory()}");
+                Directory.SetCurrentDirectory(Directory.GetParent(typeof(Program).Assembly.Location).FullName);
+                Console.WriteLine($"GetCurrentDir = {Directory.GetCurrentDirectory()}");
+            }
+            
             if (args.Length > 0 && args[0] == "--docs" || true.Equals(false))
             {
                 var docs = "../docs/";

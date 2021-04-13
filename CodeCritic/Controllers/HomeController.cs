@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using Cc.Net.Auth;
 using CC.Net.Config;
 using CC.Net.Db;
+using Cc.Net.Services;
 using CC.Net.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
@@ -31,14 +32,17 @@ namespace Cc.Net.Controllers
         private AppOptions _appOptions;
         private readonly ILogger<HomeController> _logger;
         private readonly DbService _dbService;
+        private readonly ServerStatus _serverStatus;
 
-        public HomeController(CryptoService cryptoService, UserService userService, AppOptions appOptions, ILogger<HomeController> logger, DbService dbService)
+        public HomeController(CryptoService cryptoService, UserService userService, 
+            AppOptions appOptions, ILogger<HomeController> logger, DbService dbService, ServerStatus serverStatus)
         {
             _cryptoService = cryptoService;
             _userService = userService;
             _appOptions = appOptions;
             _logger = logger;
             _dbService = dbService;
+            _serverStatus = serverStatus;
         }
 
         private string LoginUrl =>
@@ -61,6 +65,9 @@ namespace Cc.Net.Controllers
             user.Groups = await _dbService.Groups
                 .Find(i => i.Users.Any(j => j.Name == user.Id))
                 .ToListAsync();
+            
+            user.ServerStatus = _serverStatus.Status;
+            user.ServerMessage = _serverStatus.Message;
 
             return Ok(user);
         }

@@ -12,6 +12,7 @@ import { ProcessStatusStatic } from './models/Enums';
 import { pageLinks } from './pageLinks';
 import { TimelineRenderer } from './renderers/TimelineRenderer';
 import { CcFooter } from './components/CCFooter';
+import { BrokenServerMessage } from './comp/BrokenServerMessage';
 
 export default class App extends Component {
     static displayName = App.name;
@@ -46,6 +47,7 @@ export default class App extends Component {
         // ];
 
         return (<>
+            <BrokenServerMessage />
             <NavMenu />
             <Container maxWidth={"xl"} style={{marginBottom: 50}}>
                 {/* <TimelineRenderer subresults={subresults as any} /> */}

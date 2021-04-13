@@ -137,7 +137,8 @@ export const SubmitSolutionImpl = (props: SubmitSolutionProps) => {
     const problemIsActive = problem.statusCode === ProblemStatus.Active
         || problem.statusCode === ProblemStatus.ActiveLate;
     const codeHidden = !problemIsActive && !isRoot;
-    const canSubmitSolution = isRoot || (files != null && files.length > 0 && problemIsActive);
+    const canSubmitSolution = user.serverStatus === "running" &&
+        (isRoot || (files != null && files.length > 0 && problemIsActive));
 
     return (<div className={`solution-submit ${codeHidden ? "inactive" : ""}`}>
         <div className="last-results">

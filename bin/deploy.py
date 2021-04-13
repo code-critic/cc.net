@@ -30,13 +30,18 @@ github_zip = options.url
 background = options.background
 dbg = options.dbg
 
+
+def create_symlink(ccpublish: Path):
+    cc_net = ccpublish / 'cc.net'
+    local_bin = Path(os.environ.get("HOME")) / '.local' / 'bin' / 'cc.latest'
+    local_bin.unlink(missing_ok=True)
+    
+    os.symlink(cc_net, local_bin)
+    print(local_bin, "->", cc_net)
+
 if dbg:
-    Popen(['killall', 'cc.net']).wait(1.0)
-    Popen(['killall', '-9', 'cc.net']).wait(1.0)
-    ccpublish = publish / dbg / "www"
-    Popen(['./cc.net', '--urls', f'http://0.0.0.0:{port}'],
-        stdout=PIPE, stderr=subprocess.STDOUT,
-        cwd=str(ccpublish), preexec_fn=os.setsid)
+    ccpublish = publish / "1.1.0" / "www"
+    create_symlink(ccpublish)
     exit(0)
 
 
@@ -73,15 +78,7 @@ def main():
 
     print("")
     print(f"new release {ccpublish}")
-    local_bin = Path(os.environ.get("HOME")) / '.local' / 'bin'
-    local_bin.mkdir(exist_ok=True, parents=True)
-    latest_link = local_bin / 'cc.latest'
-    latest_link.write_text(f"""
-#!/usr/bin/env bash
-cd {ccpublish}
-./cc.net --urls http://0.0.0.0:{port}
-""")
-    os.chmod(latest_link, 0o775)
+    create_symlink(ccpublish)
 
     if options.execute:
         if kill_previous:

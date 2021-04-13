@@ -199,7 +199,7 @@ export interface IDispatcher {
     data?: any;
 }
 
-
+export const superAdmin = "jan.hybs";
 export const commentService = new CommentService();
 export const appDispatcher = new Dispatcher<IDispatcher>();
 export const liveConnection = new HubConnectionBuilder()

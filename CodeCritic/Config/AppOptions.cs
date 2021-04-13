@@ -15,6 +15,7 @@ namespace CC.Net.Config
         public DockerOptions DockerOptions { get; set; }
 
         public string AESKey { get; set; }
+        public string SysAdminPasswd { get; set; }
         public string LoginUrl { get; set; }
         public string ReturnUrl { get; set; } = null;
         public IList<string> Admins { get; set; } = new List<string>();

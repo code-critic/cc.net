@@ -9,6 +9,11 @@
  * ---------------------------------------------------------------
  */
 
+export interface IAdminResponse {
+  ok?: boolean;
+  message?: string | null;
+}
+
 export interface IApiError {
   name?: string | null;
   errors?: string[] | null;
@@ -19,6 +24,8 @@ export interface IAppUser {
   affiliation?: string | null;
   datetime?: string | null;
   role?: string | null;
+  serverStatus?: string | null;
+  serverMessage?: string | null;
   id?: string | null;
   isRoot?: boolean;
   isCurrentlyRoot?: boolean;
@@ -230,6 +237,12 @@ export interface ICcUserGroupUpdate {
   name?: string | null;
   status?: ICcUserGroupStatus;
   oid?: string | null;
+}
+
+export interface IChangeServerStateRequest {
+  password?: string | null;
+  newState?: string | null;
+  message?: string | null;
 }
 
 export interface ICommentServiceItem {
@@ -711,6 +724,24 @@ export class HttpClient<SecurityDataType = unknown> {
  * @version 1.0
  */
 export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDataType> {
+  admin = {
+    /**
+     * No description
+     *
+     * @tags Admin
+     * @name ChangeServerStateCreate
+     * @request POST:/admin/change-server-state
+     */
+    changeServerStateCreate: (data: IChangeServerStateRequest, params: RequestParams = {}) =>
+      this.request<IAdminResponse, any>({
+        path: `/admin/change-server-state`,
+        method: "POST",
+        body: data,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+  };
   api = {
     /**
      * No description
