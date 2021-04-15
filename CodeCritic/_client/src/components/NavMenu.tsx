@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { CircleLoader } from 'react-spinners';
 
 import {
-  AppBar, Avatar, Badge, Box, Container, IconButton, Menu, MenuItem, Toolbar, Tooltip, Typography,
+    AppBar, Avatar, Badge, Box, Container, IconButton, Menu, MenuItem, Toolbar, Tooltip, Typography,
 } from '@material-ui/core';
 import AccountCircleIcon from '@material-ui/icons/AccountCircle';
 import CancelIcon from '@material-ui/icons/Cancel';
@@ -13,9 +13,12 @@ import GroupIcon from '@material-ui/icons/Group';
 import NotificationsIcon from '@material-ui/icons/Notifications';
 import SecurityIcon from '@material-ui/icons/Security';
 
+import { CodeCritic } from '../api';
 import { ICcEvent } from '../cc-api';
 import { useUser } from '../hooks/useUser';
-import { appDispatcher, commentService, getUser, httpClient, superAdmin, updateUser } from '../init';
+import {
+    appDispatcher, commentService, getUser, httpClient, superAdmin, updateUser,
+} from '../init';
 import { IApiListResponse } from '../models/CustomModel';
 import { CcEventType } from '../models/Enums';
 import { pageLinks } from '../pageLinks';
@@ -23,9 +26,8 @@ import { AbsMoment } from '../renderers/AbsMoment';
 import { converter } from '../renderers/markdown';
 import { reduceNotifications } from '../utils/notificationUtils';
 import { getInitials } from '../utils/utils';
-import { SimpleLoader } from './SimpleLoader';
-import { CodeCritic } from '../api';
 import { NavMenuAdmin } from './NavMenu.Admin';
+import { SimpleLoader } from './SimpleLoader';
 
 interface NavMenuProps {
 
@@ -170,7 +172,7 @@ export const NavMenu = (props: NavMenuProps) => {
           }}>
             <SecurityIcon />Switch to role student
         </MenuItem>}
-
+        
         {isRoot &&
           <MenuItem onClick={() => {
             const newName = prompt("Enter new name", "foo.bar") || user.id;
@@ -192,8 +194,8 @@ export const NavMenu = (props: NavMenuProps) => {
             handleMenuClose();
           }}>
             <SecurityIcon />Switch back to root
-        </MenuItem>
-        }
+        </MenuItem>}
+
         <MenuItem component={Link} to={"/manage-groups"} onClick={handleMenuClose}>
           <GroupIcon /> Manage Groups
         </MenuItem>
@@ -206,6 +208,13 @@ export const NavMenu = (props: NavMenuProps) => {
         }}>
           <CancelIcon />Logout
         </MenuItem>
+
+
+        {isRoot &&
+          <MenuItem disabled>
+            <small style={{textAlign: "right", width: "100%"}}><code>{user.version}</code></small>
+        </MenuItem>}
+
       </Menu>
 
       <Menu

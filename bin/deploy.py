@@ -7,7 +7,7 @@ import subprocess
 
 parser = OptionParser()
 parser.add_option("-p", "--port", type=str, default="5000")
-parser.add_option("-K", "--no-kill", dest="kill", action="store_false", default=True)
+parser.add_option("-", "--kill", dest="kill", action="store_true", default=False)
 parser.add_option("-b", "--background", action="store_false", default=False)
 parser.add_option("-e", "--execute", action="store_true", default=False)
 parser.add_option("--dbg", type=str, default=None)
@@ -80,11 +80,11 @@ def main():
     print(f"new release {ccpublish}")
     create_symlink(ccpublish)
 
+    if kill_previous:
+        Popen(['killall', 'cc.net']).wait(1.0)
+        Popen(['killall', '-9', 'cc.net']).wait(1.0)
+
     if options.execute:
-        if kill_previous:
-            Popen(['killall', 'cc.net']).wait(1.0)
-            Popen(['killall', '-9', 'cc.net']).wait(1.0)
-        
         if background:
             Popen(['./cc.net', '--urls', f'http://0.0.0.0:{port}'], cwd=str(ccpublish),
                 stdout=PIPE, stderr=subprocess.STDOUT, preexec_fn=os.setsid)

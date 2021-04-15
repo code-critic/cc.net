@@ -18,6 +18,7 @@ namespace CC.Net.Config
         public string SysAdminPasswd { get; set; }
         public string LoginUrl { get; set; }
         public string ReturnUrl { get; set; } = null;
+        public string Version { get; set; } = "develop";
         public IList<string> Admins { get; set; } = new List<string>();
 
     }

@@ -1,4 +1,4 @@
-import { IAppUser } from "../cc-api";
+import { IAppUser } from '../cc-api';
 
 export const guest: IAppUser = {
     affiliation: "guest",
@@ -14,6 +14,7 @@ export const guest: IAppUser = {
     groups: [],
     isCurrentlyRoot: false,
     serverStatus: null,
+    version: "develop"
 }
 
 export const getLocalStorageUserOrDefault = () => {

@@ -68,6 +68,7 @@ namespace Cc.Net.Controllers
             
             user.ServerStatus = _serverStatus.Status;
             user.ServerMessage = _serverStatus.Message;
+            user.Version = _appOptions.Version;
 
             return Ok(user);
         }

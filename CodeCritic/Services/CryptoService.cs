@@ -30,6 +30,7 @@ namespace CC.Net.Services
         
         public string ServerStatus { get; set; } = "running";
         public string ServerMessage { get; set; }
+        public string Version { get; set; } = "develop";
 
         public string Id => Eppn.Split('@').First();
         public bool IsRoot => Roles.Contains("root");

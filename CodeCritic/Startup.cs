@@ -24,6 +24,8 @@ using Cc.Net.Services.Processing.Evaluation;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using Serilog;
+using System.IO;
+using System.Text.RegularExpressions;
 
 namespace CC.Net
 {
@@ -34,6 +36,10 @@ namespace CC.Net
             Configuration = configuration;
             MongoDBConfig = Configuration.GetSection("MongoDB").Get<MongoDBConfig>();
             AppOptions = Configuration.Get<AppOptions>();
+            var version = Directory.GetParent(Directory.GetCurrentDirectory()).Name;
+            AppOptions.Version = Regex.IsMatch(version, @"[0-9]\.[0-9]\.[0-9]")
+                ? version
+                : AppOptions.Version;
         }
 
         public IConfiguration Configuration { get; set; }

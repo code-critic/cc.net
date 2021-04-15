@@ -26,6 +26,7 @@ export interface IAppUser {
   role?: string | null;
   serverStatus?: string | null;
   serverMessage?: string | null;
+  version?: string | null;
   id?: string | null;
   isRoot?: boolean;
   isCurrentlyRoot?: boolean;
