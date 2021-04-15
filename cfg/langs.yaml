@@ -11,6 +11,18 @@
   # unittest: [python3, -m, pytest, --json=.report.json, -rA, <filename>]
   unittest: [python3, -m, pytest, --json=.report.json, --tb=line, <filename>]
 
+- id: NODEJS
+  name: Node.js
+  scale: 5
+  scale-factor: 5
+  scale-start:  0.000
+  image: automatest/js
+  version: node v14.16.1, npm 6.14.12
+  extension: js
+  style: javascript
+  compile: [npm, i]
+  run: [node, <filename>]
+
 - id: C
   name: C
   scale: 1

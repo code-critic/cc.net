@@ -23,6 +23,11 @@ RUN apt update && DEBIAN_FRONTEND=noninteractive apt install -y \
 
 RUN pip3 install pytest pytest-json numpy scipy networkx matplotlib pandas seaborn mpi4py
 
+
+RUN apt install -y curl \
+ && curl -sL https://deb.nodesource.com/setup_14.x -o- | bash \
+ && apt-get install -y nodejs
+
 RUN rm -rf /var/cache/apt/* \
     && rm -rf /var/lib/apt/lists/* \
     && adduser --system --group --disabled-password jan-hybs

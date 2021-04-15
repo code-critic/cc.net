@@ -26,6 +26,20 @@ export const languages: ILanguage[] = [
         "scaleInfo": "0.00 + 5.00×"
     },
     {
+        "id": "NODEJS",
+        "name": "Node.js",
+        "scaleFactor": 5,
+        "scaleStart": 0,
+        "version": "v14.16.1",
+        "extension": "js",
+        "disabled": false,
+        "compile": ["npm", "i"],
+        "unittest": [],
+        "run": ["node", "<filename>"],
+        "compilationNeeded": true,
+        "scaleInfo": "0.00 + 5.00×"
+    },
+    {
         "id": "C",
         "name": "C",
         "scaleFactor": 1,

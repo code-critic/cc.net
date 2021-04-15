@@ -1,15 +1,3 @@
-export const mapLanguage = (id: string) => {
-    return {
-        CS: "csharp",
-        C: "c_cpp",
-        CC: "c_cpp",
-        CPP: "c_cpp",
-        JAVA: "java",
-        "PY-267": "python",
-        "PY-367": "python",
-    }[id] || "java";
-}
-
 export const mapByExtension = (extension: string) => {
     const ext = extension || "";
 
@@ -28,6 +16,7 @@ export const mapByExtension = (extension: string) => {
         case "m":
             return "octave";
 
+        case "js":
         case "json":
             return "javascript";
 
@@ -43,7 +32,8 @@ export const supportedExtensions = [
     ".c", ".cc", ".cpp",
     ".h", ".hh", ".hpp",
     ".cs", ".py", ".java", ".m",
-    ".txt", ".md", ".json", ".xml"
+    ".txt", ".md", ".json", ".xml",
+    ".js"
 ]
 
 export const isFiletypeSupported = (filename: string) => {
@@ -71,6 +61,7 @@ export const mapByExtensionPrism = (extension: string) => {
         case "m":
             return "matlab";
 
+        case "js":
         case "json":
             return "javascript";
 

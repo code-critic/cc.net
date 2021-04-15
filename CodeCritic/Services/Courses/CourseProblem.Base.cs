@@ -65,7 +65,7 @@ namespace CC.Net.Services.Courses
 
         [Doc("Timeout in seconds (raw time, which will be scaled and translated by language used)")]
         [YamlMember(Alias = "timeout")]
-        public double Timeout { get; set; }
+        public double Timeout { get; set; } = 15;
 
         
         [Doc("A datetime after which you can hand over a solution (format `YYYY-MM-DD hh:mm:ss`)")]

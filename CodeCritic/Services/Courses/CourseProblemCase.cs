@@ -27,7 +27,7 @@ namespace CC.Net.Services.Courses
 
         [Doc("Timeout in seconds")]
         [YamlMember(Alias = "timeout")]
-        public double Timeout { get; set; }
+        public double Timeout { get; set; } = 5;
 
         
         [YamlMember(Alias = "test")]
