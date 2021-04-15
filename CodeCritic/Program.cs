@@ -23,6 +23,15 @@ using Serilog;
 using TypeLite;
 using TypeLite.TsModels;
 using Cc.Net.Auth;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.HostFiltering;
+using Microsoft.AspNetCore.Hosting.StaticWebAssets;
+using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Configuration;
+using Microsoft.Extensions.Options;
 
 namespace CC.Net
 {
@@ -199,18 +208,33 @@ namespace CC.Net
             result += $"\t}} // end of {type.Name}Static";
             return result;
         }
-
-
+        
         public static IWebHostBuilder CreateWebHostBuilder(string[] args)
         {
-            var config = new ConfigurationBuilder()
-            .SetBasePath(Directory.GetCurrentDirectory())
-            .AddJsonFile("appsettings.secret.json", optional: true)
-            .AddCommandLine(args)
-            .Build();
+            // var config = new ConfigurationBuilder()
+            //     .SetBasePath(Directory.GetCurrentDirectory())
+            //     .AddJsonFile("appsettings.json")
+            //     .AddJsonFile("appsettings.secret.json", optional: false)
+            //     .AddCommandLine(args)
+            //     .Build();
 
             return WebHost.CreateDefaultBuilder(args)
-                .UseConfiguration(config)
+                .ConfigureAppConfiguration((hostingContext, config) =>
+                {
+                    var env = hostingContext.HostingEnvironment;
+                    config.Sources.Clear();
+                    config
+                        .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+                        .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true, reloadOnChange: true)
+                        .AddJsonFile($"appsettings.secret.json", optional: false, reloadOnChange: true);
+
+                    config.AddEnvironmentVariables();
+
+                    if (args != null)
+                    {
+                        config.AddCommandLine(args);
+                    }
+                })
                 .UseSerilog((builder, options) =>
                 {
                     options.Enrich.FromLogContext();
