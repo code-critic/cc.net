@@ -246,6 +246,11 @@ export interface IChangeServerStateRequest {
   message?: string | null;
 }
 
+/**
+ * @format int32
+ */
+export type IChangeType = 0 | 1 | 2 | 3 | 4;
+
 export interface ICommentServiceItem {
   comment?: ILineComment;
   objectId?: string | null;
@@ -358,6 +363,19 @@ export interface ICourseYearConfig {
 
 export type IDateTimeOrDays = object;
 
+export interface IDiffPaneModel {
+  lines?: IDiffPiece[] | null;
+}
+
+export interface IDiffPiece {
+  type?: IChangeType;
+
+  /** @format int32 */
+  position?: number | null;
+  text?: string | null;
+  subPieces?: IDiffPiece[] | null;
+}
+
 export interface IDiffResultComposite {
   reference?: string | null;
   generated?: string | null;
@@ -419,6 +437,21 @@ export interface IObjectId {
   creationTime?: string;
 }
 
+export interface IPlagResult {
+  aId?: string | null;
+  bId?: string | null;
+  aName?: string | null;
+  bName?: string | null;
+  language?: string | null;
+  diffs?: ISideBySideDiff[] | null;
+
+  /** @format int32 */
+  equalLines?: number;
+
+  /** @format int32 */
+  totalLines?: number;
+}
+
 /**
  * @format int32
  */
@@ -439,6 +472,17 @@ export interface ISettingsConfigTeacher {
   tags?: string[] | null;
   students?: IUser[] | null;
   problems?: string[] | null;
+}
+
+export interface ISideBySideDiff {
+  a?: string | null;
+  b?: string | null;
+  diff?: ISideBySideDiffModel;
+}
+
+export interface ISideBySideDiffModel {
+  oldText?: IDiffPaneModel;
+  newText?: IDiffPaneModel;
 }
 
 export interface ISimpleFile {
@@ -968,6 +1012,36 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
         path: `/api/notifications-get`,
         method: "GET",
         query: query,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Plagiarism
+     * @name PlagTwoDetail
+     * @request GET:/api/plag-two/{aId}/{bId}
+     */
+    plagTwoDetail: (aId: string, bId: string, params: RequestParams = {}) =>
+      this.request<IPlagResult, any>({
+        path: `/api/plag-two/${aId}/${bId}`,
+        method: "GET",
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Plagiarism
+     * @name PlagAllDetail
+     * @request GET:/api/plag-all/{courseName}/{courseYear}/{problem}
+     */
+    plagAllDetail: (courseName: string, courseYear: string, problem: string, params: RequestParams = {}) =>
+      this.request<IPlagResult[], any>({
+        path: `/api/plag-all/${courseName}/${courseYear}/${problem}`,
+        method: "GET",
         format: "json",
         ...params,
       }),

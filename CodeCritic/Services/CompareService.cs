@@ -27,6 +27,22 @@ namespace CC.Net.Services
                 Lines = diff.Lines
             };
         }
+        
+        public SideBySideDiff CompareString(string generatedFile, string referenceFile, string filenameA, string filenameB)
+        {
+            var generated = generatedFile.TrimEnd();
+            var reference = referenceFile.TrimEnd();
+
+            var diffBuilder = new SideBySideDiffBuilder(new Differ());
+            var diff = diffBuilder.BuildDiffModel(generated, reference, true);
+
+            return new SideBySideDiff
+            {
+                A = filenameA,
+                B = filenameB,
+                Diff = diff
+            };
+        }
 
         public DiffResult CompareFiles(CourseContext Context, CourseProblemCase @case)
         {

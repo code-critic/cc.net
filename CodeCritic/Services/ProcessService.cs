@@ -59,7 +59,10 @@ namespace CC.Net.Services
                     // TODO: configurable period
                     while (stoppingToken.IsCancellationRequested == false)
                     {
-                        await DoWork();
+                        if (_appOptions.CanProcess)
+                        {
+                            await DoWork();
+                        }
                         await Task.Delay(5 * 1000, stoppingToken);
                     }
                 }

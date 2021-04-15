@@ -36,6 +36,7 @@ namespace CC.Net
             Configuration = configuration;
             MongoDBConfig = Configuration.GetSection("MongoDB").Get<MongoDBConfig>();
             AppOptions = Configuration.Get<AppOptions>();
+            Console.WriteLine(AppOptions.CanProcess);
             var version = Directory.GetParent(Directory.GetCurrentDirectory()).Name;
             AppOptions.Version = Regex.IsMatch(version, @"[0-9]\.[0-9]\.[0-9]")
                 ? version

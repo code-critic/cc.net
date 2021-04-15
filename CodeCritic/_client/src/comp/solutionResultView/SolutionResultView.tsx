@@ -4,6 +4,7 @@ import { Link as RouterLink } from 'react-router-dom';
 
 import { Button, Container, Typography } from '@material-ui/core';
 import AdjustIcon from '@material-ui/icons/Adjust';
+import AssessmentIcon from '@material-ui/icons/Assessment';
 import CancelIcon from '@material-ui/icons/Cancel';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import DescriptionIcon from '@material-ui/icons/Description';
@@ -212,7 +213,16 @@ export const SolutionResultView = (props: SolutionResultViewProps) => {
                             <CourseYearProblemHeader course={courseName} year={courseYear} problem={problem}/>
                             <ChevronRightIcon color="disabled"/>
                             <Typography variant="inherit" component={RouterLink}
-                                        to={`/r/${objectId}`}>#{result.attempt}</Typography>
+                                to={`/r/${objectId}`}>
+                                    #{result.attempt}
+                            </Typography>
+                            {isRoot && <>
+                                <ChevronRightIcon color="disabled"/>
+                                <Typography variant="inherit" component={RouterLink}
+                                    to={`/grade-results/${courseName}/${courseYear}/${problem}`}>
+                                        <small>view grades <AssessmentIcon /></small>
+                            </Typography>
+                            </>}
                         </Typography>
 
                         <div className="key-value-grid">

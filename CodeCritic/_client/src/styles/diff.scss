@@ -6,3 +6,49 @@
         color: green;
     }
 }
+
+.side-by-side-diff {
+    padding: 0;
+    margin: 0;
+    border: none;
+    border-collapse: collapse;
+
+    pre {
+        padding: 0;
+        margin: 0;
+    }
+    td, tr {
+        margin: 0;
+        padding: 0;
+        border: none;
+    }
+    td {
+        font-size: 0.75rem;
+        padding: 4px 4px;
+    }
+
+    // Unchanged
+    .type-0 {
+        background-color: #ffffff;
+    }
+
+    // Deleted
+    .type-1 {
+        background-color: #f0d7d7;
+    }
+
+    // Inserted
+    .type-2 {
+        background-color: #e2f5da;
+    }
+
+    // Imaginary
+    .type-3 {
+        background-color: #dbe7f5;
+    }
+
+    // Modified
+    .type-4 {
+        background-color: #faf5d3;
+    }
+}

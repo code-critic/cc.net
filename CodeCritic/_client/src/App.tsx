@@ -4,15 +4,15 @@ import { Route } from 'react-router-dom';
 
 import { Container } from '@material-ui/core';
 
+import { ICcDataCaseResult } from './cc-api';
+import { BrokenServerMessage } from './comp/BrokenServerMessage';
 import { GroupManager } from './comp/GroupManager';
 import { SolutionResultView } from './comp/solutionResultView/SolutionResultView';
+import { CcFooter } from './components/CCFooter';
 import { NavMenu } from './components/NavMenu';
-import { ICcDataCaseResult } from './cc-api';
 import { ProcessStatusStatic } from './models/Enums';
 import { pageLinks } from './pageLinks';
 import { TimelineRenderer } from './renderers/TimelineRenderer';
-import { CcFooter } from './components/CCFooter';
-import { BrokenServerMessage } from './comp/BrokenServerMessage';
 
 export default class App extends Component {
     static displayName = App.name;
@@ -55,7 +55,7 @@ export default class App extends Component {
                 <Route component={GroupManager} path="/manage-groups" exact />
 
                 {pageLinks.map(i =>
-                    <Route key={i.path} component={i.component} path={i.path} exact={i.exact} />
+                    <Route key={i.to} component={i.component} path={i.path} exact={i.exact} />
                 )}
                 <NotificationContainer />
             </Container>

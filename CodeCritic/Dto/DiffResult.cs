@@ -11,4 +11,10 @@ namespace CC.Net.Dto
 
         public bool isOk => Lines.All(i => i.Type == ChangeType.Unchanged);
     }
+    
+    public class SideBySideDiff {
+        public string A { get; set; }
+        public string B { get; set; }
+        public SideBySideDiffModel Diff { get; set; }
+    }
 }

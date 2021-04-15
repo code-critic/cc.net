@@ -267,7 +267,7 @@ export const NavMenu = (props: NavMenuProps) => {
 
           {/* links */}
           {availLinks.map(i =>
-            <MenuItem key={i.path} component={Link} to={i.to}>{i.title}</MenuItem>
+            <MenuItem key={i.to} component={Link} to={i.to}>{i.title}</MenuItem>
           )}
 
 
