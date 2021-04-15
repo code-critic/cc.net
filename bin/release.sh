@@ -10,5 +10,5 @@ python3 deploy.py
 docker pull automatest/ubuntu-all
 docker rm -f automatestWorker
 
-killall cc.net
-killall -9 cc.net
+killall cc.latest
+killall -9 cc.latest
