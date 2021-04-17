@@ -4,16 +4,14 @@ import { Dialog, DialogContent } from '@material-ui/core';
 import InsertChartIcon from '@material-ui/icons/InsertChart';
 
 import { CodeCritic } from '../api';
+import { ICcDataDto, ITableResponse } from '../cc-api';
 import { SimpleLoader } from '../components/SimpleLoader';
 import { useRefresh } from '../hooks/useRefresh';
-import { ICcDataDto, ITableResponse } from '../cc-api';
 import { ProcessStatusStatic } from '../models/Enums';
+import { notifications } from '../utils/notifications';
 import { ProblemPicker, ProblemPickerExportProps } from './ProblemPicker';
 import { SolutionResultView } from './solutionResultView/SolutionResultView';
 import { TableResults } from './table/TableResults';
-import { notifications } from '../utils/notifications';
-
-
 
 export const Graderesults = () => {
     return <div>
@@ -65,6 +63,7 @@ const GraderesultsImpl = (props: GraderesultsImplProps) => {
         onSelected={handleSelected}
         tableResponse={tableResponse}
         mode="client"
+        allowKeyboardShortcuts={selectedItem == null}
     />
         {selectedItem && <>
             <Dialog className="solution-result-view-dialog"

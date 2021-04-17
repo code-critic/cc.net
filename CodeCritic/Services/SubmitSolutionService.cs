@@ -108,6 +108,10 @@ namespace CC.Net.Services
                 // add all files
                 solutions.AddRange(files.Select(i => CcDataSolution.Single(i.Content, i.Path)));
             }
+            
+            // add other required files
+            solutions.AddRange(language.Files.Select(i => 
+                CcDataSolution.Single(i.Values.First(), i.Keys.First(), 9, false, true)));
 
             var ccData = new CcData
             {
@@ -158,8 +162,12 @@ namespace CC.Net.Services
                     Path.Combine(problemDir, problem.Reference.Name).ReadAllText(),
                     problem.Reference.Name
                 ),
-                CcDataSolution.Single(string.Empty, $".debug", int.MaxValue, false)
+                CcDataSolution.Single(string.Empty, ".debug", int.MaxValue, false)
             };
+                        
+            // add other required files
+            solutions.AddRange(language.Files.Select(i => 
+                CcDataSolution.Single(i.Values.First(), i.Keys.First(), 9, false, true)));
 
             var ccData = new CcData
             {

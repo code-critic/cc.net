@@ -38,6 +38,9 @@ namespace CC.Net.Services.Languages
         [YamlMember(Alias="unittest")]
         public List<string> Unittest { get; set; } = new List<string>();
 
+        [YamlMember(Alias = "files")]
+        public List<Dictionary<string, string>> Files { get; set; } = new List<Dictionary<string, string>>();
+
         public override String ToString()
         {
             return $"<{Id}({Name})>";

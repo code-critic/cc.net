@@ -2,6 +2,7 @@ import 'codemirror/lib/codemirror.css';
 import 'codemirror/theme/neat.css';
 import 'codemirror/mode/python/python.js';
 import 'codemirror/mode/javascript/javascript.js';
+import 'codemirror/mode/clike/clike';
 
 import React, { useEffect, useState } from 'react';
 import { Controlled as CodeMirror } from 'react-codemirror2';
@@ -154,6 +155,7 @@ export const CodeEditor = (props: CodeEditorProps) => {
                 lineNumbers: true,
                 dragDrop: false,
                 fixedGutter: false,
+                // parserfile: ["./static/3rd/tokenizecsharp.js", "./static/3rd/parsecsharp.js"]
             }}
             value={selectedRef?.content}
             onBeforeChange={handleChange}

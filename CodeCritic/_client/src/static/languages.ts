@@ -103,6 +103,23 @@ export const languages: ILanguage[] = [
         "scaleInfo": "0.20 + 2.60×"
     },
     {
+        "id": "DOTNET",
+        "name": "Dotnet C#",
+        "scaleFactor": 2,
+        "scaleStart": 1,
+        "version": "5.0.202",
+        "extension": "cs",
+        "disabled": false,
+        "compile": [],
+        "run": [
+            "dotnet",
+            "run"
+        ],
+        "unittest": [],
+        "compilationNeeded": true,
+        "scaleInfo": "0.00 + 2.00×"
+    },
+    {
         "id": "CS",
         "name": "C#",
         "scaleFactor": 2,

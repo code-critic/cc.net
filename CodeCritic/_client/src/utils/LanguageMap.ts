@@ -8,6 +8,7 @@ export const mapByExtension = (extension: string) => {
         case "h":
         case "hh":
         case "hpp":
+        case "cs":
             return "clike";
 
         case "py":
@@ -23,6 +24,9 @@ export const mapByExtension = (extension: string) => {
         case "java":
             return "clike";
 
+        case "csproj":
+            return "xml";
+
         default:
             return "text";
     }
@@ -33,7 +37,7 @@ export const supportedExtensions = [
     ".h", ".hh", ".hpp",
     ".cs", ".py", ".java", ".m",
     ".txt", ".md", ".json", ".xml",
-    ".js"
+    ".js", ".csproj"
 ]
 
 export const isFiletypeSupported = (filename: string) => {
@@ -57,6 +61,9 @@ export const mapByExtensionPrism = (extension: string) => {
 
         case "cs":
             return "csharp";
+
+        case "csproj":
+            return "xml";
 
         case "m":
             return "matlab";

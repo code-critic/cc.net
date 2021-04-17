@@ -30,6 +30,7 @@ export const getSyntax = (language: ILanguage | string) => {
         case "md":
             return "markdown";
         case "xml":
+        case "csproj":
             return "xml";
         case "sh":
             return "bash";
@@ -54,7 +55,7 @@ export const highlight = (code: string, language: ILanguage | string) => {
 
 export const highlightLine = (line: string, language: ILanguage | string) => {
     const syntax = getSyntax(language);
-    return hljs.highlight(line, {language: syntax}).value;
+    return hljs.highlight(line, {language: syntax}).value as string;
 }
 
 export const highlightPlainText = (text: string) => {

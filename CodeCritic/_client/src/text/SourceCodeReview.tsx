@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import ReactMde from 'react-mde';
 import Moment from 'react-moment';
 
@@ -10,6 +10,7 @@ import { CodeCritic } from '../api';
 import { ICommentServiceItem, ILineComment } from '../cc-api';
 import { DropDownMenu } from '../components/DropDownMenu';
 import { useComments } from '../hooks/useComments';
+import { useTextSelection } from '../hooks/useTextSelection';
 import { useUser } from '../hooks/useUser';
 import { OptionType } from '../models/CustomModel';
 import { converter } from '../renderers/markdown';
@@ -119,8 +120,8 @@ export const SourceCodeReview = (props: ISourceCodeReview) => {
     const { user, isRoot } = useUser();
     const [commentsOn, setCommentOn] = useState(true);
     const [editor, setEditor] = useState(-1);
-    // const [extraComment, setExtraComments] = useState<ICommentServiceItem[]>([]);
     const { serviceItems, prepareComment, cancelComment } = useComments();
+    const selectedText = useTextSelection();
 
     const comments = [
         ...defaultComment,
@@ -178,7 +179,7 @@ export const SourceCodeReview = (props: ISourceCodeReview) => {
         ...(isRoot ? [{ name: "Rerun solution", value: rerunSolution }] : [])
     ];
 
-    const toRow = (code: string, ln: number, isOpen: boolean, hasComments: boolean) => {
+    const toRow = (code: string, ln: number, isOpen: boolean, hasComments: boolean, extraCls: string="") => {
         const cls = isOpen ? "has-editor" : "";
         const cls2 = hasComments ? "has-comments" : "";
 
@@ -189,7 +190,7 @@ export const SourceCodeReview = (props: ISourceCodeReview) => {
                     {!isOpen && (ln + 1)}
                 </Button>
             </td>
-            <td><pre dangerouslySetInnerHTML={{ __html: code }} /></td>
+            <td className={`selectable ${extraCls}`}><pre dangerouslySetInnerHTML={{ __html: code }} /></td>
         </tr>
     }
 
@@ -216,7 +217,7 @@ export const SourceCodeReview = (props: ISourceCodeReview) => {
                         const hasEditor = editor == j;
                         const hasComments = comments.filter(c => c.line == j).length > 0;
                         const commentsTrs = commentsOn
-                            ? comments.filter(c => c.line == j).map((c, k) => 
+                            ? comments.filter(c => c.line == j).map((c, k) =>
                                 <SingleComment key={id++} onDelete={() => deleteComment(c)} comment={c} />)
                             : [];
 
@@ -225,20 +226,24 @@ export const SourceCodeReview = (props: ISourceCodeReview) => {
                             : [];
 
                         const syntax = getSyntax(extension);
-                        let trs: JSX.Element[] = [];
-                        if (syntax === "plaintext") {
-                            trs = [
-                                toRow(highlightPlainText(i), j, commentsOn && hasEditor, commentsOn && hasComments),
-                                ...commentsTrs,
-                                ...editorTr
-                            ];
-                        } else {
-                            trs = [
-                                toRow(highlightLine(i, extension), j, commentsOn && hasEditor, commentsOn && hasComments),
-                                ...commentsTrs,
-                                ...editorTr
-                            ];
+                        const highlightedText = syntax === "plaintext"
+                            ? highlightPlainText(i)
+                            : highlightLine(i, extension);
+                        
+                        let extraCls = "";
+                        if (selectedText) {
+                            const textRegex = new RegExp(`(^|[^a-z0-9_])${selectedText}($|[^a-z0-9_])`);
+                            
+                           if (i.match(textRegex)) {
+                               extraCls = "has-selection";
+                           }
                         }
+
+                        const trs = [
+                            toRow(highlightedText, j, commentsOn && hasEditor, commentsOn && hasComments, extraCls),
+                            ...commentsTrs,
+                            ...editorTr
+                        ];
 
                         return trs;
                     })}

@@ -198,7 +198,7 @@ const DiffView = (props: DiffViewProps) => {
         return <SimpleLoader/>
     }
 
-    return <Dialog open onClose={onClose}>
+    return <Dialog open onClose={onClose} fullWidth maxWidth="lg">
         <DialogContent>
             <table className="source-code diff">
                 <thead>

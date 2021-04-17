@@ -107,7 +107,8 @@ const ViewResultsImpl = (props: ViewResultsImplProps) => {
             tableResponse={tableResponse}
             onChange={handleHandle}
             onSelected={handleSelected}
-            isLoading={isLoading} />
+            isLoading={isLoading}
+            allowKeyboardShortcuts={selectedItem == null}/>
             
         {selectedItem && <>
             <Dialog className="solution-result-view-dialog"

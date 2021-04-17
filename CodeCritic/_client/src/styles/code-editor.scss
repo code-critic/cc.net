@@ -16,8 +16,17 @@
 
 .code-editor-table {
     width: 100%;
+    border-collapse: collapse;
+
+
+    .selectable.has-selection {
+        transition: background-color 250ms ease-in-out;
+        background-color: #f7dfff;
+    }
 
     pre {
+        line-height: 21px;
+
         strong {
             &:first-child:last-child {
                 display: block;

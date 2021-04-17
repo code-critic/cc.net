@@ -3,7 +3,7 @@
 
 bin/service.log
 bin/nohup.out
-
+/tmp
 
 # User-specific files
 *.suo

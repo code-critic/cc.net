@@ -49,10 +49,11 @@ interface TableResultsProps {
     debounceDuration?: number;
     onChange(model: TableModel): void;
     onSelected(item: ICcDataDto): void;
+    allowKeyboardShortcuts: boolean;
     mode?: ClientServerMode;
 }
 export const TableResults = (props: TableResultsProps) => {
-    const { tableResponse, onSelected, onChange, isLoading, debounceDuration = 0, mode = "server" } = props;
+    const { tableResponse, onSelected, onChange, isLoading, debounceDuration = 0, mode = "server", allowKeyboardShortcuts=false } = props;
     const [sortModel, setSortModel] = useState<GridSortModel>([]);
     const [filterModel, setFilterModel] = useState<FilterModel>();
     const [pageModel, setPageModel] = useState<PageModel>({ page: 0, pageSize: 20 });
@@ -64,6 +65,9 @@ export const TableResults = (props: TableResultsProps) => {
 
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
+            if (!allowKeyboardShortcuts) {
+                return;
+            }
             if (e.key === "F3" || (e.ctrlKey && e.key === "f")) {
                 e.preventDefault();
                 setFiltersOpen(true);
@@ -85,7 +89,7 @@ export const TableResults = (props: TableResultsProps) => {
             window.removeEventListener("keydown", handleKeyDown);
             window.removeEventListener("resize", handleResize);
         }
-    }, []);
+    }, [ allowKeyboardShortcuts ]);
 
     if (!tableResponse) {
         return <SimpleLoader title="loading results" />
