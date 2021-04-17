@@ -106,7 +106,7 @@ export const languages: ILanguage[] = [
         "id": "DOTNET",
         "name": "Dotnet C#",
         "scaleFactor": 2,
-        "scaleStart": 1,
+        "scaleStart": 2,
         "version": "5.0.202",
         "extension": "cs",
         "disabled": false,

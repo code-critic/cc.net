@@ -68,7 +68,7 @@
 - id: DOTNET
   name: 'Dotnet C#'
   scale-factor: 2.000
-  scale-start:  1.000
+  scale-start:  2.000
   image: automatest/dotnet
   version: 5.0.202
   extension: cs
