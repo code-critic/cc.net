@@ -104,7 +104,7 @@ export const PreviousResults = (props: PreviousResultsProps) => {
         {selectedDiff && <Dialog open onClose={onClose} fullScreen>
             <DialogTitle>
                 {selectedDiff.aName} vs {selectedDiff.bName}
-                <Typography variant="subtitle1">Use arrows to walk though submission history</Typography>
+                <Typography variant="subtitle1">Use arrows to walk through submission history</Typography>
                 </DialogTitle>
             <DialogContent>
                 {selectedDiff.diffs.map((k, l) => <div key={l}>
