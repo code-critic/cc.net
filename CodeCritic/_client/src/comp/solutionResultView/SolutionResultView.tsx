@@ -254,22 +254,22 @@ export const SolutionResultView = (props: SolutionResultViewProps) => {
                                     Requested &nbsp;<AbsMoment date={reviewRequest}/>
 
                                     {canEditResult &&
-                                    <Button color="secondary" size="small" variant="contained" onClick={cancelCR}>
+                                    <Button className="small" color="secondary" size="small" variant="contained" onClick={cancelCR}>
                                         Cancel Review Request <CancelIcon />
                                     </Button>}
                                     {!canEditResult &&
-                                    <Button color="secondary" size="small" variant="contained" disabled>
+                                    <Button className="small" color="secondary" size="small" variant="contained" disabled>
                                         No longer possible to cancel
                                     </Button>}
                                 </>}
                                 {reviewRequest == null && <>
                                     Not requested
                                     {canEditResult &&
-                                    <Button color="primary" size="small" variant="contained" onClick={requestCR}>
+                                    <Button className="small" color="primary" size="small" variant="contained" onClick={requestCR}>
                                         Request now <SendIcon/>
                                     </Button>}
                                     {!canEditResult &&
-                                    <Button color="secondary" size="small" variant="contained" disabled>
+                                    <Button className="small" color="secondary" size="small" variant="contained" disabled>
                                         No longer possible to request
                                     </Button>}
                                 </>}

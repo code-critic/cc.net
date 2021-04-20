@@ -22,3 +22,35 @@ export function groupBy<K, V>(list: Array<V>, keyGetter: (input: V) => K): Map<K
     });
     return map;
 }
+
+interface IObjectId {
+    objectId?: string | null;
+}
+
+export function nextIndex<T extends IObjectId>(items: T[], selected: string): [boolean, number, T] {
+    if (items != null && items.length > 1 && selected != null ) {
+        const index = items.findIndex(i => i.objectId == selected);
+        if (index !== -1) {
+            const next = index + 1;
+            if (next < items.length) {
+                return [true, next, items[next]];
+            }
+        }
+    }
+
+    return [false, null, null];
+}
+
+export function prevIndex<T extends IObjectId>(items: T[], selected: string): [boolean, number, T] {
+    if (items != null && items.length > 1 && selected != null ) {
+        const index = items.findIndex(i => i.objectId == selected);
+        if (index !== -1) {
+            const prev = index - 1;
+            if (prev >= 0) {
+                return [true, prev, items[prev]];
+            }
+        }
+    }
+
+    return [false, null, null];
+}

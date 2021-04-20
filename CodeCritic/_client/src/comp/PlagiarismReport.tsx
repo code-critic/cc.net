@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 
-import { Button, Container, Dialog, DialogContent, DialogTitle } from '@material-ui/core';
+import { Button, Container, Dialog, DialogActions, DialogContent, DialogTitle } from '@material-ui/core';
 import { DataGrid, GridColDef } from '@material-ui/data-grid';
 import PolicyIcon from '@material-ui/icons/Policy';
 
@@ -8,6 +8,7 @@ import { CodeCritic } from '../api';
 import { IPlagResult, ISideBySideDiff } from '../cc-api';
 import { SimpleLoader } from '../components/SimpleLoader';
 import { ProblemPicker, ProblemPickerExportProps } from './ProblemPicker';
+import { RenderDiffTable } from '../renderers/RenderDiffTable';
 
 export const PlagiarismReport = () => {
     return <div>
@@ -67,33 +68,6 @@ const PlagiarismReportImpl = (props: PlagiarismReportImplProps) => {
         return <SimpleLoader />
     }
 
-    const renderDiff = (item: ISideBySideDiff) => {
-        const ids = new Array(item.diff.newText.lines.length).fill(0).map((i, j) => j);
-        return <table className="side-by-side-diff">
-            <thead>
-                <tr>
-                    <th style={{ width: "50%" }}>{item.a}</th>
-                    <th></th>
-                    <th style={{ width: "50%" }}>{item.b}</th>
-                </tr>
-            </thead>
-            <tbody>
-                {ids.map(i => {
-                    const a = item.diff.oldText.lines[i];
-                    const b = item.diff.newText.lines[i];
-                    const type = a.text == b.text ? 0 : a.type;
-
-
-                    return <tr key={i}>
-                        <td className={`type-${type}`}><pre>{a.text}{'\u00A0'}</pre></td>
-                        <td></td>
-                        <td className={`type-${type}`}><pre>{b.text}{'\u00A0'}</pre></td>
-                    </tr>
-                })}
-            </tbody>
-        </table>
-    }
-
     const columns: GridColDef[] = [
         { field: 'id', hide: true },
         { field: 'aName', headerName: 'User A', flex: 2 },
@@ -117,9 +91,12 @@ const PlagiarismReportImpl = (props: PlagiarismReportImplProps) => {
             <DialogTitle>{selectedDiff.aName} vs {selectedDiff.bName}</DialogTitle>
             <DialogContent>
                 {selectedDiff.diffs.map((k, l) => <div key={l}>
-                    {renderDiff(k)}
+                    <RenderDiffTable syntax={selectedDiff.language} item={k} />
                 </div>)}
             </DialogContent>
+            <DialogActions>
+                <Button onClick={onClose}>Close</Button>
+            </DialogActions>
         </Dialog>}
     </Container>
 }

@@ -5,15 +5,17 @@ import { Button, Menu, MenuItem } from '@material-ui/core';
 interface DropDownMenuProps<T> {
     title: string | JSX.Element;
     options: T[];
-    getLabel?: (item: T) => string | JSX.Element;
     onChange: (item: T) => void;
+    getLabel?: (item: T) => string | JSX.Element;
     getIsDisabled?: (item: T) => boolean;
     buttonProps?: object;
+    Component?: any;
 }
 
 export function DropDownMenu<T>(props: DropDownMenuProps<T>) {
-    const { title, options, getLabel, onChange, buttonProps, getIsDisabled } = props;
+    const { title, options, getLabel, onChange, buttonProps, getIsDisabled, Component } = props;
     const extraProps = buttonProps ?? {};
+    const ComponentCls = Component ?? Button;
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
     const isDisabledFunc = getIsDisabled
         ? getIsDisabled
@@ -35,9 +37,9 @@ export function DropDownMenu<T>(props: DropDownMenuProps<T>) {
 
     return (
         <>
-            <Button aria-controls="dd-menu" aria-haspopup="true" onClick={handleClick} {...extraProps}>
+            <ComponentCls aria-controls="dd-menu" aria-haspopup="true" onClick={handleClick} {...extraProps}>
                 {title}
-            </Button>
+            </ComponentCls>
             <Menu
                 id="dd-menu"
                 anchorEl={anchorEl}
