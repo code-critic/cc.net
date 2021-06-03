@@ -4,7 +4,7 @@ import { ICommentServiceItem } from '../cc-api';
 import { appDispatcher, commentService } from '../init';
 
 export const useComments = () => {
-    const [ serviceItems, setServiceItems ] = useState<ICommentServiceItem[]>([]);
+    const [ serviceItems, setServiceItems ] = useState<ICommentServiceItem[]>(commentService.items);
 
     useEffect(() => {
         const id = appDispatcher.register(payload => {
