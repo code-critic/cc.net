@@ -42,10 +42,11 @@ export const PreviousResults = (props: PreviousResultsProps) => {
     useEffect(() => {
         const handleKeyPress = (e: KeyboardEvent) => {
             if (selectedDiff && results?.length > 1) {
-                if (e.key === "ArrowRight" || e.key === "ArrowDown") {
+                const hasCtrl = e.ctrlKey;
+                if (hasCtrl && e.key === "PageDown") {
                     e.preventDefault();
                     nextSelectedItem();
-                } else if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
+                } else if (hasCtrl && e.key === "PageUp") {
                     e.preventDefault();
                     prevSelectedItem();
                 }

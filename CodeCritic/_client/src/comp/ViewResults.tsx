@@ -34,12 +34,12 @@ const ViewResultsImpl = (props: ViewResultsImplProps) => {
 
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
-            const hasCtrl = e.ctrlKey || true;
             if (selectedItem != null) {
-                if (hasCtrl && (e.key === "ArrowRight" || e.key === "ArrowDown")) {
+                const hasCtrl = e.ctrlKey;
+                if (hasCtrl && e.key === "PageDown") {
                     e.preventDefault();
                     nextSelectedItem();
-                } else if (hasCtrl && (e.key === "ArrowLeft" || e.key === "ArrowUp")) {
+                } else if (hasCtrl && e.key === "PageUp") {
                     e.preventDefault();
                     prevSelectedItem();
                 }
