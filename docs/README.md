@@ -21,6 +21,9 @@
   - `cat`
      - *Will be used in the future* - list of categories
      - type: `string`/`string[]`
+  - `section`
+     - Defines a section, by which problems can be grouped i.e. excercise 01
+     - type: `string`
   - `timeout`
      - Timeout in seconds (raw time, which will be scaled and translated by language used)
      - type: `float`
