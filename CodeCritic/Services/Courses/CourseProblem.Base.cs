@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json.Serialization;
 using CC.Net.Attributes;
 using Cc.Net.Services.Yaml;
 using YamlDotNet.Serialization;
@@ -21,25 +22,28 @@ namespace CC.Net.Services.Courses
         [Doc("true/false if this problem should be treated as unittest type")]
         [Obsolete("Use `type: unittest` instead")]
         [YamlMember(Alias = "unittest")]
+        [JsonIgnore]
         public bool _unittest { get; set; }
         
         [Doc("problem type, this affects how are solutions executed and graded, default value is `linebyline`" )]
         [YamlMember(Alias = "type")]
+        [JsonIgnore]
         public ProblemType _type { get; set; } = ProblemType.LineByLine;
         public ProblemType Type => _unittest ? ProblemType.Unittest : _type;
-        public bool Unittest => Type == ProblemType.Unittest; 
 
         // REQUIRED FILE ----------------------------------------------------------------
         
         [Obsolete("Use `files: <filename-here>` instead")]
         [Doc("A default name of the library, which will be required by cc")]
         [YamlMember(Alias = "libname")]
+        [JsonIgnore]
         public string _libname { get; set; }
         
         [Doc("string or list of string of filenames, which will be required for each solution. <br>" +
              "You can specify extension (such as `files: trial_1_lib.m` or placeholder which works with every language: <br>" +
              "`files: trial_1_lib.{extension}`")]
         [YamlMember(Alias = "files")]
+        [JsonIgnore]
         public List<string> _files { get; set; } =  new List<string>();
         public List<string> Files => string.IsNullOrEmpty(_libname)
             ? _files
@@ -63,6 +67,10 @@ namespace CC.Net.Services.Courses
         [YamlMember(Alias = "cat")]
         public List<string> Cat { get; set; } = new List<string>();
 
+        [Doc("Defines a section, by which problems can be grouped i.e. excercise 01")]
+        [YamlMember(Alias = "section")]
+        public string Section { get; set; }
+
         [Doc("Timeout in seconds (raw time, which will be scaled and translated by language used)")]
         [YamlMember(Alias = "timeout")]
         public double Timeout { get; set; } = 15;
@@ -77,6 +85,7 @@ namespace CC.Net.Services.Courses
             "`avail: 2021-03-02 08:45:00`",
             "`avail: 7 days`")]
         [YamlMember(Alias = "avail")]
+        [JsonIgnore]
         public DateTimeOrDays _avail { get; set; }
 
         public DateTime Avail => _avail?.ToDateTime(Since) ?? DateTime.MaxValue;
@@ -86,6 +95,7 @@ namespace CC.Net.Services.Courses
             "`deadline: 2021-03-02 08:45:00`",
             "`deadline: 7 days`")]
         [YamlMember(Alias = "deadline")]
+        [JsonIgnore]
         public DateTimeOrDays _deadline { get; set; }
         public DateTime Deadline => _deadline?.ToDateTime(Since) ?? DateTime.MaxValue;
 

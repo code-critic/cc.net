@@ -115,7 +115,7 @@ namespace Cc.Net.Controllers
             if (user != null)
             {
                 await _userService.SignInAsync(HttpContext, user);
-                return Redirect("/");
+                return Redirect("/courses");
             }
 
             return Redirect("/Error");

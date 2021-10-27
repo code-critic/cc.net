@@ -27,13 +27,13 @@ namespace cc.net.Controllers
         private readonly CompareService _compareService;
         private readonly UserService _userService;
         private readonly UtilService _utilService;
+        private readonly Courses _courses;
 
         public CoursesController(
             CourseService courseService, LanguageService languageService, DbService dbService,
             ProblemDescriptionService problemDescriptionService, AppOptions appOptions,
             CompareService compareService, IHttpContextAccessor httpContextAccessor, UserService userService,
-            UtilService utilService
-        )
+            UtilService utilService, Courses courses)
         {
             _courseService = courseService;
             _languageService = languageService;
@@ -43,8 +43,51 @@ namespace cc.net.Controllers
             _compareService = compareService;
             _userService = userService;
             _utilService = utilService;
+            _courses = courses;
         }
 
+        
+        // -------------------------------------------------------------------------------------------------------------
+        
+        [HttpGet("user-courses")]
+        [UseCache(timeToLiveSeconds: 30, perUser: true)]
+        [ProducesResponseType(typeof(ApiListResponse<CourseConfigDto>), StatusCodes.Status200OK)]
+        [Obsolete]
+        public IActionResult CoursesUser()
+        {
+            var user = _userService.CurrentUser;
+            var result = _courses.ForUser(user);
+            return Ok(new ApiListResponse<CourseConfigDto>(result));
+        }
+        
+        [HttpGet("user-problems/{courseName}/{courseYear}")]
+        [UseCache(timeToLiveSeconds: 30, perUser: true)]
+        [ProducesResponseType(typeof(List<ProblemDto>), StatusCodes.Status200OK)]
+        public IActionResult UserProblem(string courseName, string courseYear)
+        {
+            var user = _userService.CurrentUser;
+            var result = _courses.GetProblems(courseName, courseYear, user);
+            return Ok(result);
+        }
+        
+        [HttpGet("user-problem/{courseName}/{courseYear}/{problem}")]
+        [UseCache(timeToLiveSeconds: 30, perUser: true)]
+        [ProducesResponseType(typeof(ProblemDto), StatusCodes.Status200OK)]
+        public IActionResult UserSingleProblem(string courseName, string courseYear, string problem)
+        {
+            var user = _userService.CurrentUser;
+            var result = _courses.GetProblem(courseName, courseYear, problem, user);
+            var course = result.CourseYearDto().CourseConfigDto();
+            
+            if (string.IsNullOrEmpty(result.Config.Description))
+            {
+                result.Config.Description = _problemDescriptionService
+                    .GetProblemReadMe(result.Config, course.CourseDir, result.Course, result.Year);
+            }
+            return Ok(result.IncludeDescription());
+        }
+        
+        // -------------------------------------------------------------------------------------------------------------
         
         [HttpGet("course-list")]
         [UseCache(timeToLiveSeconds: 30, perUser: true)]
@@ -101,14 +144,10 @@ namespace cc.net.Controllers
                 SettingsConfig = yearConfig.SettingsConfig,
             };
 
-            var problems = yearConfig
-                .Problems
-                .Select(i => i.AddDescription(_problemDescriptionService, singleCourse))
-                .ToList();
+            yearConfig.Problems.ForEach(i => i.AddDescription(_problemDescriptionService, singleCourse));
+            yearConfig.Problems.ForEach(i => i.UpdateRefs(yearConfig));
 
-            problems.ForEach(i => i.UpdateRefs(yearConfig));
-
-            var response = new ApiListResponse<CourseProblem>(problems);
+            var response = new ApiListResponse<CourseProblem>(yearConfig.Problems);
 
             return Ok(response);
         }

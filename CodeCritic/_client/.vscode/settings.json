@@ -2,4 +2,8 @@
 {
     "vscOrganizeImports.formatOnSave": "true",
     "vscOrganizeImports.emptyLinesBetweenFilledGroups": 1,
+    "editor.fontLigatures": true,
+    "editor.fontFamily": "'Fira Code', 'Cascadia Code'",
+    "editor.fontWeight": "500",
+    "editor.letterSpacing": -0.4,
 }

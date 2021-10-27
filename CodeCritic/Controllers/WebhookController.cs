@@ -1,24 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Security.Claims;
-using CC.Net.Collections;
-using CC.Net.Config;
-using CC.Net.Db;
-using CC.Net.Dto;
-using CC.Net.Entities;
-using CC.Net.Extensions;
-using CC.Net.Services;
 using CC.Net.Services.Courses;
-using CC.Net.Services.Languages;
 using CC.Net.Utils;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using MongoDB.Bson;
-using MongoDB.Driver;
 
 namespace CC.Net.Controllers
 {
@@ -27,10 +10,12 @@ namespace CC.Net.Controllers
     public class WebhookController
     {
         private readonly CourseService _courseService;
+        private readonly Courses _courses;
 
-        public WebhookController(CourseService courseService)
+        public WebhookController(CourseService courseService, Courses courses)
         {
             _courseService = courseService;
+            _courses = courses;
         }
 
         [HttpPost("update")]
@@ -42,6 +27,7 @@ namespace CC.Net.Controllers
                 var cmd = $"bash -c \"cd {dir} && git fetch --all && git reset --hard origin/master\"";
                 var res = ProcessUtils.Popen(cmd, 30);
             }
+            _courses.Reload();
             return _courseService.Courses.Select(i => i.CourseConfig.Name);
         }
     }

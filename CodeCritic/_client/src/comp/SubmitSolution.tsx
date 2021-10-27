@@ -1,6 +1,6 @@
 import '../third_party/mathjax';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 import { Button, Container } from '@material-ui/core';
 import SendIcon from '@material-ui/icons/Send';
@@ -20,10 +20,13 @@ import { SubmitSolutionLastResults } from './SubmitSolution.LastResults';
 import { SubmitSolutionGroupSelect } from './submitSolution/SubmitSolution.GroupSelect';
 import { hubApi } from './submitSolution/SubmitSolution.Hub';
 import {
+    ChangeLayoutTag,
     SubmitSolutionAssetsTag, SubmitSolutionDeadlineTag, SubmitSolutionGroupTag,
     SubmitSolutionOutputTag, SubmitSolutionRequiredFilesTag, SubmitSolutionRequiredLanguageTag,
     SubmitSolutionTimeTag,
 } from './submitSolution/SubmitSolution.Tags';
+import { useLocalStorage } from '../hooks/useLocalStorage';
+import { IframeWrapper } from './IframeWrapper';
 
 const determineDefaultLanguage = (problem: ICourseProblem) => {
     if (problem.type === ProblemType.Unittest) {
@@ -44,11 +47,25 @@ export const SubmitSolution = (props: SubmitSolutionProps) => {
     </Container>)
 }
 
+const layouts = [
+    'split',
+    'max-desc',
+    'max-code',
+]
+
 export const SubmitSolutionImpl = (props: SubmitSolutionProps) => {
     const { course, problem } = props;
     const [files, setFiles] = useState<ISimpleFile[]>();
     const [liveResult, setLiveResult] = useState<ICcData>();
     const [groupMenu, openGroupMenu, closeGroupMenu] = useOpenClose();
+    const [iframeHeight, setIframeHeight] = useState(800);
+    const [layoutIndex, setLayoutIndex] = useLocalStorage("cc.layout.index", 0);
+    const layout = layouts[layoutIndex];
+    const nextLayout = () => {
+        setLayoutIndex(
+            (layoutIndex + 1) % layouts.length
+        );
+    }
 
 
     const { user, isRoot } = useUser();
@@ -71,14 +88,17 @@ export const SubmitSolutionImpl = (props: SubmitSolutionProps) => {
                 setLiveResult(item);
             } else {
                 console.log('ignoring', problem, item);
-                
+
             }
         });
+
+
+        
         return () => {
             console.log('removing');
             liveConnection.off("OnProcessStart");
         }
-    }, [ ]);
+    }, []);
 
     const resetLiveResult = () => {
         setLiveResult(undefined);
@@ -95,7 +115,7 @@ export const SubmitSolutionImpl = (props: SubmitSolutionProps) => {
     const grabFiles = () => {
         return files.map(i => {
             return { name: i.filename, path: i.relPath, content: i.content } as ISimpleFileDto;
-        })
+        });
     }
 
     const submitSolution = () => {
@@ -134,13 +154,12 @@ export const SubmitSolutionImpl = (props: SubmitSolutionProps) => {
     const isUnittest = problem.type === ProblemType.Unittest;
     const groupMenuIsOpen = problem.groupsAllowed && groupMenu;
     const showGenerateBtns = isRoot && problem.type === ProblemType.LineByLine && problem.reference != null;
-    const problemIsActive = problem.statusCode === ProblemStatus.Active
-        || problem.statusCode === ProblemStatus.ActiveLate;
+    const problemIsActive = problem.isActive === true;
     const codeHidden = !problemIsActive && !isRoot;
     const canSubmitSolution = user.serverStatus === "running" &&
         (isRoot || (files != null && files.length > 0 && problemIsActive));
 
-    return (<div className={`solution-submit ${codeHidden ? "inactive" : ""}`}>
+    return (<div className={`solution-submit ${codeHidden ? "inactive" : ""} layout-${layout}`}>
         <div className="last-results">
             <SubmitSolutionLastResults liveResult={liveResult} course={course} problem={problem} />
         </div>
@@ -152,9 +171,13 @@ export const SubmitSolutionImpl = (props: SubmitSolutionProps) => {
             {problem.assets?.length > 0 && <SubmitSolutionAssetsTag problem={problem} />}
             {problem.export?.length > 0 && <SubmitSolutionOutputTag problem={problem} />}
             {problem.groupsAllowed && <SubmitSolutionGroupTag problem={problem} />}
+
+            <ChangeLayoutTag onChange={nextLayout} />
         </div>
         <div className="description">
-            <div dangerouslySetInnerHTML={{ __html: problem.description }} />
+            {problem.complexDescriptionPage
+                ? <IframeWrapper width="100%" minHeight="600" src={`/S/${problem.complexDescriptionPage}`} margin={150} />
+                : <div dangerouslySetInnerHTML={{ __html: problem.description }} />}
         </div>
         {!codeHidden && <div className="info">
             <CodeEditorLanguage language={language} onChange={onLanguageChange} fixed={isUnittest} />
@@ -184,3 +207,4 @@ export const SubmitSolutionImpl = (props: SubmitSolutionProps) => {
         </div>}
     </div>)
 }
+

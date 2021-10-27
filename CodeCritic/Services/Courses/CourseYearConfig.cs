@@ -10,9 +10,10 @@ namespace CC.Net.Services.Courses
     public class CourseYearConfig: IUpdateRefs<Course>
     {
         public string Year { get; set; }
-        public List<List<CcData>> Results { get; set; } = new List<List<CcData>>();
         public List<CourseProblem> Problems { get; set; } = new List<CourseProblem>();
         public SettingsConfig SettingsConfig { get; set; }
+        
+        public CourseGroup CourseGroup { get; set; }
 
         [JsonIgnore]
         [YamlIgnore]

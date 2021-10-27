@@ -26,6 +26,7 @@ using MongoDB.Driver;
 using Serilog;
 using System.IO;
 using System.Text.RegularExpressions;
+using Microsoft.Extensions.FileProviders;
 
 namespace CC.Net
 {
@@ -71,6 +72,8 @@ namespace CC.Net
             services.AddSingleton<CacheContentService>();
             services.AddSingleton<NotificationFlag>();
             services.AddSingleton<ServerStatus>();
+            services.AddSingleton<Courses>();
+            // services.AddScoped<Courses>();
             services.AddHostedService<ProcessService>();
             services.AddHostedService<NotificationService>();
             services.AddHttpContextAccessor();
@@ -119,6 +122,12 @@ namespace CC.Net
             var update = Builders<CcData>.Update.Set("result.status", (int) ProcessStatusCodes.InQueue);
             dbService.Data.UpdateMany(filter, update);
 
+            // var courses = serviceProvider.GetService<Courses>();
+            // var a = courses.GetProblem("TST", "2019", "problem-1", "jan.hybs", false);
+            // var b = courses.ForUser("jan.hybs", false);
+            //
+            // var aa = courses.AllYears;
+            // var bb = courses.YearsForUser("jan.hybs", false);
 
             if (env.IsDevelopment())
             {
@@ -131,19 +140,25 @@ namespace CC.Net
                 app.UseHsts();
             }
             app.UseHttpsRedirection();
-            app.UseStaticFiles();
-            app.UseSpaStaticFiles();
+            
 
             app.UseRouting();
 
             // who are you
             app.UseAuthentication();
             
+            // are you allowed
+            app.UseAuthorization();
+            
             // add to log
             app.UseMiddleware<LogUserNameMiddleware>();
 
-            // are you allowed
-            app.UseAuthorization();
+            app.UseStaticFiles(new StaticFileOptions(){
+                FileProvider = new PhysicalFileProvider(AppOptions.CourseDir),
+                RequestPath = "/S"
+            });
+
+            app.UseSpaStaticFiles();
 
             app.UseEndpoints(endpoints =>
             {

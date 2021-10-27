@@ -77,7 +77,7 @@ namespace CC.Net.Services
             Item.Result.Status = ProcessStatus.Running.Value;
             Item.Results = new List<CcDataCaseResult>();
 
-            foreach (var subtest in problem.AllTests)
+            foreach (var subtest in problem.AllTests())
             {
                 Item.Results.Add(new CcDataCaseResult
                 {

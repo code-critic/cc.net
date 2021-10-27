@@ -6,6 +6,7 @@ import AccessTimeIcon from '@material-ui/icons/AccessTime';
 import AttachFileIcon from '@material-ui/icons/AttachFile';
 import AudiotrackIcon from '@material-ui/icons/Audiotrack';
 import DescriptionIcon from '@material-ui/icons/Description';
+import VerticalSplitIcon from '@material-ui/icons/VerticalSplit';
 import GroupIcon from '@material-ui/icons/Group';
 import ImageIcon from '@material-ui/icons/Image';
 import LanguageIcon from '@material-ui/icons/Language';
@@ -20,6 +21,7 @@ import { ProblemStatus, ProblemType } from '../../models/Enums';
 import { LightTooltip } from '../../renderers/LightTooltip';
 import { languages } from '../../static/languages';
 import { determineRequiredFiles } from '../codeEditor/CodeEditor';
+import { useState } from 'react';
 
 interface SubmitSolutionGroupTagProps {
     problem: ICourseProblem;
@@ -293,5 +295,17 @@ export const SubmitSolutionTimeTag = (props: SubmitSolutionTimeTagProps) => {
 
     return (<LightTooltip interactive title={title} enterTouchDelay={0} leaveTouchDelay={10000}>
         <div className="problem-tag warning"><TimelapseIcon />{safeTimeout.toFixed(0)}s</div>
+    </LightTooltip>)
+}
+
+
+interface ChangeLayoutTagProps {
+    onChange();
+}
+export const ChangeLayoutTag = (props: ChangeLayoutTagProps) => {
+    const { onChange } = props;
+
+    return (<LightTooltip onClick={onChange} interactive title={"Change layout"} enterTouchDelay={0} leaveTouchDelay={10000}>
+        <div style={{marginLeft: "auto"}} className="problem-tag layout"><VerticalSplitIcon /></div>
     </LightTooltip>)
 }

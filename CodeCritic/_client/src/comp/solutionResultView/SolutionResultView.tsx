@@ -17,7 +17,7 @@ import TimerIcon from '@material-ui/icons/Timer';
 import TodayIcon from '@material-ui/icons/Today';
 
 import { CodeCritic } from '../../api';
-import { IApiError, ICcData, ICourseProblem, ISimpleFile } from '../../cc-api';
+import { IApiError, ICcData, ICourseProblem, IMarkSolutionItem, ISimpleFile } from '../../cc-api';
 import { SimpleLoader } from '../../components/SimpleLoader';
 import { useComments } from '../../hooks/useComments';
 import { useRefresh } from '../../hooks/useRefresh';
@@ -31,6 +31,7 @@ import { renderError } from '../../renderers/renderErrors';
 import { TimelineRenderer } from '../../renderers/TimelineRenderer';
 import { SourceCodeReview } from '../../text/SourceCodeReview';
 import { nop } from '../../utils/nop';
+import { notifications } from '../../utils/notifications';
 import { getStatus } from '../../utils/StatusUtils';
 import { humanizeName } from '../../utils/utils';
 import { PreviousResults } from '../previousResults/PreviousResults';
@@ -70,10 +71,12 @@ const IncongnitoIcon = (props) => {
 interface SolutionResultViewProps extends IParamsObjectId {
     onChange?: () => void;
     onClose?: () => void;
+    nextPage?: () => void;
+    prevPage?: () => void;
 }
 
 export const SolutionResultView = (props: SolutionResultViewProps) => {
-    const { onChange = nop, onClose } = props;
+    const { onChange = nop, onClose = nop, nextPage = nop, prevPage = nop } = props;
     const params = useParams<IParamsObjectId>();
     
     const { user, isRoot } = useUser();
@@ -189,6 +192,27 @@ export const SolutionResultView = (props: SolutionResultViewProps) => {
         refresh();
         onChange();
     }
+
+    const saveGrade = async (points: number) => {
+        const grade:IMarkSolutionItem = { comment: "", points, objectId }
+        try {
+            const data = await CodeCritic.api.saveGradeCreate(grade);
+            notifications.success(`Saved! ${data.data.count} notification(s) sent`);
+            refresh();
+            onChange();
+            return true;
+        } catch (error) {
+            notifications.error(`Error while saving: ${error}`);
+            return false;
+        }
+    }
+
+    // const saveGradeAndNext = async (points: number) => {
+    //     const success = await saveGrade(points);
+    //     if (success) {
+    //         nextPage();
+    //     }
+    // }
 
     const prettifyConsoleMessages = (messages: string[]) => {
         const prettifiers = [
@@ -314,15 +338,28 @@ export const SolutionResultView = (props: SolutionResultViewProps) => {
                                 <div className="key-value-grid">
                                     <div className="key"><SecurityIcon/>Previous results</div>
                                     <div className="value">
-                                        <PreviousResults onChange={setSelectedResultId} result={result} selectedResultId={selectedResultId} />
+                                        <PreviousResults
+                                            onChange={setSelectedResultId}
+                                            result={result}
+                                            selectedResultId={selectedResultId}
+                                            nextPage={nextPage}
+                                            prevPage={prevPage}
+                                            />
                                     </div>
                                 </div>}
                             
                     </div>
                     <div className="sol-sts sol-item">
-                        {reviewRequest && <Button className="grade-btn" disabled={!isRoot} onClick={showGradeDialog}>
-                            {points > 0 ? points : "??"}<small className="text-muted">/100</small>
-                        </Button>}
+                        {reviewRequest && <div className="grade-grid">
+                            <Button className="grade-btn" disabled={!isRoot} onClick={showGradeDialog}>
+                                {points > 0 ? points : "??"}<small className="text-muted">/100</small>
+                            </Button>
+                            <div className="grade-grades">
+                                {[50, 75, 90, 100].map((i, j) =>
+                                    <Button key={j} onClick={() => saveGrade(i)}>{i}</Button>
+                                )}
+                            </div>
+                        </div>}
                     </div>
                     <div className="sol-res sol-item">
                         <Typography variant="h6" className="sol-status">

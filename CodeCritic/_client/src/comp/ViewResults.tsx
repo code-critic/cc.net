@@ -7,6 +7,7 @@ import AssignmentIndIcon from '@material-ui/icons/AssignmentInd';
 import { CodeCritic } from '../api';
 import { ICcDataDto, ITableResponse } from '../cc-api';
 import { notifications } from '../utils/notifications';
+import { isKeySequenceNextPage, isKeySequencePrevPage } from '../utils/shortcuts';
 import { ProblemPicker, ProblemPickerExportProps } from './ProblemPicker';
 import { SolutionResultView } from './solutionResultView/SolutionResultView';
 import { TableModel, TableResults } from './table/TableResults';
@@ -34,12 +35,14 @@ const ViewResultsImpl = (props: ViewResultsImplProps) => {
 
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
+            // console.log({ n:"ViewResults", shiftKey: e.shiftKey, ctrlKey: e.ctrlKey, key: e.key, code: e.code });
+
             if (selectedItem != null) {
-                const hasCtrl = e.ctrlKey;
-                if (hasCtrl && e.key === "PageDown") {
+                if (isKeySequenceNextPage(e)) {
                     e.preventDefault();
                     nextSelectedItem();
-                } else if (hasCtrl && e.key === "PageUp") {
+                } else if (isKeySequencePrevPage(e)) {
+                    debugger;
                     e.preventDefault();
                     prevSelectedItem();
                 }

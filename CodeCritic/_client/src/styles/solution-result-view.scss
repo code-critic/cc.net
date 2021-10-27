@@ -69,12 +69,12 @@ $statuses: (answer-correct: #c0f3b3,
   }
 
   .sol-sts {
-    .MuiButtonBase-root {
+    grid-area: sol-sts;
+    .grade-btn.MuiButtonBase-root {
       height: 100%;
       width: 100%;
 
       font-family: 'Dosis', sans-serif;
-      grid-area: sol-sts;
       padding: 10px;
       font-size: 50px;
       display: flex;
@@ -135,6 +135,7 @@ $statuses: (answer-correct: #c0f3b3,
     img {
       max-width: 100%;
     }
+
     // background: green;
   }
 
@@ -151,9 +152,35 @@ $statuses: (answer-correct: #c0f3b3,
     // background: orange;
   }
 
+
+  .grade-grid {
+    height: 100%;
+    display: grid;
+    grid-template-columns: 1fr; 
+    grid-template-rows: 1fr 80px; 
+    gap: 0px 0px; 
+    grid-template-areas: 
+      "grade-btn"
+      "grade-grades"; 
+  }
+
   .grade-btn {
+    grid-area: grade-btn;
+
     &.Mui-disabled {
       color: initial;
+    }
+  }
+  
+  .grade-grades {
+    grid-area: grade-grades;
+    display: grid;
+    flex-wrap: wrap;
+    grid-template-columns: 1fr 1fr;
+    
+    .MuiButtonBase-root {
+      min-width: 20px;
+      min-height: 20px;
     }
   }
 }

@@ -1,26 +1,30 @@
 import React, { useEffect, useState } from 'react';
 
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, Typography } from '@material-ui/core';
+import {
+    Button, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, Typography,
+} from '@material-ui/core';
+import PolicyIcon from '@material-ui/icons/Policy';
 
 import { CodeCritic } from '../../api';
 import { ICcData, ICcDataLight, IPlagResult } from '../../cc-api';
+import { DropDownMenu } from '../../components/DropDownMenu';
 import { SimpleLoader } from '../../components/SimpleLoader';
 import { AbsMoment } from '../../renderers/AbsMoment';
 import { LightTooltip } from '../../renderers/LightTooltip';
-import { getStatus } from '../../utils/StatusUtils';
-import { DropDownMenu } from '../../components/DropDownMenu';
 import { RenderDiffTable } from '../../renderers/RenderDiffTable';
-import PolicyIcon from '@material-ui/icons/Policy';
 import { nextIndex, prevIndex } from '../../utils/arrayUtils';
-
+import { isKeySequenceNextPage, isKeySequencePrevPage } from '../../utils/shortcuts';
+import { getStatus } from '../../utils/StatusUtils';
 
 interface PreviousResultsProps {
     result: ICcData;
     selectedResultId: string;
     onChange(objectId: string): void;
+    nextPage?(): void;
+    prevPage?(): void;
 }
 export const PreviousResults = (props: PreviousResultsProps) => {
-    const { result, selectedResultId, onChange } = props;
+    const { result, selectedResultId, onChange, nextPage, prevPage } = props;
     const [results, setResults] = useState<ICcDataLight[]>();
     const [selectedDiff, setSelectedDiff] = useState<IPlagResult>();
     
@@ -41,14 +45,27 @@ export const PreviousResults = (props: PreviousResultsProps) => {
 
     useEffect(() => {
         const handleKeyPress = (e: KeyboardEvent) => {
-            if (selectedDiff && results?.length > 1) {
-                const hasCtrl = e.ctrlKey;
-                if (hasCtrl && e.key === "PageDown") {
-                    e.preventDefault();
-                    nextSelectedItem();
-                } else if (hasCtrl && e.key === "PageUp") {
-                    e.preventDefault();
-                    prevSelectedItem();
+            // console.log({ n:"PreviousResults", shiftKey: e.shiftKey, ctrlKey: e.ctrlKey, key: e.key, code: e.code });
+
+            if (selectedDiff) {
+                    if (results?.length > 1) {
+                        if (isKeySequenceNextPage(e)) {
+                            e.preventDefault();
+                            nextSelectedItem();
+                        } else if (isKeySequencePrevPage(e)) {
+                            e.preventDefault();
+                            prevSelectedItem();
+                        }
+                    }
+            } else {
+                if (isKeySequenceNextPage(e)) {
+                    if (nextPage) {
+                        nextPage();
+                    }
+                } else if (isKeySequencePrevPage(e)){
+                    if (prevPage) {
+                        prevPage();
+                    }
                 }
             }
         }

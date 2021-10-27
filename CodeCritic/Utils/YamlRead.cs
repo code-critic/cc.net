@@ -42,7 +42,7 @@ namespace CC.Net.Utils
                     .Prepend("\n")
                     .Prepend(ex.Message);
                 
-                throw new DetailedException($"Yaml error in {path}", highlighted.ToArray());
+                throw new DetailedException($"Yaml error in {path}", path, highlighted.ToArray());
             }
         }
     }

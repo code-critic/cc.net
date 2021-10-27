@@ -7,6 +7,7 @@ import { CodeCritic } from '../api';
 import { ICcDataDto, ITableResponse } from '../cc-api';
 import { SimpleLoader } from '../components/SimpleLoader';
 import { useRefresh } from '../hooks/useRefresh';
+import { useUser } from '../hooks/useUser';
 import { ProcessStatusStatic } from '../models/Enums';
 import { notifications } from '../utils/notifications';
 import { ProblemPicker, ProblemPickerExportProps } from './ProblemPicker';
@@ -30,7 +31,9 @@ const GraderesultsImpl = (props: GraderesultsImplProps) => {
     const { course, problem } = props;
     const { counter, refresh } = useRefresh();
     const [ data, setData ] = useState<ICcDataDto[]>();
-    const [selectedItem, setSelectedItem] = useState<ICcDataDto>();
+    const [ selectedItem, setSelectedItem ] = useState<ICcDataDto>();
+    const [ selectedIndex, setSelectedIndex ] = useState(-1);
+    const { user, isRoot } = useUser();
 
     useEffect(() => {
         (async () => {
@@ -53,6 +56,31 @@ const GraderesultsImpl = (props: GraderesultsImplProps) => {
             notifications.warning("Cannot open the solution", "Solution is virtual and does not exists");
         } else {
             setSelectedItem(item);
+            setSelectedIndex((tableResponse.data || []).findIndex(i => i.objectId === item.objectId));
+        }
+    }
+
+    const nextPage = async () => {
+        if (selectedItem) {
+            const index = (tableResponse.data || []).findIndex(i => i.objectId === selectedItem.objectId);
+            const newItem = (tableResponse.data || []).find((i, j) => j > index && i.status !== ProcessStatusStatic.NoSolution.letter);
+
+            if (newItem) {
+                await handleSelected(newItem);
+            }
+        }
+    }
+
+    const prevPage = async () => {
+        if (selectedItem) {
+            const reversed = (tableResponse.data || []).slice().reverse();
+
+            const index = reversed.findIndex(i => i.objectId === selectedItem.objectId);
+            const newItem = reversed.find((i, j) => j > index && i.status !== ProcessStatusStatic.NoSolution.letter);
+
+            if (newItem) {
+                await handleSelected(newItem);
+            }
         }
     }
 
@@ -71,7 +99,16 @@ const GraderesultsImpl = (props: GraderesultsImplProps) => {
                     onClose={() => setSelectedItem(undefined)}
                     fullWidth maxWidth="lg">
                 <DialogContent>
-                    <SolutionResultView onClose={() => setSelectedItem(undefined)} onChange={refresh} objectId={selectedItem.objectId} />
+                    {isRoot && 
+                        <div>{selectedIndex + 1} / {tableResponse?.data?.length ?? 666}</div>
+                    }
+                    <SolutionResultView
+                        onClose={() => setSelectedItem(undefined)}
+                        onChange={refresh}
+                        objectId={selectedItem.objectId}
+                        nextPage={nextPage}
+                        prevPage={prevPage}
+                        />
                 </DialogContent>
             </Dialog>
         </>}

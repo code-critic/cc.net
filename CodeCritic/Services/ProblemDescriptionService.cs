@@ -6,11 +6,14 @@ using Microsoft.Extensions.Logging;
 using Markdig.Renderers;
 using Markdig.Parsers;
 using System;
+using System.Linq;
 using System.Text.RegularExpressions;
+using System.Collections.Generic;
 
 namespace CC.Net.Services
 {
-    public class ProblemDescriptionService {
+    public class ProblemDescriptionService
+    {
 
         private readonly AppOptions _appOptions;
         private readonly ILogger<ProblemDescriptionService> _logger;
@@ -22,12 +25,12 @@ namespace CC.Net.Services
             _logger = logger;
         }
 
-        public string GetProblemReadMe(CourseProblem problem, SingleCourse course)
+        public string GetProblemReadMe(CourseProblem problem, string courseDir, string course, string year)
         {
             var readmePath = Path.Combine(
                 _appOptions.CourseDir,
-                course.CourseRef.CourseDir,
-                course.Year,
+                courseDir,
+                year,
                 "problems",
                 problem.Id,
                 "README.md"
@@ -36,6 +39,7 @@ namespace CC.Net.Services
             if (!File.Exists(readmePath))
             {
                 _logger.LogWarning("Could not find README.md {path}", readmePath);
+                return null;
             }
 
             var pipeline = new MarkdownPipelineBuilder()
@@ -43,14 +47,17 @@ namespace CC.Net.Services
                 // .UseMathematics()
                 .Build();
             var writer = new StringWriter();
-            var renderer = new HtmlRenderer(writer);
-            renderer.LinkRewriter = arg => {
-                if(arg.StartsWith("http"))
+            var renderer = new HtmlRenderer(writer)
+            {
+                LinkRewriter = arg =>
                 {
-                    return arg;
-                }
+                    if (arg.StartsWith("http"))
+                    {
+                        return arg;
+                    }
 
-                return $"/static-files/serve/{course.Course}/{course.Year}/{problem.Id}/{arg}";
+                    return $"/static-files/serve/{course}/{year}/{problem.Id}/{arg}";
+                }
             };
 
             var content = File.Exists(readmePath)
@@ -62,25 +69,45 @@ namespace CC.Net.Services
             var document = MarkdownParser.Parse(content, pipeline);
             renderer.Render(document);
             writer.Flush();
-            
+
             return writer.ToString();
         }
 
         private string FixMathEQ(string content)
         {
-            const string MATH_FENCE_START = @"```math";
-            const string MATH_FENCE_END = @"```";
+            const string mathFenceStart = @"```math";
+            const string mathFenceEnd = @"```";
 
-            if (content.Contains(MATH_FENCE_START))
+            if (content.Contains(mathFenceStart))
             {
-                content = Regex.Replace(content, @$"({MATH_FENCE_START})(.*)({MATH_FENCE_END})", (Match match) =>
-                {
-                    return match.Groups[2].Value.Trim().Replace(@"\", @"\\");
-                }
-                , RegexOptions.IgnoreCase | RegexOptions.Singleline);
+                content = Regex.Replace(content, @$"({mathFenceStart})(.*)({mathFenceEnd})",
+                    (Match match) => match.Groups[2].Value.Trim().Replace(@"\", @"\\"), RegexOptions.IgnoreCase | RegexOptions.Singleline);
             }
 
             return content;
+        }
+
+        public string GetComplexDescription(CourseProblem problem, string courseDir, string course, string year)
+        {
+            var candidates = new List<String> {
+                Path.Combine(
+                    course,
+                    year,
+                    "problems",
+                    problem.Id,
+                    "build",
+                    "index.html"
+                ),
+                Path.Combine(
+                    course,
+                    year,
+                    "problems",
+                    problem.Id,
+                    "index.html"
+                ),
+            };
+
+            return candidates.FirstOrDefault(i => File.Exists(Path.Combine(_appOptions.CourseDir, i)));
         }
     }
 }

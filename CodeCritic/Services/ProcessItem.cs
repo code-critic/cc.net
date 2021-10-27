@@ -121,7 +121,7 @@ namespace CC.Net.Services
 
         public async Task RunCasesAsync(PrepareItemResult prepareItemResult, Func<CourseProblemCase, Task> runAction)
         {
-            foreach (var subtest in prepareItemResult.Problem.AllTests)
+            foreach (var subtest in prepareItemResult.Problem.AllTests())
             {
                 try
                 {

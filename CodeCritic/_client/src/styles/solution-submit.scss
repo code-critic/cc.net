@@ -9,6 +9,30 @@
         "problem-tags problem-tags"
         "description info"
         "description code";
+
+    &.layout-max-desc {
+        grid-template-areas:
+            "last-results last-results"
+            "problem-tags problem-tags"
+            "description description"
+            "description description";
+            
+        .code, .info {
+            display: none;
+        }
+    }
+
+    &.layout-max-code {
+            grid-template-areas:
+                "last-results last-results"
+                "problem-tags problem-tags"
+                "info info"
+                "code code";
+                
+            .description {
+                display: none;
+            }
+    }
     
     &.inactive {
         grid-template-areas:
@@ -146,6 +170,10 @@
     &.error {
         --bg-color: #fdecea;
         --hv-color: #c54938;
+    }
+    &.layout {
+        --bg-color: #f0eafd;
+        --hv-color: #8738c5;
     }
 }
 

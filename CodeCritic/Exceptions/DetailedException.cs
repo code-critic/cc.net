@@ -8,8 +8,11 @@ namespace Cc.Net.Exceptions
     {
         public readonly List<string> Messages;
 
-        public DetailedException(string message, params string[] messages): base(message)
+        public readonly string File;
+
+        public DetailedException(string message, string file, params string[] messages): base(message)
         {
+            File = file;
             Messages = messages.ToList()
                 .Prepend(message)
                 .ToList();
