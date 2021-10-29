@@ -27,21 +27,21 @@ interface ProblemPickerProps {
     home?: JSX.Element;
     tileStyle?: 'small' | 'big';
     displayAlways?: boolean;
-    withBreadcrumbs?: boolean;
+    withBreadcrumbs?: boolean | React.ComponentType<any>;
     whereUserIsTeacher?: boolean;
 }
 
 export const ProblemPicker = (props: ProblemPickerProps) => {
     const { baseUrl, tileStyle = 'small', displayAlways = false, withBreadcrumbs = false, home, whereUserIsTeacher = false } = props;
-    const Component = props.component as any;
     const [coursesResponse, setCoursesResponse] = useState<ISingleCourseApiListResponse>();
     const [courseResponse, setCourseResponse] = useState<ICourseProblemApiListResponse>();
     const [courseProblem, setCourseProblem] = useState<ICourseProblem>();
     const [isLoading, setIsLoading] = useState(false);
-
     const { user } = useUser();
 
     const { course, year, problem } = useParams<any>();
+    
+    const Component = props.component as any;
 
     useEffect(() => {
         (async () => {
@@ -143,7 +143,14 @@ export const ProblemPicker = (props: ProblemPickerProps) => {
     const componentVisible = !!Component && (displayAlways || !!activeCourse && !!activeProblem);
 
     return <>
-        {withBreadcrumbs && <RenderBreadcrumbs home={home} activeCourse={activeCourse} activeProblem={activeProblem} baseUrl={baseUrl} />}
+        {withBreadcrumbs && 
+            <>
+                {typeof (withBreadcrumbs) === 'function'
+                ? <RenderBreadcrumbs home={home} activeCourse={activeCourse} activeProblem={activeProblem} baseUrl={baseUrl} customRenderer={withBreadcrumbs} />
+                    : <RenderBreadcrumbs home={home} activeCourse={activeCourse} activeProblem={activeProblem} baseUrl={baseUrl} />
+                }
+            </>
+        }
         {drawResponse()}
         {componentVisible && <Component
             problem={activeProblem}

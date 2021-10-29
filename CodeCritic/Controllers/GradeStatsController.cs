@@ -7,6 +7,7 @@ using Cc.Net.Dto;
 using CC.Net.Services;
 using CC.Net.Services.Courses;
 using CC.Net.Services.Languages;
+using CC.Net.Controllers.Filters;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -23,16 +24,16 @@ namespace CC.Net.Controllers
         private readonly DbService _dbService;
         private readonly UserService _userService;
 
-        public GradeController(CourseService courseService,  DbService dbService,UserService userService)
+        public GradeController(CourseService courseService,  DbService dbService, UserService userService)
         {
             _courseService = courseService;
             _dbService = dbService;
             _userService = userService;
         }
 
-        [HttpGet("grade-stats/{courseName}/{year}/{problemId}")]
+        [HttpPost("grade-stats/{courseName}/{year}/{problemId}")]
         [RequireRole(AppUserRoles.Root)]
-        public List<GradeDto> GetGradeStats(string courseName, string year, string problemId)
+        public IEnumerable<GradeDto> GetGradeStats(string courseName, string year, string problemId, [FromBody] GradeStatFilterDto filter)
         {
             var user = _userService.CurrentUser;
             var course = _courseService.GetCourseForUser(user, courseName);
@@ -91,7 +92,19 @@ namespace CC.Net.Controllers
                 });
             }
 
-            return bestResults;
+            return ApplyFilters(bestResults, filter);
+        }
+
+        private IEnumerable<GradeDto> ApplyFilters(IEnumerable<GradeDto> items, GradeStatFilterDto filter)
+        {
+            if (filter.showMissingGradeOnly)
+            {
+                return items.Where(i => i.Result.ReviewRequest != null
+                    && i.Result.Status != ProcessStatus.NoSolution.Letter
+                    && i.Result.Points <= 0);
+            }
+
+            return items;
         }
     }
 }

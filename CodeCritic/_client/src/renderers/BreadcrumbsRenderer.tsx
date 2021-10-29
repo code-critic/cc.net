@@ -14,10 +14,12 @@ interface RenderBreadcrumbsProps {
 
     activeCourse?: ISingleCourse;
     activeProblem?: ICourseProblem;
+    customRenderer?: React.ComponentType<any>;
 }
 
 export const RenderBreadcrumbs = (props: RenderBreadcrumbsProps) => {
-    const { activeCourse, activeProblem, baseUrl, home } = props;
+    const { activeCourse, activeProblem, baseUrl, home, customRenderer } = props;
+    const CustomRenderer = customRenderer as any;
 
     const breadcrumbComponents = [{
         to: `${baseUrl}`,
@@ -45,5 +47,6 @@ export const RenderBreadcrumbs = (props: RenderBreadcrumbsProps) => {
             }
             return <Link key={j} to={i.to} component={RouterLink} className="display-flex">{i.title}</Link>
         })}
+        <CustomRenderer course={activeCourse} problem={activeProblem}  />
     </Breadcrumbs>
 }

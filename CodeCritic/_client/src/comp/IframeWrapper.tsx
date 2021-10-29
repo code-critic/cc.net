@@ -34,7 +34,7 @@ export const IframeWrapper = (props: IframeWrapperProps) => {
             ?? iframe.current?.contentWindow?.document.body.scrollHeight
             ?? minHeight;
             
-        setHeight(height + margin);
+        setHeight(Math.max(height, minHeight) + margin);
     }
 
     if (iframe.current) {

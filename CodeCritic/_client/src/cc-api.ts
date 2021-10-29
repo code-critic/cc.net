@@ -419,6 +419,10 @@ export interface IGradeDto {
   user?: IUser;
 }
 
+export interface IGradeStatFilterDto {
+  showMissingGradeOnly?: boolean;
+}
+
 export interface ILineComment {
   text?: string | null;
 
@@ -911,13 +915,21 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * No description
      *
      * @tags Grade
-     * @name GradeStatsDetail
-     * @request GET:/api/grade-stats/{courseName}/{year}/{problemId}
+     * @name GradeStatsCreate
+     * @request POST:/api/grade-stats/{courseName}/{year}/{problemId}
      */
-    gradeStatsDetail: (courseName: string, year: string, problemId: string, params: RequestParams = {}) =>
+    gradeStatsCreate: (
+      courseName: string,
+      year: string,
+      problemId: string,
+      data: IGradeStatFilterDto,
+      params: RequestParams = {},
+    ) =>
       this.request<IGradeDto[], any>({
         path: `/api/grade-stats/${courseName}/${year}/${problemId}`,
-        method: "GET",
+        method: "POST",
+        body: data,
+        type: ContentType.Json,
         format: "json",
         ...params,
       }),

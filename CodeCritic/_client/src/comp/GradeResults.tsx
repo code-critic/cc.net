@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState } from 'react';
 
-import { Dialog, DialogContent } from '@material-ui/core';
+import { Checkbox, Dialog, DialogContent, FormControlLabel } from '@material-ui/core';
 import InsertChartIcon from '@material-ui/icons/InsertChart';
 
 import { CodeCritic } from '../api';
-import { ICcDataDto, ITableResponse } from '../cc-api';
+import { ICcDataDto, IGradeStatFilterDto, ITableResponse } from '../cc-api';
 import { SimpleLoader } from '../components/SimpleLoader';
 import { useRefresh } from '../hooks/useRefresh';
 import { useUser } from '../hooks/useUser';
@@ -14,15 +14,51 @@ import { ProblemPicker, ProblemPickerExportProps } from './ProblemPicker';
 import { SolutionResultView } from './solutionResultView/SolutionResultView';
 import { TableResults } from './table/TableResults';
 
-export const Graderesults = () => {
+
+interface IGradeStatFilterContext {
+    context: IGradeStatFilterDto,
+    setContext?(value: any): void,
+}
+const GradeStatFilterContext: IGradeStatFilterContext = {
+    context: { showMissingGradeOnly: false },
+};
+const FilterContext = createContext<any>(GradeStatFilterContext);
+
+const CustomBreadcrumbRenderer = (props: ProblemPickerExportProps) => {
+    const { course, problem } = props;
+    const { context, setContext } = useContext(FilterContext) as IGradeStatFilterContext;
+
+    if (!course || !problem) {
+        return <></>
+    }
+
+    const handleChange = () => {
+        setContext({ showMissingGradeOnly: !context.showMissingGradeOnly})
+    }
     return <div>
-        <ProblemPicker
-            baseUrl="/grade-results"
-            home={<><InsertChartIcon />Grade</>}
-            component={GraderesultsImpl}
-            withBreadcrumbs
-            whereUserIsTeacher
-        />
+        <FormControlLabel
+            control={<Checkbox 
+                color="primary"
+                checked={context.showMissingGradeOnly} 
+                onChange={handleChange} title="missing grade only" />}
+            label="missing grade only"
+            />
+    </div>
+}
+
+export const Graderesults = () => {
+    const [context, setContext] = useState(GradeStatFilterContext.context);
+
+    return <div>
+        <FilterContext.Provider value={{ context, setContext }} >
+            <ProblemPicker
+                baseUrl="/grade-results"
+                home={<><InsertChartIcon />Grade</>}
+                component={GraderesultsImpl}
+                withBreadcrumbs={CustomBreadcrumbRenderer}
+                whereUserIsTeacher
+            />
+        </ FilterContext.Provider>
     </div>
 }
 
@@ -33,15 +69,17 @@ const GraderesultsImpl = (props: GraderesultsImplProps) => {
     const [ data, setData ] = useState<ICcDataDto[]>();
     const [ selectedItem, setSelectedItem ] = useState<ICcDataDto>();
     const [ selectedIndex, setSelectedIndex ] = useState(-1);
-    const { user, isRoot } = useUser();
+
+    const { context } = useContext(FilterContext) as IGradeStatFilterContext;
+    const { isRoot } = useUser();
 
     useEffect(() => {
         (async () => {
-            const axiosResponse = await CodeCritic.api.gradeStatsDetail(course.course, course.year, problem.id);
+            const axiosResponse = await CodeCritic.api.gradeStatsCreate(course.course, course.year, problem.id, context);
             const data = axiosResponse.data.map(i => i.result);
             setData(data);
         })();
-    }, [ counter ]);
+    }, [counter, context.showMissingGradeOnly ]);
 
     if (data == null) {
         return <SimpleLoader title="loading stats" />

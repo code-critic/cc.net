@@ -17,7 +17,7 @@
             "description description"
             "description description";
             
-        .code, .info {
+        & > .code, & > .info {
             display: none;
         }
     }
@@ -29,7 +29,7 @@
                 "info info"
                 "code code";
                 
-            .description {
+            & > .description {
                 display: none;
             }
     }
@@ -41,7 +41,7 @@
             "description description"
             "description description";
         
-        .code, .info {
+        & > .code, & > .info {
             display: none;
         }
     }

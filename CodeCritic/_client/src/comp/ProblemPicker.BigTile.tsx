@@ -93,7 +93,11 @@ export const PickerProblemBigTile = (props: PickerProblemBigTileProps) => {
         </>);
     }
 
-    const byCat = groupBy(items, i => i.section ?? "");
+    const tryGetSection = (n: string) => {
+        const vals = n.split("_");
+        return vals.slice(0, vals.length - 1).join(" ");
+    }
+    const byCat = groupBy(items, i => i.section ?? tryGetSection(i.id));
     const hasSection = byCat.size > 1;
     const sortedItems = [...byCat.entries()].sort((a, b) => hasSection ? b[0].localeCompare(a[0]) : a[0].localeCompare(b[0]))
 
