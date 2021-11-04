@@ -107,7 +107,14 @@ namespace CC.Net.Services
                 ),
             };
 
-            return candidates.FirstOrDefault(i => File.Exists(Path.Combine(_appOptions.CourseDir, i)));
+            return candidates.FirstOrDefault(i => 
+                {
+                    var fullPath = Path.Combine(_appOptions.CourseDir, i);
+                    var exists = File.Exists(fullPath);
+                    _logger.LogInformation($"desc: {fullPath}: {exists}");
+                    return exists;
+                }
+            );
         }
     }
 }
