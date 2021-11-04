@@ -91,7 +91,7 @@ namespace CC.Net.Services
         {
             var candidates = new List<String> {
                 Path.Combine(
-                    course,
+                    new DirectoryInfo(courseDir).Name,
                     year,
                     "problems",
                     problem.Id,
@@ -99,7 +99,7 @@ namespace CC.Net.Services
                     "index.html"
                 ),
                 Path.Combine(
-                    course,
+                    new DirectoryInfo(courseDir).Name,
                     year,
                     "problems",
                     problem.Id,
@@ -111,7 +111,7 @@ namespace CC.Net.Services
                 {
                     var fullPath = Path.Combine(_appOptions.CourseDir, i);
                     var exists = File.Exists(fullPath);
-                    _logger.LogInformation($"desc: {fullPath}: {exists}");
+                    _logger.LogDebug($"desc: {fullPath}: {exists}");
                     return exists;
                 }
             );
