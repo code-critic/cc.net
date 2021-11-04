@@ -1,14 +1,21 @@
 import * as React from 'react';
 
 import {
-    Button, Dialog, DialogActions, DialogContent, DialogTitle, Slider, TextField, withStyles,
-} from '@material-ui/core';
-import MoodBadIcon from '@material-ui/icons/MoodBad';
-import SentimentDissatisfiedIcon from '@material-ui/icons/SentimentDissatisfied';
-import SentimentSatisfiedIcon from '@material-ui/icons/SentimentSatisfied';
-import SentimentVeryDissatisfiedIcon from '@material-ui/icons/SentimentVeryDissatisfied';
-import SentimentVerySatisfiedIcon from '@material-ui/icons/SentimentVerySatisfied';
-import StarIcon from '@material-ui/icons/Star';
+    Button,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogTitle,
+    Slider,
+    TextField,
+} from '@mui/material';
+import withStyles from '@mui/styles/withStyles';
+import MoodBadIcon from '@mui/icons-material/MoodBad';
+import SentimentDissatisfiedIcon from '@mui/icons-material/SentimentDissatisfied';
+import SentimentSatisfiedIcon from '@mui/icons-material/SentimentSatisfied';
+import SentimentVeryDissatisfiedIcon from '@mui/icons-material/SentimentVeryDissatisfied';
+import SentimentVerySatisfiedIcon from '@mui/icons-material/SentimentVerySatisfied';
+import StarIcon from '@mui/icons-material/Star';
 
 import { CodeCritic } from '../../api';
 import { ICcData, IMarkSolutionItem } from '../../cc-api';
@@ -143,38 +150,40 @@ export const SolutionResultViewGradeDialog = (props: SolutionResultViewGradeDial
         }
     }
 
-    return (<Dialog open={!!result} onClose={onClose} maxWidth="md" fullWidth className={`grade-dialog ${isLate ? "is-late" : ""}`}>
-        <DialogTitle>
-            Grade solution #{result.attempt} from {authors}
-            {isLate && <span>Solution was handed over after the soft deadline</span>}
-        </DialogTitle>
-        <DialogContent>
-            <div className="grade-slider">
-                <PrettoSlider marks={marks} className="mb-0"
-                    onChange={(_, i) => setPoints(i as number)}
-                    value={points}
-                    step={1}
-                    min={0}
-                    max={100}
-                    valueLabelFormat={getMarkName}
-                    valueLabelDisplay="on" />
+    return (
+        <Dialog open={!!result} onClose={onClose} maxWidth="md" fullWidth className={`grade-dialog ${isLate ? "is-late" : ""}`}>
+            <DialogTitle>
+                Grade solution #{result.attempt} from {authors}
+                {isLate && <span>Solution was handed over after the soft deadline</span>}
+            </DialogTitle>
+            <DialogContent>
+                <div className="grade-slider">
+                    <PrettoSlider marks={marks} className="mb-0"
+                        onChange={(_, i) => setPoints(i as number)}
+                        value={points}
+                        step={1}
+                        min={0}
+                        max={100}
+                        valueLabelFormat={getMarkName}
+                        valueLabelDisplay="on" />
 
-                <TextField
-                    className="grade-comment"
-                    fullWidth
-                    label="Optional comment"
-                    variant="filled"
-                    multiline
-                    rows={3}
-                    rowsMax={4}
-                    value={comment ?? ""}
-                    onChange={e => setComment(e.target.value)}
-                />
-            </div>
-        </DialogContent>
-        <DialogActions>
-            <Button color="secondary" onClick={onClose}>Cancel</Button>
-            <Button color="primary" onClick={saveGrade}>Save</Button>
-        </DialogActions>
-    </Dialog>)
+                    <TextField
+                        className="grade-comment"
+                        fullWidth
+                        label="Optional comment"
+                        variant="filled"
+                        multiline
+                        rows={3}
+                        maxRows={4}
+                        value={comment ?? ""}
+                        onChange={e => setComment(e.target.value)}
+                    />
+                </div>
+            </DialogContent>
+            <DialogActions>
+                <Button color="secondary" onClick={onClose}>Cancel</Button>
+                <Button color="primary" onClick={saveGrade}>Save</Button>
+            </DialogActions>
+        </Dialog>
+    );
 }

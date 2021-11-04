@@ -1,4 +1,4 @@
-import { Dialog, DialogTitle, DialogContent, Grid, Button, DialogActions, Typography } from '@material-ui/core';
+import { Dialog, DialogTitle, DialogContent, Grid, Button, DialogActions, Typography } from '@mui/material';
 import * as React from 'react';
 import { useState, useEffect } from 'react';
 import { IAppUser, ICcGroup, ICcUserGroup, ICourseProblem } from '../../cc-api';

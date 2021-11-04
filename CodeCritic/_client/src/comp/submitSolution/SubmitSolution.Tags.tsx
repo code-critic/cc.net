@@ -1,19 +1,19 @@
 import moment from 'moment';
 import * as React from 'react';
 
-import { Button } from '@material-ui/core';
-import AccessTimeIcon from '@material-ui/icons/AccessTime';
-import AttachFileIcon from '@material-ui/icons/AttachFile';
-import AudiotrackIcon from '@material-ui/icons/Audiotrack';
-import DescriptionIcon from '@material-ui/icons/Description';
-import VerticalSplitIcon from '@material-ui/icons/VerticalSplit';
-import GroupIcon from '@material-ui/icons/Group';
-import ImageIcon from '@material-ui/icons/Image';
-import LanguageIcon from '@material-ui/icons/Language';
-import QueuePlayNextIcon from '@material-ui/icons/QueuePlayNext';
-import TimelapseIcon from '@material-ui/icons/Timelapse';
-import ViewListIcon from '@material-ui/icons/ViewList';
-import { Alert, AlertTitle } from '@material-ui/lab';
+import { Button } from '@mui/material';
+import AccessTimeIcon from '@mui/icons-material/AccessTime';
+import AttachFileIcon from '@mui/icons-material/AttachFile';
+import AudiotrackIcon from '@mui/icons-material/Audiotrack';
+import DescriptionIcon from '@mui/icons-material/Description';
+import VerticalSplitIcon from '@mui/icons-material/VerticalSplit';
+import GroupIcon from '@mui/icons-material/Group';
+import ImageIcon from '@mui/icons-material/Image';
+import LanguageIcon from '@mui/icons-material/Language';
+import QueuePlayNextIcon from '@mui/icons-material/QueuePlayNext';
+import TimelapseIcon from '@mui/icons-material/Timelapse';
+import ViewListIcon from '@mui/icons-material/ViewList';
+import { Alert, AlertTitle } from '@mui/material';
 
 import { ICourseProblem } from '../../cc-api';
 import { ILanguage } from '../../models/CustomModel';
@@ -46,7 +46,7 @@ export const SubmitSolutionGroupTag = (props: SubmitSolutionGroupTagProps) => {
         }
     </Alert>
 
-    return (<LightTooltip interactive title={title} enterTouchDelay={0} leaveTouchDelay={10000}>
+    return (<LightTooltip title={title} enterTouchDelay={0} leaveTouchDelay={10000}>
         <div className="problem-tag info"><GroupIcon />{minSize} - {maxSize}</div>
     </LightTooltip>)
 }
@@ -108,7 +108,7 @@ export const SubmitSolutionDeadlineTag = (props: SubmitSolutionDeadlineTagProps)
         {desc}
     </Alert>
 
-    return (<LightTooltip interactive title={title} enterTouchDelay={0} leaveTouchDelay={10000}>
+    return (<LightTooltip title={title} enterTouchDelay={0} leaveTouchDelay={10000}>
         <div className={`problem-tag ${cls}`}><AccessTimeIcon />{msg.rel}</div>
     </LightTooltip>)
 }
@@ -128,7 +128,7 @@ export const SubmitSolutionRequiredFilesTag = (props: SubmitSolutionRequiredFile
         <div><em><small>affected by selected language</small></em></div>
     </Alert>
 
-    return (<LightTooltip interactive title={title} enterTouchDelay={0} leaveTouchDelay={10000}>
+    return (<LightTooltip title={title} enterTouchDelay={0} leaveTouchDelay={10000}>
         <div className="problem-tag info"><DescriptionIcon />{files.length}</div>
     </LightTooltip>)
 }
@@ -155,7 +155,7 @@ export const SubmitSolutionRequiredLanguageTag = (props: SubmitSolutionRequiredL
             Solution can use any programming language
         </Alert>)
 
-    return (<LightTooltip interactive title={title} enterTouchDelay={0} leaveTouchDelay={10000}>
+    return (<LightTooltip title={title} enterTouchDelay={0} leaveTouchDelay={10000}>
         <div className={`problem-tag ${cls}`}><LanguageIcon />{isUnittest && <>
             *.{language.extension}
         </>}</div>
@@ -222,7 +222,7 @@ export const SubmitSolutionAssetsTag = (props: SubmitSolutionAssetsTagProps) => 
         <div><em><small>Asset files are automatically available when solution is executed</small></em></div>
     </Alert>);
 
-    return (<LightTooltip interactive title={title} enterTouchDelay={0} leaveTouchDelay={10000}>
+    return (<LightTooltip title={title} enterTouchDelay={0} leaveTouchDelay={10000}>
         <div className="problem-tag success"><AttachFileIcon />{assets.length}</div>
     </LightTooltip>)
 }
@@ -247,7 +247,7 @@ export const SubmitSolutionOutputTag = (props: SubmitSolutionOutputTagProps) => 
         </div>
     </Alert>);
 
-    return (<LightTooltip interactive title={title} enterTouchDelay={0} leaveTouchDelay={10000}>
+    return (<LightTooltip title={title} enterTouchDelay={0} leaveTouchDelay={10000}>
         <div className="problem-tag warning"><QueuePlayNextIcon />{output.length}</div>
     </LightTooltip>)
 }
@@ -293,7 +293,7 @@ export const SubmitSolutionTimeTag = (props: SubmitSolutionTimeTagProps) => {
         </div>
     </Alert>);
 
-    return (<LightTooltip interactive title={title} enterTouchDelay={0} leaveTouchDelay={10000}>
+    return (<LightTooltip title={title} enterTouchDelay={0} leaveTouchDelay={10000}>
         <div className="problem-tag warning"><TimelapseIcon />{safeTimeout.toFixed(0)}s</div>
     </LightTooltip>)
 }
@@ -305,7 +305,7 @@ interface ChangeLayoutTagProps {
 export const ChangeLayoutTag = (props: ChangeLayoutTagProps) => {
     const { onChange } = props;
 
-    return (<LightTooltip onClick={onChange} interactive title={"Change layout"} enterTouchDelay={0} leaveTouchDelay={10000}>
+    return (<LightTooltip onClick={onChange} title={"Change layout"} enterTouchDelay={0} leaveTouchDelay={10000}>
         <div style={{marginLeft: "auto"}} className="problem-tag layout"><VerticalSplitIcon /></div>
     </LightTooltip>)
 }

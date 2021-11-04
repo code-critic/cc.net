@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 
-import { Button, Container, Dialog, DialogActions, DialogContent, DialogTitle } from '@material-ui/core';
+import { Button, Container, Dialog, DialogActions, DialogContent, DialogTitle } from '@mui/material';
 import { DataGrid, GridColDef } from '@material-ui/data-grid';
-import PolicyIcon from '@material-ui/icons/Policy';
+import PolicyIcon from '@mui/icons-material/Policy';
 
 import { CodeCritic } from '../api';
 import { IPlagResult, ISideBySideDiff } from '../cc-api';

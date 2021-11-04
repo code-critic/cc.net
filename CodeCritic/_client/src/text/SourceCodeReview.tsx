@@ -2,9 +2,9 @@ import React, { useEffect, useState } from 'react';
 import ReactMde from 'react-mde';
 import Moment from 'react-moment';
 
-import { Button, Container, IconButton, Typography } from '@material-ui/core';
-import ClearIcon from '@material-ui/icons/Clear';
-import MoreVertIcon from '@material-ui/icons/MoreVert';
+import { Button, Container, IconButton, Typography } from '@mui/material';
+import ClearIcon from '@mui/icons-material/Clear';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
 
 import { CodeCritic } from '../api';
 import { ICommentServiceItem, ILineComment } from '../cc-api';

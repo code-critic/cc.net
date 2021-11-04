@@ -1,7 +1,7 @@
 import Moment from 'react-moment';
 import moment from 'moment';
 import React from 'react';
-import { Tooltip } from '@material-ui/core';
+import { Tooltip } from '@mui/material';
 
 interface AbsMomentProps {
     date: any;

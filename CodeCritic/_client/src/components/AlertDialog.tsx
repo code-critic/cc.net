@@ -1,5 +1,5 @@
 import React from "react";
-import { Button, Dialog, DialogTitle, DialogContentText, DialogContent, DialogActions } from "@material-ui/core";
+import { Button, Dialog, DialogTitle, DialogContentText, DialogContent, DialogActions } from "@mui/material";
 
 
 interface AlertDialogProps {

@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Button, Menu, MenuItem } from '@material-ui/core';
+import { Button, Menu, MenuItem } from '@mui/material';
 
 interface DropDownMenuProps<T> {
     title: string | JSX.Element;

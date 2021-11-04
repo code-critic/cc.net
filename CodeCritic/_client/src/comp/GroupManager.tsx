@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import {
     Button, Container, Dialog, DialogActions, DialogContent, DialogTitle, FormControlLabel, Radio,
     RadioGroup, Table, TableBody, TableCell, TableHead, TableRow, TextField,
-} from '@material-ui/core';
+} from '@mui/material';
 
 import { CodeCritic } from '../api';
 import { ICcGroup, ICcUserGroup } from '../cc-api';

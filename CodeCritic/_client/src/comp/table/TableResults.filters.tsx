@@ -1,4 +1,4 @@
-import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
+import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import React, { useState } from 'react';
 import {
     Button,
@@ -8,11 +8,11 @@ import {
     DialogTitle,
     FormControlLabel,
     TextField
-} from '@material-ui/core';
+} from '@mui/material';
 import { DropDownMenu } from '../../components/DropDownMenu';
-import { FilterModel, GridColParams, GridFilterItem } from '@material-ui/data-grid';
+import { GridFilterModel } from '@mui/x-data-grid';
 import { GridColDefEx } from './TableResults.columns';
-import ClearIcon from '@material-ui/icons/Clear';
+import ClearIcon from '@mui/icons-material/Clear';
 import { onEnter } from '../../utils/onEnter';
 
 
@@ -22,12 +22,12 @@ interface KV {
 }
 interface TableResultsFiltersProps {
     columns: GridColDefEx[];
-    filterModel: FilterModel;
+    filterModel: GridFilterModel;
     onClose(): void;
-    onChange(model: FilterModel): void;
+    onChange(model: GridFilterModel): void;
 }
 
-const fromModel = (model: FilterModel) => {
+const fromModel = (model: GridFilterModel) => {
     const map = new Map<string, KV>();
     model.items.forEach(i => {
         map.set(i.columnField, { value: i.value, human: (i as any).human });
@@ -36,7 +36,7 @@ const fromModel = (model: FilterModel) => {
 }
 
 const toModel = (map: Map<string, KV>) => {
-    const model: FilterModel = {
+    const model: GridFilterModel = {
         items:
             [...map.entries()].map(i => {
                 return {

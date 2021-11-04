@@ -1,4 +1,4 @@
-import { Menu, MenuItem } from '@material-ui/core';
+import { Menu, MenuItem } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { CodeCritic } from '../api';
 import { useUser } from '../hooks/useUser';

@@ -1,8 +1,8 @@
-import { Button, Dialog, DialogContent, DialogTitle, IconButton, Tooltip, Typography } from '@material-ui/core';
-import AppBar from '@material-ui/core/AppBar';
-import Toolbar from '@material-ui/core/Toolbar';
-import BugReportIcon from '@material-ui/icons/BugReport';
-import GitHubIcon from '@material-ui/icons/GitHub';
+import { Button, Dialog, DialogContent, DialogTitle, IconButton, Tooltip, Typography } from '@mui/material';
+import AppBar from '@mui/material/AppBar';
+import Toolbar from '@mui/material/Toolbar';
+import BugReportIcon from '@mui/icons-material/BugReport';
+import GitHubIcon from '@mui/icons-material/GitHub';
 import React, { useEffect, useState } from 'react';
 import { useUser } from '../hooks/useUser';
 import { openCloseState } from '../utils/StateUtils';
@@ -33,7 +33,7 @@ export const CcFooter = () => {
     return <AppBar position="fixed"
         component="footer"
         className={`${isRoot ? "is-root" : "is-student"}`}
-        style={{ top: "auto", bottom: 0 }} variant="outlined">
+        style={{ top: "auto", bottom: 0 }}>
         <Toolbar className="container denser" variant="dense">
             <Grow />
             <Tooltip className="with-pointer-events" enterDelay={0} arrow

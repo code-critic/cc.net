@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 
-import { Checkbox, Dialog, DialogContent, FormControlLabel } from '@material-ui/core';
-import InsertChartIcon from '@material-ui/icons/InsertChart';
+import { Checkbox, Dialog, DialogContent, FormControlLabel } from '@mui/material';
+import InsertChartIcon from '@mui/icons-material/InsertChart';
 
 import { CodeCritic } from '../api';
 import { ICcDataDto, IGradeStatFilterDto, ITableResponse } from '../cc-api';

@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 
-import ChevronRightIcon from '@material-ui/icons/ChevronRight';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-import InsertDriveFileIcon from '@material-ui/icons/InsertDriveFile';
-import RateReviewIcon from '@material-ui/icons/RateReview';
-import { TreeItem, TreeView } from '@material-ui/lab';
+import ChevronRightIcon from '@mui/icons-material/ChevronRight';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
+import RateReviewIcon from '@mui/icons-material/RateReview';
+import { TreeItem, TreeView } from '@mui/lab';
 
 import { ICcData, ISimpleFile } from '../../cc-api';
 import { useUser } from '../../hooks/useUser';

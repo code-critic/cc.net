@@ -2,17 +2,17 @@ import React, { Component } from 'react';
 import { NotificationContainer } from 'react-notifications';
 import { Route } from 'react-router-dom';
 
-import { Container } from '@material-ui/core';
+import { Container } from '@mui/material';
 
-import { ICcDataCaseResult } from './cc-api';
 import { BrokenServerMessage } from './comp/BrokenServerMessage';
 import { GroupManager } from './comp/GroupManager';
 import { SolutionResultView } from './comp/solutionResultView/SolutionResultView';
 import { CcFooter } from './components/CCFooter';
 import { NavMenu } from './components/NavMenu';
-import { ProcessStatusStatic } from './models/Enums';
 import { pageLinks } from './pageLinks';
-import { TimelineRenderer } from './renderers/TimelineRenderer';
+import { ThemeProvider, createMuiTheme, makeStyles } from '@material-ui/core/styles';
+
+export const defaultTheme = createMuiTheme();
 
 export default class App extends Component {
     static displayName = App.name;
@@ -47,19 +47,21 @@ export default class App extends Component {
         // ];
 
         return (<>
-            <BrokenServerMessage />
-            <NavMenu />
-            <Container maxWidth={"xl"} style={{marginBottom: 50}}>
-                {/* <TimelineRenderer subresults={subresults as any} /> */}
-                <Route component={SolutionResultView} path="/r/:objectId" exact />
-                <Route component={GroupManager} path="/manage-groups" exact />
+            <ThemeProvider theme={defaultTheme}>
+                <BrokenServerMessage />
+                <NavMenu />
+                <Container maxWidth={"xl"} style={{marginBottom: 50}}>
+                    {/* <TimelineRenderer subresults={subresults as any} /> */}
+                    <Route component={SolutionResultView} path="/r/:objectId" exact />
+                    <Route component={GroupManager} path="/manage-groups" exact />
 
-                {pageLinks.map(i =>
-                    <Route key={i.to} component={i.component} path={i.path} exact={i.exact} />
-                )}
-                <NotificationContainer />
-            </Container>
-            <CcFooter />
+                    {pageLinks.map(i =>
+                        <Route key={i.to} component={i.component} path={i.path} exact={i.exact} />
+                    )}
+                    <NotificationContainer />
+                </Container>
+                <CcFooter />
+            </ThemeProvider>
         </>);
     }
 }

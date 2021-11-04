@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router';
 
-import { Dialog, DialogContent } from '@material-ui/core';
-import AssignmentIndIcon from '@material-ui/icons/AssignmentInd';
+import { Dialog, DialogContent } from '@mui/material';
+import AssignmentIndIcon from '@mui/icons-material/AssignmentInd';
 
 import { CodeCritic } from '../api';
 import { ICcDataDto, ITableResponse } from '../cc-api';

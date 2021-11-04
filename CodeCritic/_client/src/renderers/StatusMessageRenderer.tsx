@@ -1,8 +1,8 @@
-import ErrorOutlineIcon from '@material-ui/icons/ErrorOutline';
-import PanToolIcon from '@material-ui/icons/PanTool';
-import ThumbUpAltIcon from '@material-ui/icons/ThumbUpAlt';
-import TimerIcon from '@material-ui/icons/Timer';
-import Alert from '@material-ui/lab/Alert';
+import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
+import PanToolIcon from '@mui/icons-material/PanTool';
+import ThumbUpAltIcon from '@mui/icons-material/ThumbUpAlt';
+import TimerIcon from '@mui/icons-material/Timer';
+import Alert from '@mui/material/Alert';
 import React from "react";
 import Moment from "react-moment";
 import { ICourseProblem } from "../cc-api";

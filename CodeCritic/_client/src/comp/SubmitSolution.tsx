@@ -2,8 +2,8 @@ import '../third_party/mathjax';
 
 import React, { useEffect, useRef, useState } from 'react';
 
-import { Button, Container } from '@material-ui/core';
-import SendIcon from '@material-ui/icons/Send';
+import { Button, Container } from '@mui/material';
+import SendIcon from '@mui/icons-material/Send';
 
 import { ICcData, ICourseProblem, ISimpleFile } from '../cc-api';
 import { useOpenClose } from '../hooks/useOpenClose';

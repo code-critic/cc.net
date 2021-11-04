@@ -1,8 +1,8 @@
-import { Breadcrumbs, Link, Typography } from "@material-ui/core";
-import ExtensionIcon from '@material-ui/icons/Extension';
-import HomeIcon from '@material-ui/icons/Home';
-import NavigateNextIcon from '@material-ui/icons/NavigateNext';
-import SchoolIcon from '@material-ui/icons/School';
+import { Breadcrumbs, Link, Typography } from "@mui/material";
+import ExtensionIcon from '@mui/icons-material/Extension';
+import HomeIcon from '@mui/icons-material/Home';
+import NavigateNextIcon from '@mui/icons-material/NavigateNext';
+import SchoolIcon from '@mui/icons-material/School';
 import React from "react";
 import { Link as RouterLink } from "react-router-dom";
 import { ICourseProblem, ISingleCourse } from "../cc-api";
@@ -47,6 +47,6 @@ export const RenderBreadcrumbs = (props: RenderBreadcrumbsProps) => {
             }
             return <Link key={j} to={i.to} component={RouterLink} className="display-flex">{i.title}</Link>
         })}
-        <CustomRenderer course={activeCourse} problem={activeProblem}  />
+        {customRenderer && <CustomRenderer course={activeCourse} problem={activeProblem}  />}
     </Breadcrumbs>
 }

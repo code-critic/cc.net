@@ -3,8 +3,8 @@ import React from 'react';
 import {
     Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, IconButton, InputLabel,
     MenuItem, Select, Tooltip,
-} from '@material-ui/core';
-import LiveHelpIcon from '@material-ui/icons/LiveHelp';
+} from '@mui/material';
+import LiveHelpIcon from '@mui/icons-material/LiveHelp';
 
 import { useOpenClose } from '../../hooks/useOpenClose';
 import { ILanguage } from '../../models/CustomModel';
@@ -32,6 +32,7 @@ export const CodeEditorLanguage = (props: CodeEditorLanguageProps) => {
             <FormControl fullWidth disabled={fixed} size="small">
                 <InputLabel>Language</InputLabel>
                 <Select
+                    variant="standard"
                     value={language.id}
                     onChange={handleChange}>
                     {languages.map(i => <MenuItem key={i.id} value={i.id}><strong>{i.name}</strong>&nbsp;<small>({i.version})</small></MenuItem>)}

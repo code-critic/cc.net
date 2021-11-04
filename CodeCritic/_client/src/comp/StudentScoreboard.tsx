@@ -3,11 +3,11 @@ import { Link as RouterLink } from 'react-router-dom';
 
 import {
     Button, Container, Table, TableBody, TableCell, TableHead, TableRow, Tooltip, Typography,
-} from '@material-ui/core';
-import ClearIcon from '@material-ui/icons/Clear';
-import DoneIcon from '@material-ui/icons/Done';
-import DoneAllIcon from '@material-ui/icons/DoneAll';
-import PriorityHighIcon from '@material-ui/icons/PriorityHigh';
+} from '@mui/material';
+import ClearIcon from '@mui/icons-material/Clear';
+import DoneIcon from '@mui/icons-material/Done';
+import DoneAllIcon from '@mui/icons-material/DoneAll';
+import PriorityHighIcon from '@mui/icons-material/PriorityHigh';
 
 import { CodeCritic } from '../api';
 import { IStudentScoreboardCourse } from '../cc-api';

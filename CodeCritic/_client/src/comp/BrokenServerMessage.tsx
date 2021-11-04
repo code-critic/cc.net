@@ -1,4 +1,4 @@
-import { Alert, AlertTitle } from '@material-ui/lab';
+import { Alert, AlertTitle } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { useUser } from '../hooks/useUser';
 

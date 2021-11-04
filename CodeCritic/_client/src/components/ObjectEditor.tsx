@@ -1,4 +1,20 @@
-import { Box, Button, Card, CardContent, Checkbox, createStyles, FormControlLabel, Grid, InputBase, MenuItem, Select, TextField, Theme, Typography, withStyles } from '@material-ui/core';
+import {
+    Box,
+    Button,
+    Card,
+    CardContent,
+    Checkbox,
+    FormControlLabel,
+    Grid,
+    InputBase,
+    MenuItem,
+    Select,
+    TextField,
+    Theme,
+    Typography,
+} from '@mui/material';
+import createStyles from '@mui/styles/createStyles';
+import withStyles from '@mui/styles/withStyles';
 import React from 'react';
 
 export type ValueType = "string" | "int" | "double" | "boolean" | "datetime" | "enum"
@@ -259,13 +275,13 @@ export const GetEditor = (props: GetEditorProps) => {
     }
 
     return (
-        <Box display="flex" flexDirection="column" gridRowGap={5} style={{ paddingRight: 16, borderRight: "1px solid #DDD"}}>
+        <Box display="flex" flexDirection="column" rowGap={5} style={{ paddingRight: 16, borderRight: "1px solid #DDD"}}>
             <ClearItem name={lname} onClick={deleteValue} />
             <Box display="flex" alignItems="center">
                 {model.render(lname, value, onDeferChange, model)}
             </Box>
         </Box>
-    )
+    );
 }
 
 interface ObjectEditorProps {

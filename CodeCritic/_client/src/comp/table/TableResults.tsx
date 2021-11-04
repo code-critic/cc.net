@@ -1,11 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { debounce } from 'throttle-debounce';
 
-import { IconButton } from '@material-ui/core';
+import { IconButton } from '@mui/material';
 import {
-    DataGrid, FilterModel, GridPageChangeParams, GridRowParams, GridRowsProp, GridSortModel,
+    DataGrid, GridFilterModel, GridRowParams, GridRowsProp, GridSortModel,
     GridSortModelParams,
-} from '@material-ui/data-grid';
+} from '@mui/x-data-grid';
 
 import { ICcDataDto, ITableResponse } from '../../cc-api';
 import { SimpleLoader } from '../../components/SimpleLoader';
@@ -24,7 +24,7 @@ interface PageModel {
 
 export interface TableModel {
     pageModel: PageModel;
-    filterModel: FilterModel;
+    filterModel: GridFilterModel;
     sortModel: GridSortModel;
     lastChange: "page" | "filter" | "sort";
 }
@@ -55,7 +55,7 @@ interface TableResultsProps {
 export const TableResults = (props: TableResultsProps) => {
     const { tableResponse, onSelected, onChange, isLoading, debounceDuration = 0, mode = "server", allowKeyboardShortcuts=false } = props;
     const [sortModel, setSortModel] = useState<GridSortModel>([]);
-    const [filterModel, setFilterModel] = useState<FilterModel>();
+    const [filterModel, setFilterModel] = useState<GridFilterModel>();
     const [pageModel, setPageModel] = useState<PageModel>({ page: 0, pageSize: 20 });
     const [filtersOpen, setFiltersOpen] = useState(false);
     const [ dynamicColumns, setDynamicColumns ] = useState(getColumns());
@@ -104,16 +104,16 @@ export const TableResults = (props: TableResultsProps) => {
         : onChange;
 
 
-    const handleSortChange = (e: GridSortModelParams) => {
-        const sortModel = e.sortModel;
+    const handleSortChange = (e: GridSortModel, details?: any) => {
+        const sortModel = e;
         setSortModel(sortModel);
         onChange({ pageModel, filterModel, sortModel, lastChange: "sort" })
     };
 
-    const handlePageChange = (e: GridPageChangeParams) => {
-        const pageModel = { pageSize: e.pageSize, page: e.page };
-        setPageModel(pageModel);
-        onChange({ pageModel, filterModel, sortModel, lastChange: "page" });
+    const handlePageChange = (page: number, details?: any) => {
+        const pageModel2 = { pageSize: pageModel.pageSize, page: page };
+        setPageModel(pageModel2);
+        onChange({ pageModel: pageModel2, filterModel, sortModel, lastChange: "page" });
     };
 
 
@@ -121,7 +121,7 @@ export const TableResults = (props: TableResultsProps) => {
         setFiltersOpen(false)
     }
 
-    const changeFilter = (model: FilterModel) => {
+    const changeFilter = (model: GridFilterModel) => {
         const filterModel = model;
         setFilterModel(filterModel);
         onChangeDebounce({ pageModel, filterModel, sortModel, lastChange: "filter" });
@@ -135,7 +135,7 @@ export const TableResults = (props: TableResultsProps) => {
         setFiltersOpen(true);
     }
 
-    return (<>
+    return <>
         {filtersOpen && <>
             <TableResultsFilters
                 columns={columns}
@@ -144,7 +144,7 @@ export const TableResults = (props: TableResultsProps) => {
                 onClose={closeDialog} />
         </>}
         <div className="data-grid-wrapper" style={{height: gridHeight}} ref={divHref}>
-            <IconButton onClick={showFilters} className="data-grid-filter-btn">
+            <IconButton onClick={showFilters} className="data-grid-filter-btn" size="large">
                 <FilterIcon />
             </IconButton>
             <DataGrid
@@ -169,5 +169,5 @@ export const TableResults = (props: TableResultsProps) => {
                 sortingMode={mode}
                 paginationMode={mode} />
         </div>
-    </>)
+    </>;
 }

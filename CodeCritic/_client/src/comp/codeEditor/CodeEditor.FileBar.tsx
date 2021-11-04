@@ -2,10 +2,10 @@ import React, { useEffect, useState } from 'react';
 
 import {
     Button, ButtonGroup, Dialog, DialogActions, DialogContent, DialogTitle, TextField,
-} from '@material-ui/core';
-import AddIcon from '@material-ui/icons/Add';
-import CloseIcon from '@material-ui/icons/Close';
-import FullscreenIcon from '@material-ui/icons/Fullscreen';
+} from '@mui/material';
+import AddIcon from '@mui/icons-material/Add';
+import CloseIcon from '@mui/icons-material/Close';
+import FullscreenIcon from '@mui/icons-material/Fullscreen';
 
 import { ISimpleFile } from '../../cc-api';
 import { useOpenClose } from '../../hooks/useOpenClose';

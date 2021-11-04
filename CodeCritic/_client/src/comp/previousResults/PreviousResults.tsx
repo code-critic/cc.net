@@ -2,8 +2,8 @@ import React, { useEffect, useState } from 'react';
 
 import {
     Button, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, Typography,
-} from '@material-ui/core';
-import PolicyIcon from '@material-ui/icons/Policy';
+} from '@mui/material';
+import PolicyIcon from '@mui/icons-material/Policy';
 
 import { CodeCritic } from '../../api';
 import { ICcData, ICcDataLight, IPlagResult } from '../../cc-api';
@@ -147,10 +147,14 @@ const PreviousResult = (props: PreviousResultProps) => {
     const status = getStatus(result.status);
     const rr = result.reviewRequest != null;
 
-    return <LightTooltip title={<AbsMoment noTooltip date={result.id.creationTime} />}>
-        <IconButton onClick={onClick}
-            className={`dot ${selected ? "selected" : ""} ${status.name} ${rr ? "rr" : ""}`}>
-            {result.attempt}
-        </IconButton>
-    </LightTooltip>
+    return (
+        <LightTooltip title={<AbsMoment noTooltip date={result.id.creationTime} />}>
+            <IconButton
+                onClick={onClick}
+                className={`dot ${selected ? "selected" : ""} ${status.name} ${rr ? "rr" : ""}`}
+                size="large">
+                {result.attempt}
+            </IconButton>
+        </LightTooltip>
+    );
 }

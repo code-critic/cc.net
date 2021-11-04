@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 
-import { Box, Button, Dialog, DialogContent, Typography } from '@material-ui/core';
-import GradeIcon from '@material-ui/icons/Grade';
-import StarOutlineIcon from '@material-ui/icons/StarOutline';
+import { Box, Button, Dialog, DialogContent, Typography } from '@mui/material';
+import GradeIcon from '@mui/icons-material/Grade';
+import StarOutlineIcon from '@mui/icons-material/StarOutline';
 
 import { CodeCritic } from '../api';
 import { ICcData, ICcDataLight } from '../cc-api';

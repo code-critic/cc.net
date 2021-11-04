@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router';
 import { Link } from 'react-router-dom';
 
-import { Button } from '@material-ui/core';
+import { Button } from '@mui/material';
 
 import { CodeCritic } from '../api';
 import {
@@ -146,7 +146,7 @@ export const ProblemPicker = (props: ProblemPickerProps) => {
         {withBreadcrumbs && 
             <>
                 {typeof (withBreadcrumbs) === 'function'
-                ? <RenderBreadcrumbs home={home} activeCourse={activeCourse} activeProblem={activeProblem} baseUrl={baseUrl} customRenderer={withBreadcrumbs} />
+                    ? <RenderBreadcrumbs home={home} activeCourse={activeCourse} activeProblem={activeProblem} baseUrl={baseUrl} customRenderer={withBreadcrumbs} />
                     : <RenderBreadcrumbs home={home} activeCourse={activeCourse} activeProblem={activeProblem} baseUrl={baseUrl} />
                 }
             </>

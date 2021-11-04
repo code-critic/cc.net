@@ -4,14 +4,14 @@ import { CircleLoader } from 'react-spinners';
 
 import {
     AppBar, Avatar, Badge, Box, Container, IconButton, Menu, MenuItem, Toolbar, Tooltip, Typography,
-} from '@material-ui/core';
-import AccountCircleIcon from '@material-ui/icons/AccountCircle';
-import CancelIcon from '@material-ui/icons/Cancel';
-import CodeIcon from '@material-ui/icons/Code';
-import FormatSizeIcon from '@material-ui/icons/FormatSize';
-import GroupIcon from '@material-ui/icons/Group';
-import NotificationsIcon from '@material-ui/icons/Notifications';
-import SecurityIcon from '@material-ui/icons/Security';
+} from '@mui/material';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import CancelIcon from '@mui/icons-material/Cancel';
+import CodeIcon from '@mui/icons-material/Code';
+import FormatSizeIcon from '@mui/icons-material/FormatSize';
+import GroupIcon from '@mui/icons-material/Group';
+import NotificationsIcon from '@mui/icons-material/Notifications';
+import SecurityIcon from '@mui/icons-material/Security';
 
 import { CodeCritic } from '../api';
 import { ICcEvent } from '../cc-api';
@@ -92,7 +92,7 @@ export const NavMenu = (props: NavMenuProps) => {
           const user = getUser();
           if (user.role) {
             const data = payload.data as ICcEvent[];
-            setNotifications(data);
+            // setNotifications(data);
           }
           break;
         case "serverStateChanged":
@@ -112,7 +112,7 @@ export const NavMenu = (props: NavMenuProps) => {
     (async () => {
       const axiosResponse = await CodeCritic.api.notificationsGetList();
       const newNotifications = axiosResponse.data.data;
-      setNotifications(newNotifications);
+      // setNotifications(newNotifications);
     })();
   }, []);
 
@@ -250,7 +250,7 @@ export const NavMenu = (props: NavMenuProps) => {
     <AppBar position="static" className={`nav-menu-root ${isRoot ? "is-root" : "is-student"}`}>
       <Container className="nav-menu-wrapper">
         <Toolbar className="container">
-          <IconButton edge="start" color="inherit" component={Link} to="/">
+          <IconButton edge="start" color="inherit" component={Link} to="/" size="large">
             <CodeIcon />
           </IconButton>
           <Badge className="hide-mobile" badgeContent={1} variant="dot" color={badgeColor}
@@ -273,7 +273,7 @@ export const NavMenu = (props: NavMenuProps) => {
 
           {/* queue status */}
           {queue.length > 0 && <Tooltip title={`Server is running. Currently ${queue.length} item${(queue.length == 1 ? "" : "s")} in queue.`}>
-            <IconButton>
+            <IconButton size="large">
               <Badge badgeContent={<>{queue.length}&nbsp;▶</>} color={badgeColor} className="queue-badge">
                 <CircleLoader size={24} color="#fff" />
               </Badge>
@@ -286,7 +286,8 @@ export const NavMenu = (props: NavMenuProps) => {
             color="inherit"
             aria-haspopup="true"
             aria-controls={notificationsMenuId}
-            onClick={openMenu}>
+            onClick={openMenu}
+            size="large">
             <Badge badgeContent={newCount} color={badgeColor}>
               <NotificationsIcon />
             </Badge>
@@ -298,7 +299,8 @@ export const NavMenu = (props: NavMenuProps) => {
             color="inherit"
             aria-haspopup="true"
             aria-controls={superAdminMenuId}
-            onClick={openMenu}>
+            onClick={openMenu}
+            size="large">
             <SecurityIcon />
           </IconButton>}
 
@@ -307,7 +309,8 @@ export const NavMenu = (props: NavMenuProps) => {
             color="inherit"
             aria-haspopup="true"
             aria-controls={accountMenuId}
-            onClick={openMenu}>
+            onClick={openMenu}
+            size="large">
             <AccountCircleIcon />
           </IconButton>
 
@@ -315,5 +318,5 @@ export const NavMenu = (props: NavMenuProps) => {
       </Container>
     </AppBar>
     {renderMenu}
-  </>
+  </>;
 }

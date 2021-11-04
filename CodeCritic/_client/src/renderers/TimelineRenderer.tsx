@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
 
-import { Dialog, DialogContent, Fade, IconButton, makeStyles } from '@material-ui/core';
-import AttachMoneyIcon from '@material-ui/icons/AttachMoney';
-import DeveloperModeIcon from '@material-ui/icons/DeveloperMode';
-import FingerprintIcon from '@material-ui/icons/Fingerprint';
-import FlagIcon from '@material-ui/icons/Flag';
-import SpeakerNotesIcon from '@material-ui/icons/SpeakerNotes';
-import TimerIcon from '@material-ui/icons/Timer';
+import { Dialog, DialogContent, Fade, IconButton } from '@mui/material';
+import makeStyles from '@mui/styles/makeStyles';
+import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
+import DeveloperModeIcon from '@mui/icons-material/DeveloperMode';
+import FingerprintIcon from '@mui/icons-material/Fingerprint';
+import FlagIcon from '@mui/icons-material/Flag';
+import SpeakerNotesIcon from '@mui/icons-material/SpeakerNotes';
+import TimerIcon from '@mui/icons-material/Timer';
 
 import { CodeCritic } from '../api';
 import { ICcData, ICcDataCaseResult, IDiffResultComposite, IDiffResultLine } from '../cc-api';
@@ -87,76 +88,79 @@ const SubresultDot = (props: SubresultDotProps) => {
     const IconClass = IconClassSubresult(subresult);
     const status = getStatus(subresult.status);
 
-    return (<span className={`case status-${status.name}`}>
-        {diffOpen && <DiffView onClose={closeDiff} subresult={subresult} result={result}/>}
-        <LightTooltip interactive title={<span className="subresult-tooltip">
-            <div className="subresult-tooltip-item">
-                <span className="subresult-tooltip-item-key">
-                    <FingerprintIcon/>&nbsp;Test:
-                    </span>
-                <code>{subresult.case}</code>
-            </div>
-            <div className="subresult-tooltip-item">
-                <span className="subresult-tooltip-item-key">
-                    <FlagIcon/>&nbsp;Status:
-                    </span>
-                <code>{ProcessStatusStatic.All.find(i => i.value == subresult.status).name}</code>
-            </div>
-
-            <div className="subresult-tooltip-item">
-                <span className="subresult-tooltip-item-key">
-                    <TimerIcon/>&nbsp;Duration:
-                    </span>
-                <code>{subresult.duration?.toFixed(3) ?? "??"} sec</code>
-            </div>
-
-            {subresult.timeLimit > 0 && <div className="subresult-tooltip-item">
-                <span className="subresult-tooltip-item-key">
-                    <TimerIcon/>&nbsp;Time Limit:
-                    </span>
-                <code>{subresult.timeLimit?.toFixed(3) ?? "??"} sec</code>
-            </div>}
-            
-
-            {subresult.message && <div className="subresult-tooltip-item">
-                <span className="subresult-tooltip-item-key">
-                    <SpeakerNotesIcon/>&nbsp;Output:
-                    </span>
-                <code>{subresult.message}</code>
-            </div>}
-
-            {subresult.messages?.length > 0 && <div className="subresult-tooltip-item">
-                <span className="subresult-tooltip-item-key">
-                    <DeveloperModeIcon/>&nbsp;Log:
-                    </span>
-                <pre>{subresult.messages.join("\n")}</pre>
-            </div>}
-
-            {showExtra && <>
-                {subresult.command && <div className="subresult-tooltip-item">
+    return (
+        <span className={`case status-${status.name}`}>
+            {diffOpen && <DiffView onClose={closeDiff} subresult={subresult} result={result}/>}
+            <LightTooltip title={<span className="subresult-tooltip">
+                <div className="subresult-tooltip-item">
                     <span className="subresult-tooltip-item-key">
-                        <AttachMoneyIcon/>&nbsp;Command:
+                        <FingerprintIcon/>&nbsp;Test:
                         </span>
-                    <pre>{subresult.command}</pre>
-                </div>}
-                {subresult.fullCommand && <div className="subresult-tooltip-item">
+                    <code>{subresult.case}</code>
+                </div>
+                <div className="subresult-tooltip-item">
                     <span className="subresult-tooltip-item-key">
-                        <AttachMoneyIcon/>&nbsp;Full cmd:
+                        <FlagIcon/>&nbsp;Status:
                         </span>
-                    <pre>{subresult.fullCommand}</pre>
-                </div>}
-            </>}
+                    <code>{ProcessStatusStatic.All.find(i => i.value == subresult.status).name}</code>
+                </div>
 
-        </span>}>
-            <IconButton
-                onClick={openDiff}
-                aria-owns={id}
-                aria-haspopup="true"
-                aria-describedby={id}>
-                <IconClass/>
-            </IconButton>
-        </LightTooltip>
-    </span>)
+                <div className="subresult-tooltip-item">
+                    <span className="subresult-tooltip-item-key">
+                        <TimerIcon/>&nbsp;Duration:
+                        </span>
+                    <code>{subresult.duration?.toFixed(3) ?? "??"} sec</code>
+                </div>
+
+                {subresult.timeLimit > 0 && <div className="subresult-tooltip-item">
+                    <span className="subresult-tooltip-item-key">
+                        <TimerIcon/>&nbsp;Time Limit:
+                        </span>
+                    <code>{subresult.timeLimit?.toFixed(3) ?? "??"} sec</code>
+                </div>}
+                
+
+                {subresult.message && <div className="subresult-tooltip-item">
+                    <span className="subresult-tooltip-item-key">
+                        <SpeakerNotesIcon/>&nbsp;Output:
+                        </span>
+                    <code>{subresult.message}</code>
+                </div>}
+
+                {subresult.messages?.length > 0 && <div className="subresult-tooltip-item">
+                    <span className="subresult-tooltip-item-key">
+                        <DeveloperModeIcon/>&nbsp;Log:
+                        </span>
+                    <pre>{subresult.messages.join("\n")}</pre>
+                </div>}
+
+                {showExtra && <>
+                    {subresult.command && <div className="subresult-tooltip-item">
+                        <span className="subresult-tooltip-item-key">
+                            <AttachMoneyIcon/>&nbsp;Command:
+                            </span>
+                        <pre>{subresult.command}</pre>
+                    </div>}
+                    {subresult.fullCommand && <div className="subresult-tooltip-item">
+                        <span className="subresult-tooltip-item-key">
+                            <AttachMoneyIcon/>&nbsp;Full cmd:
+                            </span>
+                        <pre>{subresult.fullCommand}</pre>
+                    </div>}
+                </>}
+
+            </span>}>
+                <IconButton
+                    onClick={openDiff}
+                    aria-owns={id}
+                    aria-haspopup="true"
+                    aria-describedby={id}
+                    size="large">
+                    <IconClass/>
+                </IconButton>
+            </LightTooltip>
+        </span>
+    );
 }
 
 interface DiffViewProps {

@@ -1,11 +1,11 @@
-import CallMissedIcon from '@material-ui/icons/CallMissed';
-import ClearIcon from '@material-ui/icons/Clear';
-import DoneAllIcon from '@material-ui/icons/DoneAll';
-import DoneIcon from '@material-ui/icons/Done';
-import HourglassEmptyIcon from '@material-ui/icons/HourglassEmpty';
-import PlayArrowIcon from '@material-ui/icons/PlayArrow';
-import PriorityHighIcon from '@material-ui/icons/PriorityHigh';
-import TimerIcon from '@material-ui/icons/Timer';
+import CallMissedIcon from '@mui/icons-material/CallMissed';
+import ClearIcon from '@mui/icons-material/Clear';
+import DoneAllIcon from '@mui/icons-material/DoneAll';
+import DoneIcon from '@mui/icons-material/Done';
+import HourglassEmptyIcon from '@mui/icons-material/HourglassEmpty';
+import PlayArrowIcon from '@mui/icons-material/PlayArrow';
+import PriorityHighIcon from '@mui/icons-material/PriorityHigh';
+import TimerIcon from '@mui/icons-material/Timer';
 import { ICcData, ICcDataCaseResult } from '../cc-api';
 import { ProcessStatusCodes } from '../models/Enums';
 

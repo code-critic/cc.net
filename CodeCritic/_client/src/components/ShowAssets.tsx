@@ -1,7 +1,7 @@
-import { Typography, Button } from "@material-ui/core";
-import AudiotrackIcon from '@material-ui/icons/Audiotrack';
-import ImageIcon from '@material-ui/icons/Image';
-import ViewListIcon from '@material-ui/icons/ViewList';
+import { Typography, Button } from "@mui/material";
+import AudiotrackIcon from '@mui/icons-material/Audiotrack';
+import ImageIcon from '@mui/icons-material/Image';
+import ViewListIcon from '@mui/icons-material/ViewList';
 import React from "react";
 interface ShowAssetsProps {
     assets: string[];

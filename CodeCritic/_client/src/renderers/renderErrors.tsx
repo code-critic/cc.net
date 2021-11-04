@@ -1,4 +1,4 @@
-import Card from '@material-ui/core/Card';
+import Card from '@mui/material/Card';
 import { IApiError } from '../cc-api';
 import React from 'react';
 

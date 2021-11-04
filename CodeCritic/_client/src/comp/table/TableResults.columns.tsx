@@ -2,16 +2,16 @@ import moment from 'moment';
 import React from 'react';
 import { nameof } from 'ts-simple-nameof';
 
-import { Tooltip } from '@material-ui/core';
+import { Tooltip } from '@mui/material';
 import {
-    GridCellClassParams, GridCellParams, GridCellValue, GridColDef,
-} from '@material-ui/data-grid';
-import AssessmentIcon from '@material-ui/icons/Assessment';
-import CommentIcon from '@material-ui/icons/Comment';
-import FingerprintIcon from '@material-ui/icons/Fingerprint';
-import RateReviewIcon from '@material-ui/icons/RateReview';
-import TimerIcon from '@material-ui/icons/Timer';
-import TodayIcon from '@material-ui/icons/Today';
+    GridCellParams, GridCellValue, GridColDef,
+} from '@mui/x-data-grid';
+import AssessmentIcon from '@mui/icons-material/Assessment';
+import CommentIcon from '@mui/icons-material/Comment';
+import FingerprintIcon from '@mui/icons-material/Fingerprint';
+import RateReviewIcon from '@mui/icons-material/RateReview';
+import TimerIcon from '@mui/icons-material/Timer';
+import TodayIcon from '@mui/icons-material/Today';
 
 import { ICcDataDto } from '../../cc-api';
 import { OptionType } from '../../models/CustomModel';
@@ -134,8 +134,9 @@ export const columns: GridColDefEx[] = [
         ...i,
         disableColumnMenu: true,
         filterable: false,
-        cellClassName: (params: GridCellClassParams) => {
-            var status = ProcessStatusStatic.All.find(i => i.letter == params.row.status);
+        cellClassName: (params: any) => {
+            /*GridCellClassParams*/
+            const status = ProcessStatusStatic.All.find(i => i.letter == params.row.status);
             return `status-${status.name}`;
         },
     } as GridColDefEx
