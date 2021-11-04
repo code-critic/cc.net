@@ -159,7 +159,7 @@ export const SolutionResultView = (props: SolutionResultViewProps) => {
     const { status, message, messages } = mainResult;
     const mainStatus = getStatus(status);
     const Icon = IconClass(result);
-    const canEditResult = (user.id == result.user && result.points <= 0) || isRoot;
+    const canEditResult = (result.userOrGroupUsers.includes(user.id) && result.points <= 0) || isRoot;
     const statusName = `status-${mainStatus.name}`;
     const extraCls = onClose == undefined
         ? "solution-result-view full-page"
