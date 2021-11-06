@@ -3,6 +3,7 @@ import * as React from 'react';
 import { useState, useEffect } from 'react';
 import { IAppUser, ICcGroup, ICcUserGroup, ICourseProblem } from '../../cc-api';
 
+export const PseudoUserGroupName = "me";
 
 interface ISimpleGroup {
     name: string;
@@ -12,7 +13,12 @@ interface ISimpleGroup {
 }
 const getValidGroupsForUser = (user: IAppUser, problem: ICourseProblem) => {
     const { minSize, maxSize } = problem?.collaboration ?? {};
-    const meGroup = { objectId: "me", name: "me", users: [{ name: user.id }] } as any as ICcGroup;
+    const meGroup = { 
+        objectId: PseudoUserGroupName,
+        name: PseudoUserGroupName, 
+        users: [{ name: user.id }]
+    } as any as ICcGroup;
+
     const validGroups = [...user.groups, meGroup]
         .map(i => {
             return {

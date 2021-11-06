@@ -12,6 +12,8 @@ import { useOpenClose } from '../hooks/useOpenClose';
 import { useRefresh } from '../hooks/useRefresh';
 import { useUser } from '../hooks/useUser';
 import { CcUserGroupStatus } from '../models/Enums';
+import { notifications } from '../utils/notifications';
+import { generateRandomName } from '../utils/nameGenerator';
 
 // const model = Schema.ObjectType({
 //     name: Schema.StringType(),
@@ -102,6 +104,11 @@ export const GroupManager = (props: GroupManagerProps) => {
     const updateStatus = async (objectId: string, myGrp: ICcUserGroup) => {
         await CodeCritic.api.studentGroupStatusCreate({ oid: objectId, ...myGrp });
         refresh();
+        if (myGrp.status === CcUserGroupStatus.Confirmed) {
+            notifications.success("Membership confirmed 😊");
+        } else if (myGrp.status === CcUserGroupStatus.Rejected) {
+            notifications.info("Membership rejected 😢");
+        }
     }
 
     const users = [
@@ -115,14 +122,18 @@ export const GroupManager = (props: GroupManagerProps) => {
         {(edit && newGroup) && <Dialog open={edit} onClose={closeEdit} fullWidth maxWidth="md">
             <DialogTitle>{isEditMode ? "Edit Group" : "New Group"}</DialogTitle>
             <DialogContent>
+                <div style={{ display: "flex", gap: 10 }}>
                 <TextField
+                    style={{ width: "auto", flexGrow: 1 }}
                     autoFocus
                     margin="dense"
                     label="Group Name"
                     onChange={e => { newGroup.name = e.target.value.substr(0, 32); updateNewGroup() }}
                     value={newGroup.name}
                     fullWidth
-                />
+                    />
+                    <Button size="small" variant="text" onClick={() => { newGroup.name = generateRandomName(); updateNewGroup() } }>Generate random</Button>
+                </div>
                 <div>
                     {users.map((i, j) => {
                         const updateUserList = () => {
@@ -133,7 +144,8 @@ export const GroupManager = (props: GroupManagerProps) => {
                         return <TextField key={j} style={{ marginRight: 5 }}
                             margin="dense" variant="outlined" size="small"
                             label={`User ${j + 1}`}
-                            onChange={e => { i.name = e.target.value.substr(0, 32); updateUserList() }}
+                            placeholder="firstname.lastname"
+                            onChange={e => { i.name = e.target.value.substr(0, 32).toLowerCase().replaceAll(" ", "."); updateUserList() }}
                             value={i.name}
                         />
                     })}

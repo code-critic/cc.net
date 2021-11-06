@@ -54,3 +54,8 @@ export function prevIndex<T extends IObjectId>(items: T[], selected: string): [b
 
     return [false, null, null];
 }
+
+
+export function randomChoice<T>(arr: T[]): T {
+    return arr[Math.floor(arr.length * Math.random())];
+}

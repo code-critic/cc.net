@@ -17,7 +17,7 @@ import { CodeEditor } from './codeEditor/CodeEditor';
 import { CodeEditorLanguage } from './codeEditor/CodeEditor.Language';
 import { ProblemPicker, ProblemPickerExportProps } from './ProblemPicker';
 import { SubmitSolutionLastResults } from './SubmitSolution.LastResults';
-import { SubmitSolutionGroupSelect } from './submitSolution/SubmitSolution.GroupSelect';
+import { PseudoUserGroupName, SubmitSolutionGroupSelect } from './submitSolution/SubmitSolution.GroupSelect';
 import { hubApi } from './submitSolution/SubmitSolution.Hub';
 import {
     ChangeLayoutTag,
@@ -133,9 +133,15 @@ export const SubmitSolutionImpl = (props: SubmitSolutionProps) => {
         closeGroupMenu();
 
         if (groupId) {
-            hubApi.submitSolutionGroup(groupId, problem.course, problem.year, problem.id, language.id, grabFiles());
-            notifications.info("Job submitted");
-            resetLiveResult();
+            if (groupId === PseudoUserGroupName) {
+                hubApi.submitSolutionStudent(user.id, problem.course, problem.year, problem.id, language.id, grabFiles());
+                notifications.info("Job submitted");
+                resetLiveResult();
+            } else {
+                hubApi.submitSolutionGroup(groupId, problem.course, problem.year, problem.id, language.id, grabFiles());
+                notifications.info("Job submitted");
+                resetLiveResult();
+            }
         }
     }
 
