@@ -3,6 +3,7 @@ import 'codemirror/theme/neat.css';
 import 'codemirror/mode/python/python.js';
 import 'codemirror/mode/javascript/javascript.js';
 import 'codemirror/mode/clike/clike';
+import 'codemirror/mode/octave/octave';
 
 import React, { useEffect, useState } from 'react';
 import { Controlled as CodeMirror } from 'react-codemirror2';

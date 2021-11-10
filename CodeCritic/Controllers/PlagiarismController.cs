@@ -23,10 +23,10 @@ namespace Cc.Net.Controllers
     [Authorize]
     public class PlagiarismController : ControllerBase
     {
-        private readonly DbService _dbService;
+        private readonly IDbService _dbService;
         private readonly CompareService _compareService;
 
-        public PlagiarismController(DbService dbService, CompareService compareService)
+        public PlagiarismController(IDbService dbService, CompareService compareService)
         {
             _dbService = dbService;
             _compareService = compareService;
@@ -56,8 +56,8 @@ namespace Cc.Net.Controllers
         [ProducesResponseType(typeof(PlagResult), StatusCodes.Status200OK)]
         public async Task<PlagResult> CompareTwo(string aId, string bId)
         {
-            var a = await _dbService.DataSingleAsync(new ObjectId(aId));
-            var b = await _dbService.DataSingleAsync(new ObjectId(bId));
+            var a = await _dbService.Data.SingleAsync(new ObjectId(aId));
+            var b = await _dbService.Data.SingleAsync(new ObjectId(bId));
             var item = ComparePair(a, b, true);
             return item;
         }
@@ -69,12 +69,11 @@ namespace Cc.Net.Controllers
         public async Task<IActionResult> FindCost(string courseName, string courseYear, string problem)
         {
             var results = await _dbService.Data
-                .Find(i => i.CourseName == courseName
+                .FindAsync(i => i.CourseName == courseName
                            && i.CourseYear == courseYear
                            && i.Problem == problem
                            && i.ReviewRequest != null
-                           && i.Action == "solve")
-                .ToListAsync();
+                           && i.Action == "solve");
 
             var groups = results
                 .GroupBy(i => i.Language)

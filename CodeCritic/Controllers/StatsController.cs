@@ -37,7 +37,7 @@ namespace Cc.Net.Controllers
 
         private readonly CourseService _courseService;
         private readonly LanguageService _languageService;
-        private readonly DbService _dbService;
+        private readonly IDbService _dbService;
         private readonly ProblemDescriptionService _problemDescriptionService;
         private readonly AppOptions _appOptions;
         private readonly CompareService _compareService;
@@ -47,7 +47,7 @@ namespace Cc.Net.Controllers
         private readonly IHttpContextAccessor _httpContextAccessor;
 
         public StatsController(
-            CourseService courseService, LanguageService languageService, DbService dbService,
+            CourseService courseService, LanguageService languageService, IDbService dbService,
             ProblemDescriptionService problemDescriptionService, AppOptions appOptions,
             CompareService compareService, IHttpContextAccessor httpContextAccessor, UserService userService,
             UtilService utilService, ILogger<StatsController> logger)
@@ -65,7 +65,7 @@ namespace Cc.Net.Controllers
 
         [HttpGet("all-stats")]
         [UseCache(timeToLiveSeconds: 10*60)]
-        public IActionResult AllStats()
+        public async Task<IActionResult> AllStatsAsync()
         {
             var pipeline = new List<BsonDocument>();
             pipeline.Add(BsonDocument.Parse(@"
@@ -84,9 +84,13 @@ namespace Cc.Net.Controllers
                 }
             "));
 
-            var data = _dbService.Data
-                .Aggregate<StatsData>(pipeline.ToArray())
-                .ToList();
+            var data = _dbService.Resolve().Match(
+                mongoDb => mongoDb._data
+                    .Aggregate<StatsData>(pipeline.ToArray())
+                    .ToList(),
+                InMemoryDbService => new List<StatsData>()
+            );
+                
 
             var languages = data.GroupBy(i => i.Language).Where(i => i.Sum(j => j.TotalCount) > 50).Select(i => i.Key).Distinct().OrderBy(i => i).ToList();
             var courses = data.GroupBy(i => i.CourseName).Where(i => i.Sum(j => j.TotalCount) > 50).Select(i => i.Key).Distinct().OrderBy(i => i).ToList();

@@ -24,7 +24,7 @@ namespace CC.Net.Hubs
 {
     public class LiveHub : Hub
     {
-        private readonly DbService _dbService;
+        private readonly IDbService _dbService;
         private readonly IdService _idService;
         private readonly LanguageService _languageService;
         private readonly CourseService _courseService;
@@ -33,7 +33,7 @@ namespace CC.Net.Hubs
         private readonly SubmitSolutionService _submitSolutionService;
         private readonly ILogger<LiveHub> _logger;
 
-        public LiveHub(DbService dBService, IdService idService, LanguageService languageService,
+        public LiveHub(IDbService dBService, IdService idService, LanguageService languageService,
             CourseService courseService, UserService userService, NotificationFlag notificationFlag,
             SubmitSolutionService submitSolutionService,
             ILogger<LiveHub> logger)
@@ -83,7 +83,7 @@ namespace CC.Net.Hubs
 
             _idService.RemeberClient(Clients.Caller, attemptId);
             await Clients.Clients(_idService[ccData.UserOrGroupUsers]).ServerMessageToClient("info", "Job submitted");
-            await _dbService.Data.InsertOneAsync(ccData);
+            _dbService.Data.Add(ccData);
 
             var itemsCount = await _dbService.Data.CountDocumentsAsync(i => i.Result.Status == ProcessStatus.InQueue.Value);
             await Clients.All.QueueStatus(new string[itemsCount]);
@@ -107,7 +107,7 @@ namespace CC.Net.Hubs
 
             _idService.RemeberClient(Clients.Caller, attemptId);
             await Clients.Clients(_idService[ccData.UserOrGroupUsers]).ServerMessageToClient("info", $"Attempt {attemptNo} inserted into queue");
-            await _dbService.Data.InsertOneAsync(ccData);
+            _dbService.Data.Add(ccData);
 
             var itemsCount = await _dbService.Data.CountDocumentsAsync(i => i.Result.Status == ProcessStatus.InQueue.Value);
             await Clients.All.QueueStatus(new string[itemsCount]);

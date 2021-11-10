@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Cc.Net.Utils;
 using CC.Net.Collections;
 using CC.Net.Db;
@@ -20,10 +21,10 @@ namespace CC.Net.Controllers
     public class ScoreboardController : ControllerBase
     {
         private readonly UserService _userService;
-        private readonly DbService _dbService;
+        private readonly IDbService _dbService;
         private readonly CourseService _courseService;
         
-        public ScoreboardController(UserService userService, DbService dbService, CourseService courseService)
+        public ScoreboardController(UserService userService, IDbService dbService, CourseService courseService)
         {
             _userService = userService;
             _dbService = dbService;
@@ -34,14 +35,13 @@ namespace CC.Net.Controllers
         [Route("student-scoreboard")]
         [UseCache(timeToLiveSeconds: 10, perUser: true)]
         [ProducesResponseType(typeof(IEnumerable<StudentScoreboardCourse>), StatusCodes.Status200OK)]
-        public IActionResult GetStudentScoreboard()
+        public async Task<IActionResult> GetStudentScoreboard()
         {
             var user = _userService.CurrentUser.Id;
 
-            var items = _dbService.Data
-                .Find(i => (i.User == user || i.GroupUsers.Contains(user))
-                    && i.Action == "solve")
-                .ToList();
+            var items = await _dbService.Data
+                .FindAsync(i => (i.User == user || i.GroupUsers.Contains(user))
+                    && i.Action == "solve");
 
             var courses = _courseService.Courses
                 .SelectMany(i => i.CourseYears)

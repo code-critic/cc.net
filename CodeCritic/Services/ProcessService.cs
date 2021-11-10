@@ -38,6 +38,11 @@ namespace CC.Net.Services
             _appOptions = appOptions;
         }
 
+        private async Task SaveResultOrDoNothing(IDbService dbService, CcData item) {
+            // no need to save the result since we are using in memory db
+            await dbService.Data.UpdateDocumentAsync(item);
+        }
+
         protected override Task ExecuteAsync(CancellationToken stoppingToken)
         {
             return Task.Run(async () =>
@@ -75,14 +80,11 @@ namespace CC.Net.Services
             using (var scope = _serviceProvider.CreateScope())
             {
                 var provider = scope.ServiceProvider;
-                var dbService = provider.GetService<DbService>();
+                var dbService = provider.GetService<IDbService>();
                 var notificationFlag = provider.GetService<NotificationFlag>();
 
-                var cursor = await dbService.Data
-                    .FindAsync(i => i.Result.Status == ProcessStatus.InQueue.Value);
-
-                var items = await cursor
-                    .ToListAsync();
+                var items = (await dbService.Data.FindAsync(i => i.Result.Status == ProcessStatus.InQueue.Value))
+                    .ToList();
 
                 if (items.Any())
                 {
@@ -117,7 +119,7 @@ namespace CC.Net.Services
                             var itemResult = await processItem.Solve();
 
                             _logger.LogInformation("Item Done: {Item}", item);
-                            await ResultsUtils.SaveItemAsync(dbService, item);
+                            await SaveResultOrDoNothing(dbService, item);
                         }
 
                         else if (item.Action == "input")
@@ -126,7 +128,7 @@ namespace CC.Net.Services
                             var itemResult = await processItem.GenerateInput();
 
                             _logger.LogInformation("Item Done: {Item}", item);
-                            await ResultsUtils.SaveItemAsync(dbService, item);
+                            await SaveResultOrDoNothing(dbService, item);
                         }
                         else if (item.Action == "output")
                         {
@@ -134,7 +136,7 @@ namespace CC.Net.Services
                             var itemResult = await processItem.GenerateOutput();
 
                             _logger.LogInformation("Item Done: {Item}", item);
-                            await ResultsUtils.SaveItemAsync(dbService, item);
+                            await SaveResultOrDoNothing(dbService, item);
                         }
                     }
                     catch (Exception ex)

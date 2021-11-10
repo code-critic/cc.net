@@ -210,10 +210,9 @@ export const NavMenu = (props: NavMenuProps) => {
         </MenuItem>
 
 
-        {isRoot &&
-          <MenuItem disabled>
+        <MenuItem disabled>
             <small style={{textAlign: "right", width: "100%"}}><code>{user.version}</code></small>
-        </MenuItem>}
+        </MenuItem>
 
       </Menu>
 

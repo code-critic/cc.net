@@ -21,7 +21,6 @@ namespace cc.net.Controllers
     {
         private readonly CourseService _courseService;
         private readonly LanguageService _languageService;
-        private readonly DbService _dbService;
         private readonly ProblemDescriptionService _problemDescriptionService;
         private readonly AppOptions _appOptions;
         private readonly CompareService _compareService;
@@ -30,14 +29,13 @@ namespace cc.net.Controllers
         private readonly Courses _courses;
 
         public CoursesController(
-            CourseService courseService, LanguageService languageService, DbService dbService,
+            CourseService courseService, LanguageService languageService,
             ProblemDescriptionService problemDescriptionService, AppOptions appOptions,
             CompareService compareService, IHttpContextAccessor httpContextAccessor, UserService userService,
             UtilService utilService, Courses courses)
         {
             _courseService = courseService;
             _languageService = languageService;
-            _dbService = dbService;
             _problemDescriptionService = problemDescriptionService;
             _appOptions = appOptions;
             _compareService = compareService;

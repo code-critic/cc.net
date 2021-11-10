@@ -21,6 +21,29 @@
   compile: [npm, i]
   run: [node, <filename>]
 
+- id: TS
+  name: Typescript
+  scale-factor: 5.000
+  scale-start:  0.500
+  image: automatest/ts
+  version: node v4.4.4
+  extension: ts
+  style: javascript
+  compile: [npm, i, '&&', tsc, <filename>]
+  run: [node, <filename-no-ext>]
+  files:
+    - package.json: |
+        {
+          "name": "cc.net",
+          "version": "0.1.0",
+          "private": true,
+          "scripts": {},
+          "dependencies": {},
+          "devDependencies": {
+              "@types/node": "^16.11.7"
+          }
+        }
+
 - id: C
   name: C
   scale-factor: 1.000

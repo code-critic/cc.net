@@ -13,9 +13,9 @@ namespace Cc.Net.Services
 {
     public class ViewResultService
     {
-        private DbService _dbService;
+        private IDbService _dbService;
 
-        public ViewResultService(DbService dbService)
+        public ViewResultService(IDbService dbService)
         {
             _dbService = dbService;
         }
@@ -90,24 +90,32 @@ namespace Cc.Net.Services
 
             Console.WriteLine(pipeline.ToJson());
 
-            if (attempt != null)
-            {
-                var data = await _dbService.Data.AggregateAsync<CcData>(pipeline.ToArray());
-                return new TableResponse
-                {
-                    count = await _dbService.Data.CountDocumentsAsync(matchBody),
-                    data = (await data.ToListAsync()).Select(CcDataDto.FromCcData),
-                };
-            }
-            else
-            {
-                var data = await _dbService.Data.AggregateAsync<CcData>(pipeline.ToArray());
-                return new TableResponse
-                {
-                    count = await _dbService.Data.Find(matchBody).CountDocumentsAsync(),
-                    data = (await data.ToListAsync()).Select(CcDataDto.FromCcData),
-                };
-            }
+            return await _dbService.Resolve().Match(
+                async mongoDb => {
+                    if (attempt != null)
+                    {
+                        var data = await mongoDb._data.AggregateAsync<CcData>(pipeline.ToArray());
+                        return new TableResponse
+                        {
+                            count = await mongoDb._data.CountDocumentsAsync(matchBody),
+                            data = (await data.ToListAsync()).Select(CcDataDto.FromCcData),
+                        };
+                    }
+                    else
+                    {
+                        var data = await mongoDb._data.AggregateAsync<CcData>(pipeline.ToArray());
+                        return new TableResponse
+                        {
+                            count = await mongoDb._data.Find(matchBody).CountDocumentsAsync(),
+                            data = (await data.ToListAsync()).Select(CcDataDto.FromCcData),
+                        };
+                    }
+                },
+                async inMemoryDb => new TableResponse{
+                    count = 0,
+                    data = new List<CcDataDto>(),
+                }
+            );
         }
     }
 }

@@ -27,6 +27,7 @@ using Serilog;
 using System.IO;
 using System.Text.RegularExpressions;
 using Microsoft.Extensions.FileProviders;
+using System.Linq;
 
 namespace CC.Net
 {
@@ -37,11 +38,14 @@ namespace CC.Net
             Configuration = configuration;
             MongoDBConfig = Configuration.GetSection("MongoDB").Get<MongoDBConfig>();
             AppOptions = Configuration.Get<AppOptions>();
-            Console.WriteLine(AppOptions.CanProcess);
             var version = Directory.GetParent(Directory.GetCurrentDirectory()).Name;
             AppOptions.Version = Regex.IsMatch(version, @"[0-9]\.[0-9]\.[0-9]")
                 ? version
                 : AppOptions.Version;
+            
+            Console.WriteLine($"Version:        {AppOptions.Version}");
+            Console.WriteLine($"CanProcess:     {AppOptions.CanProcess}");
+            Console.WriteLine($"UseInMemoryDB: {AppOptions.UseInMemoryDB}");
         }
 
         public IConfiguration Configuration { get; set; }
@@ -60,7 +64,6 @@ namespace CC.Net
             services.AddSingleton<MatlabServer>();
             services.AddScoped<LanguageService>();
             services.AddScoped<CourseService>();
-            services.AddScoped<DbService>();
             services.AddScoped<ProblemDescriptionService>();
             services.AddScoped<CompareService>();
             services.AddScoped<CryptoService>();
@@ -73,10 +76,15 @@ namespace CC.Net
             services.AddSingleton<NotificationFlag>();
             services.AddSingleton<ServerStatus>();
             services.AddSingleton<Courses>();
-            // services.AddScoped<Courses>();
             services.AddHostedService<ProcessService>();
             services.AddHostedService<NotificationService>();
             services.AddHttpContextAccessor();
+
+            if(AppOptions.UseInMemoryDB) {
+                services.AddSingleton<IDbService, InMemoryDbService>();
+            } else {
+                services.AddScoped<IDbService, MongoDbService>();
+            }
 
             services.AddAuthentication("CookieAuth")
                 .AddCookie("CookieAuth", config =>
@@ -110,17 +118,15 @@ namespace CC.Net
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IServiceProvider serviceProvider, IHostApplicationLifetime applicationLifetime)
         {
             ServiceProvider = serviceProvider;
+            var logger = serviceProvider.GetService<ILogger<Startup>>();
             app.UseSerilogRequestLogging();
             app.UseSwagger();
             app.UseSwaggerUI(c =>
             {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
             });
-            
-            var dbService = serviceProvider.GetService<DbService>();
-            var filter = Builders<CcData>.Filter.Eq("result.status", (int) ProcessStatusCodes.Running);
-            var update = Builders<CcData>.Update.Set("result.status", (int) ProcessStatusCodes.InQueue);
-            dbService.Data.UpdateMany(filter, update);
+            logger.LogWarning($"Using DbService {serviceProvider.GetService<IDbService>()}");
+            UpdateResultStatus(serviceProvider);
 
             // var courses = serviceProvider.GetService<Courses>();
             // var a = courses.GetProblem("TST", "2019", "problem-1", "jan.hybs", false);
@@ -178,6 +184,25 @@ namespace CC.Net
                     // spa.UseProxyToSpaDevelopmentServer("http://localhost:3000");
                 }
             });
+        }
+
+        private void UpdateResultStatus(IServiceProvider serviceProvider)
+        {
+            var iDbService = serviceProvider.GetService<IDbService>();
+            iDbService.Resolve().Match(
+                async mongoDb => {
+                    var filter = Builders<CcData>.Filter.Eq("result.status", (int) ProcessStatusCodes.Running);
+                    var update = Builders<CcData>.Update.Set("result.status", (int) ProcessStatusCodes.InQueue);
+                    mongoDb._data.UpdateMany(filter, update);
+                },
+                async inMemoryDb => {
+                    var result = await inMemoryDb.Data.FindAsync(i => true);
+                    result.Select(i => {
+                        i.Result.Status = (int) ProcessStatusCodes.InQueue;
+                        return i;
+                    }).ToList();
+                }
+            );
         }
     }
 }

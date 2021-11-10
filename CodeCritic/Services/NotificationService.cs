@@ -57,7 +57,7 @@ namespace CC.Net.Services
                 var provider = scope.ServiceProvider;
                 var notificationFlag = provider.GetService<NotificationFlag>();
                 
-                var dbService = provider.GetService<DbService>();
+                var dbService = provider.GetService<IDbService>();
                 var hub = provider.GetService<IHubContext<LiveHub>>();
                 var idService = provider.GetService<IdService>();
                 
@@ -65,11 +65,17 @@ namespace CC.Net.Services
                 {
                     var minDate = DateTime.Now.Subtract(TimeSpan.FromDays(30));
                     var minId = new ObjectId(minDate, 0, 0, 0);
-                    var allNotifications = await dbService.Events
-                        .Find(i => i.Id > minId)
-                        .SortByDescending(i => i.IsNew)
-                        .SortByDescending(i => i.Id)
-                        .ToListAsync();
+                    var allNotifications = await dbService.Resolve().Match(
+                        async mongoDb => await mongoDb._events
+                            .Find(i => i.Id > minId)
+                            .SortByDescending(i => i.IsNew)
+                            .SortByDescending(i => i.Id)
+                            .ToListAsync(),
+                        async inMemoryDb => (await inMemoryDb.Events.FindAsync(i => i.Id > minId))
+                            .OrderByDescending(i => i.IsNew)
+                            .OrderByDescending(i => i.Id)
+                            .ToList()
+                    );
 
                     allNotifications = allNotifications
                         .OrderByDescending(i => i.Id.CreationTime)

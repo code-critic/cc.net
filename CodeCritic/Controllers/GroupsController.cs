@@ -20,8 +20,8 @@ namespace CC.Net.Controllers
     {
 
         private readonly UserService _userService;
-        private readonly DbService _dbService;
-        public GroupsController(UserService userService, DbService dbService)
+        private readonly IDbService _dbService;
+        public GroupsController(UserService userService, IDbService dbService)
         {
             _userService = userService;
             _dbService = dbService;
@@ -61,7 +61,7 @@ namespace CC.Net.Controllers
             }
 
             var newGroup = CheckGroup(request);
-            await _dbService.Groups.InsertOneAsync(newGroup);
+            _dbService.Groups.Add(newGroup);
 
             return new { code = 200 };
         }
@@ -72,7 +72,8 @@ namespace CC.Net.Controllers
         {
             var student = _userService.CurrentUser.Id;
             var id = ObjectId.Parse(request.Oid);
-            var group = await _dbService.Groups.Find(i => i.Id == id).FirstOrDefaultAsync();
+            var group = await _dbService.Groups.SingleOrDefaultAsync(id);
+
             if (group == null)
             {
                 return new { code = 400 };
@@ -103,7 +104,7 @@ namespace CC.Net.Controllers
         {
             var student = _userService.CurrentUser.Id;
             var id = ObjectId.Parse(request.Oid);
-            var group = await _dbService.Groups.Find(i => i.Id == id).FirstOrDefaultAsync();
+            var group = await _dbService.Groups.SingleOrDefaultAsync(id);
 
             if (group == null)
             {
@@ -127,9 +128,9 @@ namespace CC.Net.Controllers
         public async Task<List<CcGroup>> ListGroups()
         {
             var student = _userService.CurrentUser.Id;
-            var groups =  await _dbService.Groups
-                .Find(i => i.Users.Any(j => j.Name == student))
-                .ToListAsync();
+            var groups =  (await _dbService.Groups
+                .FindAsync(i => i.Users.Any(j => j.Name == student)))
+                .ToList();
 
             await groups.ForEachAsync(async i => {
                 var count = await _dbService.Data.CountDocumentsAsync(j => j.GroupId == i.Id);
@@ -144,7 +145,7 @@ namespace CC.Net.Controllers
         {
             var student = _userService.CurrentUser.Id;
             var id = ObjectId.Parse(objectId);
-            var group = await _dbService.Groups.Find(i => i.Id == id).FirstOrDefaultAsync();
+            var group = await _dbService.Groups.SingleOrDefaultAsync(id);
             if (group == null)
             {
                 return new { code = 400 };

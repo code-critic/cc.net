@@ -20,6 +20,7 @@ namespace CC.Net.Config
         public string ReturnUrl { get; set; } = null;
         public string Version { get; set; } = "develop";
         public bool CanProcess { get; set; }
+        public bool UseInMemoryDB { get; set; }
         public IList<string> Admins { get; set; } = new List<string>();
 
     }

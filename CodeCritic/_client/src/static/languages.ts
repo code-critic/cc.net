@@ -37,7 +37,21 @@ export const languages: ILanguage[] = [
         "unittest": [],
         "run": ["node", "<filename>"],
         "compilationNeeded": true,
-        "scaleInfo": "0.00 + 5.00×"
+        "scaleInfo": "0.50 + 5.00×"
+    },
+    {
+        "id": "TS",
+        "name": "Typescript",
+        "scaleFactor": 5,
+        "scaleStart": 0.5,
+        "version": "v4.4.4",
+        "extension": "ts",
+        "disabled": false,
+        "compile": ["tsc", "<filename>"],
+        "unittest": [],
+        "run": ["node", "<filename-no-ext>"],
+        "compilationNeeded": true,
+        "scaleInfo": "0.50 + 5.00×",
     },
     {
         "id": "C",

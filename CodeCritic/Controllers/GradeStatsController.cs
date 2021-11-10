@@ -12,19 +12,20 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Driver;
+using System.Threading.Tasks;
 
 namespace CC.Net.Controllers
 {
     [ApiController]
     [Route("api")]
     [Authorize]
-    public class GradeController: ControllerBase
+    public class GradeController : ControllerBase
     {
         private readonly CourseService _courseService;
-        private readonly DbService _dbService;
+        private readonly IDbService _dbService;
         private readonly UserService _userService;
 
-        public GradeController(CourseService courseService,  DbService dbService, UserService userService)
+        public GradeController(CourseService courseService, IDbService dbService, UserService userService)
         {
             _courseService = courseService;
             _dbService = dbService;
@@ -33,7 +34,7 @@ namespace CC.Net.Controllers
 
         [HttpPost("grade-stats/{courseName}/{year}/{problemId}")]
         [RequireRole(AppUserRoles.Root)]
-        public IEnumerable<GradeDto> GetGradeStats(string courseName, string year, string problemId, [FromBody] GradeStatFilterDto filter)
+        public async Task<IEnumerable<GradeDto>> GetGradeStats(string courseName, string year, string problemId, [FromBody] GradeStatFilterDto filter)
         {
             var user = _userService.CurrentUser;
             var course = _courseService.GetCourseForUser(user, courseName);
@@ -48,12 +49,12 @@ namespace CC.Net.Controllers
 
             var students = problem.CourseYearConfig.SettingsConfig.StudentsFor(user.Id);
             var ids = students.Select(i => i.id).ToList();
-            var items = _dbService.Data
-                .Find(i => (ids.Contains(i.User) || ids.Any(j => i.GroupUsers.Contains(i.User)))
+            var items = (await _dbService.Data
+                    .FindAsync(i => (ids.Contains(i.User) || ids.Any(j => i.GroupUsers.Contains(i.User)))
                            && i.CourseName == course.Name
                            && i.CourseYear == yearConfig.Year
                            && i.Problem == problem.Id
-                           && i.ReviewRequest != null)
+                           && i.ReviewRequest != null))
                 .ToList()
                 .OrderByDescending(i => i.Id.CreationTime)
                 .ThenByDescending(i => i.Points)
@@ -66,18 +67,18 @@ namespace CC.Net.Controllers
                 var best = items.FirstOrDefault(i => i.User == student.id || i.GroupUsers.Contains(student.id));
                 if (best == null)
                 {
-                    var userItems = _dbService.Data
-                        .Find(i => (ids.Contains(i.User) || ids.Any(j => i.GroupUsers.Contains(i.User)))
+                    var userItems = (await _dbService.Data
+                        .FindAsync(i => (ids.Contains(i.User) || ids.Any(j => i.GroupUsers.Contains(i.User)))
                                    && i.CourseName == course.Name
                                    && i.CourseYear == yearConfig.Year
                                    && i.Problem == problem.Id
                                    && i.ReviewRequest == null
                                    && (i.User == student.id || i.GroupUsers.Contains(student.id))
-                                   && (i.Result.Status == (int) ProcessStatusCodes.AnswerCorrect
-                                       || i.Result.Status == (int) ProcessStatusCodes.AnswerCorrectTimeout
-                                       || i.Result.Status == (int) ProcessStatusCodes.AnswerWrong
-                                       || i.Result.Status == (int) ProcessStatusCodes.AnswerWrongTimeout
-                                   ))
+                                   && (i.Result.Status == (int)ProcessStatusCodes.AnswerCorrect
+                                       || i.Result.Status == (int)ProcessStatusCodes.AnswerCorrectTimeout
+                                       || i.Result.Status == (int)ProcessStatusCodes.AnswerWrong
+                                       || i.Result.Status == (int)ProcessStatusCodes.AnswerWrongTimeout
+                                   )))
                         .ToList()
                         .OrderByDescending(i => i.Points)
                         .ThenByDescending(i => i.Result.Score)

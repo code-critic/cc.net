@@ -23,7 +23,7 @@ namespace CC.Net.Controllers
     {
 
         private readonly ILogger<TeacherController> _logger;
-        private readonly DbService _dbService;
+        private readonly IDbService _dbService;
         private readonly CourseService _courseService;
         private readonly LanguageService _languageService;
         private readonly UserService _userService;
@@ -31,7 +31,7 @@ namespace CC.Net.Controllers
         private readonly SubmitSolutionService _submitSolutionService;
         public const string RerunSolutionUrl = "rerun-solution";
 
-        public TeacherController(DbService dbService, CourseService courseService, LanguageService languageService,
+        public TeacherController(IDbService dbService, CourseService courseService, LanguageService languageService,
             UserService userService, UtilService utilService, SubmitSolutionService submitSolutionService,
             ILogger<TeacherController> logger)
         {
@@ -48,7 +48,7 @@ namespace CC.Net.Controllers
         [RequireRole(AppUserRoles.Root)]
         public async Task<IActionResult> RerunSolution(string objectId)
         {
-            var data = await _dbService.DataSingleAsync(new ObjectId(objectId));
+            var data = await _dbService.Data.SingleAsync(new ObjectId(objectId));
             var newData = data.GroupId != ObjectId.Empty
                 ? await _submitSolutionService
                     .CreateItemSolveGroup(data.GroupId.ToString(),

@@ -31,11 +31,11 @@ namespace Cc.Net.Controllers
         private UserService _userService;
         private AppOptions _appOptions;
         private readonly ILogger<HomeController> _logger;
-        private readonly DbService _dbService;
+        private readonly IDbService _dbService;
         private readonly ServerStatus _serverStatus;
 
         public HomeController(CryptoService cryptoService, UserService userService, 
-            AppOptions appOptions, ILogger<HomeController> logger, DbService dbService, ServerStatus serverStatus)
+            AppOptions appOptions, ILogger<HomeController> logger, IDbService dbService, ServerStatus serverStatus)
         {
             _cryptoService = cryptoService;
             _userService = userService;
@@ -62,9 +62,9 @@ namespace Cc.Net.Controllers
                 return new UnauthorizedObject(LoginUrl);
             }
 
-            user.Groups = await _dbService.Groups
-                .Find(i => i.Users.Any(j => j.Name == user.Id))
-                .ToListAsync();
+            user.Groups = (await _dbService.Groups
+                .FindAsync(i => i.Users.Any(j => j.Name == user.Id)))
+                .ToList();
             
             user.ServerStatus = _serverStatus.Status;
             user.ServerMessage = _serverStatus.Message;

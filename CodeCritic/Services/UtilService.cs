@@ -19,13 +19,13 @@ namespace CC.Net.Services
 {
     public partial class UtilService
     {
-        private readonly DbService _dbService;
+        private readonly IDbService _dbService;
         private readonly UserService _userService;
         private readonly CourseService _courseService;
         private readonly LanguageService _languageService;
         private readonly NotificationFlag _notificationFlag;
 
-        public UtilService(DbService dbService, UserService userService, CourseService courseService,
+        public UtilService(IDbService dbService, UserService userService, CourseService courseService,
             LanguageService languageService, NotificationFlag notificationFlag)
         {
             _dbService = dbService;
@@ -142,7 +142,8 @@ namespace CC.Net.Services
 
             if (notifications.Any())
             {
-                await _dbService.Events.InsertManyAsync(notifications);
+                notifications.ForEach(i => _dbService.Events.Add(i));
+                // await _dbService.Events.InsertManyAsync(notifications);
             }
             return notifications.Count;
         }

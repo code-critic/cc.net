@@ -6,6 +6,7 @@ import { Button, Container } from '@material-ui/core';
 import SendIcon from '@material-ui/icons/Send';
 
 import { ICcData, ICourseProblem, ISimpleFile } from '../cc-api';
+import { useLocalStorage } from '../hooks/useLocalStorage';
 import { useOpenClose } from '../hooks/useOpenClose';
 import { useUser } from '../hooks/useUser';
 import { liveConnection } from '../init';
@@ -15,25 +16,18 @@ import { languages } from '../static/languages';
 import { notifications } from '../utils/notifications';
 import { CodeEditor } from './codeEditor/CodeEditor';
 import { CodeEditorLanguage } from './codeEditor/CodeEditor.Language';
+import { IframeWrapper } from './IframeWrapper';
 import { ProblemPicker, ProblemPickerExportProps } from './ProblemPicker';
 import { SubmitSolutionLastResults } from './SubmitSolution.LastResults';
-import { PseudoUserGroupName, SubmitSolutionGroupSelect } from './submitSolution/SubmitSolution.GroupSelect';
+import {
+    PseudoUserGroupName, SubmitSolutionGroupSelect,
+} from './submitSolution/SubmitSolution.GroupSelect';
 import { hubApi } from './submitSolution/SubmitSolution.Hub';
 import {
-    ChangeLayoutTag,
-    SubmitSolutionAssetsTag, SubmitSolutionDeadlineTag, SubmitSolutionGroupTag,
+    ChangeLayoutTag, SubmitSolutionAssetsTag, SubmitSolutionDeadlineTag, SubmitSolutionGroupTag,
     SubmitSolutionOutputTag, SubmitSolutionRequiredFilesTag, SubmitSolutionRequiredLanguageTag,
     SubmitSolutionTimeTag,
 } from './submitSolution/SubmitSolution.Tags';
-import { useLocalStorage } from '../hooks/useLocalStorage';
-import { IframeWrapper } from './IframeWrapper';
-
-const determineDefaultLanguage = (problem: ICourseProblem) => {
-    if (problem.type === ProblemType.Unittest) {
-        return languages.find(i => i.id === problem.reference.lang);
-    }
-    return languages[0];
-}
 
 interface SubmitSolutionProps extends ProblemPickerExportProps { }
 export const SubmitSolution = (props: SubmitSolutionProps) => {
@@ -58,21 +52,20 @@ export const SubmitSolutionImpl = (props: SubmitSolutionProps) => {
     const [files, setFiles] = useState<ISimpleFile[]>();
     const [liveResult, setLiveResult] = useState<ICcData>();
     const [groupMenu, openGroupMenu, closeGroupMenu] = useOpenClose();
-    const [iframeHeight, setIframeHeight] = useState(800);
+    const [languageId, setLanguageId] = useLocalStorage("cc.language.id", languages[0].id);
     const [layoutIndex, setLayoutIndex] = useLocalStorage("cc.layout.index", 0);
     const layout = layouts[layoutIndex];
+    const { user, isRoot } = useUser();
+
+    const forcedLanguageId = problem.type === ProblemType.Unittest ? problem.reference.lang : null;
+    const language = languages.find(i => i.id === (forcedLanguageId ?? languageId));
+
+
     const nextLayout = () => {
         setLayoutIndex(
             (layoutIndex + 1) % layouts.length
         );
     }
-
-
-    const { user, isRoot } = useUser();
-
-    const [language, setLanguage] = useState<ILanguage>(
-        determineDefaultLanguage(problem)
-    );
 
     useEffect(() => {
         const MathJax = (window as any).MathJax;
@@ -93,7 +86,7 @@ export const SubmitSolutionImpl = (props: SubmitSolutionProps) => {
         });
 
 
-        
+
         return () => {
             console.log('removing');
             liveConnection.off("OnProcessStart");
@@ -109,7 +102,7 @@ export const SubmitSolutionImpl = (props: SubmitSolutionProps) => {
     }
 
     const onLanguageChange = (languageId: string) => {
-        setLanguage(languages.find(i => i.id === languageId));
+        setLanguageId(languageId);
     }
 
     const grabFiles = () => {

@@ -10,6 +10,7 @@ export const getSyntax = (language: ILanguage | string) => {
         case "py":
             return "python";
         case "js":
+        case "ts":
             return "javascript";
         case "cs":
             return "csharp";
@@ -17,8 +18,6 @@ export const getSyntax = (language: ILanguage | string) => {
             return "java";
         case "m":
             return "matlab";
-        case "cs":
-            return "csharp";
         case "c":
         case "h":
             return "c";

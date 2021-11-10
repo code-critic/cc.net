@@ -16,18 +16,15 @@ namespace CC.Net.Controllers
     {
 
         private readonly ILogger<StudentController> _logger;
-        private readonly DbService _dbService;
         private readonly CourseService _courseService;
         private readonly LanguageService _languageService;
         private readonly UserService _userService;
         private readonly UtilService _utilService;
 
-        public StudentController(ILogger<StudentController> logger,
-            DbService dbService, CourseService courseService, LanguageService languageService,
+        public StudentController(ILogger<StudentController> logger, CourseService courseService, LanguageService languageService,
             UserService userService, UtilService utilService)
         {
             _logger = logger;
-            _dbService = dbService;
             _courseService = courseService;
             _languageService = languageService;
             _userService = userService;

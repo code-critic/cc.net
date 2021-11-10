@@ -31,7 +31,7 @@ namespace CC.Net.Controllers
     {
         private readonly CourseService _courseService;
         private readonly LanguageService _languageService;
-        private readonly DbService _dbService;
+        private readonly IDbService _dbService;
         private readonly ProblemDescriptionService _problemDescriptionService;
         private readonly AppOptions _appOptions;
         private readonly CompareService _compareService;
@@ -39,7 +39,7 @@ namespace CC.Net.Controllers
         private readonly UtilService _utilService;
 
         public ApiConfigController(
-            CourseService courseService, LanguageService languageService, DbService dbService,
+            CourseService courseService, LanguageService languageService, IDbService dbService,
             ProblemDescriptionService problemDescriptionService, AppOptions appOptions,
             CompareService compareService, IHttpContextAccessor httpContextAccessor, UserService userService,
             UtilService utilService
@@ -61,7 +61,7 @@ namespace CC.Net.Controllers
         public async Task<object> SaveGrade(MarkSolutionItem item)
         {
             var oid = new ObjectId(item.objectId);
-            var ccData = await _dbService.DataSingleAsync(oid);
+            var ccData = await _dbService.Data.SingleAsync(oid);
             var sender = _userService.CurrentUser.Id;
             var recipients = _utilService.GetUsersRelatedToResult(ccData);
 
@@ -98,7 +98,7 @@ namespace CC.Net.Controllers
         [ProducesResponseType(typeof(DiffResultComposite), StatusCodes.Status200OK)]
         public async Task<IActionResult> ViewDiff(string objectId, string caseId)
         {
-            var data = await _dbService.DataSingleAsync(new ObjectId(objectId));
+            var data = await _dbService.Data.SingleAsync(new ObjectId(objectId));
 
             var context = new CourseContext(_courseService, _languageService, data);
             var generatedFile = context.StudentDir.OutputFile(caseId);

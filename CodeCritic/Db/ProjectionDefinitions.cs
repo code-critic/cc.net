@@ -18,5 +18,20 @@ namespace CC.Net.Db
                 User = p.User,
                 GroupUsers = p.GroupUsers,
             });
+        
+        public static CcDataLight SingleCcData2CcDataLight(CcData p)
+        {
+            return new CcDataLight
+            {
+                Id = p.Id,
+                ObjectId = p.ObjectId,
+                Status = p.Result.Status,
+                Attempt = p.Attempt,
+                ReviewRequest = p.ReviewRequest,
+                Points = p.Points,
+                User = p.User,
+                GroupUsers = p.GroupUsers,
+            };
+        }
     }
 }

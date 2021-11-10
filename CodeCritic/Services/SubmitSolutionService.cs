@@ -21,7 +21,7 @@ namespace CC.Net.Services
 {
     public class SubmitSolutionService
     {
-        private readonly DbService _dbService;
+        private readonly IDbService _dbService;
         private readonly IdService _idService;
         private readonly LanguageService _languageService;
         private readonly CourseService _courseService;
@@ -34,7 +34,7 @@ namespace CC.Net.Services
         private CourseProblem Problem(string courseName, string courseYear, string problemId)
             => _courseService[courseName][courseYear][problemId];
 
-        public SubmitSolutionService(DbService dBService, IdService idService, LanguageService languageService,
+        public SubmitSolutionService(IDbService dBService, IdService idService, LanguageService languageService,
             CourseService courseService, UserService userService, NotificationFlag notificationFlag,
             ILogger<SubmitSolutionService> logger)
         {
@@ -51,8 +51,7 @@ namespace CC.Net.Services
         {
             var gid = new ObjectId(groupId);
             var group = await _dbService.Groups
-                .Find(i => i.Id == gid)
-                .FirstAsync();
+                .SingleAsync(gid);
 
             var attemptNo = 1 + await _dbService.Data
                 .CountDocumentsAsync(i => i.GroupId == group.Id
@@ -141,6 +140,15 @@ namespace CC.Net.Services
             };
 
             return ccData;
+        }
+
+        private void AddLanguageSpecificFiles(List<CcDataSolution> solutions, Language language)
+        {
+            switch (language.Id)
+            {
+                case "TS":
+                    break;
+            }
         }
 
         public CcData CreateItemGenerateInputOutput(string userId, string courseName, string courseYear, string problemId, string action)

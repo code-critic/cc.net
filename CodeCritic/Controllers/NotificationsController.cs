@@ -25,9 +25,9 @@ namespace CC.Net.Controllers
     {
 
         private readonly UserService _userService;
-        private readonly DbService _dbService;
+        private readonly IDbService _dbService;
         
-        public NotificationsController(UserService userService, DbService dbService)
+        public NotificationsController(UserService userService, IDbService dbService)
         {
             _userService = userService;
             _dbService = dbService;
@@ -40,12 +40,21 @@ namespace CC.Net.Controllers
             var user = _userService.CurrentUser;
             var minDate = DateTime.Now.Subtract(TimeSpan.FromDays(30));
             var minId = new ObjectId(minDate, 0, 0, 0);
-            var notifications = await _dbService.Events
-                .Find(i => i.Id > minId && i.Reciever == user.Id)
-                .SortByDescending(i => i.IsNew)
-                .SortByDescending(i => i.Id)
-                .Limit(30)
-                .ToListAsync();
+
+            var notifications = await _dbService.Resolve().Match(
+                async mongoDb => await mongoDb._events
+                    .Find(i => i.Id > minId && i.Reciever == user.Id)
+                    .SortByDescending(i => i.IsNew)
+                    .SortByDescending(i => i.Id)
+                    .Limit(30)
+                    .ToListAsync(),
+                async inMemoryDb => (await _dbService.Events
+                    .FindAsync(i => i.Id > minId && i.Reciever == user.Id))
+                    .OrderByDescending(i => i.IsNew)
+                    .ThenByDescending(i => i.Id)
+                    .Take(30)
+                    .ToList()
+            );
 
             var result = new ApiListResponse<CcEvent>(notifications);
 

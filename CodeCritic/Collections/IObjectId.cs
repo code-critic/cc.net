@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Cc.Net.Collections
+namespace CC.Net.Collections
 {
     public interface IObjectId
     {

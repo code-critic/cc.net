@@ -1,0 +1,11 @@
+{
+    "name": "cc.net",
+    "version": "0.1.0",
+    "private": true,
+    "scripts": {},
+    "dependencies": {},
+    "devDependencies": {
+        "@types/node": "^16.11.7"
+    },
+    "eslintConfig": {}
+}

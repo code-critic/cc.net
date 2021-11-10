@@ -1,7 +1,7 @@
 FROM ubuntu:18.04
 USER root
 
-RUN apt update && apt install -y \
+RUN apt update && DEBIAN_FRONTEND=noninteractive apt install -y \
     libncurses5-dev \
     bash \
     man \

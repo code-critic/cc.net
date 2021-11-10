@@ -19,11 +19,11 @@ namespace CC.Net.Controllers
     [Authorize]
     public class CommentsController
     {
-        private readonly DbService _dbService;
+        private readonly IDbService _dbService;
         private readonly UserService _userService;
         private readonly UtilService _utilService;
 
-        public CommentsController(DbService dbService, UserService userService, CourseService courseService,
+        public CommentsController(IDbService dbService, UserService userService, CourseService courseService,
             UtilService utilService)
         {
             _dbService = dbService;
@@ -54,12 +54,11 @@ namespace CC.Net.Controllers
             var updated = 0;
             if (items.Any())
             {
-                CcData data;
                 foreach (var item in items)
                 {
                     item.comment.User = sender;
                     var objectId = new ObjectId(item.objectId);
-                    data = await _dbService.DataSingleAsync(objectId);
+                    var data = await _dbService.Data.SingleAsync(objectId);
                     _utilService.RequireAccess(data);
                     var finished = new CcData.LineComment {
                         Time = DateTimeOffset.Now.ToUnixTimeSeconds(),
@@ -70,12 +69,12 @@ namespace CC.Net.Controllers
                     };
                     data.Comments.Add(finished);
 
-                    var result = await _dbService.Data.ReplaceOneAsync(i => i.Id == objectId, data);
-                    updated += (int) result.ModifiedCount;
+                    var result = await _dbService.Data.UpdateDocumentAsync(data);
+                    updated += result.ModifiedCount;
                 }
 
                 var oid = new ObjectId(items.First().objectId);
-                var ccData = await _dbService.DataSingleAsync(oid);
+                var ccData = await _dbService.Data.SingleAsync(oid);
                 var recipients = _utilService.GetUsersRelatedToResult(ccData);
                 
                 await _utilService.SendNotificationAsync(recipients,

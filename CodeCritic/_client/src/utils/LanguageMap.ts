@@ -18,6 +18,7 @@ export const mapByExtension = (extension: string) => {
             return "octave";
 
         case "js":
+        case "ts":
         case "json":
             return "javascript";
 

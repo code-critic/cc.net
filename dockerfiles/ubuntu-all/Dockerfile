@@ -19,22 +19,25 @@ RUN apt update && DEBIAN_FRONTEND=noninteractive apt install -y \
     && apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF \
     && echo "deb https://download.mono-project.com/repo/ubuntu stable-bionic main" | tee /etc/apt/sources.list.d/mono-official-stable.list \
     && apt update \
-    && apt install -y mono-devel
+    && DEBIAN_FRONTEND=noninteractive apt install -y mono-devel
 
-RUN pip3 install pytest pytest-json numpy scipy networkx matplotlib pandas seaborn mpi4py
+RUN apt install -y libjpeg-dev zlib1g-dev \
+    && pip3 install pytest pytest-json numpy scipy matplotlib pandas seaborn
+# mpi4py networkx
 
 # nodejs
-RUN apt install -y curl \
+RUN DEBIAN_FRONTEND=noninteractive apt install -y curl \
  && curl -sL https://deb.nodesource.com/setup_14.x -o- | bash \
- && apt-get install -y nodejs
+ && DEBIAN_FRONTEND=noninteractive apt-get install -y nodejs \
+ && npm i -g typescript
 
 # dotnet
 RUN wget https://packages.microsoft.com/config/ubuntu/19.10/packages-microsoft-prod.deb -O packages-microsoft-prod.deb \
  && dpkg -i packages-microsoft-prod.deb \
  && apt-get update \
- && apt-get install -y apt-transport-https \
+ && DEBIAN_FRONTEND=noninteractive apt-get install -y apt-transport-https \
  && apt-get update \
- && apt-get install -y dotnet-sdk-3.1 \
+ && DEBIAN_FRONTEND=noninteractive apt-get install -y dotnet-sdk-3.1 \
  && dotnet run --help
 
 

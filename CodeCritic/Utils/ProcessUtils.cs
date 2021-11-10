@@ -16,20 +16,6 @@ namespace CC.Net.Utils
         {
             return scores[0] * 100 * 100 + scores[1] * 100 + scores[2];
         }
-
-        public static async Task<bool> SaveItemAsync(DbService dbService, CcData item)
-        {
-            var saveResult = await dbService.Data.ReplaceOneAsync(i => i.Id == item.Id, item);
-
-            if (saveResult.ModifiedCount == 1)
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
     }
 
     public class ProcessResult

@@ -183,13 +183,25 @@ namespace CC.Net.Services
                 return null;
             }
 
-            return ExecuteCommand(new ExecutionCommand
-            {
-                Command = $"{string.Join(" ", language.Compile)}".ReplaceCommon(filename),
-                Workdir = dockerWorkDir,
-                OPath = CourseContext.CompilationFileName,
-                EPath = CourseContext.CompilationFileName,
-            });
+            var commands = $"{string.Join(" ", language.Compile)}"
+                .ReplaceCommon(filename)
+                .Split(" && ")
+                .ToList();
+            
+            var results = commands.Select(command => {
+                return ExecuteCommand(new ExecutionCommand
+                {
+                    Command = command,
+                    Workdir = dockerWorkDir,
+                    OPath = CourseContext.CompilationFileName,
+                    EPath = CourseContext.CompilationFileName,
+                });
+            }).ToList();
+
+            // return last success or first error
+            return results.All(i => !i.IsBroken)
+                ? results.Last()
+                : results.First(i => i.IsBroken);
         }
 
         public ProcessResult CopyOutputFromDocker(CourseProblemCase @case)

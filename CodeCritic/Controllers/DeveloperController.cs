@@ -26,7 +26,6 @@ namespace CC.Net.Controllers
     {
         private readonly CourseService _courseService;
         private readonly LanguageService _languageService;
-        private readonly DbService _dbService;
         private readonly ProblemDescriptionService _problemDescriptionService;
         private readonly CompareService _compareService;
         private readonly ILogger<DeveloperController> _logger;
@@ -34,14 +33,13 @@ namespace CC.Net.Controllers
         private readonly AppOptions _appOptions;
 
         public DeveloperController(
-            CourseService courseService, LanguageService languageService, DbService dbService,
+            CourseService courseService, LanguageService languageService,
             ProblemDescriptionService problemDescriptionService,
             CompareService compareService, IHttpContextAccessor httpContextAccessor,
             ILogger<DeveloperController> logger, UserService userService, AppOptions appOptions)
         {
             _courseService = courseService;
             _languageService = languageService;
-            _dbService = dbService;
             _problemDescriptionService = problemDescriptionService;
             _compareService = compareService;
             _logger = logger;
