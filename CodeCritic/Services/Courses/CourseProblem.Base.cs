@@ -5,6 +5,7 @@ using System.Text.Json.Serialization;
 using CC.Net.Attributes;
 using Cc.Net.Services.Yaml;
 using YamlDotNet.Serialization;
+using OneOf;
 
 namespace CC.Net.Services.Courses
 {
@@ -16,20 +17,52 @@ namespace CC.Net.Services.Courses
     }
     public partial class CourseProblem
     {
-        
+
         // PROBLEM TYPE -----------------------------------------------------------------
-        
+
         [Doc("true/false if this problem should be treated as unittest type")]
         [Obsolete("Use `type: unittest` instead")]
         [YamlMember(Alias = "unittest")]
         [JsonIgnore]
-        public bool _unittest { get; set; }
-        
-        [Doc("problem type, this affects how are solutions executed and graded, default value is `linebyline`" )]
+        public OneOf<bool, List<UnittestSpec>> _unittest { get; set; }
+
+        public List<UnittestSpec> Unittest {
+            get {
+                
+                if (Type != ProblemType.Unittest)
+                {
+                    return new List<UnittestSpec>();
+                }
+
+                return _unittest.Match(
+                    b => new List<UnittestSpec>()
+                    {
+                        new UnittestSpec
+                        {
+                            Libname = _libname,
+                            Entrypoint = Reference.Name,
+                            Lang = Reference.Lang,
+                        }
+                    },
+                    l => l
+                );
+            }
+        }
+
+        [Doc("problem type, this affects how are solutions executed and graded, default value is `linebyline`")]
         [YamlMember(Alias = "type")]
         [JsonIgnore]
         public ProblemType _type { get; set; } = ProblemType.LineByLine;
-        public ProblemType Type => _unittest ? ProblemType.Unittest : _type;
+        public ProblemType Type {
+            get {
+
+                var fromut = _unittest.Match(
+                    b => b,
+                    _ => true);
+
+                return fromut ? ProblemType.Unittest : _type;
+            }
+        }
 
         // REQUIRED FILE ----------------------------------------------------------------
         

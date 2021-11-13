@@ -317,6 +317,7 @@ export interface ICourseProblem {
   assets?: string[] | null;
   export?: string[] | null;
   reference?: ICourseReference;
+  unittest: IUnitTest[];
   tests?: ICourseProblemCase[] | null;
   collaboration?: ICourseProblemCollaborationConfig;
   statusCode?: IProblemStatus;
@@ -326,6 +327,13 @@ export interface ICourseProblem {
   complexDescriptionPage?: string | null;
   course?: string | null;
   year?: string | null;
+}
+
+export interface IUnitTest {
+  entrypoint?: string;
+  libname?: string;
+  lang?: string;
+  hidden?: boolean;
 }
 
 export interface ICourseProblemApiListResponse {

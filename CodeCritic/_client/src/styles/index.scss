@@ -1,4 +1,5 @@
-$statuses: (answer-correct: #c0f3b3,
+$statuses: (
+  answer-correct: #c0f3b3,
   answer-correct-timeout: #f0e097,
   ok: #efd3ff,
   running: #c6e9fa,
@@ -13,7 +14,8 @@ $statuses: (answer-correct: #c0f3b3,
   no-solution: #dadada,
 );
 
-$diffs: (unchanged: #e6f1df,
+$diffs: (
+  unchanged: #e6f1df,
   deleted: #ffd0d0,
   inserted: #ffd0d0,
   modified: #ffd0d0,
@@ -21,14 +23,15 @@ $diffs: (unchanged: #e6f1df,
   2: #ffd0d0,
 );
 
-$notifications: (1: #ecec96,
+$notifications: (
+  1: #ecec96,
   2: #ffc7c7,
   3: #cdf2fd,
 );
 
-@import url('https://fonts.googleapis.com/css2?family=Dosis:wght@300;500;700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@500&display=swap');
-@import url('https://unpkg.com/basscss@8.0.2/css/basscss.min.css');
+@import url("https://fonts.googleapis.com/css2?family=Dosis:wght@300;500;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Roboto:wght@500&display=swap");
+@import url("https://unpkg.com/basscss@8.0.2/css/basscss.min.css");
 
 @media (min-width: 1600px) {
   .container {
@@ -82,7 +85,7 @@ html {
 }
 
 .box-shadow {
-  box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .05);
+  box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.05);
 }
 
 .breadcrumb-item.form-group {
@@ -113,7 +116,7 @@ html {
     text-transform: none;
 
     .MuiButton-label {
-      >div {
+      > div {
         width: 100%;
       }
     }
@@ -170,9 +173,7 @@ html {
 }
 
 .MuiChip-root {
-
-  @each $status,
-  $color in $statuses {
+  @each $status, $color in $statuses {
     &.chip-#{$status} {
       background-color: darken($color, 40);
       color: white;
@@ -234,9 +235,7 @@ html {
     }
 
     .status {
-
-      @each $status,
-      $color in $statuses {
+      @each $status, $color in $statuses {
         &.status-#{$status} {
           color: darken($color, 40);
           background: radial-gradient(white 35%, rgba(255, 255, 255, 0) 40%);
@@ -250,11 +249,10 @@ html {
     }
   }
 
-  &>.status {
+  & > .status {
     margin: 4px;
 
-    @each $status,
-    $color in $statuses {
+    @each $status, $color in $statuses {
       &.status-#{$status} {
         background: linear-gradient(to right, white, lighten($color, 5));
         transition: all 0.35s ease-in-out;
@@ -281,12 +279,12 @@ html {
   }
 }
 
-.small>.MuiOutlinedInput-input,
+.small > .MuiOutlinedInput-input,
 .MuiOutlinedInput-input.small {
   padding: 11px 14px;
 }
 
-.MuiTooltip-popper>.MuiTooltip-tooltip {
+.MuiTooltip-popper > .MuiTooltip-tooltip {
   font-size: 0.7rem;
 }
 
@@ -324,8 +322,7 @@ html {
       }
     }
 
-    @each $status,
-    $color in $diffs {
+    @each $status, $color in $diffs {
       &.line-#{$status} {
         background: linear-gradient(to left, white, $color);
       }
@@ -364,8 +361,7 @@ html {
         height: 20px;
         margin-right: 10px;
 
-        @each $status,
-        $color in $diffs {
+        @each $status, $color in $diffs {
           &.line-#{$status} {
             background-color: $color;
           }
@@ -537,7 +533,7 @@ div.MuiMenu-paper {
       right: 0;
     }
 
-    &>#ace-editor {
+    & > #ace-editor {
       width: 100% !important;
       height: 100% !important;
       z-index: 998;
@@ -688,9 +684,11 @@ div.MuiMenu-paper {
 }
 
 .card-select {
-  .item-BeforeStart {}
+  .item-BeforeStart {
+  }
 
-  .item-Active {}
+  .item-Active {
+  }
 
   .item-ActiveLate {
     opacity: 0.75;
@@ -726,7 +724,6 @@ div.MuiMenu-paper {
     box-shadow: 0px 0px 10px 2px #e90e0e;
   }
 }
-
 
 .MuiAppBar-root.is-student {
   background: linear-gradient(90deg, #3f51b5 0%, #293a9c 100%);
@@ -874,13 +871,12 @@ a.MuiButtonBase-root {
 
 .scoreboard-container {
   .course {
-    font-family: 'Dosis', sans-serif;
+    font-family: "Dosis", sans-serif;
     font-weight: 300;
     text-decoration: none;
     color: #333;
   }
 }
-
 
 .legend {
   table.scoreboard.code-review {
@@ -918,7 +914,7 @@ table.scoreboard.code-review {
     .MuiTableCell-body {
       text-align: center;
       border: none;
-      font-family: 'Dosis', sans-serif;
+      font-family: "Dosis", sans-serif;
       font-weight: 700;
       font-size: 1.3rem;
       padding: 8px;
@@ -932,7 +928,7 @@ table.scoreboard.code-review {
 
       a {
         font-size: 1.3rem;
-        font-family: 'Dosis', sans-serif;
+        font-family: "Dosis", sans-serif;
         font-weight: 500;
         text-decoration: none;
       }
@@ -980,11 +976,10 @@ table.scoreboard.code-review {
   }
 }
 
-
 .group-user-status {
   font-weight: 700;
   font-size: 1.3em;
-  font-family: 'Dosis', sans-serif;
+  font-family: "Dosis", sans-serif;
   padding: 2px 8px;
   border-radius: 4px;
   border: 1px solid black;
@@ -1015,7 +1010,7 @@ table.scoreboard.code-review {
   position: relative;
 
   .top {
-    background: #E8E6E8;
+    background: #e8e6e8;
     color: black;
     padding: 5px;
     border-radius: 5px 5px 0 0;
@@ -1056,50 +1051,48 @@ table.scoreboard.code-review {
     font-size: 11px;
   }
 
-
   .title {
     text-align: center;
   }
 
   .red {
-    background: #EC6A5F;
-    border-color: #D04E42;
+    background: #ec6a5f;
+    border-color: #d04e42;
   }
 
   .red-text {
-    color: #E09690;
+    color: #e09690;
   }
 
   .green {
-    background: #64CC57;
-    border-color: #4EA73B;
+    background: #64cc57;
+    border-color: #4ea73b;
   }
 
   .green-text {
-    color: #CDEE69;
+    color: #cdee69;
   }
 
   .yellow {
-    background: #F5C04F;
-    border-color: #D6A13D;
+    background: #f5c04f;
+    border-color: #d6a13d;
   }
 
   .yellow-text {
-    color: #F5C04F;
+    color: #f5c04f;
   }
 
-
   .blue {
-    background: #9CD9F0;
+    background: #9cd9f0;
     border-color: #83c1d8;
   }
 
   .blue-text {
-    color: #9CD9F0;
+    color: #9cd9f0;
   }
 
   &.shadow2 {
-    box-shadow: 0px 0px 10px rgba(0, 0, 0, .4)
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.4);
   }
 }
 
@@ -1127,19 +1120,15 @@ a.notification-item {
   }
 
   &.is-new {
-
     &:hover {
-
-      @each $status,
-      $color in $notifications {
+      @each $status, $color in $notifications {
         &.notification-type-#{$status} {
           background: linear-gradient(90deg, white, darken($color, 5));
         }
       }
     }
 
-    @each $status,
-    $color in $notifications {
+    @each $status, $color in $notifications {
       &.notification-type-#{$status} {
         background: linear-gradient(90deg, white, $color);
 
@@ -1164,7 +1153,6 @@ a.notification-item {
   }
 }
 
-
 .picker {
   margin-bottom: 0.5rem;
 
@@ -1180,7 +1168,6 @@ a.notification-item {
     outline: none;
 
     &.MuiButtonBase-root {
-
       text-transform: none;
       align-items: flex-start;
       justify-content: flex-start;
@@ -1189,7 +1176,7 @@ a.notification-item {
       .MuiTypography-root {
         font-size: 21px;
         font-weight: 500;
-        font-family: 'Roboto', sans-serif;
+        font-family: "Roboto", sans-serif;
       }
     }
   }
@@ -1197,7 +1184,7 @@ a.notification-item {
   .picker-items {
     margin-top: 5px;
     // margin-bottom: 30px;
-    animation: fadeIn ease .5s;
+    animation: fadeIn ease 0.5s;
   }
 
   &.picker-level-course {
@@ -1205,10 +1192,10 @@ a.notification-item {
       a {
         margin: 4px 4px;
         box-shadow: 0 0 4px 0 rgba(0, 0, 0, 0.2);
-        animation: fadeIn ease .5s;
+        animation: fadeIn ease 0.5s;
 
         &.picker-old {
-          animation: fadeInHalf ease .5s;
+          animation: fadeInHalf ease 0.5s;
         }
       }
     }
@@ -1219,10 +1206,10 @@ a.notification-item {
       a {
         margin: 4px 4px;
         box-shadow: 0 0 4px 0 rgba(0, 0, 0, 0.2);
-        animation: fadeIn ease .5s;
-        
+        animation: fadeIn ease 0.5s;
+
         &.picker-old {
-          animation: fadeInHalf ease .5s;
+          animation: fadeInHalf ease 0.5s;
         }
       }
     }
@@ -1230,7 +1217,7 @@ a.notification-item {
 }
 
 .fade-in {
-  animation: fadeIn ease .5s;
+  animation: fadeIn ease 0.5s;
 }
 
 @keyframes fadeIn {
@@ -1252,15 +1239,13 @@ a.notification-item {
   }
 }
 
-
 .icon-text-button-wrapper {
   display: flex;
   flex-direction: column;
   align-items: stretch;
   margin: 5px;
 
-  @each $status,
-  $color in $statuses {
+  @each $status, $color in $statuses {
     &.#{$status} {
       background-color: rgba($color, 0.4);
       border: 1px solid darken($color, 45);
@@ -1291,8 +1276,6 @@ a.notification-item {
   }
 }
 
-
-
 .icon-text-button-wrapper {
   padding: 0;
   position: relative;
@@ -1315,12 +1298,9 @@ a.notification-item {
     padding: 10px 20px 0 20px;
   }
 
-  @each $status,
-  $color in $statuses {
-
+  @each $status, $color in $statuses {
     &.#{$status},
     .#{$status} {
-
       .live-result {
         color: darken($color, 65);
       }
@@ -1345,11 +1325,11 @@ a.notification-item {
           text-transform: none;
           font-size: 0.8rem;
         }
-        
+
         &:hover {
           .MuiButton-label {
             background-color: darken(rgba($color, 0.9), 5);
-          }  
+          }
         }
         .MuiButton-label {
           background-color: rgba($color, 0.4);
@@ -1417,7 +1397,6 @@ a.notification-item {
       --thumbBG: #b4b4b4;
     }
 
-
     &::-webkit-scrollbar {
       width: 8px;
       height: 8px;
@@ -1435,12 +1414,10 @@ a.notification-item {
   }
 }
 
-
-
 @keyframes pulse {
   from {
     transform: scale(1);
-    opacity: .5;
+    opacity: 0.5;
   }
 
   to {
@@ -1462,7 +1439,37 @@ a.notification-item {
   align-items: stretch;
   justify-content: stretch;
 
-  &>* {
+  & > * {
     grid-area: 1 / 1 / 2 / 2;
+  }
+}
+
+.MuiSelect-root.MuiSelect-select.MuiSelect-selectMenu.MuiInputBase-input,
+.MuiButtonBase-root.MuiListItem-root.MuiMenuItem-root {
+  display: flex;
+  align-items: center;
+  padding: 10px 16px;
+
+  .code-editor-icon {
+    --shadow: transparent;
+    display: inline-flex;
+    min-width: 38px;
+    transition: all 0.2s ease-in-out;
+    
+    svg {
+      filter: brightness(0) drop-shadow( 0 0 10px transparent );
+      transition: all 0.2s ease-in-out;
+    }
+  }
+
+  &.MuiInput-input,
+  &.Mui-selected,
+  &:hover {
+    .code-editor-icon {
+
+      svg {
+        filter: brightness(1) drop-shadow( 0 0 10px var(--shadow) );
+      }
+    }
   }
 }

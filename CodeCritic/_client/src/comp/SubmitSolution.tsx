@@ -57,8 +57,14 @@ export const SubmitSolutionImpl = (props: SubmitSolutionProps) => {
     const layout = layouts[layoutIndex];
     const { user, isRoot } = useUser();
 
-    const forcedLanguageId = problem.type === ProblemType.Unittest ? problem.reference.lang : null;
-    const language = languages.find(i => i.id === (forcedLanguageId ?? languageId));
+
+    const isUnittest = problem.type === ProblemType.Unittest;
+    const allowedLanguages = isUnittest
+        ? languages.filter(i => problem.unittest.map(j => j.lang).includes(i.id))
+        : languages;
+        
+    const language = allowedLanguages.find(i => i.id === languageId)
+        ?? allowedLanguages[0];
 
 
     const nextLayout = () => {
@@ -150,7 +156,6 @@ export const SubmitSolutionImpl = (props: SubmitSolutionProps) => {
         }
     }
 
-    const isUnittest = problem.type === ProblemType.Unittest;
     const groupMenuIsOpen = problem.groupsAllowed && groupMenu;
     const showGenerateBtns = isRoot && problem.type === ProblemType.LineByLine && problem.reference != null;
     const problemIsActive = problem.isActive === true;
@@ -179,7 +184,11 @@ export const SubmitSolutionImpl = (props: SubmitSolutionProps) => {
                 : <div dangerouslySetInnerHTML={{ __html: problem.description }} />}
         </div>
         {!codeHidden && <div className="info">
-            <CodeEditorLanguage language={language} onChange={onLanguageChange} fixed={isUnittest} />
+            <CodeEditorLanguage
+                allowedLanguages={allowedLanguages}
+                language={language}
+                onChange={onLanguageChange}
+            />
         </div>}
         {!codeHidden && <div className="code">
             <CodeEditor language={language} problem={problem} onChange={handleChange} />

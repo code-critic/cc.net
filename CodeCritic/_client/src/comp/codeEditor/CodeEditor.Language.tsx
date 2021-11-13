@@ -8,18 +8,19 @@ import LiveHelpIcon from '@material-ui/icons/LiveHelp';
 
 import { useOpenClose } from '../../hooks/useOpenClose';
 import { ILanguage } from '../../models/CustomModel';
-import { languages } from '../../static/languages';
 import { highlightLine } from '../../text/highlight';
 import LanguageExamples from '../../utils/LanguageExamples';
+import { CodeEditorIcon } from './CodeEditor.Icon';
+
 
 interface CodeEditorLanguageProps {
-    fixed?: boolean;
     language: ILanguage;
+    allowedLanguages: ILanguage[];
     onChange(languageId: string): void;
 }
 
 export const CodeEditorLanguage = (props: CodeEditorLanguageProps) => {
-    const { fixed, language } = props;
+    const { language, allowedLanguages } = props;
     const { onChange } = props;
     const [open, setOpen, setClose] = useOpenClose();
 
@@ -29,12 +30,15 @@ export const CodeEditorLanguage = (props: CodeEditorLanguageProps) => {
 
     return (<div className="language">
         <div className="language-select">
-            <FormControl fullWidth disabled={fixed} size="small">
+            <FormControl fullWidth size="small">
                 <InputLabel>Language</InputLabel>
                 <Select
                     value={language.id}
                     onChange={handleChange}>
-                    {languages.map(i => <MenuItem key={i.id} value={i.id}><strong>{i.name}</strong>&nbsp;<small>({i.version})</small></MenuItem>)}
+                    {allowedLanguages.map(i => <MenuItem key={i.id} value={i.id}>
+                        <CodeEditorIcon languageId={i.id} />
+                        <strong>{i.name}</strong>&nbsp;<small>({i.version})</small>
+                    </MenuItem>)}
                 </Select>
             </FormControl>
         </div>

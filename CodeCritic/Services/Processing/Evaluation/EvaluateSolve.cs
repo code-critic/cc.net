@@ -75,6 +75,7 @@ namespace Cc.Net.Services.Processing.Evaluation
                         $"Fatal exception when evaluating result, unknown execution status ${executionResult.Code}");
             }
         }
+
         public void EvaluateTypeSolve(ExecutionResult executionResult, ProcessItem processItem, CourseProblemCase @case)
         {
             var context = processItem.Context;

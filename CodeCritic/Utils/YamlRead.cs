@@ -21,6 +21,7 @@ namespace CC.Net.Utils
         {
             var deserializer = new YamlDotNet.Serialization.DeserializerBuilder()
                 .IgnoreUnmatchedProperties()
+                .WithTypeConverter(new YamlUnittestSpecTConverter())
                 .WithTypeConverter(new YamlEnumConverter())
                 .WithTypeConverter(new YamlListStringConverter())
                 .WithTypeConverter(new YamlDateTimeConverter())

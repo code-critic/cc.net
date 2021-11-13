@@ -98,8 +98,11 @@ namespace CC.Net.Services
 
             if (problem.Type == ProblemType.Unittest)
             {
-                var refCode = problem.ProblemDir().RootFile(problem.Reference.Name).ReadAllText();
-                solutions.Add(CcDataSolution.Single(refCode, problem.Reference.Name, 2, false, problem.Reference.Hidden));
+                var unittestSpec = problem.Unittest.SingleOrDefault(i => i.Lang == langId)
+                    ?? throw new NotSupportedException($"Language {langId} has no tests defined, contact your teacher");
+
+                var entryPointSrc = problem.ProblemDir().RootFile(unittestSpec.Entrypoint).ReadAllText();
+                solutions.Add(CcDataSolution.Single(entryPointSrc, unittestSpec.Entrypoint, 2, false, unittestSpec.Hidden));
                 solutions.AddRange(files.Select(i => CcDataSolution.Single(i.Content, i.Path)));
             }
             else
