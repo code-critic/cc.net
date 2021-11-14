@@ -39,9 +39,10 @@ namespace CC.Net.Controllers
         {
             var user = _userService.CurrentUser.Id;
 
-            var items = await _dbService.Data
+            var items = (await _dbService.Data
                 .FindAsync(i => (i.User == user || i.GroupUsers.Contains(user))
-                    && i.Action == "solve");
+                    && i.Action == "solve"))
+                .ToList();
 
             var courses = _courseService.Courses
                 .SelectMany(i => i.CourseYears)

@@ -92,7 +92,7 @@ namespace CC.Net.Db
                 }
 
                 return (await _db.FindAsync(predicate))
-                    .ToEnumerable();
+                    .ToList();
             }
 
             public async Task FindOneAndDeleteAsync(Expression<Func<T, bool>> predicate)
