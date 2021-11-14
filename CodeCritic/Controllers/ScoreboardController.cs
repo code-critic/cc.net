@@ -58,7 +58,8 @@ namespace CC.Net.Controllers
                     CourseProblem = i,
                     Results = items.Where(j => j.CourseName == i.CourseYearConfig.Course.Name
                         && j.CourseYear == i.CourseYearConfig.Year
-                        && j.Problem == i.Id),
+                        && j.Problem == i.Id)
+                        .ToList(),
                 })
                 .OrderByDescending(i => i.CourseYear)
                     .ThenBy(i => i.CourseName)
