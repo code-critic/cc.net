@@ -1,4 +1,5 @@
 import React from 'react';
+
 // https://devicon.dev/
 
 const toCssVariable = (value: string, key: string = "shadow") => {
@@ -79,33 +80,35 @@ const MatlabIcon = (props: IconProps) => (
 
 interface CodeEditorIconProps {
     languageId: string;
+    size?: number;
+    className?: string;
 }
 export const CodeEditorIcon = (props: CodeEditorIconProps) => {
-    const { languageId } = props;
+    const { languageId, size=24, className="" } = props;
     const getIcon = (languageId: string) => {
         switch (languageId) {
             case 'PY-367':
-                return <PythonIcon  />;
+                return <PythonIcon size={size} />;
             case "JAVA":
-                return <JavaIcon />;
+                return <JavaIcon size={size} />;
             case "C":
-                return <CIcon />;
+                return <CIcon size={size} />;
             case "CS":
-                return <CSharpIcon />;
+                return <CSharpIcon size={size} />;
             case "CPP":
-                return <CPlusPlusIcon />;
+                return <CPlusPlusIcon size={size} />;
             case "TS":
-                return <TypeScriptIcon />;
+                return <TypeScriptIcon size={size} />;
             case 'NODEJS':
-                return <NodeJsIcon />;
+                return <NodeJsIcon size={size} />;
             case "DOTNET":
-                return <DotNetIcon />;
+                return <DotNetIcon size={size} />;
             case "MARKDOWN":
-                return <MarkDownIcon />;
+                return <MarkDownIcon size={size} />;
             case "MATLAB":
-                return <MatlabIcon />;
+                return <MatlabIcon size={size} />;
         }
         return <></>;
     }
-    return <span className="code-editor-icon">{getIcon(languageId)}</span>;
+    return <span className={`code-editor-icon ${className}`}>{getIcon(languageId)}</span>;
 }

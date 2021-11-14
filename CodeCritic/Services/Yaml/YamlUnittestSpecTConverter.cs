@@ -5,12 +5,12 @@ using YamlDotNet.Core.Events;
 using YamlDotNet.Serialization;
 using CC.Net.Services.Courses;
 using OneOf;
+using CC.Net.Utils;
 
 namespace Cc.Net.Services.Yaml
 {
     public class YamlUnittestSpecTConverter : IYamlTypeConverter
     {
-        private readonly IDeserializer _deserializer = new DeserializerBuilder().Build();
 
         public bool Accepts(Type type) => type == typeof(OneOf<bool, List<UnittestSpec>>);
 
@@ -26,11 +26,11 @@ namespace Cc.Net.Services.Yaml
             }
             else if (currentAsSequence != null)
             {
-                return _deserializer.Deserialize<List<UnittestSpec>>(parser);
+                return YamlRead.Deserializer.Deserialize<List<UnittestSpec>>(parser);
             } 
             else if (currentAsMapping != null)
             {
-                return new List<UnittestSpec>() { _deserializer.Deserialize<UnittestSpec>(parser) };
+                return new List<UnittestSpec>() { YamlRead.Deserializer.Deserialize<UnittestSpec>(parser) };
             }
 
             throw new NotImplementedException();

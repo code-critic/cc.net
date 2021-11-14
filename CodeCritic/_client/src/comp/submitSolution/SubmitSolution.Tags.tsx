@@ -6,12 +6,12 @@ import AccessTimeIcon from '@material-ui/icons/AccessTime';
 import AttachFileIcon from '@material-ui/icons/AttachFile';
 import AudiotrackIcon from '@material-ui/icons/Audiotrack';
 import DescriptionIcon from '@material-ui/icons/Description';
-import VerticalSplitIcon from '@material-ui/icons/VerticalSplit';
 import GroupIcon from '@material-ui/icons/Group';
 import ImageIcon from '@material-ui/icons/Image';
 import LanguageIcon from '@material-ui/icons/Language';
 import QueuePlayNextIcon from '@material-ui/icons/QueuePlayNext';
 import TimelapseIcon from '@material-ui/icons/Timelapse';
+import VerticalSplitIcon from '@material-ui/icons/VerticalSplit';
 import ViewListIcon from '@material-ui/icons/ViewList';
 import { Alert, AlertTitle } from '@material-ui/lab';
 
@@ -21,7 +21,7 @@ import { ProblemStatus, ProblemType } from '../../models/Enums';
 import { LightTooltip } from '../../renderers/LightTooltip';
 import { languages } from '../../static/languages';
 import { determineRequiredFiles } from '../codeEditor/CodeEditor';
-import { useState } from 'react';
+import { CodeEditorIcon } from '../codeEditor/CodeEditor.Icon';
 
 interface SubmitSolutionGroupTagProps {
     problem: ICourseProblem;
@@ -36,13 +36,13 @@ export const SubmitSolutionGroupTag = (props: SubmitSolutionGroupTagProps) => {
         {(minSize != maxSize) &&
             <p style={{ padding: 0, margin: 0 }}>
                 Group must have at least <strong>{minSize}</strong>
-            &nbsp;and at most <strong>{maxSize}</strong> students.
-        </p>
+                &nbsp;and at most <strong>{maxSize}</strong> students.
+            </p>
         }
         {(minSize == maxSize) &&
             <p style={{ padding: 0, margin: 0 }}>
                 Group must have exactly <strong>{maxSize}</strong> students
-        </p>
+            </p>
         }
     </Alert>
 
@@ -141,25 +141,38 @@ export const SubmitSolutionRequiredLanguageTag = (props: SubmitSolutionRequiredL
     const { problem } = props;
     const isUnittest = problem.type === ProblemType.Unittest;
     const cls = isUnittest ? "info" : "success";
-    const language = isUnittest
-        ? languages.find(i => i.id === problem.reference.lang)
+
+    const allowedLanguages = isUnittest
+        ? languages.filter(i => problem.unittest.map(j => j.lang).includes(i.id))
         : null;
 
-    const title = isUnittest
-        ? (<Alert severity="info" icon={<LanguageIcon />}>
-            <AlertTitle>{language.name} only!</AlertTitle>
-            Solution must use programming language {language.name} ({language.version})
-        </Alert>)
-        : (<Alert severity="info" icon={<LanguageIcon />}>
-            <AlertTitle>Any programming language!</AlertTitle>
-            Solution can use any programming language
-        </Alert>)
+    if (!isUnittest) {
+        const title = (
+            <Alert severity="info" icon={<LanguageIcon />}>
+                <AlertTitle>Any programming language!</AlertTitle>
+                Solution can use any programming language
+            </Alert>)
 
-    return (<LightTooltip interactive title={title} enterTouchDelay={0} leaveTouchDelay={10000}>
-        <div className={`problem-tag ${cls}`}><LanguageIcon />{isUnittest && <>
-            *.{language.extension}
-        </>}</div>
-    </LightTooltip>)
+        return <LightTooltip interactive title={title} enterTouchDelay={0} leaveTouchDelay={10000}>
+            <div className={`problem-tag ${cls}`}><LanguageIcon /></div>
+        </LightTooltip>
+    }
+
+    return <>
+        {allowedLanguages.map((language, j) => {
+            const title = (
+                <Alert severity="info" icon={<LanguageIcon />}>
+                    <AlertTitle>{language.name}</AlertTitle>
+                    Solution can use programming language {language.name} ({language.version})
+                </Alert>)
+
+            return <LightTooltip key={j} interactive title={title} enterTouchDelay={0} leaveTouchDelay={10000}>
+                <div className={`problem-tag ${cls}`}>
+                    <CodeEditorIcon className="problem-tag-icon" size={20} languageId={language.id} /> *.{language.extension}
+                </div>
+            </LightTooltip>
+        })}
+    </>
 }
 
 
@@ -242,7 +255,7 @@ export const SubmitSolutionOutputTag = (props: SubmitSolutionOutputTagProps) => 
             When solution is executed, it must generate {output.length === 1
                 ? <>file <div><code>{output[0]}</code></div></>
                 : <>these {output.length} files:
-                <div>{output.map(i => <div key={i}><code>{i}</code></div>)}</div>
+                    <div>{output.map(i => <div key={i}><code>{i}</code></div>)}</div>
                 </>}
         </div>
     </Alert>);
@@ -283,7 +296,7 @@ export const SubmitSolutionTimeTag = (props: SubmitSolutionTimeTagProps) => {
                     <code>{i.id}{i.random > 1 ? `.{0...${i.random - 1}}` : ``}</code>
                     <ul>
                         <li><code>{i.timeout.toFixed(dg)} sec</code>&nbsp;
-                        (<code>{scale(i.timeout)} sec</code> for <code>{language.name}</code>)</li>
+                            (<code>{scale(i.timeout)} sec</code> for <code>{language.name}</code>)</li>
                     </ul>
                 </li>)}
             </ul>
@@ -306,6 +319,6 @@ export const ChangeLayoutTag = (props: ChangeLayoutTagProps) => {
     const { onChange } = props;
 
     return (<LightTooltip onClick={onChange} interactive title={"Change layout"} enterTouchDelay={0} leaveTouchDelay={10000}>
-        <div style={{marginLeft: "auto"}} className="problem-tag layout"><VerticalSplitIcon /></div>
+        <div style={{ marginLeft: "auto" }} className="problem-tag layout"><VerticalSplitIcon /></div>
     </LightTooltip>)
 }

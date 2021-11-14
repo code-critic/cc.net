@@ -1444,6 +1444,10 @@ a.notification-item {
   }
 }
 
+.code-editor-icon {
+  transition: all 0.2s ease-in-out;
+}
+
 .MuiSelect-root.MuiSelect-select.MuiSelect-selectMenu.MuiInputBase-input,
 .MuiButtonBase-root.MuiListItem-root.MuiMenuItem-root {
   display: flex;
@@ -1454,7 +1458,6 @@ a.notification-item {
     --shadow: transparent;
     display: inline-flex;
     min-width: 38px;
-    transition: all 0.2s ease-in-out;
     
     svg {
       filter: brightness(0) drop-shadow( 0 0 10px transparent );
@@ -1472,4 +1475,21 @@ a.notification-item {
       }
     }
   }
+}
+
+.problem-tag {
+  .problem-tag-icon.code-editor-icon {
+    filter: brightness(0);
+  }
+
+  &:hover {
+    .problem-tag-icon.code-editor-icon {
+      filter: invert(1);
+      
+      svg {
+        filter: brightness(0);
+      }
+    }
+  }
+
 }

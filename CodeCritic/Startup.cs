@@ -45,7 +45,7 @@ namespace CC.Net
             
             Console.WriteLine($"Version:        {AppOptions.Version}");
             Console.WriteLine($"CanProcess:     {AppOptions.CanProcess}");
-            Console.WriteLine($"UseInMemoryDB: {AppOptions.UseInMemoryDB}");
+            Console.WriteLine($"UseInMemoryDB:  {AppOptions.UseInMemoryDB}");
         }
 
         public IConfiguration Configuration { get; set; }

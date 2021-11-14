@@ -1,9 +1,10 @@
 import 'codemirror/lib/codemirror.css';
-import 'codemirror/theme/neat.css';
+import 'codemirror/theme/mdn-like.css';
+// import 'codemirror/theme/mdn-like.css';
 import 'codemirror/mode/python/python.js';
 import 'codemirror/mode/javascript/javascript.js';
-import 'codemirror/mode/clike/clike';
-import 'codemirror/mode/octave/octave';
+import 'codemirror/mode/clike/clike.js';
+import 'codemirror/mode/octave/octave.js';
 
 import React, { useEffect, useState } from 'react';
 import { Controlled as CodeMirror } from 'react-codemirror2';
@@ -11,16 +12,26 @@ import { Controlled as CodeMirror } from 'react-codemirror2';
 import { ICourseProblem, ISimpleFile } from '../../cc-api';
 import { useDnD } from '../../hooks/useDnD';
 import { ILanguage } from '../../models/CustomModel';
+import { ProblemType } from '../../models/Enums';
+import LanguageExamples from '../../utils/LanguageExamples';
 import { isFiletypeSupported, mapByExtension } from '../../utils/LanguageMap';
 import { notifications } from '../../utils/notifications';
 import { CodeEditorFileBar } from './CodeEditor.FileBar';
 
 export const determineRequiredFiles = (problem: ICourseProblem, language: ILanguage) => {
     let result: ISimpleFile[] = [];
-    if (problem.files.length > 0) {
-        result = problem.files.map(i => toSimpleLanguageFile(i, language));
+    // add unit test lib name
+    if(problem.type === ProblemType.Unittest) {
+        const unittestSpec = problem.unittest.find(u => u.lang === language.id);
+        result.push(toSimpleLanguageFile(unittestSpec.libname, language));
     }
 
+    // add all other files
+    if (problem.files.length > 0) {
+        result = [...result, ...problem.files.map(i => toSimpleLanguageFile(i, language))];
+    }
+
+    // add main file if result is empty
     if (result.length === 0) {
         result.push(toSimpleLanguageFile("main.{extension}", language));
     }
@@ -140,6 +151,25 @@ export const CodeEditor = (props: CodeEditorProps) => {
         }
     }
 
+    const getContentOrDefault = (filename: string, language: ILanguage, content: any) => {
+        if (content) {
+            return content as string;
+        }
+        
+        if (problem.type === ProblemType.Unittest) {
+            const unittestSpec = problem.unittest.find(u => u.lang === language.id && u.libname === filename);
+            if (unittestSpec) {
+                const func = LanguageExamples.templatesLibname[language.id];
+                if (func) {
+                    return func(unittestSpec);
+                }
+            }
+        }
+
+        const def: string | null = LanguageExamples.templatesMain[language.id];
+        return def ? def.trim() : "";
+    }
+
     return (<div className={`code-editor-wrapper pretty-scrollbar file-dropzone ${isDragging ? "active" : ""} ${isFullScreen ? "fullscreen" : ""}`}>
         <CodeEditorFileBar
             onChange={setSelectedFile}
@@ -152,13 +182,14 @@ export const CodeEditor = (props: CodeEditorProps) => {
         <CodeMirror
             options={{
                 mode: mapByExtension(language.extension),
-                theme: 'neat',
+                theme: 'mdn-like',
                 lineNumbers: true,
                 dragDrop: false,
                 fixedGutter: false,
+                matchBrackets: true,
                 // parserfile: ["./static/3rd/tokenizecsharp.js", "./static/3rd/parsecsharp.js"]
             }}
-            value={selectedRef?.content}
+            value={getContentOrDefault(selectedFile, language, selectedRef?.content)}
             onBeforeChange={handleChange}
         />
     </div>)

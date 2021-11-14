@@ -296,6 +296,7 @@ export interface ICourseConfigDtoApiListResponse {
 export type ICourseGroup = object;
 
 export interface ICourseProblem {
+  unittest?: IUnittestSpec[] | null;
   type?: IProblemType;
   files?: string[] | null;
   id?: string | null;
@@ -317,7 +318,6 @@ export interface ICourseProblem {
   assets?: string[] | null;
   export?: string[] | null;
   reference?: ICourseReference;
-  unittest: IUnitTest[];
   tests?: ICourseProblemCase[] | null;
   collaboration?: ICourseProblemCollaborationConfig;
   statusCode?: IProblemStatus;
@@ -327,13 +327,6 @@ export interface ICourseProblem {
   complexDescriptionPage?: string | null;
   course?: string | null;
   year?: string | null;
-}
-
-export interface IUnitTest {
-  entrypoint?: string;
-  libname?: string;
-  lang?: string;
-  hidden?: boolean;
 }
 
 export interface ICourseProblemApiListResponse {
@@ -601,6 +594,14 @@ export interface ITableResponse {
 export interface ITableResponseApiResponse {
   data?: ITableResponse;
   errors?: IApiError[] | null;
+}
+
+export interface IUnittestSpec {
+  entrypoint?: string | null;
+  libname?: string | null;
+  lang?: string | null;
+  methods?: string[] | null;
+  hidden?: boolean;
 }
 
 export interface IUser {

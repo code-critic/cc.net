@@ -1,4 +1,5 @@
-﻿using CC.Net.Attributes;
+﻿using System.Collections.Generic;
+using CC.Net.Attributes;
 using YamlDotNet.Serialization;
 
 namespace CC.Net.Services.Courses
@@ -22,7 +23,12 @@ namespace CC.Net.Services.Courses
         [YamlMember(Alias = "lang")]
         public string Lang { get; set; }
 
+        
+        [Doc("Method (or list of method) signarures, which student should implement")]
+        [YamlMember(Alias = "methods")]
+        public List<string> Methods { get; set; } = new List<string>();
 
+        
         [Doc("If true, entrypoint source code will be hidden from students")]
         [YamlMember(Alias = "hidden")]
         public bool Hidden { get; set; } = true;

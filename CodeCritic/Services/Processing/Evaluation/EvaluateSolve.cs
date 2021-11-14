@@ -10,6 +10,7 @@ using CC.Net.Services.Courses;
 using Cc.Net.Services.Execution;
 using CC.Net.Services.Languages;
 using Microsoft.Extensions.Logging;
+using CC.Net.Dto.UnitTest.Simple;
 
 namespace Cc.Net.Services.Processing.Evaluation
 {
@@ -88,10 +89,10 @@ namespace Cc.Net.Services.Processing.Evaluation
             subcase.Command = executionResult.ExecutionCommand.Command;
             processItem.TimeBank.WallTime += executionResult.Duration;
 
-            var reportJson = context.TmpDir.RootFile(".report.json");
-            if (File.Exists(reportJson))
+            var pythonReportJson = context.TmpDir.RootFile(".report.json");
+            if (File.Exists(pythonReportJson))
             {
-                var report = PythonReport.FromJson(reportJson.ReadAllText());
+                var report = PythonReport.FromJson(pythonReportJson.ReadAllText());
                 ccData.Results.AddRange(
                     report.Report.Tests.Select(i => new CcDataCaseResult
                     {
@@ -102,6 +103,25 @@ namespace Cc.Net.Services.Processing.Evaluation
                             : (int) ProcessStatusCodes.AnswerWrong
                     })
                 );
+                File.Delete(pythonReportJson);
+            }
+
+            var simpleReportJson = context.TmpDir.RootFile(".report.simple.json");
+            if (File.Exists(simpleReportJson))
+            {
+                var report = SimpleReport.FromJson(simpleReportJson.ReadAllText());
+                ccData.Results.AddRange(
+                    report.Tests.Select(i => new CcDataCaseResult
+                    {
+                        Case = i.Name,
+                        Duration = i.Duration,
+                        Message = i.Message,
+                        Status = i.Outcome == "passed"
+                            ? (int) ProcessStatusCodes.AnswerCorrect
+                            : (int) ProcessStatusCodes.AnswerWrong
+                    })
+                );
+                File.Delete(simpleReportJson);
             }
             
             FillBasicInfo(executionResult, processItem, @case);

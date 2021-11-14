@@ -1,3 +1,5 @@
+import { IUnittestSpec } from '../cc-api';
+
 export default class LanguageExamples {
     public static examples = {
         'PY-367': `# python 3.5+ example
@@ -156,4 +158,124 @@ rl.on('line', function(line){
     for (let i = 0; i < +line; i++) console.log('Hello world!')
 })`
     }
+
+
+    public static templatesMain = {
+        'PY-367': `
+import sys
+for line in sys.stdin:
+    # do something`,
+
+
+        'JAVA': `
+import java.util.Scanner;
+public class main {
+    public static void main(String[] args) {
+        Scanner input = new Scanner(System.in);
+        // do something
+    }
+}`,
+
+        'CPP': `
+#include <iostream> 
+int main() { 
+    // do something
+    int num; 
+    std::cin >> num; 
+    return 0; 
+}`,
+
+        'C': `
+#include <stdio.h> 
+int main() { 
+    // do something
+    int num; 
+    scanf("%d", &num);
+    return 0; 
+}`,
+
+        'CS': `
+using System;
+namespace Solution
+{
+    public class main
+    {
+        public static void Main(string[] args)
+        {
+            // do something
+            var num = int.Parse(Console.ReadLine());
+        }
+    }
+}`,
+
+        'DOTNET': `
+using System;
+namespace Solution
+{
+    public class main
+    {
+        public static void Main(string[] args)
+        {
+            // do something
+            var num = int.Parse(Console.ReadLine());
+        }
+    }
+}`,
+
+        'NODEJS': `
+const readline = require('readline');
+const rl = readline.createInterface({
+  input: process.stdin,
+  output: process.stdout,
+  terminal: false
+});
+
+rl.on('line', line => {
+    // do something
+})`,
+
+
+        'TS': `
+const readline = require('readline');
+const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+    terminal: false
+});
+
+rl.on('line', (line: string) => {
+    // do something
+})`,
+
+
+        'MATLAB': `
+clear all; close all; clc;
+        `
+    }
+
+    public static templatesLibname = {
+
+        'PY-367': (unittestSpec: IUnittestSpec) => {
+            const { libname, methods } = unittestSpec;
+            return `
+# solution for ${libname}
+
+${(methods.map(method => `${method}:
+    # do something`)).join('\n\n')}`.trim();
+        },
+
+        'JAVA': (unittestSpec: IUnittestSpec) => {
+            const { libname, methods } = unittestSpec;
+            const withoutExtension = libname.split('.', 1)[0];
+            return `
+// solution for ${libname}
+
+public class ${withoutExtension} {
+    ${(methods.map(method => `${method} {
+        // do something
+    }`)).join('\n\n')}
+}
+`.trim();},
+    }
 };
+

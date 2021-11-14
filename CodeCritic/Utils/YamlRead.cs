@@ -10,6 +10,16 @@ namespace CC.Net.Utils
 {
     public static class YamlRead
     {
+
+        public static readonly YamlDotNet.Serialization.IDeserializer Deserializer
+             = new YamlDotNet.Serialization.DeserializerBuilder()
+                .IgnoreUnmatchedProperties()
+                .WithTypeConverter(new YamlUnittestSpecTConverter())
+                .WithTypeConverter(new YamlEnumConverter())
+                .WithTypeConverter(new YamlListStringConverter())
+                .WithTypeConverter(new YamlDateTimeConverter())
+                .Build();
+
         public static (T data, string content) ReadFromFile<T>(string path)
         {
             var content = File.ReadAllText(path);
@@ -19,17 +29,9 @@ namespace CC.Net.Utils
         
         public static T ReadFromString<T>(string content, string path)
         {
-            var deserializer = new YamlDotNet.Serialization.DeserializerBuilder()
-                .IgnoreUnmatchedProperties()
-                .WithTypeConverter(new YamlUnittestSpecTConverter())
-                .WithTypeConverter(new YamlEnumConverter())
-                .WithTypeConverter(new YamlListStringConverter())
-                .WithTypeConverter(new YamlDateTimeConverter())
-                .Build();
-
             try
             {
-                return deserializer.Deserialize<T>(content);
+                return Deserializer.Deserialize<T>(content);
             }
             catch(YamlException ex)
             {

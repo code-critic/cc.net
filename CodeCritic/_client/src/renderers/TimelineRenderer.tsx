@@ -30,7 +30,7 @@ export const TimelineRenderer = (props: TimelineRendererProps) => {
     const subresults = result.results;
     const N = subresults.length;
     const caseRadius = miniMode ? 25 : 40;
-    const maxWidth = miniMode ? 315 : 800;
+    const maxWidth = miniMode ? 340 : 800;
     const miniCls = miniMode ? "mini" : "";
 
     const minW = miniMode ? 10 : 30;

@@ -115,6 +115,7 @@ namespace CC.Net.Services
             CopyOutputFromDocker(@case);
             CopyErrorFromDocker(@case);
             CopyFromDocker(".report.json");
+            CopyFromDocker(".report.simple.json");
             foreach (var f in Context.CourseProblem.Export)
             {
                 CopyFromDocker(f);

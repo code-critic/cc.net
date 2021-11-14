@@ -23,7 +23,7 @@ export const mapByExtension = (extension: string) => {
             return "javascript";
 
         case "java":
-            return "clike";
+            return "text/x-java";
 
         case "csproj":
             return "xml";
