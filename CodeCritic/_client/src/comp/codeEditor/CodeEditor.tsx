@@ -39,6 +39,11 @@ export const determineRequiredFiles = (problem: ICourseProblem, language: ILangu
         result.push(toSimpleLanguageFile("main.{extension}", language));
     }
 
+    // remove duplicates
+    result = result.filter((item, index, self) =>
+        index === self.findIndex(t => t.filename === item.filename)
+    );
+
     return result;
 }
 
