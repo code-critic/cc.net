@@ -23,7 +23,10 @@ export const determineRequiredFiles = (problem: ICourseProblem, language: ILangu
     // add unit test lib name
     if(problem.type === ProblemType.Unittest) {
         const unittestSpec = problem.unittest.find(u => u.lang === language.id);
-        result.push(toSimpleLanguageFile(unittestSpec.libname, language));
+
+        if (unittestSpec?.libname) {
+            result.push(toSimpleLanguageFile(unittestSpec.libname, language));
+        }
     }
 
     // add all other files

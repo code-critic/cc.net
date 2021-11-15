@@ -20,8 +20,7 @@ namespace CC.Net.Services.Courses
 
         // PROBLEM TYPE -----------------------------------------------------------------
 
-        [Doc("true/false if this problem should be treated as unittest type")]
-        [Obsolete("Use `type: unittest` instead")]
+        [Doc("unit test specification or true/false")]
         [YamlMember(Alias = "unittest")]
         [JsonIgnore]
         public OneOf<bool, List<UnittestSpec>> _unittest { get; set; }
@@ -39,7 +38,7 @@ namespace CC.Net.Services.Courses
                     {
                         new UnittestSpec
                         {
-                            Libname = _libname,
+                            Libname = Files.FirstOrDefault(),
                             Entrypoint = Reference.Name,
                             Lang = Reference.Lang,
                         }
