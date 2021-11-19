@@ -226,3 +226,7 @@ _Pvt_Extensions
 
 appsettings.secret
 /.idea/
+
+/build/courses/
+/build/models/src/
+/build/models/swagger.json
