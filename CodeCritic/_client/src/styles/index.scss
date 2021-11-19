@@ -1493,3 +1493,25 @@ a.notification-item {
   }
 
 }
+
+.grade-results-course-impl {
+  --cols: 10;
+  display: grid;
+  font-size: 10px;
+  gap: 5px;
+  grid-template-columns: repeat(var(--cols), minmax(100px, 1fr));
+  overflow: auto;
+
+  .header {
+    font-weight: bold;
+    text-align: center;
+    cursor: pointer;
+
+    &.MuiButton-textSizeSmall {
+      font-size: 0.6rem;
+    }
+  }
+  .data {
+    text-align: center;
+  }
+}

@@ -293,6 +293,31 @@ export interface ICourseConfigDtoApiListResponse {
   errors?: IApiError[] | null;
 }
 
+export interface ICourseGradeProblemDto {
+  problemName?: string | null;
+  problemId?: string | null;
+  objectId?: string | null;
+
+  /** @format float */
+  points?: number;
+  status?: IProcessStatusCodes;
+}
+
+export interface ICourseGradeStudentDto {
+  user?: string | null;
+
+  /** @format float */
+  totalPoints?: number;
+
+  /** @format float */
+  averagePercentage?: number;
+
+  /** @format float */
+  averagePercentageSolved?: number;
+  problems?: ICourseGradeProblemDto[] | null;
+  tags?: string[] | null;
+}
+
 export type ICourseGroup = object;
 
 export interface ICourseProblem {
@@ -495,6 +520,11 @@ export type IProblemStatus = 0 | 1 | 2 | 3;
  * @format int32
  */
 export type IProblemType = 1 | 2 | 3;
+
+/**
+ * @format int32
+ */
+export type IProcessStatusCodes = 1 | 2 | 9 | 10 | 12 | 100 | 101 | 200 | 201 | 400 | 500 | 666;
 
 export interface ISettingsConfig {
   teachers?: ISettingsConfigTeacher[] | null;
@@ -936,6 +966,23 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     ) =>
       this.request<IGradeDto[], any>({
         path: `/api/grade-stats/${courseName}/${year}/${problemId}`,
+        method: "POST",
+        body: data,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Grade
+     * @name GradeStatsCourseCreate
+     * @request POST:/api/grade-stats-course/{courseName}/{year}
+     */
+    gradeStatsCourseCreate: (courseName: string, year: string, data: IGradeStatFilterDto, params: RequestParams = {}) =>
+      this.request<ICourseGradeStudentDto[], any>({
+        path: `/api/grade-stats-course/${courseName}/${year}`,
         method: "POST",
         body: data,
         type: ContentType.Json,

@@ -59,3 +59,7 @@ export function prevIndex<T extends IObjectId>(items: T[], selected: string): [b
 export function randomChoice<T>(arr: T[]): T {
     return arr[Math.floor(arr.length * Math.random())];
 }
+
+export function distinctBy<K, V>(list: Array<V>, keyGetter: (input: V) => K): Array<V> {
+    return [...groupBy(list, keyGetter).values()].map(v => v[0]);
+}

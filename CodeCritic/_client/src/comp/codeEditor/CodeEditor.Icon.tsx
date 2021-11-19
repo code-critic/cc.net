@@ -1,12 +1,5 @@
 import React from 'react';
-
-// https://devicon.dev/
-
-const toCssVariable = (value: string, key: string = "shadow") => {
-    const k = {} as any;
-    k[`--${key}`] = value;
-    return k as any;
-}
+import { cssVar } from '../../utils/cssVar';
 
 const toSize = (size?: number) => {
     return {
@@ -14,6 +7,9 @@ const toSize = (size?: number) => {
         height: size ?? 24,
     }
 }
+
+const toCssVariable = (value: string, key: string = "shadow") => cssVar(key, value);
+
 
 interface IconProps {
     size?: number

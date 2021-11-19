@@ -1,28 +1,21 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useState } from 'react';
 
-import { Checkbox, Dialog, DialogContent, FormControlLabel } from '@material-ui/core';
+import { Checkbox, FormControlLabel } from '@material-ui/core';
 import InsertChartIcon from '@material-ui/icons/InsertChart';
 
-import { CodeCritic } from '../api';
-import { ICcDataDto, IGradeStatFilterDto, ITableResponse } from '../cc-api';
-import { SimpleLoader } from '../components/SimpleLoader';
-import { useRefresh } from '../hooks/useRefresh';
-import { useUser } from '../hooks/useUser';
-import { ProcessStatusStatic } from '../models/Enums';
-import { notifications } from '../utils/notifications';
+import { IGradeStatFilterDto } from '../cc-api';
 import { ProblemPicker, ProblemPickerExportProps } from './ProblemPicker';
-import { SolutionResultView } from './solutionResultView/SolutionResultView';
-import { TableResults } from './table/TableResults';
+import { GradeResultsFork } from './GradeResultsFork';
 
 
-interface IGradeStatFilterContext {
+export interface IGradeStatFilterContext {
     context: IGradeStatFilterDto,
     setContext?(value: any): void,
 }
 const GradeStatFilterContext: IGradeStatFilterContext = {
     context: { showMissingGradeOnly: false },
 };
-const FilterContext = createContext<any>(GradeStatFilterContext);
+export const FilterContext = createContext<any>(GradeStatFilterContext);
 
 const CustomBreadcrumbRenderer = (props: ProblemPickerExportProps) => {
     const { course, problem } = props;
@@ -54,101 +47,11 @@ export const Graderesults = () => {
             <ProblemPicker
                 baseUrl="/grade-results"
                 home={<><InsertChartIcon />Grade</>}
-                component={GraderesultsImpl}
+                component={GradeResultsFork}
                 withBreadcrumbs={CustomBreadcrumbRenderer}
                 whereUserIsTeacher
+                displayAlways
             />
         </ FilterContext.Provider>
     </div>
-}
-
-interface GraderesultsImplProps extends ProblemPickerExportProps { }
-const GraderesultsImpl = (props: GraderesultsImplProps) => {
-    const { course, problem } = props;
-    const { counter, refresh } = useRefresh();
-    const [ data, setData ] = useState<ICcDataDto[]>();
-    const [ selectedItem, setSelectedItem ] = useState<ICcDataDto>();
-    const [ selectedIndex, setSelectedIndex ] = useState(-1);
-
-    const { context } = useContext(FilterContext) as IGradeStatFilterContext;
-    const { isRoot } = useUser();
-
-    useEffect(() => {
-        (async () => {
-            const axiosResponse = await CodeCritic.api.gradeStatsCreate(course.course, course.year, problem.id, context);
-            const data = axiosResponse.data.map(i => i.result);
-            setData(data);
-        })();
-    }, [counter, context.showMissingGradeOnly ]);
-
-    if (data == null) {
-        return <SimpleLoader title="loading stats" />
-    }
-
-    const tableResponse: ITableResponse = {
-        data, count: data.length
-    };
-
-    const handleSelected = async (item: ICcDataDto) => {
-        if(item.status === ProcessStatusStatic.NoSolution.letter) {
-            notifications.warning("Cannot open the solution", "Solution is virtual and does not exists");
-        } else {
-            setSelectedItem(item);
-            setSelectedIndex((tableResponse.data || []).findIndex(i => i.objectId === item.objectId));
-        }
-    }
-
-    const nextPage = async () => {
-        if (selectedItem) {
-            const index = (tableResponse.data || []).findIndex(i => i.objectId === selectedItem.objectId);
-            const newItem = (tableResponse.data || []).find((i, j) => j > index && i.status !== ProcessStatusStatic.NoSolution.letter);
-
-            if (newItem) {
-                await handleSelected(newItem);
-            }
-        }
-    }
-
-    const prevPage = async () => {
-        if (selectedItem) {
-            const reversed = (tableResponse.data || []).slice().reverse();
-
-            const index = reversed.findIndex(i => i.objectId === selectedItem.objectId);
-            const newItem = reversed.find((i, j) => j > index && i.status !== ProcessStatusStatic.NoSolution.letter);
-
-            if (newItem) {
-                await handleSelected(newItem);
-            }
-        }
-    }
-
-    return (<>
-    <TableResults
-        isLoading={false}
-        onChange={refresh}
-        onSelected={handleSelected}
-        tableResponse={tableResponse}
-        mode="client"
-        allowKeyboardShortcuts={selectedItem == null}
-    />
-        {selectedItem && <>
-            <Dialog className="solution-result-view-dialog"
-                    open={!!selectedItem}
-                    onClose={() => setSelectedItem(undefined)}
-                    fullWidth maxWidth="lg">
-                <DialogContent>
-                    {isRoot && 
-                        <div>{selectedIndex + 1} / {tableResponse?.data?.length ?? 666}</div>
-                    }
-                    <SolutionResultView
-                        onClose={() => setSelectedItem(undefined)}
-                        onChange={refresh}
-                        objectId={selectedItem.objectId}
-                        nextPage={nextPage}
-                        prevPage={prevPage}
-                        />
-                </DialogContent>
-            </Dialog>
-        </>}
-    </>);
 }

@@ -20,10 +20,16 @@ namespace CC.Net.Services.Courses
 
         public List<User> StudentsFor(string teacher) => Teachers
             .Where(i => i.Id == teacher)
-            .SelectMany(i => i.Students)
-            .GroupBy(i => i.id)
-            .Select(i => i.First())
+            .SelectMany(i => StudentWithInheritedTags(i))
+            .Distinct()
             .ToList();
+        
+        private IEnumerable<User> StudentWithInheritedTags(SettingsConfigTeacher config)
+        {
+            var result = config.Students
+                .Select(i => new User { id = i.id, Tags = i.Tags.Concat(config.Tags).ToList() });
+            return result;
+        }
 
         public List<SettingsConfigTeacher> TeachersFor(string student) => Teachers
             .Where(i => i.Students.Any(j => j.id == student))
@@ -39,7 +45,7 @@ namespace CC.Net.Services.Courses
         public string Id { get; set; }
 
         [YamlMember(Alias = "tags")]
-        public List<string> Tags { get; set; }
+        public List<string> Tags { get; set; } = new List<string>();
 
 
         [YamlMember(Alias = "students")]

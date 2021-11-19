@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Driver;
 using System.Threading.Tasks;
+using System;
 
 namespace CC.Net.Controllers
 {
@@ -94,6 +95,68 @@ namespace CC.Net.Controllers
             }
 
             return ApplyFilters(bestResults, filter);
+        }
+
+        [HttpPost("grade-stats-course/{courseName}/{year}")]
+        [RequireRole(AppUserRoles.Root)]
+        public async Task<IEnumerable<CourseGradeStudentDto>> GetGradeStatsCourse(string courseName, string year, [FromBody] GradeStatFilterDto filter)
+        {
+            var user = _userService.CurrentUser;
+            var course = _courseService.GetCourseForUser(user, courseName);
+            var yearConfig = course[year];
+
+            var visibleProblems = yearConfig
+                .GetAllowedProblemForUser(_userService.CurrentUser)
+                .ToList();
+
+            var students = visibleProblems
+                .SelectMany(i => i.CourseYearConfig.SettingsConfig.StudentsFor(user.Id))
+                .Distinct()
+                .ToList();
+            Console.WriteLine(students.Count);
+
+            var ids = students
+                .Select(i => i.id)
+                .ToList();
+
+            var items = (await _dbService.Data
+                    .FindAsync(i => (ids.Contains(i.User) || ids.Any(j => i.GroupUsers.Contains(i.User)))
+                           && i.CourseName == course.Name
+                           && i.CourseYear == yearConfig.Year
+                           && i.ReviewRequest != null))
+                .ToList()
+                .OrderByDescending(i => i.Id.CreationTime)
+                .ThenByDescending(i => i.Points)
+                .ThenByDescending(i => i.Result.Score)
+                .ToList();
+
+
+            // create combination of students and problems
+            var allCombinations = students
+                .SelectMany(i => visibleProblems, (student, problem) => new { student, problem })
+                .ToList();
+
+            // get best results for each combination
+            var results = students
+                .Select(i => new CourseGradeStudentDto {
+                    User = i.id,
+                    Tags = i.Tags,
+                    Problems = visibleProblems.Select(p => {
+                        var result = items.FirstOrDefault(k => k.UserOrGroupUsers.Contains(i.id) && k.Problem == p.Id);
+
+                        return new CourseGradeProblemDto
+                        {
+                            ObjectId = result?.ObjectId,
+                            Points = result?.Points ?? 0,
+                            ProblemId = p.Id,
+                            ProblemName = p.Name,
+                            Status = (ProcessStatusCodes)(result?.Result?.Status ?? (int)ProcessStatusCodes.NoSolution),
+                        };
+                    }).ToList()
+                });
+
+
+            return results;
         }
 
         private IEnumerable<GradeDto> ApplyFilters(IEnumerable<GradeDto> items, GradeStatFilterDto filter)
