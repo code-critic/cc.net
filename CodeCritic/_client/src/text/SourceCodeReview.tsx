@@ -17,6 +17,7 @@ import { converter } from '../renderers/markdown';
 import { notifications } from '../utils/notifications';
 import { getInitials, normalizePath } from '../utils/utils';
 import { getSyntax, highlightLine, highlightPlainText } from './highlight';
+import sanitizeHtml from 'escape-html';
 
 interface SingleCommentProps {
     comment: ILineComment;
@@ -226,8 +227,9 @@ export const SourceCodeReview = (props: ISourceCodeReview) => {
                             : [];
 
                         const syntax = getSyntax(extension);
+                        const safeText = sanitizeHtml(i);
                         const highlightedText = syntax === "plaintext"
-                            ? highlightPlainText(i)
+                            ? highlightPlainText(safeText)
                             : highlightLine(i, extension);
                         
                         let extraCls = "";

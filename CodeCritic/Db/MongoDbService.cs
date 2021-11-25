@@ -106,6 +106,7 @@ namespace CC.Net.Db
                 return new DbOperationResult
                 {
                     IsAcknowledged = result.IsAcknowledged,
+                    ModifiedCount = (int)result.ModifiedCount,
                 };
             }
         }
