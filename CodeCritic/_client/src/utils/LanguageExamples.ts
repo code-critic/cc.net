@@ -249,7 +249,7 @@ rl.on('line', (line: string) => {
 
 
         'MATLAB': `
-clear all; close all; clc;
+% your code here
         `
     }
 
