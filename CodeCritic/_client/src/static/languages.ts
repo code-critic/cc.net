@@ -6,7 +6,7 @@ export const languages: ILanguage[] = [
         "name": "Python",
         "scaleFactor": 5,
         "scaleStart": 0,
-        "version": "3.6.8",
+        "version": "3.10.6",
         "extension": "py",
         "disabled": false,
         "compile": [],
@@ -30,7 +30,7 @@ export const languages: ILanguage[] = [
         "name": "Node.js",
         "scaleFactor": 5,
         "scaleStart": 0,
-        "version": "v14.16.1",
+        "version": "v19.0.1",
         "extension": "js",
         "disabled": false,
         "compile": ["npm", "i"],
@@ -44,7 +44,7 @@ export const languages: ILanguage[] = [
         "name": "Typescript",
         "scaleFactor": 5,
         "scaleStart": 0.5,
-        "version": "v4.4.4",
+        "version": "v4.8.4",
         "extension": "ts",
         "disabled": false,
         "compile": ["tsc", "<filename>"],
@@ -58,7 +58,7 @@ export const languages: ILanguage[] = [
         "name": "C",
         "scaleFactor": 1,
         "scaleStart": 0,
-        "version": "gcc 8.2.0",
+        "version": "gcc 11.3.0",
         "extension": "c",
         "disabled": false,
         "compile": [
@@ -79,7 +79,7 @@ export const languages: ILanguage[] = [
         "name": "C++",
         "scaleFactor": 1,
         "scaleStart": 0,
-        "version": "g++ 8.2.0",
+        "version": "g++ 11.3.0",
         "extension": "cpp",
         "disabled": false,
         "compile": [
@@ -120,8 +120,8 @@ export const languages: ILanguage[] = [
         "id": "DOTNET",
         "name": "Dotnet C#",
         "scaleFactor": 2,
-        "scaleStart": 2,
-        "version": "5.0.202",
+        "scaleStart": 4,
+        "version": "7.0.100",
         "extension": "cs",
         "disabled": false,
         "compile": [],
@@ -131,14 +131,14 @@ export const languages: ILanguage[] = [
         ],
         "unittest": [],
         "compilationNeeded": true,
-        "scaleInfo": "0.00 + 2.00×"
+        "scaleInfo": "4.00 + 2.00×"
     },
     {
         "id": "CS",
         "name": "C#",
         "scaleFactor": 2,
-        "scaleStart": 0,
-        "version": "Mono 3.0.7",
+        "scaleStart": 1,
+        "version": "Mono 6.8.0.105",
         "extension": "cs",
         "disabled": false,
         "compile": [
@@ -152,7 +152,7 @@ export const languages: ILanguage[] = [
         ],
         "unittest": [],
         "compilationNeeded": true,
-        "scaleInfo": "0.00 + 2.00×"
+        "scaleInfo": "1.00 + 2.00×"
     },
     {
         "id": "MATLAB",
@@ -191,5 +191,26 @@ export const languages: ILanguage[] = [
         "unittest": [],
         "compilationNeeded": false,
         "scaleInfo": "0.00 + 1.00×"
+    },
+    {
+        "id": "RUST",
+        "name": "Rust",
+        "scaleFactor": 1.5,
+        "scaleStart": 0.2,
+        "version": "1.65.0",
+        "extension": "rs",
+        "disabled": false,
+        "compile": [
+            "rustc",
+            "<filename>",
+            "-o",
+            "main"
+        ],
+        "run": [
+            "./main"
+        ],
+        "unittest": [],
+        "compilationNeeded": true,
+        "scaleInfo": "0.20 + 1.50×"
     }
 ];
