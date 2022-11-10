@@ -92,7 +92,7 @@ def main():
         else:
             Popen(['./cc.net', '--urls', f'http://0.0.0.0:{port}'], cwd=str(ccpublish)).wait()
     else:
-        print('restart cc by running\nkillall cc.net')
+        print('restart cc by running\nkillall cc.latest')
 
 if __name__ == '__main__':
     main()
