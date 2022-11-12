@@ -7,7 +7,7 @@ cd $DIR
 
 python3 deploy.py
 
-docker pull automatest/ubuntu-all
+docker pull automatest/ubuntu-all:22.04
 docker rm -f automatestWorker
 
 killall cc.latest

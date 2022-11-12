@@ -56,6 +56,10 @@ RUN curl https://sh.rustup.rs -sSf | sh -s -- -y \
 RUN apt install -y ruby-full
 
 
+# install global npm packages
+RUN npm i -g process fs readline util @types/node
+
+
 # copy files
 RUN adduser --system --group --disabled-password jan-hybs \
  && dotnet run --help
