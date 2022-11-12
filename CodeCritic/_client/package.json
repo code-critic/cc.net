@@ -29,7 +29,7 @@
     "@types/react-router": "^5.1.13",
     "@types/react-router-dom": "^5.1.7",
     "@types/react-table": "^7.0.29",
-    "axios": "^0.21.1",
+    "axios": "^0.21.2",
     "code-prettify": "^0.1.0",
     "codemirror": "^5.57.0",
     "escape-html": "^1.0.3",
