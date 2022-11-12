@@ -119,8 +119,8 @@ export const languages: ILanguage[] = [
     {
         "id": "DOTNET",
         "name": "Dotnet C#",
-        "scaleFactor": 2,
-        "scaleStart": 4,
+        "scaleFactor": 1.5,
+        "scaleStart": 1.5,
         "version": "7.0.100",
         "extension": "cs",
         "disabled": false,
@@ -131,7 +131,7 @@ export const languages: ILanguage[] = [
         ],
         "unittest": [],
         "compilationNeeded": true,
-        "scaleInfo": "4.00 + 2.00×"
+        "scaleInfo": "1.50 + 1.50×"
     },
     {
         "id": "CS",
@@ -212,5 +212,22 @@ export const languages: ILanguage[] = [
         "unittest": [],
         "compilationNeeded": true,
         "scaleInfo": "0.20 + 1.50×"
-    }
+    },
+    {
+        "id": "RUBY",
+        "name": "Ruby",
+        "scaleFactor": 1.5,
+        "scaleStart": 0.2,
+        "version": "2.7.0p0",
+        "extension": "rb",
+        "disabled": false,
+        "compile": [],
+        "run": [
+            "ruby",
+            "<filename>"
+        ],
+        "unittest": [],
+        "compilationNeeded": false,
+        "scaleInfo": "0.20 + 1.50×"
+    },
 ];

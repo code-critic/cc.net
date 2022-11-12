@@ -1,6 +1,15 @@
 
 all: build
 
+ubuntu-22.04:
+	# docker rmi -f automatest/ubuntu-all:22.04
+	docker build -t automatest/ubuntu-all:22.04 22.04
+	docker run --rm -it automatest/ubuntu-all:22.04 bash
+
+
+ubuntu-22.04-push:
+	docker push automatest/ubuntu-all:22.04
+
 ubuntu-build:
 	docker build -t automatest/ubuntu-base ubuntu-base
 	docker build -t automatest/ubuntu-all ubuntu-all

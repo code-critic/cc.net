@@ -18,8 +18,8 @@
   version: node v19.0.1 npm 8.19.2
   extension: js
   style: javascript
-  compile: [npm, i]
   run: [node, <filename>]
+    
 
 - id: TS
   name: Typescript
@@ -29,20 +29,8 @@
   version: node v4.8.4
   extension: ts
   style: javascript
-  compile: [npm, i, '&&', tsc, <filename>]
+  compile: [tsc, <filename>]
   run: [node, <filename-no-ext>]
-  files:
-    - package.json: |
-        {
-          "name": "cc.net",
-          "version": "0.1.0",
-          "private": true,
-          "scripts": {},
-          "dependencies": {},
-          "devDependencies": {
-              "@types/node": "^16.11.7"
-          }
-        }
 
 - id: C
   name: C
@@ -90,21 +78,26 @@
   
 - id: DOTNET
   name: 'Dotnet C#'
-  scale-factor: 2.000
-  scale-start:  4.000
+  scale-factor: 1.500
+  scale-start:  1.500
   image: automatest/dotnet
   version: 7.0.100
   extension: cs
   style: csharp
-  run: [dotnet, run]
+  compile: [dotnet, build]
+  run: [dotnet, run, '--no-restore', '--no-build']
   files:
     - main.csproj: |
         <Project Sdk="Microsoft.NET.Sdk">
           <PropertyGroup>
             <OutputType>Exe</OutputType>
-            <TargetFramework>netcoreapp3.01</TargetFramework>
+            <TargetFramework>net7.0</TargetFramework>
+            <ImplicitUsings>enable</ImplicitUsings>
+            <Nullable>enable</Nullable>
+            <WarningLevel>0</WarningLevel>
           </PropertyGroup>
         </Project>
+
 
   # compile: [mcs, <filename>, '-out:main']
   
@@ -140,6 +133,16 @@
   style: rust
   compile: [rustc, <filename>, '-o', main]
   run: [./main]
+
+- id: RUBY
+  name: Ruby
+  version: ruby 2.7.0p0
+  scale-factor: 1.500
+  scale-start:  0.200
+  image: automatest/ruby
+  extension: rb
+  style: ruby
+  run: [ruby, <filename>]
 
   
 
