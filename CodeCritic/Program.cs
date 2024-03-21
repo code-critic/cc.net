@@ -10,6 +10,7 @@ using CC.Net.Services.Courses;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
+using Serilog;
 using TypeLite;
 
 namespace CC.Net
@@ -214,28 +215,27 @@ namespace CC.Net
                         config.AddCommandLine(args);
                     }
                 })
-                // .UseSerilog((builder, options) =>
-                // {
-                //     options.Enrich.FromLogContext();
-                //
-                //
-                //     var logFormat = "{Timestamp:yyyy-MM-dd HH:mm:ss.fff} [{Level:u3}] [{UserName}] {Message:lj}{NewLine}{Exception}";
-                //     options.WriteTo.Console(outputTemplate: logFormat)
-                //         .MinimumLevel.Override("Default", Serilog.Events.LogEventLevel.Information)
-                //         .MinimumLevel.Override("System", Serilog.Events.LogEventLevel.Warning)
-                //         .MinimumLevel.Override("Microsoft", Serilog.Events.LogEventLevel.Warning)
-                //         .MinimumLevel.Override("Serilog.AspNetCore.RequestLoggingMiddleware", Serilog.Events.LogEventLevel.Warning)
-                //         .MinimumLevel.Override("Microsoft.AspNetCore.Mvc.Internal", Serilog.Events.LogEventLevel.Warning)
-                //         .MinimumLevel.Override("Microsoft.AspNetCore.Authentication", Serilog.Events.LogEventLevel.Warning);
-                //
-                //     options.WriteTo.File("app.log", outputTemplate: logFormat)
-                //         .MinimumLevel.Override("Default", Serilog.Events.LogEventLevel.Information)
-                //         .MinimumLevel.Override("System", Serilog.Events.LogEventLevel.Warning)
-                //         .MinimumLevel.Override("Microsoft", Serilog.Events.LogEventLevel.Warning)
-                //         .MinimumLevel.Override("Serilog.AspNetCore.RequestLoggingMiddleware", Serilog.Events.LogEventLevel.Warning)
-                //         .MinimumLevel.Override("Microsoft.AspNetCore.Mvc.Internal", Serilog.Events.LogEventLevel.Warning)
-                //         .MinimumLevel.Override("Microsoft.AspNetCore.Authentication", Serilog.Events.LogEventLevel.Warning);
-                // })
+                .UseSerilog((builder, options) =>
+                {
+                    options.Enrich.FromLogContext();
+                
+                    var logFormat = "{Timestamp:yyyy-MM-dd HH:mm:ss.fff} [{Level:u3}] [{UserName}] {Message:lj}{NewLine}{Exception}";
+                    options.WriteTo.Console(outputTemplate: logFormat)
+                        .MinimumLevel.Override("Default", Serilog.Events.LogEventLevel.Information)
+                        .MinimumLevel.Override("System", Serilog.Events.LogEventLevel.Warning)
+                        .MinimumLevel.Override("Microsoft", Serilog.Events.LogEventLevel.Warning)
+                        .MinimumLevel.Override("Serilog.AspNetCore.RequestLoggingMiddleware", Serilog.Events.LogEventLevel.Warning)
+                        .MinimumLevel.Override("Microsoft.AspNetCore.Mvc.Internal", Serilog.Events.LogEventLevel.Warning)
+                        .MinimumLevel.Override("Microsoft.AspNetCore.Authentication", Serilog.Events.LogEventLevel.Warning);
+                
+                    options.WriteTo.File("app.log", outputTemplate: logFormat)
+                        .MinimumLevel.Override("Default", Serilog.Events.LogEventLevel.Information)
+                        .MinimumLevel.Override("System", Serilog.Events.LogEventLevel.Warning)
+                        .MinimumLevel.Override("Microsoft", Serilog.Events.LogEventLevel.Warning)
+                        .MinimumLevel.Override("Serilog.AspNetCore.RequestLoggingMiddleware", Serilog.Events.LogEventLevel.Warning)
+                        .MinimumLevel.Override("Microsoft.AspNetCore.Mvc.Internal", Serilog.Events.LogEventLevel.Warning)
+                        .MinimumLevel.Override("Microsoft.AspNetCore.Authentication", Serilog.Events.LogEventLevel.Warning);
+                })
                 .UseStartup<Startup>();
         }
     }
