@@ -32,7 +32,7 @@
 		Program = 3
 	}
 	export enum SubmissionStatus {
-		Unkown = 0,
+		Unknown = 0,
 		Intime = 1,
 		Late = 2,
 		None = 3

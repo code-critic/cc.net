@@ -3,35 +3,14 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using Cc.Net.Apis;
-using Cc.Net.Dto;
-using CC.Net.Collections;
-using CC.Net.Controllers;
 using Cc.Net.Docs;
-using CC.Net.Dto;
-using CC.Net.Entities;
 using CC.Net.Extensions;
 using CC.Net.Services;
 using CC.Net.Services.Courses;
-using CC.Net.Services.Languages;
-using CC.Net.Utils;
-using DiffPlex.DiffBuilder.Model;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
-using Serilog;
 using TypeLite;
-using TypeLite.TsModels;
-using Cc.Net.Auth;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.HostFiltering;
-using Microsoft.AspNetCore.Hosting.StaticWebAssets;
-using Microsoft.AspNetCore.HttpOverrides;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Configuration;
-using Microsoft.Extensions.Options;
 
 namespace CC.Net
 {
@@ -82,92 +61,92 @@ namespace CC.Net
                 return;
             }
 
-            if (args.Length > 0 && args[0] == "--generate")
-            {
-
-                var enumImports = new List<Type>{
-                    typeof(ProcessStatus),
-                    typeof(SubmissionStatus),
-                    typeof(ProblemType),
-                    typeof(ProblemStatus),
-                    typeof(CcEventType),
-                    typeof(CcUserGroupStatus),
-                    typeof(DiffResultLineType),
-                    typeof(ProcessStatusCodes),
-                    typeof(ChangeType),
-                };
-
-                Directory.CreateDirectory("_client/src/models/");
-                var destModelPath = "_client/src/models/DataModel.d.ts";
-                var modelDefinitions = TypeScript.Definitions();
-
-                enumImports.ForEach(T =>
-                {
-                    modelDefinitions = modelDefinitions.RegisterTypeConvertor(T, i => T.Name);
-                });
-
-                modelDefinitions = modelDefinitions
-                        .For<User>()
-                        .For<Language>()
-                        .For<Course>()
-                        .For<CcData>()
-                        .For<CcEvent>()
-                        .For<CcDataAgg>()
-                        .For<MarkSolutionItem>()
-                        .For<TableRequest>()
-                        .For<TableResponse>()
-                        .For<SingleCourse>()
-                        .For<ProcessStatus>()
-                        .For<CommentServiceItem>()
-                        .For<GradeDto>()
-                        .For<StudentScoreboardCourse>()
-                        .For<CcGroup>()
-                        .For<UnauthorizedObjectIface>()
-                        .For<SimpleFileDto>()
-
-                        .For<ApiError>()
-                        .For<CcDataDto>()
-                        .For<CcDataLight>()
-
-                        .For<DiffResult>()
-                        .For<AppUser>()
-                        .For<DiffResultComposite>();
-                        
-                var destModel = modelDefinitions
-                        .WithModuleNameFormatter((moduleName) => "")
-                        .WithMemberFormatter((identifier) =>
-                            char.ToLower(identifier.Name[0]) + identifier.Name.Substring(1)
-                        )
-                        .WithTypeFormatter((type, f) => "I" + ((TsClass)type).Name)
-                        .Generate();
-
-                var importLine = $"import {{ {enumImports.Select(i => i.Name).AsString(", ")} }} from  './Enums'";
-                var dateLine = $"// generated at {DateTime.Now.ToUniversalTime()} (UTC)";
-                var guidLine = $"export const __uuid = '{Guid.NewGuid()}'";
-                File.WriteAllText(destModelPath, $"{importLine}\n{destModel}\n\n{dateLine}\n{guidLine}");
-
-                var enumDefinition = TypeScript.Definitions();
-                enumImports.ForEach(T =>
-                {
-                    enumDefinition = enumDefinition.For(T);
-                });
-
-                var enumBase = enumDefinition
-                            .WithModuleNameFormatter((moduleName) => "")
-                            .WithMemberFormatter((identifier) =>
-                                char.ToLower(identifier.Name[0]) + identifier.Name.Substring(1)
-                            )
-                            .WithTypeFormatter((type, f) => "I" + ((TsClass)type).Name)
-                            .Generate();
-
-                enumBase += AddEnumLike<ProcessStatus>();
-
-                File.WriteAllText(
-                    "_client/src/models/Enums.ts",
-                    enumBase.Replace("export const enum", "export enum")
-                );
-                Environment.Exit(0);
-            }
+            // if (args.Length > 0 && args[0] == "--generate")
+            // {
+            //
+            //     var enumImports = new List<Type>{
+            //         typeof(ProcessStatus),
+            //         typeof(SubmissionStatus),
+            //         typeof(ProblemType),
+            //         typeof(ProblemStatus),
+            //         typeof(CcEventType),
+            //         typeof(CcUserGroupStatus),
+            //         typeof(DiffResultLineType),
+            //         typeof(ProcessStatusCodes),
+            //         typeof(ChangeType),
+            //     };
+            //
+            //     Directory.CreateDirectory("_client/src/models/");
+            //     var destModelPath = "_client/src/models/DataModel.d.ts";
+            //     var modelDefinitions = TypeScript.Definitions();
+            //
+            //     enumImports.ForEach(T =>
+            //     {
+            //         modelDefinitions = modelDefinitions.RegisterTypeConvertor(T, i => T.Name);
+            //     });
+            //
+            //     modelDefinitions = modelDefinitions
+            //             .For<User>()
+            //             .For<Language>()
+            //             .For<Course>()
+            //             .For<CcData>()
+            //             .For<CcEvent>()
+            //             .For<CcDataAgg>()
+            //             .For<MarkSolutionItem>()
+            //             .For<TableRequest>()
+            //             .For<TableResponse>()
+            //             .For<SingleCourse>()
+            //             .For<ProcessStatus>()
+            //             .For<CommentServiceItem>()
+            //             .For<GradeDto>()
+            //             .For<StudentScoreboardCourse>()
+            //             .For<CcGroup>()
+            //             .For<UnauthorizedObjectIface>()
+            //             .For<SimpleFileDto>()
+            //
+            //             .For<ApiError>()
+            //             .For<CcDataDto>()
+            //             .For<CcDataLight>()
+            //
+            //             .For<DiffResult>()
+            //             .For<AppUser>()
+            //             .For<DiffResultComposite>();
+            //             
+            //     var destModel = modelDefinitions
+            //             .WithModuleNameFormatter((moduleName) => "")
+            //             .WithMemberFormatter((identifier) =>
+            //                 char.ToLower(identifier.Name[0]) + identifier.Name.Substring(1)
+            //             )
+            //             .WithTypeFormatter((type, f) => "I" + ((TsClass)type).Name)
+            //             .Generate();
+            //
+            //     var importLine = $"import {{ {enumImports.Select(i => i.Name).AsString(", ")} }} from  './Enums'";
+            //     var dateLine = $"// generated at {DateTime.Now.ToUniversalTime()} (UTC)";
+            //     var guidLine = $"export const __uuid = '{Guid.NewGuid()}'";
+            //     File.WriteAllText(destModelPath, $"{importLine}\n{destModel}\n\n{dateLine}\n{guidLine}");
+            //
+            //     var enumDefinition = TypeScript.Definitions();
+            //     enumImports.ForEach(T =>
+            //     {
+            //         enumDefinition = enumDefinition.For(T);
+            //     });
+            //
+            //     var enumBase = enumDefinition
+            //                 .WithModuleNameFormatter((moduleName) => "")
+            //                 .WithMemberFormatter((identifier) =>
+            //                     char.ToLower(identifier.Name[0]) + identifier.Name.Substring(1)
+            //                 )
+            //                 .WithTypeFormatter((type, f) => "I" + ((TsClass)type).Name)
+            //                 .Generate();
+            //
+            //     enumBase += AddEnumLike<ProcessStatus>();
+            //
+            //     File.WriteAllText(
+            //         "_client/src/models/Enums.ts",
+            //         enumBase.Replace("export const enum", "export enum")
+            //     );
+            //     Environment.Exit(0);
+            // }
 
             CreateWebHostBuilder(args)
                 .Build()
@@ -235,28 +214,28 @@ namespace CC.Net
                         config.AddCommandLine(args);
                     }
                 })
-                .UseSerilog((builder, options) =>
-                {
-                    options.Enrich.FromLogContext();
-
-
-                    var logFormat = "{Timestamp:yyyy-MM-dd HH:mm:ss.fff} [{Level:u3}] [{UserName}] {Message:lj}{NewLine}{Exception}";
-                    options.WriteTo.Console(outputTemplate: logFormat)
-                        .MinimumLevel.Override("Default", Serilog.Events.LogEventLevel.Information)
-                        .MinimumLevel.Override("System", Serilog.Events.LogEventLevel.Warning)
-                        .MinimumLevel.Override("Microsoft", Serilog.Events.LogEventLevel.Warning)
-                        .MinimumLevel.Override("Serilog.AspNetCore.RequestLoggingMiddleware", Serilog.Events.LogEventLevel.Warning)
-                        .MinimumLevel.Override("Microsoft.AspNetCore.Mvc.Internal", Serilog.Events.LogEventLevel.Warning)
-                        .MinimumLevel.Override("Microsoft.AspNetCore.Authentication", Serilog.Events.LogEventLevel.Warning);
-
-                    options.WriteTo.File("app.log", outputTemplate: logFormat)
-                        .MinimumLevel.Override("Default", Serilog.Events.LogEventLevel.Information)
-                        .MinimumLevel.Override("System", Serilog.Events.LogEventLevel.Warning)
-                        .MinimumLevel.Override("Microsoft", Serilog.Events.LogEventLevel.Warning)
-                        .MinimumLevel.Override("Serilog.AspNetCore.RequestLoggingMiddleware", Serilog.Events.LogEventLevel.Warning)
-                        .MinimumLevel.Override("Microsoft.AspNetCore.Mvc.Internal", Serilog.Events.LogEventLevel.Warning)
-                        .MinimumLevel.Override("Microsoft.AspNetCore.Authentication", Serilog.Events.LogEventLevel.Warning);
-                })
+                // .UseSerilog((builder, options) =>
+                // {
+                //     options.Enrich.FromLogContext();
+                //
+                //
+                //     var logFormat = "{Timestamp:yyyy-MM-dd HH:mm:ss.fff} [{Level:u3}] [{UserName}] {Message:lj}{NewLine}{Exception}";
+                //     options.WriteTo.Console(outputTemplate: logFormat)
+                //         .MinimumLevel.Override("Default", Serilog.Events.LogEventLevel.Information)
+                //         .MinimumLevel.Override("System", Serilog.Events.LogEventLevel.Warning)
+                //         .MinimumLevel.Override("Microsoft", Serilog.Events.LogEventLevel.Warning)
+                //         .MinimumLevel.Override("Serilog.AspNetCore.RequestLoggingMiddleware", Serilog.Events.LogEventLevel.Warning)
+                //         .MinimumLevel.Override("Microsoft.AspNetCore.Mvc.Internal", Serilog.Events.LogEventLevel.Warning)
+                //         .MinimumLevel.Override("Microsoft.AspNetCore.Authentication", Serilog.Events.LogEventLevel.Warning);
+                //
+                //     options.WriteTo.File("app.log", outputTemplate: logFormat)
+                //         .MinimumLevel.Override("Default", Serilog.Events.LogEventLevel.Information)
+                //         .MinimumLevel.Override("System", Serilog.Events.LogEventLevel.Warning)
+                //         .MinimumLevel.Override("Microsoft", Serilog.Events.LogEventLevel.Warning)
+                //         .MinimumLevel.Override("Serilog.AspNetCore.RequestLoggingMiddleware", Serilog.Events.LogEventLevel.Warning)
+                //         .MinimumLevel.Override("Microsoft.AspNetCore.Mvc.Internal", Serilog.Events.LogEventLevel.Warning)
+                //         .MinimumLevel.Override("Microsoft.AspNetCore.Authentication", Serilog.Events.LogEventLevel.Warning);
+                // })
                 .UseStartup<Startup>();
         }
     }
