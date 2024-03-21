@@ -28,6 +28,8 @@ using System.IO;
 using System.Text.RegularExpressions;
 using Microsoft.Extensions.FileProviders;
 using System.Linq;
+using cc.net.Apis;
+using Newtonsoft.Json;
 
 namespace CC.Net
 {
@@ -42,7 +44,7 @@ namespace CC.Net
             AppOptions.Version = Regex.IsMatch(version, @"[0-9]\.[0-9]\.[0-9]")
                 ? version
                 : AppOptions.Version;
-            
+
             Console.WriteLine($"Version:        {AppOptions.Version}");
             Console.WriteLine($"CanProcess:     {AppOptions.CanProcess}");
             Console.WriteLine($"UseInMemoryDB:  {AppOptions.UseInMemoryDB}");
@@ -80,31 +82,36 @@ namespace CC.Net
             services.AddHostedService<NotificationService>();
             services.AddHttpContextAccessor();
 
-            if(AppOptions.UseInMemoryDB) {
+            if (AppOptions.UseInMemoryDB)
+            {
                 services.AddSingleton<IDbService, InMemoryDbService>();
-            } else {
+            }
+            else
+            {
                 services.AddScoped<IDbService, MongoDbService>();
             }
 
             services.AddAuthentication("CookieAuth")
-                .AddCookie("CookieAuth", config =>
+               .AddCookie("CookieAuth", config =>
                 {
                     config.Cookie.Name = "CC.Cookie";
                     config.LoginPath = $"/Home/{nameof(HomeController.Login)}";
                 });
 
-            services.AddControllersWithViews();
+            services.AddControllersWithViews()
+               .AddJsonOptions(options => { options.JsonSerializerOptions.Converters.Add(new ObjectIdMsConverter()); });
+            JsonConvert.DefaultSettings = () => new JsonSerializerSettings
+            {
+                Converters = { new ObjectIdConverter() },
+            };
             services.AddSignalR();
             services.AddSwaggerGen();
 
             // In production, the React files will be served from this directory
-            services.AddSpaStaticFiles(configuration =>
-            {
-                configuration.RootPath = "_client/build";
-            });
+            services.AddSpaStaticFiles(configuration => { configuration.RootPath = "_client/build"; });
         }
 
-        private static void WaitForKey (ConsoleKey key)
+        private static void WaitForKey(ConsoleKey key)
         {
             while (true)
             {
@@ -121,10 +128,7 @@ namespace CC.Net
             var logger = serviceProvider.GetService<ILogger<Startup>>();
             app.UseSerilogRequestLogging();
             app.UseSwagger();
-            app.UseSwaggerUI(c =>
-            {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
-            });
+            app.UseSwaggerUI(c => { c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1"); });
             logger.LogWarning($"Using DbService {serviceProvider.GetService<IDbService>()}");
             UpdateResultStatus(serviceProvider);
 
@@ -145,21 +149,23 @@ namespace CC.Net
                 // 30 days, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
+
             app.UseHttpsRedirection();
-            
+
 
             app.UseRouting();
 
             // who are you
             app.UseAuthentication();
-            
+
             // are you allowed
             app.UseAuthorization();
-            
+
             // add to log
             app.UseMiddleware<LogUserNameMiddleware>();
 
-            app.UseStaticFiles(new StaticFileOptions(){
+            app.UseStaticFiles(new StaticFileOptions()
+            {
                 FileProvider = new PhysicalFileProvider(AppOptions.CourseDir),
                 RequestPath = "/S"
             });
@@ -190,15 +196,18 @@ namespace CC.Net
         {
             var iDbService = serviceProvider.GetService<IDbService>();
             iDbService.Resolve().Match(
-                async mongoDb => {
-                    var filter = Builders<CcData>.Filter.Eq("result.status", (int) ProcessStatusCodes.Running);
-                    var update = Builders<CcData>.Update.Set("result.status", (int) ProcessStatusCodes.InQueue);
+                async mongoDb =>
+                {
+                    var filter = Builders<CcData>.Filter.Eq("result.status", (int)ProcessStatusCodes.Running);
+                    var update = Builders<CcData>.Update.Set("result.status", (int)ProcessStatusCodes.InQueue);
                     mongoDb._data.UpdateMany(filter, update);
                 },
-                async inMemoryDb => {
+                async inMemoryDb =>
+                {
                     var result = await inMemoryDb.Data.FindAsync(i => true);
-                    result.Select(i => {
-                        i.Result.Status = (int) ProcessStatusCodes.InQueue;
+                    result.Select(i =>
+                    {
+                        i.Result.Status = (int)ProcessStatusCodes.InQueue;
                         return i;
                     }).ToList();
                 }
