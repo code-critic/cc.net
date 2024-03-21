@@ -5,11 +5,11 @@ namespace CC.Net.Config
     public class MongoDBConfig
     {
         public string Host { get; set; }
-        public string AuthSource { get; set; }
-        public string AuthMechanism { get; set; }
+        public string AuthSource { get; set; } = "admin";
+        public string AuthMechanism { get; set; } = "SCRAM";
         public string Username { get; set; }
         public string Password { get; set; }
-        public string Database { get; set; }
+        public string Database { get; set; } = "cc";
         public string CollectionLogs { get; set; } = "logs-2020";
         public string CollectionData { get; set; } = "data-2020";
         public string CollectionEvents { get; set; } = "events-2020";
