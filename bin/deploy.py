@@ -6,7 +6,7 @@ import subprocess
 
 
 parser = OptionParser()
-parser.add_option("-p", "--port", type=str, default="5000")
+parser.add_option("-p", "--port", type=str, default="80")
 parser.add_option("-k", "--kill", dest="kill", action="store_true", default=False)
 parser.add_option("-b", "--background", action="store_false", default=False)
 parser.add_option("-e", "--execute", action="store_true", default=False)
