@@ -55,11 +55,16 @@ namespace CC.Net.Services
                 }
                 else
                 {
+                    _logger.LogInformation("Starting docker container");
                     var dockerPurge = ProcessUtils
                         .Popen($"docker rm -f {ContainerName}");
+                    _logger.LogInformation("Purging old container: {Output}", dockerPurge.ToString());
 
+                    
+                    _logger.LogInformation("Starting new container");
                     var dockerStart = ProcessUtils
                         .Popen($"docker run -di --name {ContainerName} {_appOptions.DockerOptions.Args} {_appOptions.DockerOptions.Image}");
+                    _logger.LogInformation("Starting new container: {Output}", dockerStart.ToString());
 
                     // TODO: configurable period
                     while (stoppingToken.IsCancellationRequested == false)

@@ -117,7 +117,7 @@
   image: automatest/matlab
   extension: m
   style: matlab
-  run: [matlab, -nodesktop, -nosplash, -nodisplay, -r, "\"<filename-no-ext>;exit;\""]
+  run: ["/opt/matlab/R2023b/bin/matlab", -nodesktop, -nosplash, -nodisplay, -r, "\"<filename-no-ext>;exit;\""]
  
 
 - id: MARKDOWN
