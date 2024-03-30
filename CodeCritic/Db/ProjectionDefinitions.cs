@@ -10,7 +10,7 @@ namespace CC.Net.Db
             Builders<CcData>.Projection.Expression(p => new CcDataLight
             {
                 Id = p.Id,
-                ObjectId = p.ObjectId,
+                ObjectId = p.Id.ToString(),
                 Status = p.Result.Status,
                 Attempt = p.Attempt,
                 ReviewRequest = p.ReviewRequest,
@@ -24,7 +24,7 @@ namespace CC.Net.Db
             return new CcDataLight
             {
                 Id = p.Id,
-                ObjectId = p.ObjectId,
+                ObjectId = p.Id.ToString(),
                 Status = p.Result.Status,
                 Attempt = p.Attempt,
                 ReviewRequest = p.ReviewRequest,

@@ -54,7 +54,7 @@ namespace CC.Net.Collections
         [BsonElement("_id")]
         public ObjectId Id { get; set; }
 
-        override public string ToString()
+        public override string ToString()
         {
             return
                 $"{Id}/{Action}/{ResultDirname,-10} {CourseName}/{CourseYear}/{Problem} [{Result?.Duration:0.000} sec] {ProcessStatus.Get(Result?.Status ?? -1).Name}";
