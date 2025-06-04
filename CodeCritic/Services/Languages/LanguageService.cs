@@ -42,7 +42,7 @@ namespace CC.Net.Services.Languages
                 {
                     return Languages.First(i => i.Id.ToLower() == key.ToLower());
                 }
-                catch (InvalidOperationException)
+                catch (InvalidOperationException ex)
                 {
                     var ids = string.Join(", ", Languages.Select(i => i.Id));
                     throw new InvalidOperationException(
