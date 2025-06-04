@@ -32,6 +32,23 @@ namespace CC.Net.Services.Languages
             return data;
         }
 
-        public Language this[string key] => Languages.First(i => i.Id.ToLower() == key.ToLower());
+        // public Language this[string key] => Languages.First(i => i.Id.ToLower() == key.ToLower());
+
+        public Language this[string key]
+        {
+            get
+            {
+                try
+                {
+                    return Languages.First(i => i.Id.ToLower() == key.ToLower());
+                }
+                catch (InvalidOperationException)
+                {
+                    var ids = string.Join(", ", Languages.Select(i => i.Id));
+                    Console.WriteLine($"Key '{key}' not found. Available Ids: {ids}");
+                    throw;
+                }
+            }
+        }
     }
 }
