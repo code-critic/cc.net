@@ -13,7 +13,7 @@ namespace CC.Net.Services.Courses
         [YamlMember(Alias = "name")]
         public string Name { get; set; }
 
-        [Doc("Language identifier one of [`PY-367`, `C`, `CPP`, `JAVA`, `CS`, `MATLAB`]")]
+        [Doc("Language identifier one of [`PYTHON`, `C`, `CPP`, `JAVA`, `CS`, `MATLAB`]")]
         [YamlMember(Alias = "lang")]
         public string Lang { get; set; }
 

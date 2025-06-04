@@ -2,7 +2,7 @@ import { ILanguage } from '../models/CustomModel';
 
 export const languages: ILanguage[] = [
     {
-        "id": "PY-367",
+        "id": "PYTHON",
         "name": "Python",
         "scaleFactor": 5,
         "scaleStart": 0,

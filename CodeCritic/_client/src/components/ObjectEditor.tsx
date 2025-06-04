@@ -425,7 +425,7 @@ export const ObjectEditor = (props: ObjectEditorProps) => {
     referenceSection: Schema.SectionType("Reference solution"),
     reference: Schema.ObjectType({
         name: Schema.StringType({ xs: 3 }),
-        lang: Schema.EnumType({ xs: 2, values: ["MATLAB", "PY-367", "C", "CPP", "JAVA", "CS"] }),
+        lang: Schema.EnumType({ xs: 2, values: ["MATLAB", "PYTHON", "C", "CPP", "JAVA", "CS"] }),
         hidden: Schema.BooleanType({ xs: 2 }),
     }),
 

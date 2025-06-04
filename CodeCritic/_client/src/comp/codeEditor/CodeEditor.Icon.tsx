@@ -83,7 +83,7 @@ export const CodeEditorIcon = (props: CodeEditorIconProps) => {
     const { languageId, size=24, className="" } = props;
     const getIcon = (languageId: string) => {
         switch (languageId) {
-            case 'PY-367':
+            case 'PYTHON':
                 return <PythonIcon size={size} />;
             case "JAVA":
                 return <JavaIcon size={size} />;

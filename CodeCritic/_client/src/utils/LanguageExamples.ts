@@ -2,7 +2,7 @@ import { IUnittestSpec } from '../cc-api';
 
 export default class LanguageExamples {
     public static examples = {
-        'PY-367': `# python 3.5+ example
+        'PYTHON': `# python 3.5+ example
 import sys
 for line in sys.stdin:
     i = int(str(line).strip())
@@ -10,16 +10,6 @@ for line in sys.stdin:
         break
     else:
         print(i)`,
-
-
-        'PY-276': `# python 2.7 example
-import sys
-for line in sys.stdin:
-    i = int(str(line).strip())
-    if i == 42:
-        break
-    else:
-        print i`,
 
 
         'CPP': `// C++ example
@@ -161,7 +151,7 @@ rl.on('line', function(line){
 
 
     public static templatesMain = {
-        'PY-367': `
+        'PYTHON': `
 import sys
 for line in sys.stdin:
     # do something`,
@@ -255,7 +245,7 @@ rl.on('line', (line: string) => {
 
     public static templatesLibname = {
 
-        'PY-367': (unittestSpec: IUnittestSpec) => {
+        'PYTHON': (unittestSpec: IUnittestSpec) => {
             const { libname, methods } = unittestSpec;
             return `
 # solution for ${libname}
