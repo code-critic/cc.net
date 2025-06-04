@@ -45,8 +45,10 @@ namespace CC.Net.Services.Languages
                 catch (InvalidOperationException)
                 {
                     var ids = string.Join(", ", Languages.Select(i => i.Id));
-                    Console.WriteLine($"Key '{key}' not found. Available Ids: {ids}");
-                    throw;
+                    throw new InvalidOperationException(
+                        $"Key '{key}' not found. Available Ids: [{ids}]",
+                        ex
+                    );
                 }
             }
         }
