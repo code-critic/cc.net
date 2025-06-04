@@ -1,13 +1,13 @@
-- id: PY-367
-  name: Python 3.6.8
+- id: PYTHON
+  name: Python 3.10.6
   scale-factor: 5.000
   scale-start:  0.000
   image: automatest/python3
-  version: Python 3.6.8
+  version: Python 3.10.6
   extension: py
   style: python
   run: [python3, <filename>]
-  # unittest: [python3, -m, pytest, --json=.report.json, -rA, <filename>]    
+  # unittest: [python3, -m, pytest, --json=.report.json, -rA, <filename>]
   unittest: [python3, -m, pytest, --json=.report.json, --tb=line, <filename>]
 
 - id: NODEJS
@@ -15,18 +15,36 @@
   scale-factor: 5.000
   scale-start:  0.000
   image: automatest/js
-  version: node v14.16.1, npm 6.14.12
+  version: node v19.0.1 npm 8.19.2
   extension: js
   style: javascript
-  compile: [npm, i]
   run: [node, <filename>]
+    
+
+- id: TS
+  name: Typescript
+  scale-factor: 5.000
+  scale-start:  0.500
+  image: automatest/ts
+  version: node v4.8.4
+  extension: ts
+  style: javascript
+  compile: [npm, i, '&&', tsc, <filename>]
+  run: [node, <filename-no-ext>]
+  files: 
+    - package.json: |
+        {
+          "devDependencies": {
+            "@types/node": "^18.11.9"
+          }
+        }
 
 - id: C
   name: C
   scale-factor: 1.000
   scale-start:  0.000
   image: automatest/cc
-  version: gcc 8.2.0
+  version: gcc 11.3.0
   extension: c
   style: c_cpp
   compile: [gcc, <filename>, -o, main]
@@ -37,7 +55,7 @@
   scale-factor: 1.000
   scale-start:  0.000
   image: automatest/cc
-  version: g++ 8.2.0
+  version: g++ 11.3.0
   extension: cpp
   style: c_cpp
   compile: [g++, -std=c++17, <filename>, -o, main]
@@ -48,7 +66,7 @@
   scale-factor: 2.600
   scale-start:  0.200
   image: automatest/java
-  version: Java 1.8.0_91
+  version: OpenJDK 11.0.17
   extension: java
   style: java
   run: [java, main]
@@ -57,34 +75,39 @@
 - id: CS
   name: 'C#'
   scale-factor: 2.000
-  scale-start:  0.000
+  scale-start:  1.000
   image: automatest/cs
-  version: Mono 3.0.7
+  version: Mono 6.8.0.105
   extension: cs
   style: csharp
   run: [mono, main]
   compile: [mcs, <filename>, '-out:main']
-
+  
 - id: DOTNET
   name: 'Dotnet C#'
-  scale-factor: 2.000
-  scale-start:  2.000
+  scale-factor: 1.500
+  scale-start:  1.500
   image: automatest/dotnet
-  version: 5.0.202
+  version: 7.0.100
   extension: cs
   style: csharp
-  run: [dotnet, run]
+  compile: [dotnet, build]
+  run: [dotnet, run, '--no-restore', '--no-build']
   files:
     - main.csproj: |
         <Project Sdk="Microsoft.NET.Sdk">
           <PropertyGroup>
             <OutputType>Exe</OutputType>
-            <TargetFramework>netcoreapp3.01</TargetFramework>
+            <TargetFramework>net7.0</TargetFramework>
+            <ImplicitUsings>enable</ImplicitUsings>
+            <Nullable>enable</Nullable>
+            <WarningLevel>0</WarningLevel>
           </PropertyGroup>
         </Project>
 
-  # compile: [mcs, <filename>, '-out:main']
 
+  # compile: [mcs, <filename>, '-out:main']
+  
 
 - id: MATLAB
   name: Matlab
@@ -94,8 +117,8 @@
   image: automatest/matlab
   extension: m
   style: matlab
-  run: [matlab, -nodesktop, -nosplash, -nodisplay, -r, "\"<filename-no-ext>;exit;\""]
-
+  run: ["/opt/matlab/R2023b/bin/matlab", -nodesktop, -nosplash, -nodisplay, -r, "\"<filename-no-ext>;exit;\""]
+ 
 
 - id: MARKDOWN
   name: Markdown
@@ -106,6 +129,29 @@
   extension: md
   style: markdown
   run: [cat, <filename>]
+
+- id: RUST
+  name: Rust
+  version: 1.65.0
+  scale-factor: 1.500
+  scale-start:  0.200
+  image: automatest/rust
+  extension: rs
+  style: rust
+  compile: [rustc, <filename>, '-o', main]
+  run: [./main]
+
+- id: RUBY
+  name: Ruby
+  version: ruby 2.7.0p0
+  scale-factor: 1.500
+  scale-start:  0.200
+  image: automatest/ruby
+  extension: rb
+  style: ruby
+  run: [ruby, <filename>]
+
+  
 
 # ---------------------------------------------------------
 # ------------------------------------ DISABLED FOR NOW ---
@@ -123,7 +169,7 @@
 #   compile: [fpc, <filename>]
 #   run: [./main]
 #   disabled: true
-
+  
 # - id: PY-276
 #   name: Python 2.7.15
 #   scale: 4.4

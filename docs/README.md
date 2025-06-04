@@ -114,7 +114,7 @@
         - `name: main.py`
         - `name: Foo.java`
   - `lang`
-     - Language identifier one of [`PY-367`, `C`, `CPP`, `JAVA`, `CS`, `MATLAB`]
+     - Language identifier one of [`PYTHON`, `C`, `CPP`, `JAVA`, `CS`, `MATLAB`]
      - type: `string`
   - `hidden`
      - If true, reference will file will be hidden from students
