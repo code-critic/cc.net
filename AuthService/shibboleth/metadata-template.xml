@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<md:EntityDescriptor xmlns:md="urn:oasis:names:tc:SAML:2.0:metadata"
+    xmlns:mdui="urn:oasis:names:tc:SAML:metadata:ui">
+
+    <md:SPSSODescriptor>
+        <md:Extensions>
+            <mdui:UIInfo>
+                <mdui:DisplayName xml:lang="en">Code Critic</mdui:DisplayName>
+                <mdui:DisplayName xml:lang="cs">Code Critic</mdui:DisplayName>
+                <mdui:Description xml:lang="en">Automated assignment evaluation for Technical University of Liberec.</mdui:Description>
+                <mdui:Description xml:lang="cs">Automatické vyhodnocování úloh pro Technickou univerzitu v Liberci.</mdui:Description>
+                <mdui:InformationURL xml:lang="en">https://www.tul.cz/en/</mdui:InformationURL>
+                <mdui:InformationURL xml:lang="cs">https://www.tul.cz/</mdui:InformationURL>
+            </mdui:UIInfo>
+        </md:Extensions>
+    </md:SPSSODescriptor>
+
+    <md:Organization>
+        <md:OrganizationName xml:lang="en">Technical University of Liberec</md:OrganizationName>
+        <md:OrganizationName xml:lang="cs">Technická univerzita v Liberci</md:OrganizationName>
+        <md:OrganizationDisplayName xml:lang="en">TUL</md:OrganizationDisplayName>
+        <md:OrganizationDisplayName xml:lang="cs">TUL</md:OrganizationDisplayName>
+        <md:OrganizationURL xml:lang="en">https://www.tul.cz/en/</md:OrganizationURL>
+        <md:OrganizationURL xml:lang="cs">https://www.tul.cz/</md:OrganizationURL>
+    </md:Organization>
+
+    <md:ContactPerson contactType="technical">
+        <md:GivenName>Code Critic</md:GivenName>
+        <md:SurName>Administrator</md:SurName>
+        <md:EmailAddress>mailto:admin@example.org</md:EmailAddress>
+    </md:ContactPerson>
+</md:EntityDescriptor>

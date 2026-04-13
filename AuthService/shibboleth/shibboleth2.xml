@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<SPConfig xmlns="urn:mace:shibboleth:3.0:native:sp:config"
+    xmlns:conf="urn:mace:shibboleth:3.0:native:sp:config"
+    clockSkew="180">
+
+    <ApplicationDefaults
+        entityID="https://code-critic.nti.tul.cz/shibboleth"
+        REMOTE_USER="eppn persistent-id targeted-id">
+
+        <Sessions lifetime="28800"
+            timeout="3600"
+            relayState="ss:mem"
+            checkAddress="false"
+            handlerSSL="true"
+            cookieProps="https">
+
+            <!-- eduID.cz discovery service -->
+            <SSO discoveryProtocol="SAMLDS" discoveryURL="https://ds.eduid.cz/wayf.php">
+                SAML2
+            </SSO>
+
+            <Logout>SAML2 Local</Logout>
+
+            <Handler type="MetadataGenerator" Location="/Metadata" signing="false" template="metadata-template.xml"/>
+            <Handler type="Status" Location="/Status" acl="127.0.0.1 ::1"/>
+            <Handler type="Session" Location="/Session" showAttributeValues="false"/>
+            <Handler type="DiscoveryFeed" Location="/DiscoFeed"/>
+        </Sessions>
+
+        <Errors supportContact="admin@example.org"
+            helpLocation="/about.html"
+            styleSheet="/shibboleth-sp/main.css"/>
+
+        <MetadataProvider type="XML"
+            validate="true"
+            url="https://metadata.eduid.cz/entities/eduid+idp"
+            backingFilePath="eduid.xml"
+            maxRefreshDelay="900">
+
+            <MetadataFilter type="RequireValidUntil" maxValidityInterval="2419200"/>
+            <MetadataFilter type="Signature" certificate="metadata.eduid.cz.crt.pem" verifyBackup="false"/>
+        </MetadataProvider>
+
+        <AttributeExtractor type="XML" validate="true" reloadChanges="false" path="attribute-map.xml"/>
+        <AttributeResolver type="Query" subjectMatch="true"/>
+        <AttributeFilter type="XML" validate="true" path="attribute-policy.xml"/>
+
+        <CredentialResolver type="File"
+            key="/etc/shibboleth/sp-key.pem"
+            certificate="/etc/shibboleth/sp-cert.pem"/>
+
+    </ApplicationDefaults>
+
+    <SecurityPolicyProvider type="XML" validate="true" path="security-policy.xml"/>
+    <ProtocolProvider type="XML" validate="true" reloadChanges="false" path="protocols.xml"/>
+</SPConfig>
