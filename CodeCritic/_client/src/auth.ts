@@ -1,13 +1,20 @@
 import { IAppUser } from './cc-api';
 
-const fetchLoginRedirect = async () => {
-    const response = await fetch("home/login");
+const fetchRedirect = async (path: string) => {
+    const response = await fetch(path);
     const data = await response.json();
     return data.redirect as string | undefined;
 };
 
 export const redirectToLogin = async (redirect?: string) => {
-    const target = redirect || await fetchLoginRedirect();
+    const target = redirect || await fetchRedirect("home/login");
+    if (target) {
+        (window as any).location.href = target;
+    }
+};
+
+export const redirectToLogout = async () => {
+    const target = await fetchRedirect("home/logout-url");
     if (target) {
         (window as any).location.href = target;
     }

@@ -15,7 +15,7 @@ import SecurityIcon from '@material-ui/icons/Security';
 
 import { CodeCritic } from '../api';
 import { ICcEvent } from '../cc-api';
-import { redirectToLogin } from '../auth';
+import { redirectToLogout } from '../auth';
 import { useUser } from '../hooks/useUser';
 import {
     appDispatcher, commentService, getUser, httpClient, superAdmin, updateUser,
@@ -204,7 +204,7 @@ export const NavMenu = (props: NavMenuProps) => {
         <MenuItem onClick={() => {
           fetch("home/logout")
             .then(data => {
-              redirectToLogin();
+              redirectToLogout();
             })
         }}>
           <CancelIcon />Logout

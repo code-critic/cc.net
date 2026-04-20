@@ -17,6 +17,7 @@ namespace CC.Net.Config
         public string AESKey { get; set; }
         public string SysAdminPasswd { get; set; }
         public string LoginUrl { get; set; }
+        public string LogoutUrl { get; set; }
         public string ReturnUrl { get; set; } = null;
         public string Version { get; set; } = "develop";
         public bool CanProcess { get; set; }

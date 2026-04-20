@@ -50,6 +50,29 @@ namespace Cc.Net.Controllers
             ? $"{_appOptions.LoginUrl}"
             : $"{_appOptions.LoginUrl}?returnurl={_appOptions.ReturnUrl}";
 
+        private string LogoutUrl
+        {
+            get
+            {
+                if (!string.IsNullOrEmpty(_appOptions.LogoutUrl))
+                {
+                    return _appOptions.LogoutUrl;
+                }
+
+                if (string.IsNullOrEmpty(_appOptions.LoginUrl))
+                {
+                    return "/";
+                }
+
+                if (Uri.TryCreate(_appOptions.LoginUrl, UriKind.Absolute, out var loginUri))
+                {
+                    return $"{loginUri.GetLeftPart(UriPartial.Authority)}/secure/";
+                }
+
+                return "/secure/";
+            }
+        }
+
         [HttpGet("whoami")]
         [AllowAnonymous]
         [ProducesResponseType(typeof(AppUser), StatusCodes.Status200OK)]
@@ -99,6 +122,14 @@ namespace Cc.Net.Controllers
             // https://localhost:5001/Home/Logout
             HttpContext.SignOutAsync("CookieAuth");
             return true;
+        }
+
+        [AllowAnonymous]
+        [Route("logout-url")]
+        [HttpGet]
+        public IActionResult LogoutUrlTarget()
+        {
+            return Ok(new { redirect = LogoutUrl });
         }
 
 
