@@ -1,7 +1,17 @@
 import { IAppUser } from './cc-api';
 
-const defaultAuthUrl = `https://flowdb.nti.tul.cz/auth/index.php`;
-const defaultLoginUrl = `${defaultAuthUrl}?returnurl=${window.location.origin}/home/login`;
+const fetchLoginRedirect = async () => {
+    const response = await fetch("home/login");
+    const data = await response.json();
+    return data.redirect as string | undefined;
+};
+
+export const redirectToLogin = async (redirect?: string) => {
+    const target = redirect || await fetchLoginRedirect();
+    if (target) {
+        (window as any).location.href = target;
+    }
+};
 
 export const auth = () => {
     return new Promise((resolve, reject) => {
@@ -23,12 +33,12 @@ export const auth = () => {
                         response
                         .json()
                         .then((data: any) => {
-                            const { error, message, redirect } = data;
-                            (window as any).location.href = defaultLoginUrl;
+                            const { redirect } = data;
+                            redirectToLogin(redirect);
                         })
                     } else {
                         console.log('auth error', (window as any).currentUser);
-                        (window as any).location.href = defaultLoginUrl;
+                        redirectToLogin();
                         reject();
                     }
                 }
@@ -36,7 +46,7 @@ export const auth = () => {
             .catch(response => {
                 debugger;
                 console.log('auth error', (window as any).currentUser);
-                (window as any).location.href = defaultLoginUrl;
+                redirectToLogin();
                 reject();
             })
     });
