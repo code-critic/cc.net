@@ -163,6 +163,64 @@ sudo systemctl status authservice --no-pager
 curl http://127.0.0.1:8181/health
 ```
 
+## Apache and Shibboleth phase 1 setup
+
+Once `AuthService` is healthy on `127.0.0.1:8181`, install the temporary Apache + Shibboleth phase-1 listener on `:8080`.
+
+Prerequisites on the VM:
+
+- Apache installed
+- Shibboleth SP installed
+- `/etc/apache2`
+- `/etc/shibboleth`
+
+Can be installed by:
+```bash
+sudo apt install apache2 shibboleth-sp-common shibboleth-sp-utils libapache2-mod-shib
+```
+
+The repository contains a helper script:
+
+- `AuthService/install_apache_shibbo_phase1.sh`
+
+It will:
+
+- install the Apache auth vhost to:
+  - `/etc/apache2/sites-available/code-critic-auth.conf`
+- replace Apache port listeners with the phase-1 auth-only layout:
+  - `/etc/apache2/ports.conf`
+- install a global Apache `ServerName` snippet:
+  - `/etc/apache2/conf-available/code-critic-servername.conf`
+- install the Shibboleth templates into:
+  - `/etc/shibboleth/shibboleth2.xml`
+  - `/etc/shibboleth/attribute-map.xml`
+  - `/etc/shibboleth/metadata-template.xml`
+- enable required Apache modules:
+  - `headers`
+  - `proxy`
+  - `proxy_http`
+  - `shib`
+- disable default Apache sites that bind `:80`
+- enable the Apache site
+- run `apache2ctl configtest`
+- restart `shibd`
+- restart `apache2`
+
+Run it with:
+
+```bash
+cd /home/code-critic/projects/cc.net/AuthService
+bash install_apache_shibbo_phase1.sh
+```
+
+Useful checks after installation:
+
+```bash
+sudo systemctl status apache2 --no-pager
+sudo systemctl status shibd --no-pager
+curl http://127.0.0.1:8080/health
+```
+
 ## Expected Shibboleth attributes
 
 The app expects Apache to pass:
