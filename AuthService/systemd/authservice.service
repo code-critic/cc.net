@@ -4,11 +4,11 @@ After=network.target
 
 [Service]
 Type=simple
-User=www-data
-Group=www-data
-WorkingDirectory=/opt/code-critic/AuthService
+User=code-critic
+Group=code-critic
+WorkingDirectory=/home/code-critic/projects/publish/AuthService
 EnvironmentFile=/etc/code-critic/authservice.env
-ExecStart=/opt/code-critic/AuthService/.venv/bin/gunicorn --workers 2 --bind 127.0.0.1:8181 wsgi:app
+ExecStart=/home/code-critic/projects/publish/AuthService/.venv/bin/gunicorn --workers 2 --bind 127.0.0.1:8181 wsgi:app
 Restart=always
 RestartSec=3
 

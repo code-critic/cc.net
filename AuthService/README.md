@@ -9,7 +9,7 @@ It is designed to run on the same VM as `cc.net` and sit behind Apache + Shibbol
 3. This app builds the JSON payload expected by `cc.net`.
 4. This app encrypts the payload using the shared `AESKey`.
 5. This app redirects the user to `cc.net` callback:
-   `https://code-critic.example.org/home/login/<token>`
+   `http://code-critic.example.org/home/login/<token>`
 
 ## Why this exists
 
@@ -22,10 +22,13 @@ It is designed to run on the same VM as `cc.net` and sit behind Apache + Shibbol
 
 - Flask application with routes:
   - `GET /auth/index.php`
+  - `GET /auth/debug/`
   - `GET /secure/`
   - `GET /health`
 - AES-CBC encryption compatible with the current `.NET` code
 - strict allowlist for `returnurl`
+- browser debug page for Shibboleth attribute and token inspection
+- CLI helper for decrypting generated tokens
 - Apache reverse-proxy template
 - Shibboleth SP config template for eduID.cz federation
 - systemd unit template
@@ -44,14 +47,22 @@ It is designed to run on the same VM as `cc.net` and sit behind Apache + Shibbol
 
 ## Deployment model
 
-The intended deployment is:
+The current phase 1 deployment is:
 
-- Apache on public `:443`
+- `cc.net` remains on public `:80`
+- Apache + Shibboleth SP on `:8080`
 - Shibboleth SP integrated with Apache
 - `AuthService` on `127.0.0.1:8181`
-- `cc.net` on its existing local port
+- callback back to `http://code-critic.nti.tul.cz/home/login`
 
-This keeps Shibboleth state and trust decisions in Apache/SP and keeps the Python app small.
+This keeps the current `cc.net` process unchanged while moving only the auth bridge onto a dedicated Shibboleth-aware listener.
+
+The later target deployment is:
+
+- Apache in front of the whole site
+- `cc.net` moved behind localhost
+- HTTPS everywhere
+- final public URLs without the temporary `:8080` auth port
 
 ## Configuration
 
@@ -86,6 +97,38 @@ Optional:
 
 That matches the current `cc.net` payload model better than plain `eduPersonAffiliation`.
 
+## Independent bridge testing
+
+To verify Shibboleth and token generation without involving `cc.net`:
+
+- open `/auth/debug/` behind Shibboleth
+  - shows received Shibboleth attributes
+  - shows the encrypted token
+  - shows the decrypted payload again for visual inspection
+  - accepts an optional `returnurl` query parameter and shows the final callback URL
+- run the CLI helper:
+
+```bash
+python3 decrypt_token.py '<token>'
+```
+
+If `AUTHSERVICE_AES_KEY` is not loaded in the shell environment, you can override it:
+
+```bash
+python3 decrypt_token.py '<token>' --aes-key 'SXVSqERWLUqchC2h'
+```
+
+For the agreed phase 1 browser flow, the intended URLs are:
+
+- auth login entrypoint:
+  - `http://code-critic.nti.tul.cz:8080/auth/index.php`
+- auth debug page:
+  - `http://code-critic.nti.tul.cz:8080/auth/debug/`
+- auth logout landing page:
+  - `http://code-critic.nti.tul.cz:8080/secure/`
+- `cc.net` callback:
+  - `http://code-critic.nti.tul.cz/home/login`
+
 ## Online references used
 
 These templates are based on:
@@ -108,13 +151,16 @@ Inference:
 ## Information still needed from you
 
 1. Public hostname for the new auth endpoint.
-   Example: `code-critic.nti.tul.cz`
+   Current working decision:
+   - `code-critic.nti.tul.cz`
 
 2. Canonical callback URL to allow.
-   Example: `https://code-critic.nti.tul.cz/home/login`
+   Current working decision:
+   - `http://code-critic.nti.tul.cz/home/login`
 
 3. Contact email to publish in SP metadata.
-   Example: admin or service owner address.
+   Current working decision:
+   - `jan.brezina@tul.cz`
 
 4. Whether the service should be registered in `eduID.cz` federation.
    This is the default assumption in the templates.
@@ -125,17 +171,23 @@ Inference:
 6. Whether TUL releases `eduPersonPrincipalName` and `eduPersonScopedAffiliation` to new SPs by default.
 
 7. Paths where you want the deployed files installed on the VM.
-   Current templates assume:
-   - `/opt/code-critic/AuthService`
+   Current working decision:
+   - `/home/code-critic/projects/publish/AuthService`
    - `/etc/code-critic/authservice.env`
    - `/etc/shibboleth/*`
 
 8. Which Unix user should run the service.
-   Current template uses `www-data` as a placeholder.
+   Current working decision:
+   - `code-critic`
+
+9. Which SP entity ID should be used.
+   Current working decision:
+   - `https://code-critic.nti.tul.cz/shibboleth`
 
 ## Notes
 
 - No secrets are committed here.
 - No Shibboleth keys or certs are generated in the repository.
 - Backend access should remain bound to localhost only.
-- The current React frontend still hardcodes the dead `flowdb` URL, so `cc.net` itself also needs a small patch after this service is deployed.
+- The phase 1 templates intentionally target HTTP on `:8080` for auth only.
+- The long-term SP identity remains `https://code-critic.nti.tul.cz/shibboleth` even though phase 1 uses a temporary auth port.

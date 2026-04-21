@@ -27,6 +27,6 @@
     <md:ContactPerson contactType="technical">
         <md:GivenName>Code Critic</md:GivenName>
         <md:SurName>Administrator</md:SurName>
-        <md:EmailAddress>mailto:admin@example.org</md:EmailAddress>
+        <md:EmailAddress>mailto:pavel.exner@tul.cz</md:EmailAddress>
     </md:ContactPerson>
 </md:EntityDescriptor>
