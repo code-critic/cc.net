@@ -230,3 +230,7 @@ appsettings.secret
 /build/courses/
 /build/models/src/
 /build/models/swagger.json
+
+# Python
+__pycache__/
+*.py[cod]
