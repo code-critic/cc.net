@@ -79,6 +79,90 @@ Key settings:
 
 The AES key must be the same value currently used by `cc.net` in deployed `appsettings.secret.json`.
 
+### What `AUTHSERVICE_AES_KEY` is for
+
+`AUTHSERVICE_AES_KEY` is the shared secret used to encrypt the auth payload that `cc.net` receives on:
+
+- `/home/login/<token>`
+
+It is not a new independent secret for the bridge. For this migration it must exactly match the AES key already used by the deployed `cc.net` instance, otherwise:
+
+- `AuthService` will generate tokens
+- `cc.net` will fail to decrypt them
+- login will break even if Shibboleth succeeds
+
+Current deployment evidence shows the existing `cc.net` key is stored in:
+
+- `projects/publish/1.2.24/www/appsettings.secret.json`
+
+For phase 1, that same value should be copied into:
+
+- `/etc/code-critic/authservice.env`
+
+Do not generate a fresh key for this migration unless you also rotate `cc.net` to use the same new key at the same time.
+
+If you ever do need to generate a replacement key in the future, it must be:
+
+- ASCII only
+- 16, 24, or 32 bytes long
+
+but again, for the current recovery work the correct source is the existing deployed `cc.net` secret.
+
+## Installation on the VM
+
+The repository contains a helper script that installs `AuthService` into the agreed publish path, creates the Python virtual environment, installs dependencies, installs the `systemd` unit, and optionally starts the service.
+
+The script always reads the release version from:
+
+- `AuthService/version`
+
+### Install or update the release
+
+```bash
+cd /home/code-critic/projects/cc.net/AuthService
+bash install_authservice.sh
+```
+
+This creates:
+
+- versioned release directory:
+  - `/home/code-critic/projects/publish/AuthService-<version>`
+- stable active path:
+  - `/home/code-critic/projects/publish/AuthService`
+- environment file if missing:
+  - `/etc/code-critic/authservice.env`
+- systemd unit:
+  - `/etc/systemd/system/authservice.service`
+
+### Edit the environment file
+
+```bash
+sudoedit /etc/code-critic/authservice.env
+```
+
+At minimum set:
+
+```dotenv
+AUTHSERVICE_AES_KEY=XXXXXXXXXXXXXXXXXXXXXXXX
+AUTHSERVICE_ALLOWED_RETURN_URLS=http://code-critic.nti.tul.cz/home/login
+AUTHSERVICE_DEFAULT_RETURN_URL=http://code-critic.nti.tul.cz/home/login
+AUTHSERVICE_SUPPORT_EMAIL=pavel.exner@tul.cz
+```
+
+### Start the service
+
+```bash
+cd /home/code-critic/projects/cc.net/AuthService
+bash install_authservice.sh --start
+```
+
+### Useful checks
+
+```bash
+sudo systemctl status authservice --no-pager
+curl http://127.0.0.1:8181/health
+```
+
 ## Expected Shibboleth attributes
 
 The app expects Apache to pass:
@@ -115,7 +199,7 @@ python3 decrypt_token.py '<token>'
 If `AUTHSERVICE_AES_KEY` is not loaded in the shell environment, you can override it:
 
 ```bash
-python3 decrypt_token.py '<token>' --aes-key 'SXVSqERWLUqchC2h'
+python3 decrypt_token.py '<token>' --aes-key '<AUTHSERVICE_AES_KEY>'
 ```
 
 For the agreed phase 1 browser flow, the intended URLs are:
@@ -160,7 +244,7 @@ Inference:
 
 3. Contact email to publish in SP metadata.
    Current working decision:
-   - `jan.brezina@tul.cz`
+   - `pavel.exner@tul.cz`
 
 4. Whether the service should be registered in `eduID.cz` federation.
    This is the default assumption in the templates.
