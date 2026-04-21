@@ -4,7 +4,7 @@
     clockSkew="180">
 
     <ApplicationDefaults
-        entityID="https://code-critic.nti.tul.cz/shibboleth"
+        entityID="http://code-critic.nti.tul.cz:8080/shibboleth"
         REMOTE_USER="eppn persistent-id targeted-id">
 
         <Sessions lifetime="28800"
@@ -14,8 +14,12 @@
             handlerSSL="false"
             cookieProps="http">
 
-            <!-- eduID.cz discovery service -->
-            <SSO discoveryProtocol="SAMLDS" discoveryURL="https://ds.eduid.cz/wayf.php">
+            <!--
+            Phase 1 keeps the recovery path simple and mirrors the old flowdb setup:
+            use the TUL IdP directly instead of the federation discovery service.
+            This avoids the temporary :8080 discovery return-url metadata mismatch.
+            -->
+            <SSO entityID="https://shibbo.tul.cz/idp/shibboleth">
                 SAML2
             </SSO>
 
@@ -31,15 +35,16 @@
             helpLocation="/about.html"
             styleSheet="/shibboleth-sp/main.css"/>
 
-        <MetadataProvider type="XML"
+        <!--
+        Phase 1 uses the same simpler TUL metadata source as the historical flowdb setup.
+        This avoids an extra dependency on the missing eduID metadata signing cert file.
+        -->
+        <MetadataProvider
+            type="XML"
             validate="true"
-            url="https://metadata.eduid.cz/entities/eduid+idp"
-            backingFilePath="eduid.xml"
-            maxRefreshDelay="900">
-
-            <MetadataFilter type="RequireValidUntil" maxValidityInterval="2419200"/>
-            <MetadataFilter type="Signature" certificate="metadata.eduid.cz.crt.pem" verifyBackup="false"/>
-        </MetadataProvider>
+            url="https://shibbo.tul.cz/metadata/tul-metadata.xml"
+            backingFilePath="tul-metadata.xml"
+            reloadInterval="72000"/>
 
         <AttributeExtractor type="XML" validate="true" reloadChanges="false" path="attribute-map.xml"/>
         <AttributeResolver type="Query" subjectMatch="true"/>

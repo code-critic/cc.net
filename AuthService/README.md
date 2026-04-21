@@ -57,12 +57,44 @@ The current phase 1 deployment is:
 
 This keeps the current `cc.net` process unchanged while moving only the auth bridge onto a dedicated Shibboleth-aware listener.
 
+For phase 1, the Shibboleth SP uses the TUL IdP directly instead of the eduID discovery service. This matches the old `flowdb` deployment more closely and avoids discovery-service return URL validation while the bridge still lives on the temporary `:8080` HTTP listener.
+
+For the same reason, phase 1 also uses the TUL metadata source directly:
+
+- `https://shibbo.tul.cz/metadata/tul-metadata.xml`
+
 The later target deployment is:
 
 - Apache in front of the whole site
 - `cc.net` moved behind localhost
 - HTTPS everywhere
 - final public URLs without the temporary `:8080` auth port
+
+### Phase 1 SP identity
+
+For the temporary HTTP `:8080` deployment, the SP identity must match the actual public Shibboleth handler endpoint used by the discovery service.
+
+Current phase 1 SP entity ID:
+
+- `http://code-critic.nti.tul.cz:8080/shibboleth`
+
+This is intentionally temporary.
+
+Because this temporary phase-1 identity is different from the final HTTPS identity, the live SP metadata exposed by the VM must also match it during phase 1.
+
+For the currently chosen direct-TUL-IdP phase 1 path, this means:
+
+- the live Shibboleth metadata exposed by the VM must use `http://code-critic.nti.tul.cz:8080/shibboleth`
+- login goes directly to `https://shibbo.tul.cz/idp/shibboleth`
+- eduID discovery-service registration is not required for this temporary step
+
+If we later re-enable federation discovery before phase 2, then the federation-facing metadata must also be updated to trust that same temporary phase-1 SP identity.
+
+The later phase 2 target identity is:
+
+- `https://code-critic.nti.tul.cz/shibboleth`
+
+That later HTTPS identity should be adopted only when Apache fronts the whole site and the public Shibboleth handler really lives on the final canonical HTTPS host.
 
 ## Configuration
 
@@ -195,6 +227,9 @@ It will:
   - `/etc/shibboleth/shibboleth2.xml`
   - `/etc/shibboleth/attribute-map.xml`
   - `/etc/shibboleth/metadata-template.xml`
+- generate the SP keypair if missing:
+  - `/etc/shibboleth/sp-key.pem`
+  - `/etc/shibboleth/sp-cert.pem`
 - enable required Apache modules:
   - `headers`
   - `proxy`
@@ -220,6 +255,19 @@ sudo systemctl status apache2 --no-pager
 sudo systemctl status shibd --no-pager
 curl http://127.0.0.1:8080/health
 ```
+
+Useful metadata checks:
+
+```bash
+curl -H 'Host: code-critic.nti.tul.cz:8080' http://127.0.0.1:8080/Shibboleth.sso/Metadata
+```
+
+The generated metadata should contain:
+
+- entity ID:
+  - `http://code-critic.nti.tul.cz:8080/shibboleth`
+- ACS / login handler endpoints under:
+  - `http://code-critic.nti.tul.cz:8080/Shibboleth.sso/...`
 
 ## Expected Shibboleth attributes
 
@@ -324,7 +372,10 @@ Inference:
 
 9. Which SP entity ID should be used.
    Current working decision:
-   - `https://code-critic.nti.tul.cz/shibboleth`
+   - phase 1 temporary identity:
+     - `http://code-critic.nti.tul.cz:8080/shibboleth`
+   - phase 2 target identity:
+     - `https://code-critic.nti.tul.cz/shibboleth`
 
 ## Notes
 
@@ -332,4 +383,5 @@ Inference:
 - No Shibboleth keys or certs are generated in the repository.
 - Backend access should remain bound to localhost only.
 - The phase 1 templates intentionally target HTTP on `:8080` for auth only.
-- The long-term SP identity remains `https://code-critic.nti.tul.cz/shibboleth` even though phase 1 uses a temporary auth port.
+- The SP identity is intentionally temporary in phase 1 so eduID return-parameter checks match the actual `:8080` Shibboleth handler.
+- The long-term target remains `https://code-critic.nti.tul.cz/shibboleth` for the later unified HTTPS deployment.

@@ -53,6 +53,7 @@ require_command a2enmod
 require_command a2ensite
 require_command apache2ctl
 require_command systemctl
+require_command shib-keygen
 
 if [[ ! -d /etc/apache2 ]]; then
     echo "/etc/apache2 does not exist. Apache does not appear to be installed." >&2
@@ -70,6 +71,13 @@ sudo install -m 644 "$APACHE_SERVERNAME_SOURCE" "$APACHE_SERVERNAME_TARGET"
 sudo install -m 644 "$SHIB_SOURCE_DIR/shibboleth2.xml" "$SHIB_DIR/shibboleth2.xml"
 sudo install -m 644 "$SHIB_SOURCE_DIR/attribute-map.xml" "$SHIB_DIR/attribute-map.xml"
 sudo install -m 644 "$SHIB_SOURCE_DIR/metadata-template.xml" "$SHIB_DIR/metadata-template.xml"
+
+if ! sudo test -f "$SHIB_DIR/sp-key.pem" || ! sudo test -f "$SHIB_DIR/sp-cert.pem"; then
+    sudo shib-keygen \
+        -o "$SHIB_DIR" \
+        -h "code-critic.nti.tul.cz" \
+        -e "http://code-critic.nti.tul.cz:8080/shibboleth"
+fi
 
 sudo a2enmod headers proxy proxy_http shib
 sudo a2enconf code-critic-servername
