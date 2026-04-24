@@ -16,7 +16,7 @@ StartLimitIntervalSec=0
 
 [Service]
 Type=simple
-User=jan-hybs
+User=code-critic
 Restart=always
 RestartSec=3
 ExecStart=/home/code-critic/.local/bin/cc.latest --prod true --urls http://127.0.0.1:5000
