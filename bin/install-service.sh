@@ -7,7 +7,7 @@ workdir=$DIR
 # cat << EOT > $DIR/cc.service
 # Restart=always
 # RestartSec=3
-# ExecStart=/home/jan-hybs/projects/cc/publish/1.1.0/www/cc.net --urls http://0.0.0.0:5000
+# ExecStart=/home/jan-hybs/projects/cc/publish/1.1.0/www/cc.net --urls http://127.0.0.1:5000
 # WorkingDirectory=/home/jan-hybs/projects/cc/publish/1.1.0/www
 cat << EOT > /etc/systemd/system/cc.service
 [Unit]
@@ -19,7 +19,7 @@ Type=simple
 User=jan-hybs
 Restart=always
 RestartSec=3
-ExecStart=/home/jan-hybs/.local/bin/cc.latest --prod true --urls http://0.0.0.0:5000
+ExecStart=/home/code-critic/.local/bin/cc.latest --prod true --urls http://127.0.0.1:5000
 
 [Install]
 WantedBy=multi-user.target

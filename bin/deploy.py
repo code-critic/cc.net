@@ -7,6 +7,7 @@ import subprocess
 
 parser = OptionParser()
 parser.add_option("-p", "--port", type=str, default="80")
+parser.add_option("--bind-host", type=str, default="127.0.0.1")
 parser.add_option("-k", "--kill", dest="kill", action="store_true", default=False)
 parser.add_option("-b", "--background", action="store_false", default=False)
 parser.add_option("-e", "--execute", action="store_true", default=False)
@@ -29,6 +30,7 @@ port = options.port
 github_zip = options.url
 background = options.background
 dbg = options.dbg
+bind_host = options.bind_host
 
 
 def create_symlink(ccpublish: Path):
@@ -86,11 +88,11 @@ def main():
 
     if options.execute:
         if background:
-            Popen(['./cc.net', '--urls', f'http://0.0.0.0:{port}'], cwd=str(ccpublish),
+            Popen(['./cc.net', '--urls', f'http://{bind_host}:{port}'], cwd=str(ccpublish),
                 stdout=PIPE, stderr=subprocess.STDOUT, preexec_fn=os.setsid)
             exit(0)
         else:
-            Popen(['./cc.net', '--urls', f'http://0.0.0.0:{port}'], cwd=str(ccpublish)).wait()
+            Popen(['./cc.net', '--urls', f'http://{bind_host}:{port}'], cwd=str(ccpublish)).wait()
     else:
         print('restart cc by running\nkillall cc.latest')
 
