@@ -2,7 +2,7 @@
 
 ## Completed in repository
 
-The new auth bridge has been started in:
+The new auth bridge and HTTPS-fronted deployment assets now exist in:
 
 - [AuthService/README.md](/home/jb/workspace/cc.net/AuthService/README.md:1)
 - [AuthService/auth_service/app.py](/home/jb/workspace/cc.net/AuthService/auth_service/app.py:1)
@@ -15,13 +15,18 @@ Implemented so far:
 
 - minimal Flask service
 - `GET /auth/index.php`
+- `GET /auth/debug/`
 - `GET /secure/`
 - `GET /health`
 - AES-CBC encryption compatible with current `cc.net`
 - env-based configuration
-- Apache reverse-proxy template
-- Shibboleth SP template for eduID.cz-style deployment
+- Apache HTTPS frontend template
+- Shibboleth SP template for the final HTTPS identity
 - systemd unit template
+- repo defaults updated for Apache-fronted deployment
+  - `CodeCritic/appsettings.json` points to the new HTTPS login/logout/callback URLs
+  - `bin/install-service.sh` binds `cc.net` to `127.0.0.1:5000`
+  - `bin/deploy.py` defaults to `127.0.0.1`
 
 Verified locally:
 
@@ -39,29 +44,26 @@ Relevant code points:
 - [CodeCritic/Services/Execution/ExecutionCommand.cs](/home/jb/workspace/cc.net/CodeCritic/Services/Execution/ExecutionCommand.cs:30)
 - [bin/install-service.sh](/home/jb/workspace/cc.net/bin/install-service.sh:12)
 
-## Current unknowns on the live host
+## Current live-host objective
 
-The host does not appear to have a normal Apache layout under `/etc/apache2`.
+The repo now assumes the target live shape is:
 
-That means one of these is likely true:
+- Apache owns the public HTTPS frontend
+- `cc.net` runs on `127.0.0.1:5000`
+- `AuthService` runs on `127.0.0.1:8181`
+- Shibboleth SP is exposed as `https://code-critic.nti.tul.cz/shibboleth`
 
-- the frontend web server is `nginx`
-- the frontend web server is `caddy`
-- a reverse proxy is running in Docker
-- `cc.net` is exposed more directly than expected
-- TLS termination happens elsewhere
-
-This must be identified on the live server before finalizing deployment config for `AuthService`.
+The main remaining work is to align the live VM with that repo state.
 
 ## What still needs to be discovered on the host
 
-1. Which process owns ports `80` and `443`
-2. Which web server or proxy terminates TLS
-3. Whether Shibboleth SP is already installed
-4. The actual public hostname used by users
-5. The deployed `ReturnUrl`
-6. The deployed `AESKey`
-7. The active published `cc.net` directory
+1. Which process currently owns ports `80` and `443`
+2. Whether Apache is already installed and usable as the HTTPS frontend
+3. Whether TLS termination is currently local or external
+4. The active published `cc.net` directory
+5. The deployed `AESKey`
+6. Whether the live app config still points to dead `flowdb`
+7. Which certificate source should be used for Apache on `code-critic.nti.tul.cz`
 
 ## Commands to run on the live host
 
@@ -107,16 +109,19 @@ Likely useful paths:
 
 ## URL assumption for same-host deployment
 
-If `AuthService` is deployed on the same server as `cc.net`, the recommended public URLs are:
+For the current target deployment, the recommended public URLs are:
 
 - `https://<public-host>/auth/index.php`
+- `https://<public-host>/secure/`
 - `https://<public-host>/home/login`
+- `https://<public-host>/Shibboleth.sso/Metadata`
 
-The Python service itself should still listen only on localhost, for example:
+The internal services should still listen only on localhost, for example:
 
+- `127.0.0.1:5000` for `cc.net`
 - `127.0.0.1:8181`
 
-So the browser-facing URL is public, but the service process is local behind the reverse proxy.
+So the browser-facing URL is public, but both application processes stay local behind Apache.
 
 ## Federation note
 
@@ -133,11 +138,12 @@ This is still unresolved and needs confirmation from the TUL Shibboleth administ
 
 Once the live host details are known, the next steps are:
 
-1. Adjust the reverse-proxy config to the actual frontend server
-2. Fill in final public hostname and contact email
+1. Install or adapt Apache as the public HTTPS frontend
+2. Move the live `cc.net` service to `127.0.0.1:5000`
 3. Fill in deployment-only environment file with `AESKey`
-4. Add any missing Shibboleth metadata details required by TUL
-5. Patch `cc.net` frontend so it no longer hardcodes the dead `flowdb` URLs
+4. Install the Shibboleth SP on the HTTPS frontend
+5. Update live `LoginUrl`, `LogoutUrl`, and `ReturnUrl` to the HTTPS values
+6. Validate metadata and `/auth/debug/` independently
 
 ## User-provided information already known
 
