@@ -4,7 +4,6 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 APACHE_SOURCE="$SCRIPT_DIR/apache/code-critic-auth.conf"
-APACHE_PORTS_SOURCE="$SCRIPT_DIR/apache/ports-phase1.conf"
 APACHE_SERVERNAME_SOURCE="$SCRIPT_DIR/apache/servername.conf"
 SHIB_SOURCE_DIR="$SCRIPT_DIR/shibboleth"
 
@@ -19,19 +18,19 @@ Usage:
   ./install_apache_shibbo_phase1.sh
 
 What it does:
-  - installs the phase-1 Apache :8080 auth vhost
-  - replaces Apache port listeners with the phase-1 :8080-only layout
+  - installs the Apache HTTPS frontend for Code Critic
   - installs a global ServerName snippet for Apache
   - installs the AuthService Shibboleth templates into /etc/shibboleth
   - enables required Apache modules and the auth site
-  - disables the default Apache :80 sites
+  - enables ssl and the HTTPS site
   - config-tests Apache
   - restarts apache2 and shibd
 
 Assumptions:
   - Apache and Shibboleth SP packages are already installed
   - AuthService is already installed and running on 127.0.0.1:8181
-  - you are intentionally deploying the temporary HTTP :8080 auth listener
+  - cc.net is already running on 127.0.0.1:5000
+  - TLS certificate files referenced by the Apache vhost already exist
 EOF
 }
 
@@ -66,7 +65,6 @@ if [[ ! -d "$SHIB_DIR" ]]; then
 fi
 
 sudo install -m 644 "$APACHE_SOURCE" "$APACHE_SITE_TARGET"
-sudo install -m 644 "$APACHE_PORTS_SOURCE" /etc/apache2/ports.conf
 sudo install -m 644 "$APACHE_SERVERNAME_SOURCE" "$APACHE_SERVERNAME_TARGET"
 sudo install -m 644 "$SHIB_SOURCE_DIR/shibboleth2.xml" "$SHIB_DIR/shibboleth2.xml"
 sudo install -m 644 "$SHIB_SOURCE_DIR/attribute-map.xml" "$SHIB_DIR/attribute-map.xml"
@@ -76,23 +74,24 @@ if ! sudo test -f "$SHIB_DIR/sp-key.pem" || ! sudo test -f "$SHIB_DIR/sp-cert.pe
     sudo shib-keygen \
         -o "$SHIB_DIR" \
         -h "code-critic.nti.tul.cz" \
-        -e "http://code-critic.nti.tul.cz:8080/shibboleth"
+        -e "https://code-critic.nti.tul.cz/shibboleth"
 fi
 
-sudo a2enmod headers proxy proxy_http shib
+sudo a2enmod headers proxy proxy_http shib ssl
 sudo a2enconf code-critic-servername
-sudo a2dissite 000-default default-ssl >/dev/null 2>&1 || true
+sudo a2dissite 000-default >/dev/null 2>&1 || true
 sudo a2ensite "$APACHE_SITE_NAME"
 
 sudo apache2ctl configtest
 sudo systemctl restart shibd
 sudo systemctl restart apache2
 
-echo "Apache/Shibboleth phase-1 auth listener installed."
+echo "Apache/Shibboleth HTTPS frontend installed."
 echo "Site: $APACHE_SITE_TARGET"
 echo "Shibboleth config dir: $SHIB_DIR"
 echo
 echo "Useful checks:"
 echo "  sudo systemctl status apache2 --no-pager"
 echo "  sudo systemctl status shibd --no-pager"
-echo "  curl http://127.0.0.1:8080/health"
+echo "  curl http://127.0.0.1:8181/health"
+echo "  curl -k https://127.0.0.1/Shibboleth.sso/Metadata -H 'Host: code-critic.nti.tul.cz'"

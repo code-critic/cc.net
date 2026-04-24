@@ -4,20 +4,20 @@
     clockSkew="180">
 
     <ApplicationDefaults
-        entityID="http://code-critic.nti.tul.cz:8080/shibboleth"
+        entityID="https://code-critic.nti.tul.cz/shibboleth"
         REMOTE_USER="eppn persistent-id targeted-id">
 
         <Sessions lifetime="28800"
             timeout="3600"
             relayState="ss:mem"
             checkAddress="false"
-            handlerSSL="false"
-            cookieProps="http">
+            handlerSSL="true"
+            cookieProps="https">
 
             <!--
-            Phase 1 keeps the recovery path simple and mirrors the old flowdb setup:
-            use the TUL IdP directly instead of the federation discovery service.
-            This avoids the temporary :8080 discovery return-url metadata mismatch.
+            Use the TUL IdP directly instead of the federation discovery service.
+            This keeps the recovery path close to the old flowdb setup while
+            exposing the SP on the final HTTPS frontend.
             -->
             <SSO entityID="https://shibbo.tul.cz/idp/shibboleth">
                 SAML2
@@ -36,8 +36,7 @@
             styleSheet="/shibboleth-sp/main.css"/>
 
         <!--
-        Phase 1 uses the same simpler TUL metadata source as the historical flowdb setup.
-        This avoids an extra dependency on the missing eduID metadata signing cert file.
+        Use the simpler TUL metadata source as in the historical flowdb setup.
         -->
         <MetadataProvider
             type="XML"

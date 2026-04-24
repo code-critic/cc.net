@@ -9,7 +9,7 @@ It is designed to run on the same VM as `cc.net` and sit behind Apache + Shibbol
 3. This app builds the JSON payload expected by `cc.net`.
 4. This app encrypts the payload using the shared `AESKey`.
 5. This app redirects the user to `cc.net` callback:
-   `http://code-critic.example.org/home/login/<token>`
+   `https://code-critic.example.org/home/login/<token>`
 
 ## Why this exists
 
@@ -47,54 +47,28 @@ It is designed to run on the same VM as `cc.net` and sit behind Apache + Shibbol
 
 ## Deployment model
 
-The current phase 1 deployment is:
+The current recovery deployment is:
 
-- `cc.net` remains on public `:80`
-- Apache + Shibboleth SP on `:8080`
-- Shibboleth SP integrated with Apache
+- Apache + Shibboleth SP on public `:443`
+- `cc.net` behind Apache on `127.0.0.1:5000`
 - `AuthService` on `127.0.0.1:8181`
-- callback back to `http://code-critic.nti.tul.cz/home/login`
+- callback back to `https://code-critic.nti.tul.cz/home/login`
 
-This keeps the current `cc.net` process unchanged while moving only the auth bridge onto a dedicated Shibboleth-aware listener.
+This keeps the application auth contract unchanged while moving the public frontend onto Apache.
 
-For phase 1, the Shibboleth SP uses the TUL IdP directly instead of the eduID discovery service. This matches the old `flowdb` deployment more closely and avoids discovery-service return URL validation while the bridge still lives on the temporary `:8080` HTTP listener.
+The Shibboleth SP uses the TUL IdP directly instead of the eduID discovery service. This matches the old `flowdb` deployment more closely and avoids introducing discovery-service behavior while the login recovery is being restored.
 
-For the same reason, phase 1 also uses the TUL metadata source directly:
+For the same reason, the SP also uses the TUL metadata source directly:
 
 - `https://shibbo.tul.cz/metadata/tul-metadata.xml`
 
-The later target deployment is:
+### SP identity
 
-- Apache in front of the whole site
-- `cc.net` moved behind localhost
-- HTTPS everywhere
-- final public URLs without the temporary `:8080` auth port
-
-### Phase 1 SP identity
-
-For the temporary HTTP `:8080` deployment, the SP identity must match the actual public Shibboleth handler endpoint used by the discovery service.
-
-Current phase 1 SP entity ID:
-
-- `http://code-critic.nti.tul.cz:8080/shibboleth`
-
-This is intentionally temporary.
-
-Because this temporary phase-1 identity is different from the final HTTPS identity, the live SP metadata exposed by the VM must also match it during phase 1.
-
-For the currently chosen direct-TUL-IdP phase 1 path, this means:
-
-- the live Shibboleth metadata exposed by the VM must use `http://code-critic.nti.tul.cz:8080/shibboleth`
-- login goes directly to `https://shibbo.tul.cz/idp/shibboleth`
-- eduID discovery-service registration is not required for this temporary step
-
-If we later re-enable federation discovery before phase 2, then the federation-facing metadata must also be updated to trust that same temporary phase-1 SP identity.
-
-The later phase 2 target identity is:
+The active SP identity is:
 
 - `https://code-critic.nti.tul.cz/shibboleth`
 
-That later HTTPS identity should be adopted only when Apache fronts the whole site and the public Shibboleth handler really lives on the final canonical HTTPS host.
+The live Shibboleth metadata exposed by the VM must therefore use that same HTTPS identity.
 
 ## Configuration
 
@@ -127,7 +101,7 @@ Current deployment evidence shows the existing `cc.net` key is stored in:
 
 - `projects/publish/1.2.24/www/appsettings.secret.json`
 
-For phase 1, that same value should be copied into:
+For this recovery deployment, that same value should be copied into:
 
 - `/etc/code-critic/authservice.env`
 
@@ -176,8 +150,8 @@ At minimum set:
 
 ```dotenv
 AUTHSERVICE_AES_KEY=XXXXXXXXXXXXXXXXXXXXXXXX
-AUTHSERVICE_ALLOWED_RETURN_URLS=http://code-critic.nti.tul.cz/home/login
-AUTHSERVICE_DEFAULT_RETURN_URL=http://code-critic.nti.tul.cz/home/login
+AUTHSERVICE_ALLOWED_RETURN_URLS=https://code-critic.nti.tul.cz/home/login
+AUTHSERVICE_DEFAULT_RETURN_URL=https://code-critic.nti.tul.cz/home/login
 AUTHSERVICE_SUPPORT_EMAIL=pavel.exner@tul.cz
 ```
 
@@ -195,9 +169,9 @@ sudo systemctl status authservice --no-pager
 curl http://127.0.0.1:8181/health
 ```
 
-## Apache and Shibboleth phase 1 setup
+## Apache and Shibboleth HTTPS setup
 
-Once `AuthService` is healthy on `127.0.0.1:8181`, install the temporary Apache + Shibboleth phase-1 listener on `:8080`.
+Once `AuthService` is healthy on `127.0.0.1:8181`, install the Apache + Shibboleth HTTPS frontend.
 
 Prerequisites on the VM:
 
@@ -219,8 +193,6 @@ It will:
 
 - install the Apache auth vhost to:
   - `/etc/apache2/sites-available/code-critic-auth.conf`
-- replace Apache port listeners with the phase-1 auth-only layout:
-  - `/etc/apache2/ports.conf`
 - install a global Apache `ServerName` snippet:
   - `/etc/apache2/conf-available/code-critic-servername.conf`
 - install the Shibboleth templates into:
@@ -235,7 +207,7 @@ It will:
   - `proxy`
   - `proxy_http`
   - `shib`
-- disable default Apache sites that bind `:80`
+- `ssl`
 - enable the Apache site
 - run `apache2ctl configtest`
 - restart `shibd`
@@ -253,21 +225,21 @@ Useful checks after installation:
 ```bash
 sudo systemctl status apache2 --no-pager
 sudo systemctl status shibd --no-pager
-curl http://127.0.0.1:8080/health
+curl http://127.0.0.1:8181/health
 ```
 
 Useful metadata checks:
 
 ```bash
-curl -H 'Host: code-critic.nti.tul.cz:8080' http://127.0.0.1:8080/Shibboleth.sso/Metadata
+curl -k https://127.0.0.1/Shibboleth.sso/Metadata -H 'Host: code-critic.nti.tul.cz'
 ```
 
 The generated metadata should contain:
 
 - entity ID:
-  - `http://code-critic.nti.tul.cz:8080/shibboleth`
+  - `https://code-critic.nti.tul.cz/shibboleth`
 - ACS / login handler endpoints under:
-  - `http://code-critic.nti.tul.cz:8080/Shibboleth.sso/...`
+  - `https://code-critic.nti.tul.cz/Shibboleth.sso/...`
 
 ## Expected Shibboleth attributes
 
@@ -308,16 +280,16 @@ If `AUTHSERVICE_AES_KEY` is not loaded in the shell environment, you can overrid
 python3 decrypt_token.py '<token>' --aes-key '<AUTHSERVICE_AES_KEY>'
 ```
 
-For the agreed phase 1 browser flow, the intended URLs are:
+For the current browser flow, the intended URLs are:
 
 - auth login entrypoint:
-  - `http://code-critic.nti.tul.cz:8080/auth/index.php`
+  - `https://code-critic.nti.tul.cz/auth/index.php`
 - auth debug page:
-  - `http://code-critic.nti.tul.cz:8080/auth/debug/`
+  - `https://code-critic.nti.tul.cz/auth/debug/`
 - auth logout landing page:
-  - `http://code-critic.nti.tul.cz:8080/secure/`
+  - `https://code-critic.nti.tul.cz/secure/`
 - `cc.net` callback:
-  - `http://code-critic.nti.tul.cz/home/login`
+  - `https://code-critic.nti.tul.cz/home/login`
 
 ## Online references used
 
@@ -346,17 +318,17 @@ Inference:
 
 2. Canonical callback URL to allow.
    Current working decision:
-   - `http://code-critic.nti.tul.cz/home/login`
+   - `https://code-critic.nti.tul.cz/home/login`
 
 3. Contact email to publish in SP metadata.
    Current working decision:
    - `pavel.exner@tul.cz`
 
 4. Whether the service should be registered in `eduID.cz` federation.
-   This is the default assumption in the templates.
+   Current template talks directly to the TUL IdP instead.
 
 5. Whether TUL requires a particular IdP selection flow.
-   Current template uses the eduID.cz discovery service.
+   Current template uses direct TUL IdP login.
 
 6. Whether TUL releases `eduPersonPrincipalName` and `eduPersonScopedAffiliation` to new SPs by default.
 
@@ -372,16 +344,13 @@ Inference:
 
 9. Which SP entity ID should be used.
    Current working decision:
-   - phase 1 temporary identity:
-     - `http://code-critic.nti.tul.cz:8080/shibboleth`
-   - phase 2 target identity:
-     - `https://code-critic.nti.tul.cz/shibboleth`
+   - `https://code-critic.nti.tul.cz/shibboleth`
 
 ## Notes
 
 - No secrets are committed here.
 - No Shibboleth keys or certs are generated in the repository.
 - Backend access should remain bound to localhost only.
-- The phase 1 templates intentionally target HTTP on `:8080` for auth only.
-- The SP identity is intentionally temporary in phase 1 so eduID return-parameter checks match the actual `:8080` Shibboleth handler.
-- The long-term target remains `https://code-critic.nti.tul.cz/shibboleth` for the later unified HTTPS deployment.
+- The active templates target the HTTPS frontend on `https://code-critic.nti.tul.cz`.
+- `cc.net` is expected to run internally behind Apache, typically on `127.0.0.1:5000`.
+- `AuthService` remains bound to localhost only.
