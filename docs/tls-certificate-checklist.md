@@ -142,6 +142,11 @@ You will copy the full block including:
 Follow CESNET TCS (TUL is a member):
 https://pki.cesnet.cz/cs/guide-server-tcs-main.html
 
+The chain certificate is currently at:
+https://pki.cesnet.cz/cs/certificates-tcs.html
+GEANT TLS RSA 1 (mezilehlý certifikát)
+Download "Certifikát CA" pem.
+
 When the TCS form says:
 
 - `Emaily pro notifikace (odd. mezerou)`
