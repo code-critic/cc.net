@@ -1,152 +1,276 @@
 # Current Status
 
-## Completed in repository
+## Summary
 
-The new auth bridge and HTTPS-fronted deployment assets now exist in:
+The Shibboleth recovery work is no longer in the “investigate architecture” stage.
 
-- [AuthService/README.md](/home/jb/workspace/cc.net/AuthService/README.md:1)
-- [AuthService/auth_service/app.py](/home/jb/workspace/cc.net/AuthService/auth_service/app.py:1)
-- [AuthService/auth_service/crypto.py](/home/jb/workspace/cc.net/AuthService/auth_service/crypto.py:1)
-- [AuthService/apache/code-critic-auth.conf](/home/jb/workspace/cc.net/AuthService/apache/code-critic-auth.conf:1)
-- [AuthService/shibboleth/shibboleth2.xml](/home/jb/workspace/cc.net/AuthService/shibboleth/shibboleth2.xml:1)
-- [AuthService/systemd/authservice.service](/home/jb/workspace/cc.net/AuthService/systemd/authservice.service:1)
+The current state is:
 
-Implemented so far:
+- `AuthService` is deployed and running correctly on the VM
+- `cc.net` has been redeployed from the current repo branch
+- `cc.net` now runs only on `127.0.0.1:5000`
+- the old temporary Apache `:8080` auth-only setup has been replaced on disk by the final HTTPS-oriented Apache and Shibboleth config
+- `shibd` is running with the final HTTPS SP identity
+- Apache is intentionally inactive because the final TLS certificate files do not exist yet
 
-- minimal Flask service
-- `GET /auth/index.php`
-- `GET /auth/debug/`
-- `GET /secure/`
-- `GET /health`
-- AES-CBC encryption compatible with current `cc.net`
-- env-based configuration
-- Apache HTTPS frontend template
-- Shibboleth SP template for the final HTTPS identity
-- systemd unit template
-- repo defaults updated for Apache-fronted deployment
-  - `CodeCritic/appsettings.json` points to the new HTTPS login/logout/callback URLs
-  - `bin/install-service.sh` binds `cc.net` to `127.0.0.1:5000`
-  - `bin/deploy.py` defaults to `127.0.0.1`
+The only remaining blocker for the public cutover is the certificate for:
 
-Verified locally:
+- `code-critic.nti.tul.cz`
 
-- Python files compile with `python3 -m compileall AuthService`
+## What Was Changed In The Repo
 
-## Important architectural conclusion
+The repository now reflects the final intended deployment model:
 
-`cc.net` itself is currently intended to run as a normal host process, not as the main Docker container.
+- Apache is the public frontend on `:443`
+- `cc.net` is an internal upstream on `127.0.0.1:5000`
+- `AuthService` is an internal upstream on `127.0.0.1:8181`
+- Shibboleth SP identity is:
+  - `https://code-critic.nti.tul.cz/shibboleth`
+- public auth URLs are:
+  - `https://code-critic.nti.tul.cz/auth/index.php`
+  - `https://code-critic.nti.tul.cz/secure/`
+  - `https://code-critic.nti.tul.cz/home/login`
+  - `https://code-critic.nti.tul.cz/Shibboleth.sso/Metadata`
 
-Docker is used by `cc.net` for student code execution only.
+Important repo-side updates already made:
 
-Relevant code points:
+- `AuthService` deployment docs and templates were updated from the rejected `:8080` plan to the final HTTPS plan
+- `CodeCritic/appsettings.json` now points to the new HTTPS `LoginUrl`, `LogoutUrl`, and `ReturnUrl`
+- `bin/install-service.sh` now runs `cc.net` on `http://127.0.0.1:5000`
+- `bin/deploy.py` defaults to `127.0.0.1`
+- `AuthService/install_apache_shibbo.sh` now stages the final Apache/Shibboleth config and replaces `ports.conf`
+- TLS request and installation steps were documented in:
+  - [tls-certificate-checklist.md](/home/code-critic/projects/cc.net/docs/tls-certificate-checklist.md:1)
 
-- [CodeCritic/Services/ProcessService.cs](/home/jb/workspace/cc.net/CodeCritic/Services/ProcessService.cs:58)
-- [CodeCritic/Services/Execution/ExecutionCommand.cs](/home/jb/workspace/cc.net/CodeCritic/Services/Execution/ExecutionCommand.cs:30)
-- [bin/install-service.sh](/home/jb/workspace/cc.net/bin/install-service.sh:12)
+## Current Live VM State
 
-## Current live-host objective
+### `AuthService`
 
-The repo now assumes the target live shape is:
+Verified live:
 
-- Apache owns the public HTTPS frontend
-- `cc.net` runs on `127.0.0.1:5000`
-- `AuthService` runs on `127.0.0.1:8181`
-- Shibboleth SP is exposed as `https://code-critic.nti.tul.cz/shibboleth`
+- `systemd` unit is installed and enabled
+- gunicorn is running
+- bind address:
+  - `127.0.0.1:8181`
+- health endpoint:
+  - `curl http://127.0.0.1:8181/health`
+  - returned `{"errors":[],"status":"ok"}`
 
-The main remaining work is to align the live VM with that repo state.
+Operational conclusion:
 
-## What still needs to be discovered on the host
+- `AuthService` is ready
+- environment config is valid
+- AES key and allowlist config are loaded correctly
 
-1. Which process currently owns ports `80` and `443`
-2. Whether Apache is already installed and usable as the HTTPS frontend
-3. Whether TLS termination is currently local or external
-4. The active published `cc.net` directory
-5. The deployed `AESKey`
-6. Whether the live app config still points to dead `flowdb`
-7. Which certificate source should be used for Apache on `code-critic.nti.tul.cz`
+### `cc.net`
 
-## Commands to run on the live host
+The old direct-public service was replaced with a new deploy from the current branch.
 
-Run these on the live server:
+Verified live:
 
-```bash
-ss -tulpn
-systemctl list-units --type=service | grep -E 'nginx|apache|httpd|caddy|haproxy|traefik|shib'
-systemctl status cc
-systemctl cat cc.service
-docker ps
-readlink -f /home/jan-hybs/.local/bin/cc.latest
-find /etc -maxdepth 3 \( -iname '*nginx*' -o -iname '*caddy*' -o -iname '*shibboleth*' -o -iname '*apache*' \)
-dpkg -l | grep -E 'shibboleth|nginx|apache|caddy|haproxy'
-```
+- active release:
+  - `/home/code-critic/projects/publish/1.2.25/www`
+- `cc.latest` points to:
+  - `/home/code-critic/projects/publish/1.2.25/www/cc.net`
+- `cc.service` runs:
+  - `/home/code-critic/.local/bin/cc.latest --prod true --urls http://127.0.0.1:5000`
+- Kestrel bind:
+  - `127.0.0.1:5000`
+- localhost response works:
+  - `curl -I http://127.0.0.1:5000/`
+  - returned `HTTP/1.1 200 OK`
 
-If the active release path is found, also inspect:
+Socket state after the redeploy:
 
-```bash
-ls -la <active-release-dir>
-sed -n '1,200p' <active-release-dir>/appsettings.json
-sed -n '1,200p' <active-release-dir>/appsettings.secret.json
-```
+- `127.0.0.1:5000` -> `cc.latest`
+- `127.0.0.1:8181` -> `gunicorn`
+- no public app listener on `:80`
+- no listener on `:443` yet
 
-## Files worth copying from the host
+Operational conclusion:
 
-Highest-value files:
+- `cc.net` is now correctly staged behind Apache
+- the risky application move off public `:80` is already done
 
-- active deployed `appsettings.json`
-- active deployed `appsettings.secret.json`
+### Apache and Shibboleth
+
+What was true before the latest staging:
+
+- Apache was still configured only for the old temporary auth listener on `:8080`
+- `/etc/apache2/ports.conf` contained only:
+  - `Listen 8080`
+- `/etc/apache2/sites-available/code-critic-auth.conf` was still the old temporary auth-only vhost
+- `/etc/shibboleth/shibboleth2.xml` still used:
+  - `http://code-critic.nti.tul.cz:8080/shibboleth`
+
+What is true now after running `AuthService/install_apache_shibbo.sh`:
+
+- `/etc/apache2/ports.conf` now contains:
+  - `Listen 443`
+- `/etc/apache2/sites-available/code-critic-auth.conf` is now the final HTTPS vhost
+- `/etc/shibboleth/shibboleth2.xml` is now the final HTTPS SP config
+- Shibboleth SP identity is now:
+  - `https://code-critic.nti.tul.cz/shibboleth`
+- `shibd` is running successfully with the new config
+
+Apache state now:
+
+- Apache is not usable yet because the certificate files do not exist:
+  - `/etc/ssl/certs/code-critic.nti.tul.cz.crt`
+  - `/etc/ssl/private/code-critic.nti.tul.cz.key`
+- `apache2ctl` currently fails exactly on that missing certificate
+
+Operational conclusion:
+
+- Apache/Shibboleth file staging is done
+- the remaining blocker is only TLS certificate installation
+
+## Certificate Status
+
+The old `flowdb` certificate cannot be reused.
+
+Recovered evidence showed:
+
+- it covered:
+  - `temata.fm.tul.cz`
+  - `alva.nti.tul.cz`
+  - `flowdb.nti.tul.cz`
+- it did not cover:
+  - `code-critic.nti.tul.cz`
+- it expired on:
+  - `2024-04-19`
+
+A new certificate request for `code-critic.nti.tul.cz` has already been submitted through the TCS/CESNET flow.
+
+The repeatable request/install procedure is documented in:
+
+- [tls-certificate-checklist.md](/home/code-critic/projects/cc.net/docs/tls-certificate-checklist.md:1)
+
+## Current Effective Architecture
+
+This is now the real target shape and is already mostly staged on the VM:
+
+- browser -> Apache `:443`
+- Apache -> `cc.net` on `127.0.0.1:5000`
+- Apache -> `AuthService` on `127.0.0.1:8181`
+- Apache + `mod_shib` own `/Shibboleth.sso/...`
+- `AuthService` generates the encrypted callback token
+- `cc.net` consumes `/home/login/<token>` and creates the local session
+
+## Important Context To Preserve
+
+### Why the old `:8080` plan was abandoned
+
+The temporary SP identity:
+
+- `http://code-critic.nti.tul.cz:8080/shibboleth`
+
+was implemented and verified locally up to the IdP boundary, but it was rejected for production registration because the federation-facing frontend must be secured.
+
+That is why the work pivoted to:
+
+- `https://code-critic.nti.tul.cz/shibboleth`
+
+### Why `AuthService` exists
+
+`cc.net` does not implement Shibboleth directly.
+
+It still expects the historical bridge pattern:
+
+1. external auth bridge authenticates the user
+2. bridge builds payload:
+   - `eppn`
+   - `affiliation`
+   - `datetime`
+3. bridge encrypts it with the shared AES key
+4. browser is redirected to:
+   - `/home/login/<token>`
+5. `cc.net` decrypts the token and creates the local session
+
+The crypto compatibility target is current `.NET` behavior, not the old PHP/Python implementation.
+
+### Important implementation detail discovered during redeploy
+
+`dotnet publish` alone was not enough for this codebase because the SPA build expected generated CSS files such as:
+
+- `_client/src/styles/boot.css`
+
+Those files are produced by:
+
+- `npm run build-css`
+
+The successful local release flow was:
+
+1. generate CSS:
+   - `npm run build-css`
+2. publish:
+   - `env DOTNET_CLI_HOME=/tmp dotnet publish -c Release -o /home/code-critic/projects/publish/1.2.25/www --no-restore`
+
+Also note:
+
+- publishing from the current branch was necessary
+- the old `bin/deploy.py` download-from-GitHub behavior would not have been safe for this cutover
+
+## Remaining Blocker
+
+The only real blocker now is:
+
+- final TLS certificate installation for `code-critic.nti.tul.cz`
+
+Until the files below exist, Apache cannot start with the final vhost:
+
+- `/etc/ssl/certs/code-critic.nti.tul.cz.crt`
+- `/etc/ssl/private/code-critic.nti.tul.cz.key`
+
+Optional if a separate chain file is needed:
+
+- `/etc/ssl/certs/code-critic.nti.tul.cz-chain.crt`
+
+## Exact Next Step When The Certificate Arrives
+
+1. install the certificate and key into:
+   - `/etc/ssl/certs/code-critic.nti.tul.cz.crt`
+   - `/etc/ssl/private/code-critic.nti.tul.cz.key`
+2. if needed, install the separate chain file:
+   - `/etc/ssl/certs/code-critic.nti.tul.cz-chain.crt`
+3. enable the Apache site:
+   - `sudo a2ensite code-critic-auth`
+4. validate config:
+   - `sudo apache2ctl configtest`
+5. restart Apache:
+   - `sudo systemctl restart apache2`
+6. verify:
+   - `curl -k https://127.0.0.1/Shibboleth.sso/Metadata -H 'Host: code-critic.nti.tul.cz'`
+   - `curl -k https://127.0.0.1/auth/debug/ -H 'Host: code-critic.nti.tul.cz'`
+   - browser access to `https://code-critic.nti.tul.cz`
+
+## Files Most Relevant For Continuation
+
+Repo files:
+
+- [cc_shibbo_plan.md](/home/code-critic/projects/cc.net/cc_shibbo_plan.md:1)
+- [AuthService/install_apache_shibbo.sh](/home/code-critic/projects/cc.net/AuthService/install_apache_shibbo.sh:1)
+- [AuthService/apache/code-critic-auth.conf](/home/code-critic/projects/cc.net/AuthService/apache/code-critic-auth.conf:1)
+- [AuthService/shibboleth/shibboleth2.xml](/home/code-critic/projects/cc.net/AuthService/shibboleth/shibboleth2.xml:1)
+- [tls-certificate-checklist.md](/home/code-critic/projects/cc.net/docs/tls-certificate-checklist.md:1)
+- [bin/install-service.sh](/home/code-critic/projects/cc.net/bin/install-service.sh:1)
+
+Live VM files already staged:
+
+- `/etc/apache2/ports.conf`
+- `/etc/apache2/sites-available/code-critic-auth.conf`
+- `/etc/shibboleth/shibboleth2.xml`
+- `/etc/code-critic/authservice.env`
+- `/etc/systemd/system/authservice.service`
 - `/etc/systemd/system/cc.service`
-- frontend web server config
-- any Shibboleth configuration if present
 
-Likely useful paths:
+## Final Short Handoff
 
-- `/home/jan-hybs/.local/bin/cc.latest`
-- `/home/jan-hybs/projects/cc/publish/`
-- `/etc/systemd/system/cc.service`
-- `/etc/nginx/`
-- `/etc/caddy/`
-- `/etc/shibboleth/`
+If resuming later, the shortest accurate summary is:
 
-## URL assumption for same-host deployment
-
-For the current target deployment, the recommended public URLs are:
-
-- `https://<public-host>/auth/index.php`
-- `https://<public-host>/secure/`
-- `https://<public-host>/home/login`
-- `https://<public-host>/Shibboleth.sso/Metadata`
-
-The internal services should still listen only on localhost, for example:
-
-- `127.0.0.1:5000` for `cc.net`
-- `127.0.0.1:8181`
-
-So the browser-facing URL is public, but both application processes stay local behind Apache.
-
-## Federation note
-
-TUL being an identity provider in `eduID.cz` does not automatically make the new service provider trusted.
-
-One of these will still be required:
-
-- registering the new SP in federation metadata
-- or having TUL identity administrators explicitly trust/import the SP metadata
-
-This is still unresolved and needs confirmation from the TUL Shibboleth administrators.
-
-## Remaining code work after host inspection
-
-Once the live host details are known, the next steps are:
-
-1. Install or adapt Apache as the public HTTPS frontend
-2. Move the live `cc.net` service to `127.0.0.1:5000`
-3. Fill in deployment-only environment file with `AESKey`
-4. Install the Shibboleth SP on the HTTPS frontend
-5. Update live `LoginUrl`, `LogoutUrl`, and `ReturnUrl` to the HTTPS values
-6. Validate metadata and `/auth/debug/` independently
-
-## User-provided information already known
-
-- contact email: `jan.brezina@tul.cz`
-- `AESKey` must remain deployment-only
-- target intent: deploy `AuthService` on the same server as `cc.net`
+- `AuthService` works on `127.0.0.1:8181`
+- `cc.net` works on `127.0.0.1:5000`
+- final Apache and Shibboleth config is already staged on the VM
+- `shibd` is running with the final HTTPS SP identity
+- Apache is intentionally down because the TLS cert is missing
+- the next action is to install the cert for `code-critic.nti.tul.cz` and start Apache
