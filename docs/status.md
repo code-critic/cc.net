@@ -17,9 +17,27 @@ The current state is:
 - public Shibboleth metadata works
 - protected AuthService routes redirect to the TUL IdP as expected
 
-The remaining work is no longer TLS installation. The next operational step is federation/SP metadata review and registration for:
+The remaining work is no longer TLS installation or initial federation/SP registration.
+The SP has been registered with the TUL IdP and login now returns to the local SP.
+
+The latest post-registration blocker was:
+
+- after successful IdP login, `AuthService` returned `missing_attributes` from
+  `auth_service/app.py`
+- live Shibboleth logs showed TUL was sending `eppn` and
+  `eduPersonScopedAffiliation`
+- the local Shibboleth SP package default `/etc/shibboleth/attribute-policy.xml`
+  filtered those values out before Apache could forward them
+
+The repo now includes an AuthService-specific attribute policy for:
 
 - `https://code-critic.nti.tul.cz/shibboleth`
+
+and `install_apache_shibbo.sh` installs it to:
+
+- `/etc/shibboleth/attribute-policy.xml`
+
+The policy was staged live and `shibd` was restarted on 2026-04-27.
 
 ## What Was Changed In The Repo
 
@@ -248,16 +266,21 @@ Also note:
 
 There is no longer a TLS blocker.
 
+Initial IdP registration has been completed.
+
 Remaining operational work:
 
-1. review the generated SP metadata
-2. provide/register SP metadata for:
-   - `https://code-critic.nti.tul.cz/shibboleth`
-3. confirm IdP/federation acceptance
-4. perform an end-to-end login test through:
+1. perform a fresh end-to-end login test through:
    - `https://code-critic.nti.tul.cz/auth/debug/`
    - `https://code-critic.nti.tul.cz/secure/`
    - `https://code-critic.nti.tul.cz/home/login`
+2. confirm the Shibboleth transaction log now caches:
+   - `eppn`
+   - `affiliation`
+   - `mail`
+   - `displayName`
+3. confirm `AuthService` redirects to:
+   - `https://code-critic.nti.tul.cz/home/login/<token>`
 
 The generated Shibboleth metadata endpoint is:
 
@@ -330,4 +353,11 @@ If resuming later, the shortest accurate summary is:
 - `shibd` is running with the final HTTPS SP identity
 - Shibboleth metadata works at `https://code-critic.nti.tul.cz/Shibboleth.sso/Metadata`
 - protected AuthService routes redirect to the TUL IdP
-- the next action is SP metadata review/registration and then an end-to-end login test
+- the SP is registered with the TUL IdP
+- after registration, Shibboleth login reached `AuthService` but returned
+  `missing_attributes`
+- live Shibboleth logs showed the package default attribute policy was deleting
+  TUL's `eppn` and `affiliation`
+- `AuthService/shibboleth/attribute-policy.xml` was added, installed to
+  `/etc/shibboleth/attribute-policy.xml`, and `shibd` was restarted
+- the next action is a fresh end-to-end login test and transaction-log check

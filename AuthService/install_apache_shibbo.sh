@@ -82,6 +82,7 @@ sudo install -m 644 "$APACHE_PORTS_SOURCE" "$APACHE_PORTS_TARGET"
 sudo install -m 644 "$APACHE_SERVERNAME_SOURCE" "$APACHE_SERVERNAME_TARGET"
 sudo install -m 644 "$SHIB_SOURCE_DIR/shibboleth2.xml" "$SHIB_DIR/shibboleth2.xml"
 sudo install -m 644 "$SHIB_SOURCE_DIR/attribute-map.xml" "$SHIB_DIR/attribute-map.xml"
+sudo install -m 644 "$SHIB_SOURCE_DIR/attribute-policy.xml" "$SHIB_DIR/attribute-policy.xml"
 sudo install -m 644 "$SHIB_SOURCE_DIR/metadata-template.xml" "$SHIB_DIR/metadata-template.xml"
 
 if ! sudo test -f "$SHIB_DIR/sp-key.pem" || ! sudo test -f "$SHIB_DIR/sp-cert.pem"; then
