@@ -234,10 +234,7 @@ namespace CC.Net.Services
         public void CopyToDocker()
         {
             // copy tmp to docker
-            if (Context.Id == Guid.Empty.ToString())
-            {
-                ProcessUtils.Popen($"docker exec --user root {ProcessService.ContainerName} rm -rf {Context.DockerTmpWorkdir}");
-            }
+            ProcessUtils.Popen($"docker exec --user root {ProcessService.ContainerName} rm -rf {Context.DockerTmpWorkdir}");
 
             var cpCommand = $"docker cp \"{Context.TmpDir.Root}\" \"{ProcessService.ContainerName}:{Context.DockerTmpWorkdir}\"";
             ProcessUtils.Popen(cpCommand);

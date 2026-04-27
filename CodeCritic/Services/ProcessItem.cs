@@ -68,7 +68,8 @@ namespace CC.Net.Services
             Context = new CourseContext(
                 _courseService,
                 _languageService,
-                Item
+                Item,
+                Item.ObjectId
             );
 
             _matlabServer.Initialize(ProcessService.ContainerName);
