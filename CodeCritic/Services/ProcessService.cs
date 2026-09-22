@@ -147,6 +147,24 @@ namespace CC.Net.Services
                     catch (Exception ex)
                     {
                         _logger.LogError(ex, "Error while processing solution {Item}", item.ToString());
+                        item.Result ??= new CcDataResult();
+                        item.Result.SetStatus(ProcessStatus.ErrorWhileRunning);
+                        item.Result.Message = ex.Message;
+                        item.Result.Messages = ex.ToString().SplitLines();
+                        item.Results?
+                            .Where(i => i.Status == ProcessStatus.InQueue.Value || i.Status == ProcessStatus.Running.Value)
+                            .ToList()
+                            .ForEach(i => i.SetStatus(ProcessStatus.ErrorWhileRunning));
+
+                        try
+                        {
+                            await SaveResultOrDoNothing(dbService, item);
+                        }
+                        catch (Exception saveEx)
+                        {
+                            _logger.LogError(saveEx, "Error while saving failed item {Item}", item.ToString());
+                        }
+
                         continue;
                     }
                     finally

@@ -1,0 +1,356 @@
+# AuthService
+
+Minimal Python sidecar that replaces the old external `flowdb` login bridge for `cc.net`.
+
+It is designed to run on the same VM as `cc.net` and sit behind Apache + Shibboleth SP:
+
+1. Apache protects `/auth/index.php` with Shibboleth.
+2. Apache forwards a small set of trusted identity headers to this app.
+3. This app builds the JSON payload expected by `cc.net`.
+4. This app encrypts the payload using the shared `AESKey`.
+5. This app redirects the user to `cc.net` callback:
+   `https://code-critic.example.org/home/login/<token>`
+
+## Why this exists
+
+`cc.net` does not implement Shibboleth directly. It only expects an encrypted callback token. The relevant code is:
+
+- [CodeCritic/Controllers/HomeController.cs](/home/jb/workspace/cc.net/CodeCritic/Controllers/HomeController.cs:48)
+- [CodeCritic/Services/CryptoService.cs](/home/jb/workspace/cc.net/CodeCritic/Services/CryptoService.cs:118)
+
+## Implemented here
+
+- Flask application with routes:
+  - `GET /auth/index.php`
+  - `GET /auth/debug/`
+  - `GET /secure/`
+  - `GET /health`
+- AES-CBC encryption compatible with the current `.NET` code
+- strict allowlist for `returnurl`
+- browser debug page for Shibboleth attribute and token inspection
+- CLI helper for decrypting generated tokens
+- Apache reverse-proxy template
+- Shibboleth SP config template for eduID.cz federation
+- systemd unit template
+- environment file template without secrets
+
+## Layout
+
+- `auth_service/`
+  - application code
+- `apache/`
+  - Apache vhost snippet
+- `shibboleth/`
+  - SP templates
+- `systemd/`
+  - service unit
+
+## Deployment model
+
+The current recovery deployment is:
+
+- Apache + Shibboleth SP on public `:443`
+- `cc.net` behind Apache on `127.0.0.1:5000`
+- `AuthService` on `127.0.0.1:8181`
+- callback back to `https://code-critic.nti.tul.cz/home/login`
+
+This keeps the application auth contract unchanged while moving the public frontend onto Apache.
+
+The Shibboleth SP uses the TUL IdP directly instead of the eduID discovery service. This matches the old `flowdb` deployment more closely and avoids introducing discovery-service behavior while the login recovery is being restored.
+
+For the same reason, the SP also uses the TUL metadata source directly:
+
+- `https://shibbo.tul.cz/metadata/tul-metadata.xml`
+
+### SP identity
+
+The active SP identity is:
+
+- `https://code-critic.nti.tul.cz/shibboleth`
+
+The live Shibboleth metadata exposed by the VM must therefore use that same HTTPS identity.
+
+## Configuration
+
+Copy `.env.example` to a deployment-only environment file, for example:
+
+- `/etc/code-critic/authservice.env`
+
+Key settings:
+
+- `AUTHSERVICE_AES_KEY`
+- `AUTHSERVICE_ALLOWED_RETURN_URLS`
+- `AUTHSERVICE_DEFAULT_RETURN_URL`
+- `AUTHSERVICE_SUPPORT_EMAIL`
+
+The AES key must be the same value currently used by `cc.net` in deployed `appsettings.secret.json`.
+
+### What `AUTHSERVICE_AES_KEY` is for
+
+`AUTHSERVICE_AES_KEY` is the shared secret used to encrypt the auth payload that `cc.net` receives on:
+
+- `/home/login/<token>`
+
+It is not a new independent secret for the bridge. For this migration it must exactly match the AES key already used by the deployed `cc.net` instance, otherwise:
+
+- `AuthService` will generate tokens
+- `cc.net` will fail to decrypt them
+- login will break even if Shibboleth succeeds
+
+Current deployment evidence shows the existing `cc.net` key is stored in:
+
+- `projects/publish/1.2.24/www/appsettings.secret.json`
+
+For this recovery deployment, that same value should be copied into:
+
+- `/etc/code-critic/authservice.env`
+
+Do not generate a fresh key for this migration unless you also rotate `cc.net` to use the same new key at the same time.
+
+If you ever do need to generate a replacement key in the future, it must be:
+
+- ASCII only
+- 16, 24, or 32 bytes long
+
+but again, for the current recovery work the correct source is the existing deployed `cc.net` secret.
+
+## Installation on the VM
+
+The repository contains a helper script that installs `AuthService` into the agreed publish path, creates the Python virtual environment, installs dependencies, installs the `systemd` unit, and optionally starts the service.
+
+The script always reads the release version from:
+
+- `AuthService/version`
+
+### Install or update the release
+
+```bash
+cd /home/code-critic/projects/cc.net/AuthService
+bash install_authservice.sh
+```
+
+This creates:
+
+- versioned release directory:
+  - `/home/code-critic/projects/publish/AuthService-<version>`
+- stable active path:
+  - `/home/code-critic/projects/publish/AuthService`
+- environment file if missing:
+  - `/etc/code-critic/authservice.env`
+- systemd unit:
+  - `/etc/systemd/system/authservice.service`
+
+### Edit the environment file
+
+```bash
+sudoedit /etc/code-critic/authservice.env
+```
+
+At minimum set:
+
+```dotenv
+AUTHSERVICE_AES_KEY=XXXXXXXXXXXXXXXXXXXXXXXX
+AUTHSERVICE_ALLOWED_RETURN_URLS=https://code-critic.nti.tul.cz/home/login
+AUTHSERVICE_DEFAULT_RETURN_URL=https://code-critic.nti.tul.cz/home/login
+AUTHSERVICE_SUPPORT_EMAIL=pavel.exner@tul.cz
+```
+
+### Start the service
+
+```bash
+cd /home/code-critic/projects/cc.net/AuthService
+bash install_authservice.sh --start
+```
+
+### Useful checks
+
+```bash
+sudo systemctl status authservice --no-pager
+curl http://127.0.0.1:8181/health
+```
+
+## Apache and Shibboleth HTTPS setup
+
+Once `AuthService` is healthy on `127.0.0.1:8181`, install the Apache + Shibboleth HTTPS frontend.
+
+Prerequisites on the VM:
+
+- Apache installed
+- Shibboleth SP installed
+- `/etc/apache2`
+- `/etc/shibboleth`
+
+Can be installed by:
+```bash
+sudo apt install apache2 shibboleth-sp-common shibboleth-sp-utils libapache2-mod-shib
+```
+
+The repository contains a helper script:
+
+- `AuthService/install_apache_shibbo_phase1.sh`
+
+It will:
+
+- install the Apache auth vhost to:
+  - `/etc/apache2/sites-available/code-critic-auth.conf`
+- install a global Apache `ServerName` snippet:
+  - `/etc/apache2/conf-available/code-critic-servername.conf`
+- install the Shibboleth templates into:
+  - `/etc/shibboleth/shibboleth2.xml`
+  - `/etc/shibboleth/attribute-map.xml`
+  - `/etc/shibboleth/metadata-template.xml`
+- generate the SP keypair if missing:
+  - `/etc/shibboleth/sp-key.pem`
+  - `/etc/shibboleth/sp-cert.pem`
+- enable required Apache modules:
+  - `headers`
+  - `proxy`
+  - `proxy_http`
+  - `shib`
+- `ssl`
+- enable the Apache site
+- run `apache2ctl configtest`
+- restart `shibd`
+- restart `apache2`
+
+Run it with:
+
+```bash
+cd /home/code-critic/projects/cc.net/AuthService
+bash install_apache_shibbo_phase1.sh
+```
+
+Useful checks after installation:
+
+```bash
+sudo systemctl status apache2 --no-pager
+sudo systemctl status shibd --no-pager
+curl http://127.0.0.1:8181/health
+```
+
+Useful metadata checks:
+
+```bash
+curl -k https://127.0.0.1/Shibboleth.sso/Metadata -H 'Host: code-critic.nti.tul.cz'
+```
+
+The generated metadata should contain:
+
+- entity ID:
+  - `https://code-critic.nti.tul.cz/shibboleth`
+- ACS / login handler endpoints under:
+  - `https://code-critic.nti.tul.cz/Shibboleth.sso/...`
+
+## Expected Shibboleth attributes
+
+The app expects Apache to pass:
+
+- `X-Remote-Eppn`
+- `X-Remote-Affiliation`
+
+Optional:
+
+- `X-Remote-Display-Name`
+- `X-Remote-Identity-Provider`
+
+`X-Remote-Affiliation` should contain scoped affiliations such as:
+
+- `member@tul.cz;employee@tul.cz;student@tul.cz`
+
+That matches the current `cc.net` payload model better than plain `eduPersonAffiliation`.
+
+## Independent bridge testing
+
+To verify Shibboleth and token generation without involving `cc.net`:
+
+- open `/auth/debug/` behind Shibboleth
+  - shows received Shibboleth attributes
+  - shows the encrypted token
+  - shows the decrypted payload again for visual inspection
+  - accepts an optional `returnurl` query parameter and shows the final callback URL
+- run the CLI helper:
+
+```bash
+python3 decrypt_token.py '<token>'
+```
+
+If `AUTHSERVICE_AES_KEY` is not loaded in the shell environment, you can override it:
+
+```bash
+python3 decrypt_token.py '<token>' --aes-key '<AUTHSERVICE_AES_KEY>'
+```
+
+For the current browser flow, the intended URLs are:
+
+- auth login entrypoint:
+  - `https://code-critic.nti.tul.cz/auth/index.php`
+- auth debug page:
+  - `https://code-critic.nti.tul.cz/auth/debug/`
+- auth logout landing page:
+  - `https://code-critic.nti.tul.cz/secure/`
+- `cc.net` callback:
+  - `https://code-critic.nti.tul.cz/home/login`
+
+## Online references used
+
+These templates are based on:
+
+- eduID.cz technical overview:
+  - https://www.eduid.cz/en/tech/summary
+- eduID.cz Shibboleth SP guide:
+  - https://www.eduid.cz/cs/tech/sp/shibboleth
+- eduID.cz metadata publication:
+  - https://www.eduid.cz/en/tech/metadata-publication
+- TUL public site for organization details:
+  - https://www.tul.cz/
+
+Inference:
+
+- I did not find a public TUL-specific Shibboleth SP guide.
+- The federation-facing templates therefore use standard eduID.cz SP configuration and TUL organization placeholders.
+- The final entity registration and attribute release still need confirmation from TUL or federation administrators.
+
+## Information still needed from you
+
+1. Public hostname for the new auth endpoint.
+   Current working decision:
+   - `code-critic.nti.tul.cz`
+
+2. Canonical callback URL to allow.
+   Current working decision:
+   - `https://code-critic.nti.tul.cz/home/login`
+
+3. Contact email to publish in SP metadata.
+   Current working decision:
+   - `pavel.exner@tul.cz`
+
+4. Whether the service should be registered in `eduID.cz` federation.
+   Current template talks directly to the TUL IdP instead.
+
+5. Whether TUL requires a particular IdP selection flow.
+   Current template uses direct TUL IdP login.
+
+6. Whether TUL releases `eduPersonPrincipalName` and `eduPersonScopedAffiliation` to new SPs by default.
+
+7. Paths where you want the deployed files installed on the VM.
+   Current working decision:
+   - `/home/code-critic/projects/publish/AuthService`
+   - `/etc/code-critic/authservice.env`
+   - `/etc/shibboleth/*`
+
+8. Which Unix user should run the service.
+   Current working decision:
+   - `code-critic`
+
+9. Which SP entity ID should be used.
+   Current working decision:
+   - `https://code-critic.nti.tul.cz/shibboleth`
+
+## Notes
+
+- No secrets are committed here.
+- No Shibboleth keys or certs are generated in the repository.
+- Backend access should remain bound to localhost only.
+- The active templates target the HTTPS frontend on `https://code-critic.nti.tul.cz`.
+- `cc.net` is expected to run internally behind Apache, typically on `127.0.0.1:5000`.
+- `AuthService` remains bound to localhost only.
