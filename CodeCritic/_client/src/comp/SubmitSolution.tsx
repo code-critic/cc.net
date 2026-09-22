@@ -75,7 +75,9 @@ export const SubmitSolutionImpl = (props: SubmitSolutionProps) => {
 
     useEffect(() => {
         const MathJax = (window as any).MathJax;
-        if (MathJax && MathJax.typeset) {
+        if (MathJax && MathJax.typesetPromise) {
+            MathJax.typesetPromise().catch((err: unknown) => console.warn('MathJax typeset failed', err));
+        } else if (MathJax && MathJax.typeset) {
             MathJax.typeset();
         }
     });
@@ -215,4 +217,3 @@ export const SubmitSolutionImpl = (props: SubmitSolutionProps) => {
         </div>}
     </div>)
 }
-
