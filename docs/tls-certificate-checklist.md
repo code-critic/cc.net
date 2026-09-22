@@ -65,6 +65,23 @@ Reason:
 - the private key can stay under local administrator control
 - it is a good fit for the first HTTPS rollout
 
+
+## Step 0: TLS certificate renovation after expiration
+
+- go to `~/tls-code-critic`
+- keep the private key: `code-critic.nti.tul.cz.key`
+- recreate CSR request:
+```bash
+openssl req -new \
+  -key code-critic.nti.tul.cz.key \
+  -out code-critic.nti.tul.cz.csr \
+  -subj "/C=CZ/O=Technicka univerzita v Liberci/CN=code-critic.nti.tul.cz"
+```
+- send a one-time request at https://pki.cesnet.cz/cs/guide-server-tcs-main.html
+- copy the certificate, keep originals
+- restart apache, restart cc
+
+
 ## Step 1: Prepare a safe working directory
 
 Run on a secure administrator machine or directly on the target VM:
@@ -107,7 +124,7 @@ Create the certificate signing request:
 openssl req -new \
   -key code-critic.nti.tul.cz.key \
   -out code-critic.nti.tul.cz.csr \
-  -subj "/C=CZ/O=Technická univerzita v Liberci/CN=code-critic.nti.tul.cz"
+  -subj "/C=CZ/O=Technicka univerzita v Liberci/CN=code-critic.nti.tul.cz"
 ```
 
 Expected result:
